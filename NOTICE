@@ -1,0 +1,21 @@
+TreLVis
+Copyright (c) 2026 Timothy Mitchell
+Licensed under the MIT License (see LICENSE).
+
+This file lists third-party material included in this repository, with its
+licence. Licence texts are kept next to the material they cover.
+
+Third-party material
+--------------------
+
+None at present.
+
+Not included, but referenced
+----------------------------
+
+- LVGL (https://github.com/lvgl/lvgl), MIT License. TreLVis links against
+  LVGL but does not include it; consuming projects provide it. The test and
+  simulator builds fetch it at build time.
+- Material Design 3 (https://m3.material.io) is a design system by Google.
+  TreLVis implements its publicly documented token structure and baseline
+  values; it does not include Material Design assets.

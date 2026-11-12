@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: MIT
+# Early warning: build against LVGL master (v10 development). Doesn't gate
+# merges; a failure flags an upcoming LVGL change to prepare for.
+name: Nightly (LVGL master)
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build (${{ matrix.cc }}, LVGL master)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { cc: gcc,   cxx: g++ }
+          - { cc: clang, cxx: clang++ }
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+      # Master reports itself as LVGL 10, which TreLVis doesn't support yet.
+      CFLAGS: -DTRLV_IGNORE_LVGL_VERSION=1
+      CXXFLAGS: -DTRLV_IGNORE_LVGL_VERSION=1
+    steps:
+      - uses: actions/checkout@v7
+      - run: |
+          cmake -B build -DTRLV_LVGL_GIT_TAG=master
+          cmake --build build --parallel

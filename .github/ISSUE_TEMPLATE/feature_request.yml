@@ -1,0 +1,24 @@
+name: Feature request
+description: Suggest an improvement or a new primitive / modifier.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        TreLVis is a utility layer, not a framework. Please check the scope in CONTRIBUTING.md and the "Not planned" list in ROADMAP.md first.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do?
+      description: The design or code you want to express, ideally with its Figma / CSS equivalent.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed API or behaviour
+      render: c
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: How do you do it today with raw LVGL?

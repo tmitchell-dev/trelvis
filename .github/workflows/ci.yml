@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: MIT
+# Blocking checks for pull requests and main. Also called by release.yml.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build (${{ matrix.cc }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { cc: gcc,   cxx: g++ }
+          - { cc: clang, cxx: clang++ }
+    env:
+      CC: ${{ matrix.cc }}
+      CXX: ${{ matrix.cxx }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: No direct allocation in library code
+        run: |
+          if grep -rnE '\b(malloc|calloc|realloc|free|lv_malloc|lv_malloc_zeroed|lv_calloc|lv_zalloc|lv_realloc|lv_free|lv_strdup)\s*\(' src include; then
+            echo "::error::Library code must not allocate directly (see above)"; exit 1
+          fi
+
+      - name: SPDX headers
+        run: |
+          missing=$(git ls-files '*.c' '*.h' '*.cpp' | xargs grep -L 'SPDX-License-Identifier: MIT' || true)
+          if [ -n "$missing" ]; then echo "::error::Missing SPDX header: $missing"; exit 1; fi
+
+      # Fetches LVGL v9.6, builds the library and the C++17 include test with -Werror.
+      - name: CMake build
+        run: |
+          cmake -B build
+          cmake --build build --parallel
+
+      # Proves src/ + include/ alone is enough (STM32CubeIDE-style builds).
+      - name: Build without CMake
+        run: |
+          $CC -std=c99 -Wall -Wextra -Wpedantic -Werror -fsyntax-only \
+              -Iinclude -isystem build/_deps/lvgl-src/include -DLV_CONF_SKIP src/*.c

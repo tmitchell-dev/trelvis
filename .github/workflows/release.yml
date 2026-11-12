@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: MIT
+# On a version tag (vX.Y.Z): run CI, check the tag matches trlv_version.h
+# (CMake reads its version from there too), and publish a GitHub Release
+# with that version's CHANGELOG section. The only workflow with write access.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: ci
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(sed -n 's/^#define TRLV_VERSION_STRING *"\(.*\)"/\1/p' include/trelvis/trlv_version.h)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match trlv_version.h ($version)"; exit 1
+          fi
+
+          # The "## [X.Y.Z]" section of CHANGELOG.md, up to the next heading
+          awk -v v="$version" '
+            index($0, "## [" v "]") == 1 { found = 1; next }
+            found && /^(## |\[)/         { exit }
+            found                        { print }
+          ' CHANGELOG.md > notes.md
+          if ! grep -q '[^[:space:]]' notes.md; then
+            echo "::error::CHANGELOG.md has no '## [$version]' section"; exit 1
+          fi
+
+          gh release create "$GITHUB_REF_NAME" --verify-tag --title "TreLVis $version" --notes-file notes.md
