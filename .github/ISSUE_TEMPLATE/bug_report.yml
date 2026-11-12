@@ -1,0 +1,40 @@
+name: Bug report
+description: Something in TreLVis doesn't work as documented.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. For security issues, please follow SECURITY.md instead of opening an issue.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you expected, and what happened instead. Screenshots help for visual issues.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Minimal code to reproduce
+      render: c
+    validations:
+      required: true
+  - type: input
+    id: trelvis-version
+    attributes:
+      label: TreLVis version or commit
+    validations:
+      required: true
+  - type: input
+    id: lvgl-version
+    attributes:
+      label: LVGL version
+      placeholder: "9.6.0"
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform, compiler and build system
+      placeholder: "e.g. Linux SDL simulator, GCC 14, CMake / STM32H7, arm-none-eabi-gcc, CubeIDE"
