@@ -5,7 +5,7 @@ request (`m<N>-<topic>`).
 
 | # | Milestone | Status |
 |---|---|---|
-| 1 | **Scaffold**: repository structure, CMake target, `trelvis.mk`, configuration mechanism, version header and LVGL version check, changelog, NOTICE, SPDX headers, CI (ci / nightly / release workflows, Dependabot), C++ include test. Placeholder headers that compile. | in progress |
+| 1 | **Scaffold**: repository structure, CMake target, `trelvis.mk`, configuration mechanism, version header and LVGL version check, changelog, NOTICE, SPDX headers, CI (ci / weekly / release workflows, Dependabot), C++ include test. Placeholder headers that compile. | in progress |
 | 2 | **API review**: full public headers with doc comments and mapping tables. The API is reviewed before implementation starts. | next |
 | 3 | **Tokens, styles, theme**: `trlv_init`, constant and token styles, MD3 theme over the default parent theme, widget coverage, state layers, focus ring, colour-mode switching, line-height conversion. | |
 | 4 | **Primitives and modifiers v1**: constructors, layout modifiers incl. axis-aware fill, surfaces, cards, button variants, text roles, `trlv_page`. | |
@@ -49,7 +49,7 @@ request (`m<N>-<topic>`).
   the same token structs.
 - **Responsive helpers:** e.g. switching between row and column by layout mode.
 - **LVGL v10:** TreLVis already follows v10 forward-compatibility rules and
-  builds nightly against LVGL master. If the move changes the TreLVis API, it
+  builds weekly against LVGL master. If the move changes the TreLVis API, it
   becomes a new major version, with an LVGL 9 maintenance branch if needed.
 
 ## Related project: `trelvis-starter`

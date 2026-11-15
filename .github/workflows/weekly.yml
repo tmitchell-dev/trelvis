@@ -1,11 +1,11 @@
 # SPDX-License-Identifier: MIT
 # Early warning: build against LVGL master (v10 development). Doesn't gate
 # merges; a failure flags an upcoming LVGL change to prepare for.
-name: Nightly (LVGL master)
+name: Weekly (LVGL master)
 
 on:
   schedule:
-    - cron: "17 3 * * *"
+    - cron: "17 3 * * 1"
   workflow_dispatch:
 
 permissions:
