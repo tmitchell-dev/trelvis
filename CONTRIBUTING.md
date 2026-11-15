@@ -12,18 +12,37 @@ agree on the approach before you write code.
 TreLVis is a **utility layer, not a framework**. Before proposing a feature,
 check it fits:
 
-**In scope:** layout primitives and modifiers (Figma auto layout / CSS flexbox
-and grid), Material Design 3 token *types*, an MD3 theme for LVGL's built-in
-widgets using LVGL's theme and style engine, surfaces, cards, text roles, and
-documentation for the Figma hand-off.
+**In scope:** layout primitives and modifiers (Figma auto layout / CSS
+flexbox), Material Design 3 token *types* and a token template projects copy,
+an MD3 theme for LVGL's built-in widgets using LVGL's theme and style engine,
+surfaces, cards, text roles, and documentation for the Figma hand-off.
+
+**What earns a place.** TreLVis stays small on purpose. Its main job is to
+turn the blocks of LVGL calls that every project repeats into one standard
+call. A new public function must do at least one of these:
+
+- replace a block of LVGL calls that projects repeat, so it is written once
+  and the same way everywhere;
+- take a design token, so screens hold no magic numbers;
+- fix an LVGL default that surprises people coming from Figma or CSS;
+- make a decision LVGL leaves to the caller (for example axis-aware fill).
+
+A function that only renames a single clear LVGL call does not qualify.
+Nothing may surprise someone who knows LVGL: where TreLVis has no reason to
+differ, LVGL's natural behaviour stands, and deliberate differences are
+documented on the function.
+Add a row to the mapping table in [docs/concepts.md](docs/concepts.md)
+instead, naming the LVGL call to use.
 
 **Out of scope** (pull requests adding these will be declined):
 
 - Wrapping LVGL widgets, or wrapping LVGL calls that are already clear
-  (`lv_obj_set_size`, `lv_obj_center`, …).
+  (`lv_obj_set_size`, `lv_obj_center`, `lv_obj_set_hidden`,
+  `lv_obj_set_scrollable`, …).
 - Macro DSLs, varargs builders or other "clever" APIs that hide LVGL.
 - `_px` variants of token-based setters. Raw LVGL is the escape hatch.
-- Project-specific content: token *values*, fonts, images, screens, components.
+- Project-specific content: token *values* compiled into the library (they
+  start from the copied template and live in the project), fonts, images, screens, components.
 - A pixel-perfect Material implementation: ripples, MD3 motion specs, MD3
   Expressive, full component specs.
 - Anything that depends on LVGL Pro or its artefacts (XML, `globals.xml`, …).
@@ -161,7 +180,7 @@ See [docs/concepts.md](docs/concepts.md) for the full design.
   Modifiers are **verbs or properties** that work on any object
   (`trlv_justify(obj, …)`).
 - No abbreviations in the public API except LVGL's `pad`: `trlv_column`,
-  `trlv_fill_width`, `trlv_min_height`.
+  `trlv_fill_width`, `trlv_align_items`.
 - Enum values are fully qualified: `TRLV_JUSTIFY_SPACE_BETWEEN`,
   `TRLV_TEXT_BODY_MEDIUM`.
 - Token names are MD3 role names in snake_case: *Surface Container High* →
@@ -194,7 +213,7 @@ Symbols. Keep the licence file next to the asset and list the item in
 [NOTICE](NOTICE).
 
 Don't add anything specific to a company or product: names, internal URLs,
-colour palettes, assets or data. Example tokens use the generic MD3 baseline.
+colour palettes, assets or data. The token template uses the generic MD3 baseline.
 Never commit secrets.
 
 ## Versioning and releases

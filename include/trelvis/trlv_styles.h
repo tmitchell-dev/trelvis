@@ -5,7 +5,7 @@
  * @file trlv_styles.h
  * Catalogue of the shared LVGL styles TreLVis creates (layout, spacing, surfaces, cards, text, buttons).
  *
- * Placeholder: the public API is drafted in milestone 2 (API review).
+ * Placeholder: the public API is drafted in milestone 3 (API review).
  * See docs/concepts.md for the design.
  */
 

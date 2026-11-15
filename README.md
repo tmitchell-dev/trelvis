@@ -13,12 +13,13 @@ names, and LVGL's widgets get an MD3 look out of the box. A design made with
 the Material 3 Figma kit and Material Theme Builder therefore maps straight
 onto code.
 
-- **Layout primitives**: box, row, column, grid, spacer, text, divider and
-  page, with Figma auto-layout sizing (hug / fill / fixed) and CSS-style
-  alignment.
+- **Layout primitives**: box, row, column, spacer, text and divider, with
+  Figma auto-layout sizing (hug / fill / fixed) and CSS-style alignment.
 - **Material Design 3 tokens**: colour roles, surface containers, type scale,
   shape scale, state layers and elevation, plus a 4 px spacing grid. Defined
-  once per project and named exactly like MD3 and the Figma variables.
+  once per project and named exactly like MD3 and the Figma variables. A
+  token template with the generic MD3 baseline is copied into the project at
+  setup, so it works before any value is edited and costs nothing unused.
 - **An MD3 theme built on LVGL's own theme and style engine**: LVGL's built-in
   widgets get an MD3 look automatically. Colour modes (light / dark / brand)
   switch at runtime; layout modes (compact / regular / …) are chosen at start-up.
@@ -27,10 +28,12 @@ onto code.
 - **Figma hand-off conventions** aligned with the Material 3 Figma kit and
   Material Theme Builder.
 
-It is a **utility layer, not a framework**. Every function returns or takes a
-plain `lv_obj_t *`, every modifier works on any LVGL object, and raw `lv_*`
+It is a **utility layer, not a framework**: a small toolset for starting LVGL
+projects quickly and keeping them consistent. Every function returns or takes
+a plain `lv_obj_t *`, every modifier works on any LVGL object, and raw `lv_*`
 calls stay valid everywhere. TreLVis does not wrap LVGL widgets; it styles them
-through LVGL's theme engine.
+through LVGL's theme engine. It also doesn't rename LVGL calls that are
+already clear: for those, the docs name the LVGL call to use.
 
 > **Status: early development (0.x).** The repository scaffold is in place and
 > the public API is being designed. Nothing is usable yet, and the API may
@@ -42,6 +45,8 @@ This shows the intended API, which is still under review:
 
 ```c
 #include <trelvis/trelvis.h>
+
+trlv_init(disp, &tokens_light, &tokens_layout);   /* once; tokens come from your copy of the template */
 
 lv_obj_t * card = trlv_column(parent, TRLV_SPACE_SM);   /* Figma: auto layout, vertical */
 trlv_card(card, TRLV_CARD_FILLED);                      /* MD3 filled card               */
@@ -60,6 +65,13 @@ trlv_button_variant(btn, TRLV_BUTTON_TONAL);
 
 ## Design principles
 
+- **Small on purpose.** The main job is to turn the blocks of LVGL calls that
+  every project repeats into one standard call. A function exists only if it
+  does that, takes a design token, fixes an LVGL default that surprises, or
+  makes a decision LVGL leaves to the caller. Anything that would only rename
+  a single clear LVGL call is left to LVGL.
+- **No new surprises for LVGL users.** Where TreLVis has no reason to differ,
+  LVGL's natural behaviour stands. Deliberate differences are documented.
 - **Familiar vocabulary.** Names come from Figma / MD3 first, then CSS, then
   LVGL. No fourth vocabulary.
 - **LVGL's engine, not a parallel one.** Layout, colour, type and states are
@@ -70,8 +82,6 @@ trlv_button_variant(btn, TRLV_BUTTON_TONAL);
   initialisation and on colour-mode switches.
 - **Forward-compatible.** Written against LVGL 9.6 following the rules that
   make the move to LVGL v10 straightforward.
-- **Works alongside LVGL Pro conventions without depending on them.** Projects
-  structured with TreLVis can adopt LVGL Pro later with little restructuring.
 
 ## Compatibility
 

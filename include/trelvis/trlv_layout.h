@@ -3,9 +3,9 @@
 
 /**
  * @file trlv_layout.h
- * Layout primitives (box, row, column, grid, spacer, divider, page) and layout modifiers (Figma auto layout / CSS flexbox).
+ * Layout primitives (box, row, column, spacer, divider) and layout modifiers (Figma auto layout / CSS flexbox).
  *
- * Placeholder: the public API is drafted in milestone 2 (API review).
+ * Placeholder: the public API is drafted in milestone 3 (API review).
  * See docs/concepts.md for the design.
  */
 

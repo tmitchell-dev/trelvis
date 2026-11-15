@@ -3,9 +3,9 @@
 
 /**
  * @file trlv_tokens.h
- * MD3 design-token types: colour, layout and type-scale collections (values are supplied by the project).
+ * MD3 design-token types (colour, layout and type-scale collections). Values live in the project (see templates/).
  *
- * Placeholder: the public API is drafted in milestone 2 (API review).
+ * Placeholder: the public API is drafted in milestone 3 (API review).
  * See docs/concepts.md for the design.
  */
 
