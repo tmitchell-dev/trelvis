@@ -15,5 +15,5 @@ While the version is 0.x, minor releases may contain breaking changes.
   `trlv_version.h` with a compile-time check for LVGL 9.6+ (9.x).
 - Placeholder public headers (`trelvis.h` and modules), compiling from C99 and C++17.
 - CI: GCC and Clang builds against LVGL 9.6 with warnings as errors, C++17
-  include test, non-CMake build, allocation and SPDX checks; nightly build
+  include test, non-CMake build, allocation and SPDX checks; weekly build
   against LVGL master; tag-driven release workflow.

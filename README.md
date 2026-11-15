@@ -87,7 +87,7 @@ trlv_button_variant(btn, TRLV_BUTTON_TONAL);
 
 | TreLVis | LVGL | C | Notes |
 |---|---|---|---|
-| 0.x (in development) | 9.6 (any 9.x ≥ 9.6) | C99; headers usable from C++17 | Also built nightly against LVGL master (v10 development) as an early warning. |
+| 0.x (in development) | 9.6 (any 9.x ≥ 9.6) | C99; headers usable from C++17 | Also built weekly against LVGL master (v10 development) as an early warning. |
 
 A compile-time check rejects unsupported LVGL versions. A move to LVGL v10 that
 changes the TreLVis API will be a new TreLVis major version.

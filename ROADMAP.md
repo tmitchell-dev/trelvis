@@ -36,7 +36,7 @@ initialisation and token access.
 
 | # | Milestone | Status |
 |---|---|---|
-| 1 | **Scaffold**: repository structure, CMake target, `trelvis.mk`, configuration mechanism, version header and LVGL version check, changelog, NOTICE, SPDX headers, CI (ci / nightly / release workflows, Dependabot), C++ include test. Placeholder headers that compile. | done |
+| 1 | **Scaffold**: repository structure, CMake target, `trelvis.mk`, configuration mechanism, version header and LVGL version check, changelog, NOTICE, SPDX headers, CI (ci / weekly / release workflows, Dependabot), C++ include test. Placeholder headers that compile. | done |
 | 2 | **Vertical slice**: a first working slice of the library: the token template (`templates/`, copied into a project at setup and compiled in CI), a minimal `trlv_init` (no theme yet), `trlv_box`, `trlv_row`, `trlv_column`, `trlv_gap`, `trlv_pad`, `trlv_fill_*` / `trlv_hug_*` and `trlv_text`. One realistic screen is built with it as `examples/demo`: a plain `trlv_demo_create(parent)` function that any host project's simulator or target can call. A headless layout test harness (build a tree, update the layout, assert coordinates) starts running in CI. The slice is provisional: its job is to prove the approach and settle defaults before the API is fixed. | next |
 | 3 | **API review**: full public headers for the v1 API, with doc comments and mapping tables, informed by the slice. The API is reviewed before further implementation. | |
 | 4 | **Tokens and theme**: full token types, the complete token template, the MD3 theme over the default parent theme, state layers, focus ring, colour-mode switching, line-height conversion. Widgets are covered in order: screen, label and button first, then one widget at a time. | |
@@ -102,7 +102,7 @@ Each item is added only when a product needs it:
   the same token structs.
 - **Responsive helpers:** e.g. switching between row and column by layout mode.
 - **LVGL v10:** TreLVis already follows v10 forward-compatibility rules and
-  builds nightly against LVGL master. If the move changes the TreLVis API, it
+  builds weekly against LVGL master. If the move changes the TreLVis API, it
   becomes a new major version, with an LVGL 9 maintenance branch if needed.
 
 ## Related project: `trelvis-starter`
