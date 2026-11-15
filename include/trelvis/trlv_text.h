@@ -5,7 +5,7 @@
  * @file trlv_text.h
  * Text primitive and MD3 type-scale roles.
  *
- * Placeholder: the public API is drafted in milestone 2 (API review).
+ * Placeholder: the public API is drafted in milestone 3 (API review).
  * See docs/concepts.md for the design.
  */
 

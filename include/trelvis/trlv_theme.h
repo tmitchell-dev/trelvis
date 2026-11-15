@@ -5,7 +5,7 @@
  * @file trlv_theme.h
  * Initialisation, the MD3 theme for built-in LVGL widgets, and runtime colour-mode switching.
  *
- * Placeholder: the public API is drafted in milestone 2 (API review).
+ * Placeholder: the public API is drafted in milestone 3 (API review).
  * See docs/concepts.md for the design.
  */
 

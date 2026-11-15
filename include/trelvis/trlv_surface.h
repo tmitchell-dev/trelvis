@@ -5,7 +5,7 @@
  * @file trlv_surface.h
  * MD3 surface containers, cards and button variants.
  *
- * Placeholder: the public API is drafted in milestone 2 (API review).
+ * Placeholder: the public API is drafted in milestone 3 (API review).
  * See docs/concepts.md for the design.
  */
 

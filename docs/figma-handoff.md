@@ -34,9 +34,10 @@ means the design can't be built exactly, or needs hand-written exceptions.
 
 ## Layout
 
-- **Use auto layout everywhere.** Auto layout maps to `trlv_row` /
-  `trlv_column` / `trlv_grid`, and "hug" / "fill" / "fixed" map to
-  `trlv_hug_*` / `trlv_fill_*` / `lv_obj_set_size`.
+- **Use auto layout everywhere.** Horizontal and vertical auto layout map to
+  `trlv_row` / `trlv_column`, and "hug" / "fill" / "fixed" map to
+  `trlv_hug_*` / `trlv_fill_*` / `lv_obj_set_size`. Grid auto layout maps to
+  LVGL's own grid API, so prefer rows and columns where they do the job.
 - **Spacing sits on the 4 px grid** and is bound to `space/*` variables only.
 - Use absolute positioning only where it's genuinely needed (overlays,
   badges). It maps to `trlv_absolute`.
@@ -73,7 +74,7 @@ means the design can't be built exactly, or needs hand-written exceptions.
 
 ## States
 
-- Use **MD3 state layers** (hover / focus / pressed / dragged) and the MD3
+- Use **MD3 state layers** (pressed and focus; hover is not built in v1) and the MD3
   disabled treatment. Designers don't hand-pick pressed colours; TreLVis
   computes them from the tokens.
 - Component state variants are named **Default / Pressed / Checked / Disabled /
