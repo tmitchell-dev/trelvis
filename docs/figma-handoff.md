@@ -40,7 +40,7 @@ means the design can't be built exactly, or needs hand-written exceptions.
   LVGL's own grid API, so prefer rows and columns where they do the job.
 - **Spacing sits on the 4 px grid** and is bound to `space/*` variables only.
 - Use absolute positioning only where it's genuinely needed (overlays,
-  badges). It maps to `trlv_absolute`.
+  badges). It maps to LVGL's `lv_obj_set_floating` plus `lv_obj_align`.
 
 ## Type
 
@@ -104,7 +104,7 @@ means the design can't be built exactly, or needs hand-written exceptions.
 | Space between / packed | `justify-content` | `trlv_justify` | `flex_main_place` |
 | Cross-axis alignment | `align-items` | `trlv_align_items` | `flex_cross_place` |
 | Hug / Fill / Fixed | `fit-content` / `flex: 1` / `width` | `trlv_hug_*` / `trlv_fill_*` / `lv_obj_set_size` | `LV_SIZE_CONTENT` / `flex_grow` or `LV_PCT(100)` / `width` |
-| Absolute position | `position: absolute` | `trlv_absolute` | ignore-layout flag + `lv_obj_align` |
+| Absolute position | `position: absolute` | *raw LVGL* | `lv_obj_set_floating` + `lv_obj_align` |
 | Colour role | `--md-sys-color-*` | `trlv_color()->…` | `lv_color_t` |
 | Surface container | `background` + `color` | `trlv_surface` | `bg_color` + inherited `text_color` |
 | Card | — | `trlv_card` | shared card style |

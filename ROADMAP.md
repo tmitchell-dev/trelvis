@@ -40,7 +40,7 @@ initialisation and token access.
 | 2 | **Vertical slice**: a first working slice of the library: the token template (`templates/`, copied into a project at setup and compiled in CI), a minimal `trlv_init` (no theme yet), `trlv_box`, `trlv_row`, `trlv_column`, `trlv_gap`, `trlv_pad`, `trlv_fill_*` / `trlv_hug_*` and `trlv_text`. One realistic screen is built with it as `examples/demo`: a plain `trlv_demo_create(parent)` function that any host project's simulator or target can call. A headless layout test harness (build a tree, update the layout, assert coordinates) starts running in CI. The slice is provisional: its job is to prove the approach and settle defaults before the API is fixed. | done |
 | 3 | **API review**: full public headers for the v1 API, with doc comments and mapping tables, informed by the slice. The API is reviewed before further implementation. | next |
 | 4 | **Tokens and theme**: full token types, the complete token template, the MD3 theme over the default parent theme, state layers, focus ring, colour-mode switching, line-height conversion. Widgets are covered in order: screen, label and button first, then one widget at a time. | |
-| 5 | **Surfaces, cards and remaining primitives**: `trlv_surface`, `trlv_card`, `trlv_button_variant`, `trlv_text_role`, `trlv_spacer`, `trlv_divider`, `trlv_justify`, `trlv_align_items`, `trlv_absolute`, `trlv_gap_xy`, `trlv_pad_xy`, the `TRLV_USE_DEBUG_OUTLINE` option. Layout tests for every primitive and modifier. | |
+| 5 | **Surfaces, cards and remaining primitives**: `trlv_surface`, `trlv_card`, `trlv_button_variant`, `trlv_text_role`, `trlv_spacer`, `trlv_divider`, `trlv_justify`, `trlv_align_items`, the `TRLV_USE_DEBUG_OUTLINE` option. Layout tests for every primitive and modifier. | |
 | 6 | **Demo and docs**: `examples/demo` grows from the slice screen to exercise every primitive: surface container ladder; filled / elevated / outlined cards; all button variants and covered widgets in each state; light/dark toggle; an example Compact token set next to the template values; visible keypad/encoder focus; a list built from rows (no `lv_list`). README quick start, `docs/concepts.md` and `docs/figma-handoff.md` brought up to date with the implementation. | |
 | 7 | **v1.1** (see below) | |
 
@@ -139,8 +139,9 @@ token values and subjects out of the library.
 These are deliberately excluded:
 
 - Wrappers for single clear LVGL calls: visibility, clipping, scrolling,
-  wrapping, text truncation, min / max size, grid cells. The mapping table
-  names the LVGL call for each.
+  wrapping, text truncation, min / max size, grid cells, different
+  horizontal and vertical gaps or padding (`_xy` variants), absolute
+  position. The mapping table names the LVGL call for each.
 - `trlv_page` (header / body / footer) and `trlv_grid`. Not every project
   uses them; a page is a project component, and grids use LVGL's grid API.
 - Token values compiled into the library. Tokens come from a template the
@@ -153,8 +154,8 @@ These are deliberately excluded:
 - Gradient tokens, blend modes, inner shadows, background blur.
 - Aspect-ratio locking; Figma "scale" constraints.
 - Breakpoints / media queries (layout modes are used instead).
-- Separate `overlay` / `center` / `fixed` helpers (`trlv_box` + `trlv_absolute`
-  and `lv_obj_center` cover these).
+- Separate `overlay` / `center` / `fixed` helpers (`trlv_box` with
+  `lv_obj_set_floating` + `lv_obj_align`, and `lv_obj_center`, cover these).
 - LVGL colour filters for state layers.
 - Wrapping LVGL widgets, macro DSLs, varargs builders.
 - LVGL Pro artefacts or tooling (XML, `globals.xml`, runtime loading, editor
