@@ -99,6 +99,8 @@ trlv_add_test(layout_fill_warning layout/test_fill_warning.c)
 target_link_libraries(layout_fill_warning PRIVATE trlv_tokens_template)
 trlv_add_test(layout_text layout/test_text.c)
 target_link_libraries(layout_text PRIVATE trlv_tokens_template)
+trlv_add_test(layout_demo layout/test_demo.c)
+target_link_libraries(layout_demo PRIVATE trlv_tokens_template trlv_demo)
 
 trlv_add_test(theme_init theme/test_init.c)
 target_link_libraries(theme_init PRIVATE trlv_tokens_template)
