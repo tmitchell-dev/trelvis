@@ -78,6 +78,55 @@ lv_obj_t * trlv_row(lv_obj_t * parent, trlv_space_t gap);
  */
 lv_obj_t * trlv_column(lv_obj_t * parent, trlv_space_t gap);
 
+/**
+ * Create a spacer: an empty box that takes the free space along its
+ * parent's main axis. Figma: an empty frame set to "fill container"; CSS
+ * `flex: 1` on an empty element.
+ *
+ * Use it to push the items after it to the far end, for example a title
+ * left and a group of buttons right. To spread every item evenly, use
+ * trlv_justify on the parent instead.
+ *
+ * It is a trlv_box with trlv_fill_width (in a row) or trlv_fill_height (in
+ * a column) applied, and follows the same rules: the axis is chosen from the
+ * parent's flex flow **at the time of the call**, so set the parent's
+ * direction first. Across the axis it is 0 px and takes no room. Several
+ * spacers in one parent share the free space equally.
+ *
+ * In a parent that hugs its main axis there is no free space, so the spacer
+ * is 0 px; it logs the same LV_LOG_WARN as trlv_fill_*. In a parent with no
+ * flex layout it has no size.
+ *
+ * @param parent  the parent object, normally a row or column
+ * @return        the new spacer
+ *
+ * @note Not implemented yet (milestone 5).
+ */
+lv_obj_t * trlv_spacer(lv_obj_t * parent);
+
+/**
+ * Create a divider: an MD3 divider, a thin line in `outline_variant` that
+ * separates groups of content. Figma: a 1 px line or rectangle; CSS `hr`.
+ *
+ * Its orientation follows the parent's flex flow **at the time of the
+ * call**:
+ *
+ * - in a column, or a parent with no flex layout: a horizontal line,
+ *   `border_width` tall, filling the parent's width;
+ * - in a row: a vertical line, `border_width` wide, filling the row's
+ *   height (it stretches to the tallest sibling when the row hugs).
+ *
+ * The colour is a shared token style, so it follows colour-mode switches.
+ * For an MD3 inset divider, add a margin, which LVGL's flex layout honours:
+ * lv_obj_set_style_margin_left(divider, trlv_layout()->space[TRLV_SPACE_LG], 0).
+ *
+ * @param parent  the parent object, normally a row or column
+ * @return        the new divider
+ *
+ * @note Not implemented yet (milestone 5).
+ */
+lv_obj_t * trlv_divider(lv_obj_t * parent);
+
 /*---------------------------------------------------------------------------
  * Modifiers. Each works on any object, including ones TreLVis did not
  * create, and replaces its own previous style rather than adding another.
