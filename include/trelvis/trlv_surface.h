@@ -12,6 +12,7 @@
  * | Figma / MD3                         | CSS                          | TreLVis            | LVGL mechanism                                          |
  * |-------------------------------------|------------------------------|--------------------|---------------------------------------------------------|
  * | Fill with a surface / container role | `background` + `color`      | trlv_surface       | shared style: `bg_color`, `bg_opa`, inherited `text_color` |
+ * | Fill with a custom colour or its container | `background` + `color` | trlv_surface_custom | shared styles per custom colour: `bg_color`, `bg_opa`, inherited `text_color` |
  * | MD3 card (filled, elevated, outlined) | `background`, `border-radius`, `border` / `box-shadow` | trlv_card | shared style: `bg_*`, `radius`, `border_*` / `shadow_*`, inherited `text_color` |
  * | MD3 button type (filled, tonal, outlined, text) | button classes with `:active`, `:focus-visible`, `:disabled` | trlv_button_variant | shared styles with LV_STATE_PRESSED / FOCUS_KEY / DISABLED selectors |
  *
@@ -52,11 +53,20 @@ typedef enum {
     TRLV_SURFACE_SECONDARY_CONTAINER, /**< secondary_container / on_secondary_container */
     TRLV_SURFACE_TERTIARY_CONTAINER,  /**< tertiary_container / on_tertiary_container */
     TRLV_SURFACE_ERROR_CONTAINER,     /**< error_container / on_error_container */
-    TRLV_SURFACE_SUCCESS_CONTAINER,   /**< success_container / on_success_container (extension) */
-    TRLV_SURFACE_WARNING_CONTAINER,   /**< warning_container / on_warning_container (extension) */
-    TRLV_SURFACE_INVERSE,             /**< inverse_surface / inverse_on_surface: snackbars, tooltips */
+    TRLV_SURFACE_INVERSE,            /**< inverse_surface / inverse_on_surface: snackbars, tooltips */
     TRLV_SURFACE_COUNT                /**< Number of surfaces; not a surface */
 } trlv_surface_t;
+
+/**
+ * Which pair of a custom colour (trlv_custom_color_t) fills a surface.
+ */
+typedef enum {
+    TRLV_CUSTOM_SURFACE_COLOR,      /**< color / on_color: a strong fill, such as an
+                                         alarm banner */
+    TRLV_CUSTOM_SURFACE_CONTAINER,  /**< color_container / on_color_container: lower
+                                         emphasis, as the MD3 container roles */
+    TRLV_CUSTOM_SURFACE_COUNT       /**< Number of pairs; not a pair */
+} trlv_custom_surface_t;
 
 /** The three MD3 card types. */
 typedef enum {
@@ -103,6 +113,34 @@ typedef enum {
  * @note Not implemented yet (milestone 5).
  */
 void trlv_surface(lv_obj_t * obj, trlv_surface_t surface);
+
+/**
+ * Fill an object with one of the project's custom colours, and set the
+ * matching content colour. Figma: a fill bound to a Material Theme Builder
+ * custom colour variable; CSS `background` plus `color`.
+ *
+ * Works as trlv_surface does, with a pair from
+ * `trlv_color()->custom[index]`: tone only, the content colour inherited,
+ * and recoloured on trlv_theme_set_color_mode. `surface` chooses the pair:
+ * the colour itself with `on_color` (a strong fill: an alarm banner, a
+ * status badge) or its container with `on_color_container`. It is in the
+ * same group as trlv_surface and trlv_card, so they replace each other.
+ *
+ * TreLVis only colours the object. What a custom colour means, and alarm
+ * behaviour such as flashing or acknowledgement, belong to the project.
+ *
+ * Each index has one shared style per pair, and TRLV_CUSTOM_COLOR_MAX sets
+ * how many indexes have them. An index at or beyond that, or beyond the
+ * tokens' `custom_count`, logs a warning and leaves the object unchanged.
+ *
+ * @param obj      any object
+ * @param index    index into trlv_color_tokens_t::custom, normally a value
+ *                 of the project's own enum
+ * @param surface  which pair of the custom colour to use
+ *
+ * @note Not implemented yet (milestone 5).
+ */
+void trlv_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t surface);
 
 /**
  * Style an object as an MD3 card. Figma: an MD3 card component; CSS a

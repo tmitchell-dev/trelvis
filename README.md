@@ -146,6 +146,7 @@ be given with `TRLV_CONF_PATH`.
 | `TRLV_LVGL_INCLUDE` | `<lvgl/lvgl.h>` | How TreLVis includes LVGL. |
 | `TRLV_USE_THEME` | `1` | Install the MD3 theme. `0` = tokens and layout helpers only (bring your own theme). |
 | `TRLV_THEME_PARENT` | `TRLV_THEME_PARENT_DEFAULT` | Theme for widgets TreLVis doesn't cover: LVGL's default theme seeded with MD3 colours, or `TRLV_THEME_PARENT_NONE`. |
+| `TRLV_CUSTOM_COLOR_MAX` | `4` | How many of the project's custom colours `trlv_surface_custom` can apply (two small shared styles each). |
 | `TRLV_USE_DEBUG_OUTLINE` | `0` | Draw a 1 px outline on every TreLVis container. |
 | `TRLV_IGNORE_LVGL_VERSION` | `0` | Skip the LVGL version check (unsupported; for trying LVGL master). |
 

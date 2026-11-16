@@ -21,6 +21,8 @@
  * The template works unedited. Then make it your product's:
  *
  *  - regenerate the colours from your seed colour (Material Theme Builder);
+ *  - replace the example custom colours with your own (status colours,
+ *    alarm priorities, extra brand accents), or delete them;
  *  - give each text role a real font and its Figma line height;
  *  - delete what you don't use, and add a Compact layout if you need one.
  *
@@ -35,6 +37,18 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/**
+ * The project's custom colours: the index into trlv_color_tokens_t::custom
+ * and the argument of trlv_surface_custom. Success and warning are examples.
+ * If you need more than TRLV_CUSTOM_COLOR_MAX (default 4) with
+ * trlv_surface_custom, raise it in trlv_conf.h.
+ */
+typedef enum {
+    TOKEN_CUSTOM_SUCCESS,   /**< Example: success */
+    TOKEN_CUSTOM_WARNING,   /**< Example: warning */
+    TOKEN_CUSTOM_COUNT      /**< Number of custom colours; not a colour */
+} token_custom_color_t;
 
 /** Color collection, light mode: the MD3 baseline light scheme. */
 extern const trlv_color_tokens_t tokens_light;

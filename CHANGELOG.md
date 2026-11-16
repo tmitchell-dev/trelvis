@@ -16,15 +16,24 @@ While the version is 0.x, minor releases may contain breaking changes.
   pins every public signature. Declared but not implemented yet (calling
   them fails to link until they land): `trlv_theme_set_color_mode`
   (milestone 4); `trlv_spacer`, `trlv_divider`, `trlv_justify`,
-  `trlv_align_items`, `trlv_text_role`, `trlv_surface`, `trlv_card` and
-  `trlv_button_variant` (milestone 5).
+  `trlv_align_items`, `trlv_text_role`, `trlv_surface`,
+  `trlv_surface_custom`, `trlv_card` and `trlv_button_variant`
+  (milestone 5).
+- Custom colours: `trlv_color_tokens_t` has a project-defined table of
+  `trlv_custom_color_t` entries (`custom`, `custom_count`), named and
+  indexed by the project's own enum, for status colours, alarm priorities
+  or extra brand accents. `trlv_surface_custom(obj, index, surface)` fills an
+  object with an entry's colour or its container, with the matching content
+  colour. The `TRLV_CUSTOM_COLOR_MAX` option
+  (default 4) sets how many entries it can apply; the token structs have
+  the same shape for every configuration.
 - Project scaffold: CMake target `trelvis`, `trelvis.mk` for non-CMake builds,
   `trlv_conf.h` configuration mechanism with defaults in `trlv_conf_default.h`,
   `trlv_version.h` with a compile-time check for LVGL 9.6+ (9.x).
 - MD3 token types in `trlv_tokens.h`: spacing, radius, size,
   elevation and type-scale enums, and the colour and layout token structs.
 - Token template in `templates/` for projects to copy: MD3 baseline light
-  and dark colour schemes with example success and warning colours, and
+  and dark colour schemes with example success and warning custom colours, and
   Regular layout values. Each text role uses the nearest Montserrat size
   enabled in `lv_conf.h`, with its MD3 line height, falling back to smaller
   sizes and then `LV_FONT_DEFAULT`, so no font files are needed.

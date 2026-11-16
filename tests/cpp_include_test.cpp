@@ -8,6 +8,8 @@
 
 #include <trelvis/trelvis.h>
 
+#include <type_traits>
+
 static_assert(TRLV_VERSION_MAJOR >= 0, "TreLVis headers must be usable from C++");
 
 /* Token types are usable as C++ types (arrays sized by the scale enums). */
@@ -15,11 +17,22 @@ static_assert(sizeof(trlv_layout_tokens_t) > 0, "layout tokens");
 static_assert(sizeof(trlv_color_tokens_t) > 0, "color tokens");
 static_assert(TRLV_TEXT_COUNT == 15, "MD3 type scale has 15 roles");
 
+/* Custom colours: a project-defined table, the same struct shape whatever
+ * the configuration. */
+static_assert(std::is_same<decltype(trlv_color_tokens_t::custom), const trlv_custom_color_t *>::value,
+              "custom colour table");
+static_assert(std::is_same<decltype(trlv_color_tokens_t::custom_count), uint32_t>::value,
+              "custom colour count");
+static_assert(std::is_same<decltype(trlv_custom_color_t::on_color_container), lv_color_t>::value,
+              "custom colour fields");
+static_assert(TRLV_CUSTOM_COLOR_MAX >= 0, "custom colour style count");
+
 /* The token template's header is included from C++ projects too, and
  * declares the collections with the token types. */
 #include "trlv_tokens_template.h"
 
-#include <type_traits>
+static_assert(TOKEN_CUSTOM_COUNT <= TRLV_CUSTOM_COLOR_MAX,
+              "the template's custom colours all work with trlv_surface_custom");
 
 static_assert(std::is_same<decltype(tokens_light), const trlv_color_tokens_t>::value,
               "template light colours");
@@ -65,6 +78,7 @@ TRLV_CHECK_SIGNATURE(trlv_text_role, void (*)(lv_obj_t *, trlv_text_role_t));
 
 /* trlv_surface.h */
 TRLV_CHECK_SIGNATURE(trlv_surface, void (*)(lv_obj_t *, trlv_surface_t));
+TRLV_CHECK_SIGNATURE(trlv_surface_custom, void (*)(lv_obj_t *, uint32_t, trlv_custom_surface_t));
 TRLV_CHECK_SIGNATURE(trlv_card, void (*)(lv_obj_t *, trlv_card_t));
 TRLV_CHECK_SIGNATURE(trlv_button_variant, void (*)(lv_obj_t *, trlv_button_t));
 
@@ -75,7 +89,8 @@ static_assert(std::is_same<decltype(trlv_style_column), const lv_style_t>::value
 
 /* Enum sizes that the token arrays and the docs rely on. */
 static_assert(TRLV_SPACE_COUNT == 9, "spacing scale NONE..3XL");
-static_assert(TRLV_SURFACE_COUNT == 13, "surface roles");
+static_assert(TRLV_SURFACE_COUNT == 11, "surface roles");
+static_assert(TRLV_CUSTOM_SURFACE_COUNT == 2, "custom colour pairs");
 static_assert(TRLV_CARD_COUNT == 3, "MD3 card types");
 static_assert(TRLV_BUTTON_COUNT == 4, "v1 button types");
 static_assert(static_cast<int>(TRLV_JUSTIFY_SPACE_EVENLY) == static_cast<int>(LV_FLEX_ALIGN_SPACE_EVENLY),
