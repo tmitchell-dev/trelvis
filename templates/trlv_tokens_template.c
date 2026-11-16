@@ -11,9 +11,11 @@
  * Material Theme Builder (seeds #4CAF50 and #FFB300, harmonised with the
  * primary colour).
  *
- * Layout: the Regular values from docs/concepts.md section 4.2. Every text
- * role uses LV_FONT_DEFAULT and the font's own line height, so the template
- * needs no font files.
+ * Layout: the Regular values from docs/concepts.md section 4.2. Each text
+ * role uses the Montserrat size LVGL ships nearest to its MD3 size, with the
+ * MD3 line height, when that size is enabled in lv_conf.h
+ * (LV_FONT_MONTSERRAT_<size>), else the next smaller enabled size, else
+ * LV_FONT_DEFAULT. The template needs no font files.
  *
  * The tokens are const, so they live in flash. If your fonts only exist at
  * run time (FreeType, Tiny TTF), keep the layout tokens in RAM instead and
@@ -155,8 +157,66 @@ const trlv_color_tokens_t tokens_dark = {
  *-------------------------------------------------------------------------*/
 
 /* A text role with no design values yet: the default font, its own line
- * height and no letter spacing. Replace with { &my_font, line_height, 0 }. */
+ * height and no letter spacing. */
 #define TOKEN_TEXT_DEFAULT { LV_FONT_DEFAULT, 0, 0 }
+
+/* A text role in an LVGL Montserrat size with its line height, if that size
+ * is enabled in lv_conf.h. If it isn't, the next smaller enabled size is
+ * used with its own line height, so the type hierarchy holds with any set of
+ * sizes; with none enabled, TOKEN_TEXT_DEFAULT. Montserrat ships in one
+ * weight, so this gives size hierarchy only. Once your roles have real
+ * fonts, replace these with { &my_font, line_height, letter_spacing } and
+ * delete this block. */
+#if LV_FONT_MONTSERRAT_12
+#  define TOKEN_TEXT_12(line_height) { &lv_font_montserrat_12, line_height, 0 }
+#else
+#  define TOKEN_TEXT_12(line_height) TOKEN_TEXT_DEFAULT
+#endif
+#if LV_FONT_MONTSERRAT_14
+#  define TOKEN_TEXT_14(line_height) { &lv_font_montserrat_14, line_height, 0 }
+#else
+#  define TOKEN_TEXT_14(line_height) TOKEN_TEXT_12(0)
+#endif
+#if LV_FONT_MONTSERRAT_16
+#  define TOKEN_TEXT_16(line_height) { &lv_font_montserrat_16, line_height, 0 }
+#else
+#  define TOKEN_TEXT_16(line_height) TOKEN_TEXT_14(0)
+#endif
+#if LV_FONT_MONTSERRAT_22
+#  define TOKEN_TEXT_22(line_height) { &lv_font_montserrat_22, line_height, 0 }
+#else
+#  define TOKEN_TEXT_22(line_height) TOKEN_TEXT_16(0)
+#endif
+#if LV_FONT_MONTSERRAT_24
+#  define TOKEN_TEXT_24(line_height) { &lv_font_montserrat_24, line_height, 0 }
+#else
+#  define TOKEN_TEXT_24(line_height) TOKEN_TEXT_22(0)
+#endif
+#if LV_FONT_MONTSERRAT_28
+#  define TOKEN_TEXT_28(line_height) { &lv_font_montserrat_28, line_height, 0 }
+#else
+#  define TOKEN_TEXT_28(line_height) TOKEN_TEXT_24(0)
+#endif
+#if LV_FONT_MONTSERRAT_32
+#  define TOKEN_TEXT_32(line_height) { &lv_font_montserrat_32, line_height, 0 }
+#else
+#  define TOKEN_TEXT_32(line_height) TOKEN_TEXT_28(0)
+#endif
+#if LV_FONT_MONTSERRAT_36
+#  define TOKEN_TEXT_36(line_height) { &lv_font_montserrat_36, line_height, 0 }
+#else
+#  define TOKEN_TEXT_36(line_height) TOKEN_TEXT_32(0)
+#endif
+#if LV_FONT_MONTSERRAT_44
+#  define TOKEN_TEXT_44(line_height) { &lv_font_montserrat_44, line_height, 0 }
+#else
+#  define TOKEN_TEXT_44(line_height) TOKEN_TEXT_36(0)
+#endif
+#if LV_FONT_MONTSERRAT_48
+#  define TOKEN_TEXT_48(line_height) { &lv_font_montserrat_48, line_height, 0 }
+#else
+#  define TOKEN_TEXT_48(line_height) TOKEN_TEXT_44(0)
+#endif
 
 const trlv_layout_tokens_t tokens_regular = {
     .space = {
@@ -202,22 +262,23 @@ const trlv_layout_tokens_t tokens_regular = {
         [TRLV_ELEVATION_5] = { 12,   6,    0, 8, LV_OPA_20 },
     },
 
-    /* MD3 type scale (size / line height in px) noted for each role. */
+    /* MD3 type scale: MD3 size / line height in px noted for each role.
+     * Montserrat has no 57, 45 or 11 px size, so the nearest is used. */
     .text = {
-        [TRLV_TEXT_DISPLAY_LARGE]   = TOKEN_TEXT_DEFAULT,   /* 57 / 64 */
-        [TRLV_TEXT_DISPLAY_MEDIUM]  = TOKEN_TEXT_DEFAULT,   /* 45 / 52 */
-        [TRLV_TEXT_DISPLAY_SMALL]   = TOKEN_TEXT_DEFAULT,   /* 36 / 44 */
-        [TRLV_TEXT_HEADLINE_LARGE]  = TOKEN_TEXT_DEFAULT,   /* 32 / 40 */
-        [TRLV_TEXT_HEADLINE_MEDIUM] = TOKEN_TEXT_DEFAULT,   /* 28 / 36 */
-        [TRLV_TEXT_HEADLINE_SMALL]  = TOKEN_TEXT_DEFAULT,   /* 24 / 32 */
-        [TRLV_TEXT_TITLE_LARGE]     = TOKEN_TEXT_DEFAULT,   /* 22 / 28 */
-        [TRLV_TEXT_TITLE_MEDIUM]    = TOKEN_TEXT_DEFAULT,   /* 16 / 24 */
-        [TRLV_TEXT_TITLE_SMALL]     = TOKEN_TEXT_DEFAULT,   /* 14 / 20 */
-        [TRLV_TEXT_BODY_LARGE]      = TOKEN_TEXT_DEFAULT,   /* 16 / 24 */
-        [TRLV_TEXT_BODY_MEDIUM]     = TOKEN_TEXT_DEFAULT,   /* 14 / 20 */
-        [TRLV_TEXT_BODY_SMALL]      = TOKEN_TEXT_DEFAULT,   /* 12 / 16 */
-        [TRLV_TEXT_LABEL_LARGE]     = TOKEN_TEXT_DEFAULT,   /* 14 / 20 */
-        [TRLV_TEXT_LABEL_MEDIUM]    = TOKEN_TEXT_DEFAULT,   /* 12 / 16 */
-        [TRLV_TEXT_LABEL_SMALL]     = TOKEN_TEXT_DEFAULT,   /* 11 / 16 */
+        [TRLV_TEXT_DISPLAY_LARGE]   = TOKEN_TEXT_48(64),   /* 57 / 64 */
+        [TRLV_TEXT_DISPLAY_MEDIUM]  = TOKEN_TEXT_44(52),   /* 45 / 52 */
+        [TRLV_TEXT_DISPLAY_SMALL]   = TOKEN_TEXT_36(44),   /* 36 / 44 */
+        [TRLV_TEXT_HEADLINE_LARGE]  = TOKEN_TEXT_32(40),   /* 32 / 40 */
+        [TRLV_TEXT_HEADLINE_MEDIUM] = TOKEN_TEXT_28(36),   /* 28 / 36 */
+        [TRLV_TEXT_HEADLINE_SMALL]  = TOKEN_TEXT_24(32),   /* 24 / 32 */
+        [TRLV_TEXT_TITLE_LARGE]     = TOKEN_TEXT_22(28),   /* 22 / 28 */
+        [TRLV_TEXT_TITLE_MEDIUM]    = TOKEN_TEXT_16(24),   /* 16 / 24 */
+        [TRLV_TEXT_TITLE_SMALL]     = TOKEN_TEXT_14(20),   /* 14 / 20 */
+        [TRLV_TEXT_BODY_LARGE]      = TOKEN_TEXT_16(24),   /* 16 / 24 */
+        [TRLV_TEXT_BODY_MEDIUM]     = TOKEN_TEXT_14(20),   /* 14 / 20 */
+        [TRLV_TEXT_BODY_SMALL]      = TOKEN_TEXT_12(16),   /* 12 / 16 */
+        [TRLV_TEXT_LABEL_LARGE]     = TOKEN_TEXT_14(20),   /* 14 / 20 */
+        [TRLV_TEXT_LABEL_MEDIUM]    = TOKEN_TEXT_12(16),   /* 12 / 16 */
+        [TRLV_TEXT_LABEL_SMALL]     = TOKEN_TEXT_12(16),   /* 11 / 16 */
     },
 };
