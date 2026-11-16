@@ -14,9 +14,15 @@ static_assert(sizeof(trlv_layout_tokens_t) > 0, "layout tokens");
 static_assert(sizeof(trlv_color_tokens_t) > 0, "color tokens");
 static_assert(TRLV_TEXT_COUNT == 15, "MD3 type scale has 15 roles");
 
-/* The token template's header is included from C++ projects too. */
+/* The token template's header is included from C++ projects too, and
+ * declares the collections with the token types. */
 #include "trlv_tokens_template.h"
 
-static const trlv_color_tokens_t * const template_light = &tokens_light;
-static const trlv_layout_tokens_t * const template_regular = &tokens_regular;
-static_assert(sizeof(template_light) > 0 && sizeof(template_regular) > 0, "template tokens");
+#include <type_traits>
+
+static_assert(std::is_same<decltype(tokens_light), const trlv_color_tokens_t>::value,
+              "template light colours");
+static_assert(std::is_same<decltype(tokens_dark), const trlv_color_tokens_t>::value,
+              "template dark colours");
+static_assert(std::is_same<decltype(tokens_regular), const trlv_layout_tokens_t>::value,
+              "template regular layout");
