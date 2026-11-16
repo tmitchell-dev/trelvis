@@ -5,9 +5,25 @@
  * @file trlv_text.h
  * Text primitive and MD3 type-scale roles.
  *
- * Provisional: the milestone 2 slice. The full API, with doc comments and the
- * mapping table, is written in the milestone 3 API review. See
- * docs/concepts.md sections 4.2, 7.1 and 9 for the design.
+ * Mapping: Figma / MD3 → CSS → TreLVis → LVGL mechanism
+ *
+ * | Figma / MD3                        | CSS                                      | TreLVis          | LVGL mechanism                                           |
+ * |------------------------------------|------------------------------------------|------------------|----------------------------------------------------------|
+ * | Text layer with an MD3 text style  | `p`, `h1`, ... with `font`               | trlv_text        | lv_label + shared role style                             |
+ * | Text style on a frame              | `font` on a container (inherited)        | trlv_text_role   | shared role style: `text_font`, `text_line_space`, `text_letter_space` (all inherited) |
+ * | Line height (px)                   | `line-height`                            | role token       | `text_line_space = line_height - font line height`       |
+ * | Letter spacing                     | `letter-spacing`                         | role token       | `text_letter_space`                                      |
+ * | Text colour from a colour role     | `color` (inherited)                      | trlv_surface, theme | inherited `text_color`                                |
+ *
+ * Left to LVGL:
+ *
+ * | Figma / MD3                        | CSS                                      | LVGL                                                     |
+ * |------------------------------------|------------------------------------------|----------------------------------------------------------|
+ * | Auto width (hug)                   | `width: fit-content`                     | the label default                                        |
+ * | Auto height (wrap at a width)      | `width` + normal wrapping                | trlv_fill_width, or lv_obj_set_width                     |
+ * | Truncate                           | `text-overflow: ellipsis`                | lv_label_set_long_mode(label, LV_LABEL_LONG_MODE_DOTS)   |
+ * | Text alignment                     | `text-align`                             | lv_obj_set_style_text_align(label, LV_TEXT_ALIGN_CENTER, 0) |
+ * | Change the text                    | —                                        | lv_label_set_text, lv_label_set_text_fmt                 |
  *
  * All functions must be called from the LVGL thread.
  */
@@ -62,6 +78,30 @@ extern "C" {
  * @return        the new label
  */
 lv_obj_t * trlv_text(lv_obj_t * parent, const char * text, trlv_text_role_t role);
+
+/**
+ * Set the MD3 text role of any object. Figma: apply a text style; CSS set
+ * `font`, `line-height` and `letter-spacing`.
+ *
+ * Applies the same shared role style trlv_text uses. On a label it changes
+ * the label's role. On a container it sets the role for every label inside,
+ * at any depth, because LVGL's font, line spacing and letter spacing
+ * inherit like CSS `font`. Labels with a role of their own (from trlv_text
+ * or trlv_text_role) keep it.
+ *
+ * Inheritance works because the theme sets roles on screens and buttons,
+ * never on plain labels: the screen gives Body Medium, a button Label Large.
+ *
+ * Calling it again, or calling it on a label made with trlv_text, replaces
+ * the previous role. The style is shared (one per role), so it costs no
+ * RAM per object.
+ *
+ * @param obj   any object
+ * @param role  a role of the MD3 type scale, such as TRLV_TEXT_LABEL_LARGE
+ *
+ * @note Not implemented yet (milestone 5).
+ */
+void trlv_text_role(lv_obj_t * obj, trlv_text_role_t role);
 
 #ifdef __cplusplus
 } /* extern "C" */
