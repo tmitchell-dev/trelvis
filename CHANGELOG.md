@@ -10,6 +10,15 @@ While the version is 0.x, minor releases may contain breaking changes.
 
 ### Added
 
+- The MD3 theme, installed by `trlv_init` over LVGL's default theme (seeded
+  with the MD3 `primary` and `secondary` colours, a dark flag from the
+  luminance of `surface`, and the Body Medium font), or over no parent with
+  `TRLV_THEME_PARENT_NONE`. `TRLV_USE_THEME 0` installs none. So far it
+  covers the screen (`surface`, `on_surface`, Body Medium, inherited), plain
+  `lv_obj` containers (MD3 colours on LVGL's shape), labels (inherit only)
+  and `lv_button` as an MD3 filled button whose content is a centred row.
+  `trlv_init` restyles the display's active screen while it is still empty.
+  Calling `trlv_init` again reuses the theme and allocates nothing.
 - The v1 public API, settled in the milestone 3 review: `trelvis.h` and its
   module headers, each documented with its Figma / MD3 / CSS equivalents
   and a mapping table, compiling from C99 and C++17. The C++ include test
@@ -37,7 +46,7 @@ While the version is 0.x, minor releases may contain breaking changes.
   Regular layout values. Each text role uses the nearest Montserrat size
   enabled in `lv_conf.h`, with its MD3 line height, falling back to smaller
   sizes and then `LV_FONT_DEFAULT`, so no font files are needed.
-- `trlv_init(disp, color, layout)` (no theme yet) and the token
+- `trlv_init(disp, color, layout)` and the token
   accessors `trlv_color()` and `trlv_layout()`. A `NULL` display or token
   pointer is rejected with a warning. Calling `trlv_init` again (also after
   `lv_deinit` / `lv_init`) updates objects that already use token styles.

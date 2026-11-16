@@ -41,8 +41,9 @@ extern "C" {
  *
  * Call it once, after creating the display and **before creating any
  * objects on it**. LVGL themes style an object when it is created, so
- * objects that already exist keep their old theme styles. (LVGL restyles
- * the active screen only while the display is still empty.)
+ * objects that already exist keep their old theme styles. The display's
+ * active screen already exists, so trlv_init restyles it while it is still
+ * empty; any styles a project added to it before trlv_init are removed.
  *
  * What it does:
  *
@@ -62,7 +63,19 @@ extern "C" {
  * The theme styles the screen with `surface`, `on_surface` and the Body
  * Medium text role, so every label inherits them, and styles the covered
  * widgets (docs/concepts.md section 6.4) with their MD3 colours, shapes,
- * sizes and states.
+ * sizes and states:
+ *
+ * - a plain lv_obj keeps LVGL's container shape (radius, border, padding)
+ *   in MD3 colours: `surface`, an `outline_variant` border and `on_surface`
+ *   content. Boxes, rows and columns have no theme styles.
+ * - lv_label gets nothing of its own: it inherits its text role and colour
+ *   from what it sits in.
+ * - lv_button is an MD3 filled button: `primary` / `on_primary`, radius
+ *   FULL, height `control_height[TRLV_SIZE_MD]`, `space[TRLV_SPACE_XL]`
+ *   side padding, no shadow, Label Large text. Unlike LVGL's default theme,
+ *   it lays out its content as a centred row (flex), so a label is centred
+ *   without lv_obj_center and an icon and a label sit side by side,
+ *   `space[TRLV_SPACE_SM]` apart.
  *
  * The **layout mode** is chosen here and stays for the life of the
  * application: layout tokens change sizes, so switching them at run time
@@ -86,8 +99,10 @@ extern "C" {
  *
  * A NULL argument is rejected with LV_LOG_WARN and nothing changes.
  *
- * @note The MD3 theme is not implemented yet (milestone 4). Today trlv_init
- *       writes the token styles and installs no theme.
+ * @note The theme covers the screen, plain objects, labels and the filled
+ *       button so far. Pressed, focus and disabled states and the other
+ *       widgets in docs/concepts.md section 6.4 follow in milestone 4; until
+ *       then they keep the parent theme's styles.
  */
 void trlv_init(lv_display_t * disp, const trlv_color_tokens_t * color,
                const trlv_layout_tokens_t * layout);
