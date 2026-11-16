@@ -56,7 +56,7 @@ trlv_fill_width(card);                                  /* Figma: fill container
 
 lv_obj_t * header = trlv_row(card, TRLV_SPACE_SM);
 trlv_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);       /* CSS: justify-content          */
-trlv_align_items(header, TRLV_ALIGN_CENTER);            /* CSS: align-items              */
+trlv_align_items(header, TRLV_ALIGN_ITEMS_CENTER);      /* CSS: align-items              */
 trlv_text(header, "Temperature", TRLV_TEXT_TITLE_MEDIUM);
 trlv_text(header, "37.2 °C",     TRLV_TEXT_DISPLAY_SMALL);
 

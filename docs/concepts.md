@@ -105,7 +105,7 @@ primitives inside.
   any object (`trlv_justify(obj, …)`).
 - **No abbreviations** except LVGL's `pad`: `trlv_column`, `trlv_fill_width`,
   `trlv_align_items`.
-- **Fully qualified enums:** `TRLV_JUSTIFY_SPACE_BETWEEN`, `TRLV_ALIGN_CENTER`,
+- **Fully qualified enums:** `TRLV_JUSTIFY_SPACE_BETWEEN`, `TRLV_ALIGN_ITEMS_CENTER`,
   `TRLV_SPACE_MD`, `TRLV_TEXT_BODY_MEDIUM`, `TRLV_SURFACE_CONTAINER_HIGH`.
 - **Prefixes:** functions `trlv_*`, types `trlv_*_t`, macros and enums
   `TRLV_*`, config `TRLV_USE_*` / `TRLV_*`, styles `trlv_style_*`.
@@ -382,7 +382,7 @@ The shared styles are exposed in `trlv_styles.h` so projects can use them with
 - **Layout (const):** `trlv_style_box` (reset), `trlv_style_row`,
   `trlv_style_column`, justify/align variants, grow, fill/hug.
 - **Spacing (token):** one gap style and one pad style per space step, plus
-  x/y variants.
+  no x/y variants (different horizontal and vertical values use raw LVGL).
 - **Surfaces (token):** one per `TRLV_SURFACE_*` (container colour + `on_`
   text colour).
 - **Cards (token):** `trlv_style_card_filled` (`surface_container_highest`),
@@ -404,7 +404,7 @@ trlv_fill_width(card);
 
 lv_obj_t * header = trlv_row(card, TRLV_SPACE_SM);
 trlv_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);
-trlv_align_items(header, TRLV_ALIGN_CENTER);
+trlv_align_items(header, TRLV_ALIGN_ITEMS_CENTER);
 trlv_text(header, "Temperature", TRLV_TEXT_TITLE_MEDIUM);
 trlv_text(header, "37.2 °C", TRLV_TEXT_DISPLAY_SMALL);
 
@@ -416,12 +416,12 @@ trlv_button_variant(btn, TRLV_BUTTON_TONAL);
 
 | Function | Figma | CSS | Behaviour |
 |---|---|---|---|
-| `trlv_box(parent)` | Frame (no auto layout) | `div` | `lv_obj` with theme styles removed + `trlv_style_box`: transparent, no padding, **not scrollable, not clickable**, hug size. Place children freely with `trlv_absolute` / `lv_obj_align`; this also covers overlays. |
+| `trlv_box(parent)` | Frame (no auto layout) | `div` | `lv_obj` with theme styles removed + `trlv_style_box`: transparent, no padding, **not scrollable, not clickable**, hug size. Place children freely with `lv_obj_align`; with `lv_obj_set_floating` this also covers overlays. |
 | `trlv_row(parent, gap)` | Auto layout → | `flex-direction: row` | box + row style + gap style. |
 | `trlv_column(parent, gap)` | Auto layout ↓ | `flex-direction: column` | box + column style + gap style. |
-| `trlv_spacer(parent)` | filler / space between | `flex: 1` | box + grow style. |
+| `trlv_spacer(parent)` | Empty frame, fill container | `flex: 1` | box + `trlv_fill_*` along the parent's main axis, chosen at call time. Pushes the items after it to the far end. |
 | `trlv_text(parent, text, role)` | Text layer + MD3 text style | `p`, `h1`… | Label + role style. Hugs its content like any LVGL label (Figma "auto width"); `trlv_fill_width` gives it a width, so it wraps (Figma "auto height"). Colour is inherited from the enclosing surface. |
-| `trlv_divider(parent)` | 1 px line | `hr` | `outline_variant`. Orientation follows the parent's flex direction. |
+| `trlv_divider(parent)` | MD3 divider, 1 px line | `hr` | `border_width` line in `outline_variant`. Horizontal in a column (or no flex), vertical in a row, chosen at call time. Insets: LVGL margins. |
 
 There is no grid or page constructor. Grids use LVGL's own grid API on a
 `trlv_box`, and a page skeleton (header / body / footer) is a project
@@ -434,10 +434,9 @@ and each group replaces its previous style.
 
 | Group | Functions | Notes |
 |---|---|---|
-| Spacing | `trlv_gap(obj, space)`, `trlv_gap_xy(obj, col_gap, row_gap)`, `trlv_pad(obj, space)`, `trlv_pad_xy(obj, x, y)` | Per-side padding: use raw LVGL. |
-| Distribution | `trlv_justify(obj, TRLV_JUSTIFY_START / CENTER / END / SPACE_BETWEEN / SPACE_AROUND / SPACE_EVENLY)`, `trlv_align_items(obj, TRLV_ALIGN_START / CENTER / END)` | Two named calls in place of `lv_obj_set_flex_align`'s three positional arguments. The enum values equal LVGL's `LV_FLEX_ALIGN_*`. LVGL flex has no cross-axis stretch; use `trlv_fill_*` on the children. |
+| Spacing | `trlv_gap(obj, space)`, `trlv_pad(obj, space)` | Different horizontal / vertical values, or one side: use raw LVGL with a token value (below). |
+| Distribution | `trlv_justify(obj, TRLV_JUSTIFY_START / CENTER / END / SPACE_BETWEEN / SPACE_AROUND / SPACE_EVENLY)`, `trlv_align_items(obj, TRLV_ALIGN_ITEMS_START / CENTER / END)` | Two named calls in place of `lv_obj_set_flex_align`'s three positional arguments, with shared styles instead of a local one. `ALIGN_ITEMS`, not `ALIGN`, so the values aren't mistaken for `lv_align_t`. The enum values equal LVGL's `LV_FLEX_ALIGN_*`. LVGL flex has no cross-axis stretch; use `trlv_fill_*` on the children. |
 | Sizing | `trlv_hug_width/height`, `trlv_fill_width/height` | Fixed size: `lv_obj_set_size`. Hug and fill are one group, so `trlv_hug_*` also clears an earlier fill. |
-| Positioning | `trlv_absolute(obj, lv_align_t, x, y)` | Figma absolute position / constraints; ignores the parent's layout. |
 | Surfaces | `trlv_surface(obj, TRLV_SURFACE_SURFACE / CONTAINER_LOWEST / CONTAINER_LOW / CONTAINER / CONTAINER_HIGH / CONTAINER_HIGHEST / PRIMARY_CONTAINER / SECONDARY_CONTAINER / TERTIARY_CONTAINER / ERROR_CONTAINER / SUCCESS_CONTAINER / WARNING_CONTAINER / INVERSE)` | Sets container colour + matching `on_` text colour (inherited). Tone only: no radius or border. |
 | Cards | `trlv_card(obj, TRLV_CARD_FILLED / ELEVATED / OUTLINED)` | MD3 cards: tone + radius MD + border/shadow. Padding stays explicit (`trlv_pad`, typically `LG`). |
 | Buttons | `trlv_button_variant(btn, TRLV_BUTTON_FILLED / TONAL / OUTLINED / TEXT)` | Restyles an `lv_button` (the theme default is FILLED). |
@@ -474,6 +473,9 @@ LVGL, so TreLVis adds no function for them. Setters named
 
 | Need | LVGL |
 |---|---|
+| Horizontal / vertical gap | `lv_obj_set_style_pad_column(obj, trlv_layout()->space[TRLV_SPACE_MD], 0)`, `…pad_row` |
+| Horizontal / vertical padding, one side | `lv_obj_set_style_pad_hor(obj, trlv_layout()->space[TRLV_SPACE_LG], 0)`, `…pad_ver`, `…pad_left`, … |
+| Absolute position | `lv_obj_set_floating(obj, true)`, then `lv_obj_align(obj, LV_ALIGN_TOP_RIGHT, x, y)`. Floating, unlike the ignore-layout flag, also leaves the object out of a hugging parent's size, as in Figma. |
 | Wrap | `lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)` |
 | Min / max size | `lv_obj_set_style_min_width(obj, px, 0)`, `…max_width`, `…min_height`, `…max_height` |
 | Scroll | `lv_obj_set_scrollable(obj, true)`, then `lv_obj_set_scroll_dir(obj, LV_DIR_VER)` |
@@ -534,9 +536,13 @@ already clear (see [What earns a place](#what-earns-a-place)).
 |---|---|---|---|
 | Frame, no auto layout | `div` | `trlv_box` | `lv_obj` + reset style, scroll/click off |
 | Auto layout → / ↓ | `display: flex; flex-direction: row / column` | `trlv_row` / `trlv_column` | `layout = LV_LAYOUT_FLEX`, `flex_flow` |
+| Empty frame, fill container | `flex: 1` | `trlv_spacer` | box + `flex_grow` |
+| Divider (MD3) | `hr` | `trlv_divider` | box + `bg_color = outline_variant` |
 | Grid auto layout | `display: grid` | *raw LVGL* | `lv_obj_set_grid_dsc_array`, `lv_obj_set_grid_cell` |
-| Gap between items | `gap`, `column-gap`, `row-gap` | `trlv_gap`, `trlv_gap_xy` | `pad_column`, `pad_row` |
-| Padding | `padding` | `trlv_pad`, `trlv_pad_xy` | `pad_left/right/top/bottom` |
+| Gap between items | `gap` | `trlv_gap` | `pad_column`, `pad_row` |
+| Horizontal / vertical gap | `column-gap`, `row-gap` | *raw LVGL* | `lv_obj_set_style_pad_column`, `…pad_row` |
+| Padding | `padding` | `trlv_pad` | `pad_left/right/top/bottom` |
+| Horizontal / vertical / one-side padding | `padding: y x`, `padding-left` | *raw LVGL* | `lv_obj_set_style_pad_hor`, `…pad_ver`, `…pad_left`, … |
 | Alignment (main axis) / space between | `justify-content` | `trlv_justify` | `flex_main_place` |
 | Alignment (cross axis) | `align-items` | `trlv_align_items` | `flex_cross_place` |
 | Wrap | `flex-wrap` | *raw LVGL* | `lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)` |
@@ -544,7 +550,7 @@ already clear (see [What earns a place](#what-earns-a-place)).
 | Fill container | `flex: 1` / `align-self: stretch` | `trlv_fill_width/height` | `flex_grow` or `LV_PCT(100)` |
 | Fixed size | `width`, `height` | *raw LVGL* | `lv_obj_set_size` |
 | Min / max size | `min-width`, `max-width`, … | *raw LVGL* | `lv_obj_set_style_min_width`, `…max_width`, … |
-| Absolute position, constraints | `position: absolute` | `trlv_absolute` | `lv_obj_set_ignore_layout` + `lv_obj_align` |
+| Absolute position, constraints | `position: absolute` | *raw LVGL* | `lv_obj_set_floating` + `lv_obj_align` |
 | Clip content | `overflow: hidden` | *raw LVGL* | LVGL default; `lv_obj_set_style_clip_corner` for rounded corners |
 | Scroll | `overflow: auto` | *raw LVGL* | `lv_obj_set_scrollable` + `lv_obj_set_scroll_dir` |
 | Visible | `display: none` | *raw LVGL* | `lv_obj_set_hidden` |
