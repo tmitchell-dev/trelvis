@@ -22,6 +22,42 @@ extern "C" {
 #endif
 
 /*---------------------------------------------------------------------------
+ * Types
+ *-------------------------------------------------------------------------*/
+
+/**
+ * How children are distributed along the main axis: Figma auto layout
+ * alignment and "space between", CSS `justify-content`. The values equal
+ * LVGL's lv_flex_align_t.
+ */
+typedef enum {
+    TRLV_JUSTIFY_START         = LV_FLEX_ALIGN_START,         /**< Packed at the start (LVGL default) */
+    TRLV_JUSTIFY_CENTER        = LV_FLEX_ALIGN_CENTER,        /**< Packed in the centre */
+    TRLV_JUSTIFY_END           = LV_FLEX_ALIGN_END,           /**< Packed at the end */
+    TRLV_JUSTIFY_SPACE_BETWEEN = LV_FLEX_ALIGN_SPACE_BETWEEN, /**< First and last at the edges,
+                                                                   equal space between (Figma
+                                                                   "space between") */
+    TRLV_JUSTIFY_SPACE_AROUND  = LV_FLEX_ALIGN_SPACE_AROUND,  /**< Equal space around each child */
+    TRLV_JUSTIFY_SPACE_EVENLY  = LV_FLEX_ALIGN_SPACE_EVENLY   /**< Equal space between and at the edges */
+} trlv_justify_t;
+
+/**
+ * How children are placed across the main axis: Figma auto layout
+ * alignment, CSS `align-items`. The values equal LVGL's lv_flex_align_t.
+ *
+ * Named ALIGN_ITEMS, not ALIGN, so they can't be mistaken for LVGL's
+ * lv_align_t (LV_ALIGN_CENTER and so on), which positions an object.
+ * There is no STRETCH (LVGL flex has none): use trlv_fill_width or
+ * trlv_fill_height on the children. There is no BASELINE either; CENTER is
+ * the closest for texts of different sizes.
+ */
+typedef enum {
+    TRLV_ALIGN_ITEMS_START  = LV_FLEX_ALIGN_START,  /**< Top of a row, left of a column (LVGL default) */
+    TRLV_ALIGN_ITEMS_CENTER = LV_FLEX_ALIGN_CENTER, /**< Centred across the axis */
+    TRLV_ALIGN_ITEMS_END    = LV_FLEX_ALIGN_END     /**< Bottom of a row, right of a column */
+} trlv_align_items_t;
+
+/*---------------------------------------------------------------------------
  * Constructors
  *-------------------------------------------------------------------------*/
 
@@ -160,6 +196,47 @@ void trlv_gap(lv_obj_t * obj, trlv_space_t space);
  * @param space  a step of the spacing scale
  */
 void trlv_pad(lv_obj_t * obj, trlv_space_t space);
+
+/**
+ * Distribute the children along the main axis: Figma auto layout alignment
+ * and "space between", CSS `justify-content`. Sets LVGL `flex_main_place`.
+ *
+ * LVGL's lv_obj_set_flex_align sets the main, cross and track placement in
+ * one call, so changing one means repeating the other two, and it adds a
+ * local style. trlv_justify and trlv_align_items set one each, by the CSS
+ * name, with a shared constant style (one per value) that costs no RAM per
+ * object. Calling it again replaces the previous value.
+ *
+ * Spacing in a SPACE_* mode comes on top of the gap. With
+ * TRLV_JUSTIFY_SPACE_BETWEEN the children need a parent wider than their
+ * total (a fixed or filled size); in a parent that hugs there is no free
+ * space and it looks like START.
+ *
+ * @param obj      any object with a flex layout, such as a row or column
+ * @param justify  how to distribute the children
+ *
+ * @note Not implemented yet (milestone 5).
+ */
+void trlv_justify(lv_obj_t * obj, trlv_justify_t justify);
+
+/**
+ * Place the children across the main axis: Figma auto layout alignment,
+ * CSS `align-items`. Sets LVGL `flex_cross_place`; centre a row of texts of
+ * different sizes with TRLV_ALIGN_ITEMS_CENTER.
+ *
+ * Applies a shared constant style (one per value), so it costs no RAM per
+ * object. Calling it again replaces the previous value. See trlv_justify
+ * for why these are separate calls.
+ *
+ * For the placement of whole lines in a wrapping row (CSS `align-content`),
+ * use lv_obj_set_style_flex_track_place.
+ *
+ * @param obj    any object with a flex layout, such as a row or column
+ * @param align  where to place the children across the axis
+ *
+ * @note Not implemented yet (milestone 5).
+ */
+void trlv_align_items(lv_obj_t * obj, trlv_align_items_t align);
 
 /**
  * Hug the content's width: Figma "hug contents", CSS `width: fit-content`.
