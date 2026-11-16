@@ -11,23 +11,27 @@
 
 #define LONG_TEXT "The quick brown fox jumps over the lazy dog, then naps in the sun."
 
-/* Writable copy of the Regular layout, for tests that change text tokens.
- * trlv_init keeps the pointer, so it must outlive the test. */
+/* Writable copy of the Regular layout, so the tests set their own text
+ * tokens rather than depend on the template's. trlv_init keeps the pointer,
+ * so it must outlive the test. */
 static trlv_layout_tokens_t layout;
 
-static lv_obj_t * setup(lv_obj_t * screen)
-{
-    trlv_init(lv_obj_get_display(screen), &tokens_light, &tokens_regular);
-    return screen;
-}
-
+/* Body Medium in the default font, with the given line height and letter
+ * spacing. */
 static lv_obj_t * setup_with(lv_obj_t * screen, int32_t line_height, int32_t letter_spacing)
 {
     layout = tokens_regular;
+    layout.text[TRLV_TEXT_BODY_MEDIUM].font = LV_FONT_DEFAULT;
     layout.text[TRLV_TEXT_BODY_MEDIUM].line_height = line_height;
     layout.text[TRLV_TEXT_BODY_MEDIUM].letter_spacing = letter_spacing;
     trlv_init(lv_obj_get_display(screen), &tokens_light, &layout);
     return screen;
+}
+
+/* Body Medium in the default font, with its own line height. */
+static lv_obj_t * setup(lv_obj_t * screen)
+{
+    return setup_with(screen, 0, 0);
 }
 
 static int32_t font_line_height(void)

@@ -47,6 +47,9 @@ static lv_obj_t * part(lv_obj_t * page, int32_t index)
     return lv_obj_get_child(page, index);
 }
 
+/* The tests build LVGL with its default lv_conf, where Montserrat 14 is the
+ * only font. Every text role then uses LV_FONT_DEFAULT, so a one-line text
+ * is that font's line height whatever its role. */
 static int32_t line_height(void)
 {
     return lv_font_get_line_height(LV_FONT_DEFAULT);
@@ -55,14 +58,17 @@ static int32_t line_height(void)
 static int32_t text_width(lv_obj_t * label)
 {
     lv_point_t size;
-    lv_text_get_size(&size, lv_label_get_text(label), LV_FONT_DEFAULT, 0, 0, LV_COORD_MAX, LV_TEXT_FLAG_NONE);
+    lv_text_get_size(&size, lv_label_get_text(label), lv_obj_get_style_text_font(label, LV_PART_MAIN),
+                     lv_obj_get_style_text_letter_space(label, LV_PART_MAIN), 0, LV_COORD_MAX, LV_TEXT_FLAG_NONE);
     return size.x;
 }
 
 static int32_t wrapped_height(lv_obj_t * label, int32_t max_width)
 {
     lv_point_t size;
-    lv_text_get_size(&size, lv_label_get_text(label), LV_FONT_DEFAULT, 0, 0, max_width, LV_TEXT_FLAG_NONE);
+    lv_text_get_size(&size, lv_label_get_text(label), lv_obj_get_style_text_font(label, LV_PART_MAIN),
+                     lv_obj_get_style_text_letter_space(label, LV_PART_MAIN),
+                     lv_obj_get_style_text_line_space(label, LV_PART_MAIN), max_width, LV_TEXT_FLAG_NONE);
     return size.y;
 }
 
