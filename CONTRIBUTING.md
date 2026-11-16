@@ -151,10 +151,13 @@ LVGL 9.6 deprecates what v10 removes. Follow these rules:
 
 - Library code **never calls `malloc` / `lv_malloc` (or friends) directly**.
   CI checks this with a grep.
-- LVGL's internal allocations (style property storage, theme objects) happen
-  **only in `trlv_init` and colour-mode switches**. They are bounded and never
-  grow: switches overwrite existing style properties in place.
 - Constant styles use `LV_STYLE_CONST_INIT`, so they live in flash and use no RAM.
+- Token styles use `LV_STYLE_CONST_INIT` too, with a static, writable property
+  array in RAM. Build functions write the values into it; they never call
+  `lv_style_init` or `lv_style_set_*`, so styles allocate nothing (see
+  `src/trlv_internal.h`).
+- LVGL's other internal allocations (theme objects) happen **only in
+  `trlv_init` and colour-mode switches**, and are bounded.
 - Modifiers apply shared styles, not per-object local styles. Where a local
   style can't be avoided (unusual padding, gap or size values), document the
   cost in the function's doc comment.

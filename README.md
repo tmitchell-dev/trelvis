@@ -78,8 +78,9 @@ trlv_button_variant(btn, TRLV_BUTTON_TONAL);
   all LVGL style properties on shared styles, with LVGL's part/state selectors
   and inheritance.
 - **Small and predictable on microcontrollers.** C99, no direct heap
-  allocation, constant styles in flash, bounded LVGL allocations only at
-  initialisation and on colour-mode switches.
+  allocation, constant styles in flash, token styles in fixed static memory, and
+  bounded LVGL allocations (theme objects) only at initialisation and on
+  colour-mode switches.
 - **Forward-compatible.** Written against LVGL 9.6 following the rules that
   make the move to LVGL v10 straightforward.
 

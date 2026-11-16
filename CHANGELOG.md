@@ -21,11 +21,15 @@ While the version is 0.x, minor releases may contain breaking changes.
   Regular layout values with `LV_FONT_DEFAULT` for every text role.
 - Provisional `trlv_init(disp, color, layout)` (no theme yet) and the token
   accessors `trlv_color()` and `trlv_layout()`. A `NULL` display or token
-  pointer is rejected with a warning.
+  pointer is rejected with a warning. Calling `trlv_init` again (also after
+  `lv_deinit` / `lv_init`) updates objects that already use token styles.
 - Provisional `trlv_box(parent)`: a transparent container with no border or
   padding that hugs its children. Unlike a plain `lv_obj`, it is not
   scrollable or clickable. Its style, `trlv_style_box`, is exposed in
   `trlv_styles.h`.
+- Provisional `trlv_gap(obj, space)`: the gap between flex or grid children
+  from the spacing scale, as a shared style per step. Works on any object;
+  calling it again replaces the previous gap.
 - CI: GCC and Clang builds against LVGL 9.6 with warnings as errors, C++17
   include test, non-CMake build, allocation and SPDX checks; weekly build
   against LVGL master; tag-driven release workflow.

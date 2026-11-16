@@ -30,6 +30,9 @@ void trlv_init(lv_display_t * disp, const trlv_color_tokens_t * color,
 
     trlv_layout_styles_build(layout);
     trlv_text_styles_build(layout);
+
+    /* Objects that already use a token style pick up the new values. */
+    lv_obj_report_style_change(NULL);
 }
 
 const trlv_color_tokens_t * trlv_color(void)

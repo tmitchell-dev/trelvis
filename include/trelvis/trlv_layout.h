@@ -41,6 +41,23 @@ extern "C" {
  */
 lv_obj_t * trlv_box(lv_obj_t * parent);
 
+/*---------------------------------------------------------------------------
+ * Modifiers. Each works on any object, including ones TreLVis did not
+ * create, and replaces its own previous style rather than adding another.
+ *-------------------------------------------------------------------------*/
+
+/**
+ * Set the gap between children: Figma auto layout "gap between items", CSS
+ * `gap`. Sets both LVGL `pad_row` and `pad_column` to the token value.
+ *
+ * Applies a shared style (one per space step), so it costs no RAM per
+ * object. Calling it again replaces the previous gap.
+ *
+ * @param obj    any object; the gap applies to its flex or grid children
+ * @param space  a step of the spacing scale
+ */
+void trlv_gap(lv_obj_t * obj, trlv_space_t space);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
