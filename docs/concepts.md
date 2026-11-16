@@ -363,7 +363,7 @@ The theme's apply callback checks each object's class with
 | LVGL widget | MD3 treatment |
 |---|---|
 | Screen / plain `lv_obj` | `surface` background, `on_surface` text, body font (inherited) |
-| `lv_label` | inherits; default role Body Medium |
+| `lv_label` | No role or colour of its own: it inherits Body Medium and `on_surface` from the screen, or the role and `on_` colour of the surface, card or button it sits in. |
 | `lv_button` | Filled button by default (`primary` / `on_primary`, radius FULL, height `control_height[MD]`, Label Large); variants via `trlv_button_variant()` |
 | `lv_switch`, `lv_checkbox` | MD3 track / handle / box colours, checked states |
 | `lv_slider`, `lv_bar`, `lv_arc` | `primary` indicator, `surface_container_highest` track |
@@ -437,10 +437,10 @@ and each group replaces its previous style.
 | Spacing | `trlv_gap(obj, space)`, `trlv_pad(obj, space)` | Different horizontal / vertical values, or one side: use raw LVGL with a token value (below). |
 | Distribution | `trlv_justify(obj, TRLV_JUSTIFY_START / CENTER / END / SPACE_BETWEEN / SPACE_AROUND / SPACE_EVENLY)`, `trlv_align_items(obj, TRLV_ALIGN_ITEMS_START / CENTER / END)` | Two named calls in place of `lv_obj_set_flex_align`'s three positional arguments, with shared styles instead of a local one. `ALIGN_ITEMS`, not `ALIGN`, so the values aren't mistaken for `lv_align_t`. The enum values equal LVGL's `LV_FLEX_ALIGN_*`. LVGL flex has no cross-axis stretch; use `trlv_fill_*` on the children. |
 | Sizing | `trlv_hug_width/height`, `trlv_fill_width/height` | Fixed size: `lv_obj_set_size`. Hug and fill are one group, so `trlv_hug_*` also clears an earlier fill. |
-| Surfaces | `trlv_surface(obj, TRLV_SURFACE_SURFACE / CONTAINER_LOWEST / CONTAINER_LOW / CONTAINER / CONTAINER_HIGH / CONTAINER_HIGHEST / PRIMARY_CONTAINER / SECONDARY_CONTAINER / TERTIARY_CONTAINER / ERROR_CONTAINER / SUCCESS_CONTAINER / WARNING_CONTAINER / INVERSE)` | Sets container colour + matching `on_` text colour (inherited). Tone only: no radius or border. |
-| Cards | `trlv_card(obj, TRLV_CARD_FILLED / ELEVATED / OUTLINED)` | MD3 cards: tone + radius MD + border/shadow. Padding stays explicit (`trlv_pad`, typically `LG`). |
-| Buttons | `trlv_button_variant(btn, TRLV_BUTTON_FILLED / TONAL / OUTLINED / TEXT)` | Restyles an `lv_button` (the theme default is FILLED). |
-| Text | `trlv_text_role(obj, role)` | On a container it sets the role for its descendants (inheritance). |
+| Surfaces | `trlv_surface(obj, TRLV_SURFACE_SURFACE / CONTAINER_LOWEST / CONTAINER_LOW / CONTAINER / CONTAINER_HIGH / CONTAINER_HIGHEST / PRIMARY_CONTAINER / SECONDARY_CONTAINER / TERTIARY_CONTAINER / ERROR_CONTAINER / SUCCESS_CONTAINER / WARNING_CONTAINER / INVERSE)` | Sets container colour + matching `on_` text colour (inherited). Tone only: no radius or border. One group with cards: `trlv_surface` and `trlv_card` replace each other. |
+| Cards | `trlv_card(obj, TRLV_CARD_FILLED / ELEVATED / OUTLINED)` | MD3 cards: tone + radius MD + border/shadow. Padding stays explicit (`trlv_pad`, typically `LG`). Not interactive in v1. |
+| Buttons | `trlv_button_variant(btn, TRLV_BUTTON_FILLED / TONAL / OUTLINED / TEXT)` | Restyles an `lv_button` (the theme default is FILLED): container colour, border and content colour, with pressed / focus / disabled states. Shape, height and text role stay the theme's. |
+| Text | `trlv_text_role(obj, role)` | On a label it changes the role; on a container it sets the role for every label inside that has none of its own (inheritance). |
 
 **Axis-aware fill.** Figma's "fill container" means *grow* along the parent's
 main axis and *stretch* along its cross axis. `trlv_fill_width/height` checks
