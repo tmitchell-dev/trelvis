@@ -3,14 +3,47 @@
 
 /**
  * @file trlv_styles.h
- * Catalogue of the shared LVGL styles TreLVis creates (layout, spacing, surfaces, cards, text, buttons).
+ * The shared LVGL styles a project can add to an object directly.
  *
- * The constructors and modifiers apply these same styles. A project can also
- * use them directly with lv_obj_add_style(obj, &trlv_style_..., 0).
+ * TreLVis exposes a style only when no modifier can apply it to an object
+ * that already exists. trlv_box, trlv_row and trlv_column create new
+ * objects, so their styles are here: with them, a project can turn an
+ * existing object, such as an lv_button or a list item, into a row or
+ * column, or reset its theme look:
  *
- * Provisional: the milestone 2 slice exposes the layout styles only. The full
- * catalogue is written in the milestone 3 API review. See docs/concepts.md
- * section 6.5.
+ *     lv_obj_t * btn = lv_button_create(parent);
+ *     lv_obj_add_style(btn, &trlv_style_row, 0);
+ *     trlv_gap(btn, TRLV_SPACE_SM);
+ *     lv_image_set_src(lv_image_create(btn), &icon_play);
+ *     trlv_text(btn, "Start", TRLV_TEXT_LABEL_LARGE);
+ *
+ * Every other TreLVis style (gap, pad, justify, align items, hug and fill,
+ * text roles, surfaces, cards, button variants, divider) stays internal:
+ * its modifier works on any object, including inside a project's own theme
+ * apply callback, and also replaces the group's previous style, which
+ * lv_obj_add_style does not.
+ *
+ * These styles are constant (LV_STYLE_CONST_INIT): they live in flash, use
+ * no RAM and are valid before trlv_init.
+ *
+ * Style precedence, lowest to highest (LVGL's own rules):
+ *
+ * 1. theme styles
+ * 2. TreLVis styles, from modifiers or added from this header
+ * 3. project styles added later with lv_obj_add_style
+ * 4. local style properties (lv_obj_set_style_*)
+ *
+ * Within one level, a style added later wins.
+ *
+ * Mapping: Figma / MD3 → CSS → TreLVis → LVGL mechanism
+ *
+ * | Figma / MD3                    | CSS                                       | TreLVis            | LVGL properties                                    |
+ * |--------------------------------|-------------------------------------------|--------------------|----------------------------------------------------|
+ * | Frame, no fill, stroke or padding | `div` with no styles                  | trlv_style_box     | `bg_opa`, `border_width`, `pad_*` = 0; size LV_SIZE_CONTENT |
+ * | Auto layout →                  | `display: flex; flex-direction: row`      | trlv_style_row     | `layout = LV_LAYOUT_FLEX`, `flex_flow = ROW`       |
+ * | Auto layout ↓                  | `display: flex; flex-direction: column`   | trlv_style_column  | `layout = LV_LAYOUT_FLEX`, `flex_flow = COLUMN`    |
+ *
+ * All functions using these styles must be called from the LVGL thread.
  */
 
 #ifndef TRLV_STYLES_H
@@ -24,16 +57,33 @@ extern "C" {
 
 /**
  * Box reset (constant): transparent background, no border, no padding, and
- * hug (LV_SIZE_CONTENT) width and height. Applied by trlv_box.
+ * hug (LV_SIZE_CONTENT) width and height. Figma: a frame with no fill,
+ * stroke or padding; CSS: a `div` with no styles. Applied by trlv_box.
+ *
+ * Added to an existing widget, it overrides the theme's background, border,
+ * padding and size, but not its other styles or the widget's flags: an
+ * lv_obj stays scrollable and clickable (trlv_box turns those off).
  */
 extern const lv_style_t trlv_style_box;
 
-/** Horizontal flex flow (constant): Figma auto layout →, CSS
- *  `display: flex; flex-direction: row`. Applied by trlv_row. */
+/**
+ * Horizontal flex flow (constant): Figma auto layout →, CSS
+ * `display: flex; flex-direction: row`. Applied by trlv_row.
+ *
+ * Sets only the layout and flow: the object keeps its size, padding and
+ * look. Add a gap with trlv_gap. trlv_style_row and trlv_style_column are
+ * not a group: to change the direction later, remove one with
+ * lv_obj_remove_style before adding the other, or use
+ * lv_obj_set_flex_flow, which adds a local style and wins.
+ */
 extern const lv_style_t trlv_style_row;
 
-/** Vertical flex flow (constant): Figma auto layout ↓, CSS
- *  `display: flex; flex-direction: column`. Applied by trlv_column. */
+/**
+ * Vertical flex flow (constant): Figma auto layout ↓, CSS
+ * `display: flex; flex-direction: column`. Applied by trlv_column.
+ *
+ * Like trlv_style_row, with children placed top to bottom.
+ */
 extern const lv_style_t trlv_style_column;
 
 #ifdef __cplusplus

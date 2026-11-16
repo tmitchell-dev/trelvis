@@ -376,23 +376,32 @@ Coverage is built screen, label and button first, then one widget at a time.
 
 ### 6.5 Style catalogue
 
-The shared styles are exposed in `trlv_styles.h` so projects can use them with
-`lv_obj_add_style` directly. The modifiers use the same styles:
+TreLVis keeps its shared styles internal, with one exception: a style is
+exposed in [`trlv_styles.h`](../include/trelvis/trlv_styles.h) only when no
+modifier can apply it to an object that already exists. That leaves three
+constant styles:
 
-- **Layout (const):** `trlv_style_box` (reset), `trlv_style_row`,
-  `trlv_style_column`, justify/align variants, grow, fill/hug.
-- **Spacing (token):** one gap style and one pad style per space step, plus
-  no x/y variants (different horizontal and vertical values use raw LVGL).
-- **Surfaces (token):** one per `TRLV_SURFACE_*` (container colour + `on_`
-  text colour).
-- **Cards (token):** `trlv_style_card_filled` (`surface_container_highest`),
-  `trlv_style_card_elevated` (`surface_container_low` + elevation 1),
-  `trlv_style_card_outlined` (`surface` + 1 px `outline_variant`). All use
-  radius MD.
-- **Text (token):** `trlv_style_text_<role>` (font, line space, letter space).
-- **Buttons (token):** filled, tonal (`secondary_container`), outlined
-  (`outline`) and text, each with its state styles.
-- **Divider (token):** `outline_variant`.
+- `trlv_style_box`: the box reset (transparent, no border or padding, hug);
+- `trlv_style_row` and `trlv_style_column`: the flex flow.
+
+`trlv_box`, `trlv_row` and `trlv_column` create new objects, so these styles
+are how a project turns an existing widget into a row or column, for
+example an `lv_button` holding an icon and a label:
+`lv_obj_add_style(btn, &trlv_style_row, 0)`.
+
+Every other style is reached through its modifier, which works on any
+object (also inside a project's own theme apply callback) and replaces the
+group's previous style:
+
+| Styles (internal) | Kind | Modifier |
+|---|---|---|
+| Gap, pad: one per space step | token | `trlv_gap`, `trlv_pad` |
+| Justify, align items: one per value | constant | `trlv_justify`, `trlv_align_items` |
+| Hug, fill (100 %), grow: per axis | constant | `trlv_hug_*`, `trlv_fill_*` |
+| Text: one per role | token | `trlv_text`, `trlv_text_role` |
+| Surfaces: one per `TRLV_SURFACE_*`; cards: filled, elevated, outlined | token | `trlv_surface`, `trlv_card` |
+| Buttons: tonal, outlined, text, each with state styles | token | `trlv_button_variant` |
+| Divider: horizontal, vertical | token | `trlv_divider` |
 
 ## 7. Primitives and modifiers
 
