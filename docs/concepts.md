@@ -318,29 +318,39 @@ From lowest to highest priority:
 3. project styles added later with `lv_obj_add_style`
 4. local style properties (`lv_obj_set_style_*`)
 
-### 6.3 Theme API (draft)
+### 6.3 Theme API
+
+The theme API is in [`trlv_theme.h`](../include/trelvis/trlv_theme.h):
 
 ```c
 void trlv_init(lv_display_t * disp,
                const trlv_color_tokens_t * color,
                const trlv_layout_tokens_t * layout);
-void trlv_theme_set_color_mode(const trlv_color_tokens_t * color);  /* runtime switch */
+void trlv_theme_set_color_mode(const trlv_color_tokens_t * color);  /* run-time switch */
 const trlv_color_tokens_t  * trlv_color(void);
 const trlv_layout_tokens_t * trlv_layout(void);
 ```
 
 - `trlv_init` takes an explicit display. LVGL v10 no longer accepts `NULL`
   for the default display.
+- **Call `trlv_init` before creating objects.** LVGL themes style an object
+  when it is created, so objects that already exist keep their old theme
+  styles.
 - **Colour-mode switch:** existing shared styles are re-set in place, the
   parent default theme is re-initialised with the new colours, then
   `lv_obj_report_style_change(NULL)` is called. TreLVis never walks the object
-  tree.
-- **Layout mode** is chosen once, at `trlv_init`.
+  tree. LVGL's default theme needs a dark flag; TreLVis decides it from the
+  luminance of `surface`, so the colour tokens need no extra field.
+- **Layout mode** is chosen once, at `trlv_init`: layout tokens change sizes,
+  so switching them would need every screen rebuilt.
+- **One set of tokens per application.** The shared styles are global; the
+  theme is installed on the display passed to `trlv_init`, and another
+  display can use the same theme with `lv_display_set_theme`.
 - `TRLV_USE_THEME 0` skips installing the theme, for projects that want only
   layout helpers and tokens or bring their own theme.
 - **Parent theme:** LVGL's default theme, initialised with MD3 `primary` /
-  `secondary`, the dark flag and the body font, so widgets TreLVis doesn't
-  cover still match. Set with `TRLV_THEME_PARENT` (default / none).
+  `secondary`, the dark flag and the Body Medium font, so widgets TreLVis
+  doesn't cover still match. Set with `TRLV_THEME_PARENT` (default / none).
 - *(planned, v1.1)* `TRLV_USE_SUBJECT_THEME`:
   `trlv_theme_bind_subject(lv_subject_t * subject, const trlv_color_tokens_t * const modes[], uint32_t count)`.
   The app sets an integer subject (0 = light, 1 = dark, …) and the theme follows.
@@ -474,7 +484,9 @@ LVGL, so TreLVis adds no function for them. Setters named
 
 ### 7.3 Debug aids
 
-- `TRLV_USE_DEBUG_OUTLINE` draws a 1 px outline on all TreLVis containers.
+- `TRLV_USE_DEBUG_OUTLINE` draws a 1 px outline around every box, row,
+  column and spacer *(planned, milestone 5)*. It is drawn outside the object
+  and takes no space, so the layout it shows doesn't change.
 - *(planned, v1.1)* `trlv_debug_dump(obj)` prints the tree with sizes,
   padding, gaps and styles for comparison with Figma (`TRLV_USE_DEBUG`).
 

@@ -53,18 +53,29 @@
  *-------------------------------------------------------------------------*/
 
 /**
- * 1: `trlv_init` installs the TreLVis MD3 theme on the display.
- * 0: tokens and layout helpers only (bring your own theme).
+ * 1: trlv_init installs the TreLVis MD3 theme on the display, so LVGL's
+ *    built-in widgets get MD3 styles.
+ * 0: no theme is compiled or installed. Tokens, layout primitives,
+ *    modifiers and the shared styles still work; widgets keep the display's
+ *    own theme. For projects that bring their own theme.
  */
 #ifndef TRLV_USE_THEME
 #  define TRLV_USE_THEME 1
 #endif
 
 /** Values for TRLV_THEME_PARENT. */
-#define TRLV_THEME_PARENT_NONE    0   /**< No parent theme; uncovered widgets are unstyled. */
-#define TRLV_THEME_PARENT_DEFAULT 1   /**< LVGL default theme, seeded with MD3 colours. */
+#define TRLV_THEME_PARENT_NONE    0   /**< No parent theme: widgets the TreLVis theme
+                                           doesn't cover are unstyled. Saves the
+                                           default theme's code and RAM. */
+#define TRLV_THEME_PARENT_DEFAULT 1   /**< LVGL's default theme, initialised with the
+                                           MD3 primary and secondary colours, dark
+                                           mode and the Body Medium font. Needs
+                                           LV_USE_THEME_DEFAULT in lv_conf.h. */
 
-/** Theme that styles widgets the TreLVis theme does not cover. */
+/**
+ * The theme that styles widgets the TreLVis theme doesn't cover (see
+ * docs/concepts.md section 6.4). Only used with TRLV_USE_THEME 1.
+ */
 #ifndef TRLV_THEME_PARENT
 #  define TRLV_THEME_PARENT TRLV_THEME_PARENT_DEFAULT
 #endif
@@ -73,7 +84,14 @@
  * Debug
  *-------------------------------------------------------------------------*/
 
-/** 1: draw a 1 px outline on every TreLVis container (layout debugging). */
+/**
+ * 1: draw a 1 px outline around every box, row, column and spacer, to
+ * compare a layout with its Figma frames. The outline is drawn outside the
+ * object and takes no space, so the layout doesn't change. For development
+ * builds only.
+ *
+ * Not implemented yet (milestone 5).
+ */
 #ifndef TRLV_USE_DEBUG_OUTLINE
 #  define TRLV_USE_DEBUG_OUTLINE 0
 #endif
