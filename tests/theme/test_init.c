@@ -55,8 +55,28 @@ static void null_arguments_are_rejected(lv_obj_t * screen)
     ASSERT_PTR(trlv_layout(), &tokens_regular);
 }
 
+/* The token template is complete: every text role has a font, the shape
+ * scale ends in a circle, the shadows step up, and every colour mode has the
+ * same custom colours. */
+static void template_values_are_complete(lv_obj_t * screen)
+{
+    (void)screen;
+    for(int32_t i = 0; i < TRLV_TEXT_COUNT; i++) {
+        TRLV_ASSERT_INT(tokens_regular.text[i].font != NULL, true);
+    }
+    TRLV_ASSERT_INT(tokens_regular.radius[TRLV_RADIUS_FULL], LV_RADIUS_CIRCLE);
+    TRLV_ASSERT_INT(tokens_regular.elevation[TRLV_ELEVATION_0].opa, LV_OPA_0);
+    for(int32_t i = 1; i < TRLV_ELEVATION_COUNT; i++) {
+        TRLV_ASSERT_INT(tokens_regular.elevation[i].blur > tokens_regular.elevation[i - 1].blur, true);
+    }
+    TRLV_ASSERT_INT((int32_t)tokens_light.custom_count, TOKEN_CUSTOM_COUNT);
+    TRLV_ASSERT_INT((int32_t)tokens_dark.custom_count, TOKEN_CUSTOM_COUNT);
+    TRLV_ASSERT_INT(tokens_light.custom != NULL && tokens_dark.custom != NULL, true);
+}
+
 int main(void)
 {
+    TRLV_TEST_RUN(template_values_are_complete);
     TRLV_TEST_RUN(accessors_are_null_before_init);
     TRLV_TEST_RUN(init_stores_the_tokens);
     TRLV_TEST_RUN(init_again_uses_the_new_tokens);

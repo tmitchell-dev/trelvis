@@ -47,12 +47,12 @@ static lv_obj_t * part(lv_obj_t * page, int32_t index)
     return lv_obj_get_child(page, index);
 }
 
-/* The tests build LVGL with its default lv_conf, where Montserrat 14 is the
- * only font. Every text role then uses LV_FONT_DEFAULT, so a one-line text
- * is that font's line height whatever its role. */
-static int32_t line_height(void)
+/* Height of a one-line text: its font's line height (LVGL adds line
+ * spacing only between lines). Roles use different fonts, so it is
+ * measured per label. */
+static int32_t line_height(lv_obj_t * label)
 {
-    return lv_font_get_line_height(LV_FONT_DEFAULT);
+    return lv_font_get_line_height(lv_obj_get_style_text_font(label, LV_PART_MAIN));
 }
 
 static int32_t text_width(lv_obj_t * label)
@@ -124,10 +124,12 @@ static void header_places_title_and_status(lv_obj_t * screen)
     lv_obj_t * title = lv_obj_get_child(header, 0);
     lv_obj_t * status = lv_obj_get_child(header, 1);
     int32_t width = 800 - 2 * PAGE_PAD;
+    int32_t height = LV_MAX(line_height(title), line_height(status));
 
-    TRLV_ASSERT_HEIGHT(header, line_height());
-    TRLV_ASSERT_RECT(title, 0, 0, text_width(title), line_height());
-    TRLV_ASSERT_RECT(status, width - text_width(status), 0, text_width(status), line_height());
+    TRLV_ASSERT_HEIGHT(header, height);
+    TRLV_ASSERT_RECT(title, 0, (height - line_height(title)) / 2, text_width(title), line_height(title));
+    TRLV_ASSERT_RECT(status, width - text_width(status), (height - line_height(status)) / 2,
+                     text_width(status), line_height(status));
 }
 
 /* Each readout fills the width: the name grows, so the value sits on the right. */
@@ -136,19 +138,23 @@ static void readouts_put_values_on_the_right(lv_obj_t * screen)
     lv_obj_t * readouts = part(build(screen), READOUTS);
     int32_t width = 800 - 2 * PAGE_PAD;
 
+    int32_t y = 0;
+
     TRLV_ASSERT_INT(lv_obj_get_child_count(readouts), 3);
-    TRLV_ASSERT_HEIGHT(readouts, 3 * line_height() + 2 * READOUTS_GAP);
 
     for(int32_t i = 0; i < 3; i++) {
         lv_obj_t * row = lv_obj_get_child(readouts, i);
         lv_obj_t * name = lv_obj_get_child(row, 0);
         lv_obj_t * value = lv_obj_get_child(row, 1);
         int32_t value_width = text_width(value);
+        int32_t height = LV_MAX(line_height(name), line_height(value));
 
-        TRLV_ASSERT_RECT(row, 0, i * (line_height() + READOUTS_GAP), width, line_height());
-        TRLV_ASSERT_RECT(name, 0, 0, width - READOUT_GAP - value_width, line_height());
-        TRLV_ASSERT_RECT(value, width - value_width, 0, value_width, line_height());
+        TRLV_ASSERT_RECT(row, 0, y, width, height);
+        TRLV_ASSERT_RECT(name, 0, 0, width - READOUT_GAP - value_width, line_height(name));
+        TRLV_ASSERT_RECT(value, width - value_width, 0, value_width, line_height(value));
+        y += height + READOUTS_GAP;
     }
+    TRLV_ASSERT_HEIGHT(readouts, y - READOUTS_GAP);
 }
 
 /* The body text fills the width and wraps onto more lines. */
@@ -159,9 +165,9 @@ static void body_text_wraps(lv_obj_t * screen)
     lv_obj_t * body = lv_obj_get_child(about, 1);
     int32_t width = 800 - 2 * PAGE_PAD;
 
-    TRLV_ASSERT_RECT(heading, 0, 0, text_width(heading), line_height());
-    TRLV_ASSERT_RECT(body, 0, line_height() + ABOUT_GAP, width, wrapped_height(body, width));
-    TRLV_ASSERT_INT(trlv_test_height(body) > line_height(), true);
+    TRLV_ASSERT_RECT(heading, 0, 0, text_width(heading), line_height(heading));
+    TRLV_ASSERT_RECT(body, 0, line_height(heading) + ABOUT_GAP, width, wrapped_height(body, width));
+    TRLV_ASSERT_INT(trlv_test_height(body) > line_height(body), true);
 }
 
 /* The buttons hug their labels and sit side by side, the gap apart. */
