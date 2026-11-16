@@ -74,6 +74,9 @@ endfunction()
 
 trlv_add_test(layout_smoke layout/test_smoke.c)
 
+trlv_add_test(theme_init theme/test_init.c)
+target_link_libraries(theme_init PRIVATE trlv_tokens_template)
+
 # Tests of internal helpers also see src/.
 trlv_add_test(internal_style_group internal/test_style_group.c)
 target_include_directories(internal_style_group PRIVATE ${PROJECT_SOURCE_DIR}/src)
