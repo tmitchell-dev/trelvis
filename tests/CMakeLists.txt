@@ -73,6 +73,7 @@ function(trlv_add_test name source)
 endfunction()
 
 trlv_add_test(layout_smoke layout/test_smoke.c)
+trlv_add_test(layout_box layout/test_box.c)
 
 trlv_add_test(theme_init theme/test_init.c)
 target_link_libraries(theme_init PRIVATE trlv_tokens_template)

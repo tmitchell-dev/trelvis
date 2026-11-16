@@ -22,6 +22,10 @@ While the version is 0.x, minor releases may contain breaking changes.
 - Provisional `trlv_init(disp, color, layout)` (no theme yet) and the token
   accessors `trlv_color()` and `trlv_layout()`. A `NULL` display or token
   pointer is rejected with a warning.
+- Provisional `trlv_box(parent)`: a transparent container with no border or
+  padding that hugs its children. Unlike a plain `lv_obj`, it is not
+  scrollable or clickable. Its style, `trlv_style_box`, is exposed in
+  `trlv_styles.h`.
 - CI: GCC and Clang builds against LVGL 9.6 with warnings as errors, C++17
   include test, non-CMake build, allocation and SPDX checks; weekly build
   against LVGL master; tag-driven release workflow.
