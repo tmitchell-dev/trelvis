@@ -323,7 +323,12 @@ container 12%. These are the MD3 values; projects may tune them.
 - **Constant styles** (box reset / transparent, row and column flow, justify
   and align values, grow, fill width/height, hug) use `LV_STYLE_CONST_INIT`.
   They live in flash and need no RAM and no allocation. **Token-dependent
-  styles** are static `lv_style_t`s built in `trlv_init`.
+  styles** (gap, pad, text roles, surfaces, cards) use the same
+  `LV_STYLE_CONST_INIT` mechanism, but their property array is a static,
+  writable array in RAM: `trlv_init` and colour-mode switches write the token
+  values into it instead of calling `lv_style_set_*`. They need no allocation,
+  their memory is fixed at compile time, and they stay valid across
+  `lv_deinit` / `lv_init`.
 - **Layout is style properties:** `layout`, `flex_flow`, `flex_main_place`,
   `flex_cross_place`, `flex_track_place`, `flex_grow`, `pad_row`,
   `pad_column` and `width` / `height` (`LV_PCT`, `LV_SIZE_CONTENT`).
@@ -508,12 +513,14 @@ LVGL, so TreLVis adds no function for them. Setters named
 ## 8. Memory and threading
 
 - TreLVis **never calls `malloc` / `lv_malloc` directly**.
-- LVGL allocates internally for style property storage and theme objects.
-  TreLVis triggers these allocations **only in `trlv_init` and colour-mode
-  switches**. They are bounded and never grow: a switch overwrites existing
-  properties in place. Creating objects allocates as usual in LVGL.
-- Constant styles use `LV_STYLE_CONST_INIT` (flash, no RAM). Token structs are
-  `const` (flash on MCUs).
+- Shared styles allocate nothing, not even through LVGL. Constant styles use
+  `LV_STYLE_CONST_INIT` (flash, no RAM). Token styles use it too, with their
+  property array in static RAM (8 bytes per property on a 32-bit MCU, the
+  `lv_style_t` itself in flash); `trlv_init` and colour-mode switches
+  overwrite the values in place. Token structs are `const` (flash on MCUs).
+- LVGL allocates internally for theme objects. TreLVis triggers this **only
+  in `trlv_init` and colour-mode switches**, and it is bounded. Creating
+  objects allocates as usual in LVGL.
 - Modifiers use shared styles. Where a value has no shared style (an uncommon
   padding, gap or size), the function's documentation states that it uses a
   local style and what that costs.

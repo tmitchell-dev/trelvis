@@ -26,6 +26,11 @@ FetchContent_Declare(lvgl
     GIT_SHALLOW    TRUE)
 FetchContent_MakeAvailable(lvgl)
 
+# LVGL logging on, so tests can check TreLVis warnings through a log
+# callback. Nothing is printed (LV_LOG_PRINTF stays 0). CI's no-CMake step
+# still compiles src/ with logging off, LVGL's default.
+target_compile_definitions(lvgl PUBLIC LV_USE_LOG=1)
+
 # ---- Strict warnings for TreLVis code (not for LVGL) ----
 set(TRLV_STRICT_WARNINGS -Wall -Wextra -Wpedantic -Werror)
 target_compile_options(trelvis PRIVATE ${TRLV_STRICT_WARNINGS})
@@ -73,6 +78,15 @@ function(trlv_add_test name source)
 endfunction()
 
 trlv_add_test(layout_smoke layout/test_smoke.c)
+trlv_add_test(layout_box layout/test_box.c)
+trlv_add_test(layout_spacing layout/test_spacing.c)
+target_link_libraries(layout_spacing PRIVATE trlv_tokens_template)
+trlv_add_test(layout_row_column layout/test_row_column.c)
+target_link_libraries(layout_row_column PRIVATE trlv_tokens_template)
+trlv_add_test(layout_sizing layout/test_sizing.c)
+target_link_libraries(layout_sizing PRIVATE trlv_tokens_template)
+trlv_add_test(layout_fill_warning layout/test_fill_warning.c)
+target_link_libraries(layout_fill_warning PRIVATE trlv_tokens_template)
 
 trlv_add_test(theme_init theme/test_init.c)
 target_link_libraries(theme_init PRIVATE trlv_tokens_template)

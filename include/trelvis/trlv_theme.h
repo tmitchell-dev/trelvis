@@ -23,12 +23,14 @@ extern "C" {
  * Initialise TreLVis with a project's tokens. Call once after creating the
  * display and before using any other TreLVis function. LVGL thread only.
  *
- * Builds the shared styles that depend on tokens (gap, pad, text roles).
- * The token structs are not copied: they must stay valid for as long as
- * TreLVis is used, which `const` globals from the token template do.
+ * Writes the token values into the shared styles that depend on tokens (gap,
+ * pad, text roles). The token structs are not copied: they must stay valid
+ * for as long as TreLVis is used, which `const` globals from the token
+ * template do.
  *
- * Calling it again with other tokens re-sets the existing shared styles in
- * place, so LVGL's style memory does not grow.
+ * The shared styles use fixed, static memory and nothing is allocated, so
+ * calling it again (with other tokens, or after lv_deinit and lv_init)
+ * overwrites them in place, and objects that already use them update.
  *
  * The milestone 2 slice installs no theme yet; `disp` is checked but not
  * otherwise used.
