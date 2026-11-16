@@ -60,9 +60,10 @@ Milestone 2 checked two behaviours on a real screen (`examples/demo`):
 
 Inputs for the API review (milestone 3):
 
-- The unedited token template gives every text role `LV_FONT_DEFAULT`, so
-  the demo has no type hierarchy until a project adds fonts. Consider having
-  the template use the Montserrat sizes LVGL ships when they are enabled.
+- The unedited token template gave every text role `LV_FONT_DEFAULT`, so
+  the demo had no type hierarchy until a project added fonts. Resolved in
+  milestone 3: the template uses the Montserrat sizes LVGL ships when they
+  are enabled.
 - Texts of different sizes side by side in a row are top-aligned until
   `trlv_align_items` lands (milestone 5). LVGL flex has no baseline
   alignment; centring is the closest match.

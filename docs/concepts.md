@@ -132,79 +132,20 @@ Figma variable collections:
 | Color | light, dark, brand… | **at runtime** | MD3 colour roles, extensions, state-layer opacities |
 | Layout | compact, regular, large… | **at start-up** | Spacing, shape, sizes, elevation geometry, type scale |
 
-### 4.1 Token types (draft)
+### 4.1 Token types
 
-The draft below will be finalised in the API review:
+The types are defined in [`trlv_tokens.h`](../include/trelvis/trlv_tokens.h),
+which documents every field and maps each token to its Figma variable or MD3
+token name. In outline:
 
-```c
-/* ---- enums (array indices; names mirror MD3 / Figma) ---- */
-typedef enum { TRLV_SPACE_NONE, TRLV_SPACE_2XS, TRLV_SPACE_XS, TRLV_SPACE_SM, TRLV_SPACE_MD,
-               TRLV_SPACE_LG, TRLV_SPACE_XL, TRLV_SPACE_2XL, TRLV_SPACE_3XL,
-               TRLV_SPACE_COUNT } trlv_space_t;
-typedef enum { TRLV_RADIUS_NONE, TRLV_RADIUS_XS, TRLV_RADIUS_SM, TRLV_RADIUS_MD,
-               TRLV_RADIUS_LG, TRLV_RADIUS_XL, TRLV_RADIUS_FULL, TRLV_RADIUS_COUNT } trlv_radius_t;
-typedef enum { TRLV_SIZE_SM, TRLV_SIZE_MD, TRLV_SIZE_LG, TRLV_SIZE_COUNT } trlv_size_t;
-typedef enum { TRLV_ELEVATION_0, TRLV_ELEVATION_1, TRLV_ELEVATION_2, TRLV_ELEVATION_3,
-               TRLV_ELEVATION_4, TRLV_ELEVATION_5, TRLV_ELEVATION_COUNT } trlv_elevation_t;
-typedef enum {                                   /* MD3 type scale */
-    TRLV_TEXT_DISPLAY_LARGE,  TRLV_TEXT_DISPLAY_MEDIUM,  TRLV_TEXT_DISPLAY_SMALL,
-    TRLV_TEXT_HEADLINE_LARGE, TRLV_TEXT_HEADLINE_MEDIUM, TRLV_TEXT_HEADLINE_SMALL,
-    TRLV_TEXT_TITLE_LARGE,    TRLV_TEXT_TITLE_MEDIUM,    TRLV_TEXT_TITLE_SMALL,
-    TRLV_TEXT_BODY_LARGE,     TRLV_TEXT_BODY_MEDIUM,     TRLV_TEXT_BODY_SMALL,
-    TRLV_TEXT_LABEL_LARGE,    TRLV_TEXT_LABEL_MEDIUM,    TRLV_TEXT_LABEL_SMALL,
-    TRLV_TEXT_COUNT } trlv_text_role_t;
-
-/* ---- composite tokens ---- */
-typedef struct {
-    const lv_font_t * font;     /* compiled or runtime font = family + weight + size */
-    int32_t line_height;        /* Figma/MD3 line height, absolute px; converted to
-                                   LVGL text_line_space = line_height - lv_font_get_line_height(font).
-                                   0 = the font's own line height */
-    int32_t letter_spacing;     /* px */
-} trlv_text_style_t;
-
-typedef struct {                /* drop shadow approximating an MD3 elevation level */
-    int32_t blur, spread, offset_x, offset_y;
-    lv_opa_t opa;               /* colour comes from color.shadow */
-} trlv_shadow_t;
-
-typedef struct {                /* MD3 state layers + disabled treatment */
-    lv_opa_t focus;             /* MD3 ~10-12% */
-    lv_opa_t pressed;           /* MD3 ~10-12% */
-    lv_opa_t disabled_content;  /* MD3 38% (on_surface) */
-    lv_opa_t disabled_container;/* MD3 12% (on_surface) */
-} trlv_state_tokens_t;
-
-/* ---- collections ---- */
-typedef struct {
-    lv_color_t primary,   on_primary,   primary_container,   on_primary_container;
-    lv_color_t secondary, on_secondary, secondary_container, on_secondary_container;
-    lv_color_t tertiary,  on_tertiary,  tertiary_container,  on_tertiary_container;
-    lv_color_t error,     on_error,     error_container,     on_error_container;
-    lv_color_t surface, on_surface, on_surface_variant;
-    lv_color_t surface_dim, surface_bright;
-    lv_color_t surface_container_lowest, surface_container_low, surface_container,
-               surface_container_high, surface_container_highest;
-    lv_color_t inverse_surface, inverse_on_surface, inverse_primary;
-    lv_color_t outline, outline_variant;
-    lv_color_t scrim, shadow;
-    /* extensions, named like Material Theme Builder "custom colors" */
-    lv_color_t success, on_success, success_container, on_success_container;
-    lv_color_t warning, on_warning, warning_container, on_warning_container;
-    lv_color_t focus;                            /* focus ring; typically = secondary */
-    trlv_state_tokens_t state;
-} trlv_color_tokens_t;
-
-typedef struct {
-    int32_t space[TRLV_SPACE_COUNT];
-    int32_t radius[TRLV_RADIUS_COUNT];           /* FULL = LV_RADIUS_CIRCLE */
-    int32_t border_width;
-    int32_t focus_width;
-    int32_t control_height[TRLV_SIZE_COUNT];
-    trlv_shadow_t elevation[TRLV_ELEVATION_COUNT];
-    trlv_text_style_t text[TRLV_TEXT_COUNT];
-} trlv_layout_tokens_t;
-```
+| Type | What it holds |
+|---|---|
+| `trlv_space_t`, `trlv_radius_t`, `trlv_size_t`, `trlv_elevation_t`, `trlv_text_role_t` | The scales: enums that index the layout arrays (`TRLV_SPACE_MD`, `TRLV_RADIUS_FULL`, `TRLV_TEXT_BODY_MEDIUM`, …) |
+| `trlv_text_style_t` | One type-scale role: font, Figma line height, letter spacing |
+| `trlv_shadow_t` | One elevation level as an LVGL shadow (colour from the `shadow` role) |
+| `trlv_state_tokens_t` | State-layer and disabled opacities |
+| `trlv_color_tokens_t` | Color collection: the MD3 colour roles, success / warning extensions, `focus`, and the state opacities |
+| `trlv_layout_tokens_t` | Layout collection: spacing, shape, stroke and focus widths, control heights, elevation, type scale |
 
 The structs hold only what v1 reads. Tokens for later features (icon sizes,
 hover, motion) are added together with the feature that uses them.
@@ -234,8 +175,13 @@ and `tokens_regular`, and works unedited:
 - **Colour:** the MD3 baseline light and dark schemes (seed `#6750A4`) as
   published by Material Design, plus example success and warning custom
   colours generated by Material Theme Builder.
-- **Layout:** the Regular values below. Every text role points at
-  `LV_FONT_DEFAULT`, so nothing needs a font file yet.
+- **Layout:** the Regular values below. Each text role uses the Montserrat
+  size LVGL ships nearest to its MD3 size, with the MD3 line height, when
+  that size is enabled in `lv_conf.h` (`LV_FONT_MONTSERRAT_<size>`). A size
+  that isn't enabled falls back to the next smaller enabled size with its
+  own line height, and with none enabled to `LV_FONT_DEFAULT`. Nothing
+  needs a font file, and the type hierarchy shows as soon as a few sizes
+  are enabled.
 
 The template is compiled in CI with the strict warning flags, so it stays in
 step with the token types.
@@ -248,8 +194,9 @@ a Compact layout where needed.
 Medium is 14 px text on a 20 px line). Set `line_height` to that number and
 TreLVis converts it to LVGL's line spacing. Set it to `0` when there is no
 design value yet: the text then uses the font's own line height, exactly as a
-plain LVGL label does. The template uses `0` for every role, because a 20 px
-line only makes sense once the role has its real font.
+plain LVGL label does. The template uses `0` for a role whose Montserrat size
+isn't enabled, because a 20 px line only makes sense with the role's real
+font.
 
 LVGL adds line spacing *between* lines only, while Figma centres each line
 in its line height. So a text box is shorter than in Figma by
@@ -279,7 +226,7 @@ Typical use: card padding `LG` (16), gaps `SM`–`MD`, section spacing `XL`–`2
 **Type scale:** a project's Regular tokens normally follow the MD3 type scale
 (Display Large 57/64 … Label Small 11/16), and Compact scales it down. The 15
 roles map onto a reduced set of about 5–6 real fonts (see [Fonts](#5-fonts)).
-The token template uses `LV_FONT_DEFAULT` for every role.
+The token template uses LVGL's Montserrat sizes, which have one weight only.
 
 **State layers:** focus 10%, pressed 10%, disabled content 38%, disabled
 container 12%. These are the MD3 values; projects may tune them.
