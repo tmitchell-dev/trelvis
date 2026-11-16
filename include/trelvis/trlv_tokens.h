@@ -97,7 +97,8 @@ typedef enum {
 
 /** One MD3 text style (Figma text style). */
 typedef struct {
-    const lv_font_t * font;     /**< Font for this role (family + weight + size) */
+    const lv_font_t * font;     /**< Font for this role (family + weight + size).
+                                     NULL logs a warning and uses LV_FONT_DEFAULT. */
     int32_t line_height;        /**< Figma / MD3 line height in px; converted to LVGL
                                      line spacing. 0 = the font's own line height. */
     int32_t letter_spacing;     /**< Letter spacing in px */

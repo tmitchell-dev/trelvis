@@ -42,6 +42,12 @@ While the version is 0.x, minor releases may contain breaking changes.
   flex parent), decided from the parent's layout when it is called. Hug and
   fill on one axis replace each other. Filling a parent that hugs on the
   same axis logs a warning naming the object.
+- Provisional `trlv_text(parent, text, role)`: an `lv_label` with a shared
+  style per MD3 type-scale role (font, line spacing and letter spacing from
+  the layout tokens). Like any LVGL label, it hugs its text and wraps once it
+  has a width (for example from `trlv_fill_width`), and its colour is
+  inherited. A token `line_height` in px is converted to LVGL line spacing;
+  `0` keeps the font's own line height.
 - CI: GCC and Clang builds against LVGL 9.6 with warnings as errors, C++17
   include test, non-CMake build, allocation and SPDX checks; weekly build
   against LVGL master; tag-driven release workflow.
