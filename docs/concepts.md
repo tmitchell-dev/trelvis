@@ -248,6 +248,12 @@ design value yet: the text then uses the font's own line height, exactly as a
 plain LVGL label does. The template uses `0` for every role, because a 20 px
 line only makes sense once the role has its real font.
 
+LVGL adds line spacing *between* lines only, while Figma centres each line
+in its line height. So a text box is shorter than in Figma by
+`line_height − font line height` (a one-line Body Medium text is about 16 px
+tall rather than 20 px), and its lines sit half that difference higher. The
+spacing between lines matches.
+
 **Spacing:** a 4 px grid that is MD3-compatible, with a 2 px half-step for
 hairlines.
 

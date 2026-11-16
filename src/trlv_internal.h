@@ -46,6 +46,13 @@ static inline void trlv_prop_set_num(lv_style_const_prop_t * entry, lv_style_pro
     entry->value.num = num;
 }
 
+/** Write one pointer property (such as a font) into a token style's property array. */
+static inline void trlv_prop_set_ptr(lv_style_const_prop_t * entry, lv_style_prop_t prop, const void * ptr)
+{
+    entry->prop = prop;
+    entry->value.ptr = ptr;
+}
+
 /** Write the end marker that closes a token style's property array. */
 static inline void trlv_prop_set_end(lv_style_const_prop_t * entry)
 {
