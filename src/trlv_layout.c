@@ -3,7 +3,7 @@
 
 /**
  * @file trlv_layout.c
- * Layout primitives and modifiers (provisional milestone 2 slice).
+ * Layout primitives and modifiers.
  */
 
 #include "trelvis/trlv_layout.h"

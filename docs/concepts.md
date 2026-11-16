@@ -4,14 +4,13 @@ This document explains how TreLVis is designed: its vocabulary, design tokens,
 fonts, how it uses LVGL's theme and style engine, and the primitives and
 modifiers it provides.
 
-> **Status:** this is the v1 design. A provisional slice of it is implemented
-> (milestone 2): the token types and template, `trlv_init` without a theme,
-> `trlv_box`, `trlv_row`, `trlv_column`, `trlv_gap`, `trlv_pad`,
-> `trlv_hug_*`, `trlv_fill_*` and `trlv_text`. The rest is designed but not
-> built yet. The public API is reviewed next (milestone 3).
-> Once the headers land, they are the source of truth for exact signatures;
-> this document explains the reasons behind them. Sections marked *(planned)*
-> describe features that are not implemented yet.
+> **Status:** this is the v1 design, and the v1 API has been reviewed
+> (milestone 3). The public headers are the source of truth for exact
+> signatures; this document explains the reasons behind them. Implemented so
+> far: the token types and template, `trlv_init` without a theme, `trlv_box`,
+> `trlv_row`, `trlv_column`, `trlv_gap`, `trlv_pad`, `trlv_hug_*`,
+> `trlv_fill_*` and `trlv_text`. Sections marked *(planned)* describe
+> features that are not implemented yet.
 
 - [1. What TreLVis is](#1-what-trelvis-is)
 - [2. Vocabulary](#2-vocabulary)

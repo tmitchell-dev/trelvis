@@ -10,43 +10,50 @@ While the version is 0.x, minor releases may contain breaking changes.
 
 ### Added
 
+- The v1 public API, settled in the milestone 3 review: `trelvis.h` and its
+  module headers, each documented with its Figma / MD3 / CSS equivalents
+  and a mapping table, compiling from C99 and C++17. The C++ include test
+  pins every public signature. Declared but not implemented yet (calling
+  them fails to link until they land): `trlv_theme_set_color_mode`
+  (milestone 4); `trlv_spacer`, `trlv_divider`, `trlv_justify`,
+  `trlv_align_items`, `trlv_text_role`, `trlv_surface`, `trlv_card` and
+  `trlv_button_variant` (milestone 5).
 - Project scaffold: CMake target `trelvis`, `trelvis.mk` for non-CMake builds,
   `trlv_conf.h` configuration mechanism with defaults in `trlv_conf_default.h`,
   `trlv_version.h` with a compile-time check for LVGL 9.6+ (9.x).
-- Placeholder public headers (`trelvis.h` and modules), compiling from C99 and C++17.
-- Provisional MD3 token types in `trlv_tokens.h`: spacing, radius, size,
+- MD3 token types in `trlv_tokens.h`: spacing, radius, size,
   elevation and type-scale enums, and the colour and layout token structs.
 - Token template in `templates/` for projects to copy: MD3 baseline light
   and dark colour schemes with example success and warning colours, and
   Regular layout values. Each text role uses the nearest Montserrat size
   enabled in `lv_conf.h`, with its MD3 line height, falling back to smaller
   sizes and then `LV_FONT_DEFAULT`, so no font files are needed.
-- Provisional `trlv_init(disp, color, layout)` (no theme yet) and the token
+- `trlv_init(disp, color, layout)` (no theme yet) and the token
   accessors `trlv_color()` and `trlv_layout()`. A `NULL` display or token
   pointer is rejected with a warning. Calling `trlv_init` again (also after
   `lv_deinit` / `lv_init`) updates objects that already use token styles.
-- Provisional `trlv_box(parent)`: a transparent container with no border or
+- `trlv_box(parent)`: a transparent container with no border or
   padding that hugs its children. Unlike a plain `lv_obj`, it is not
   scrollable or clickable. Its style, `trlv_style_box`, is exposed in
   `trlv_styles.h`.
-- Provisional `trlv_gap(obj, space)`: the gap between flex or grid children
+- `trlv_gap(obj, space)`: the gap between flex or grid children
   from the spacing scale, as a shared style per step. Works on any object;
   calling it again replaces the previous gap.
-- Provisional `trlv_pad(obj, space)`: padding on all four sides from the
+- `trlv_pad(obj, space)`: padding on all four sides from the
   spacing scale, as a shared style per step. Works on any object; calling it
   again replaces the previous padding.
-- Provisional `trlv_row(parent, gap)` and `trlv_column(parent, gap)`: a box
+- `trlv_row(parent, gap)` and `trlv_column(parent, gap)`: a box
   with a horizontal or vertical flex flow and a gap from the spacing scale.
   Their styles, `trlv_style_row` and `trlv_style_column`, are exposed in
   `trlv_styles.h`.
-- Provisional `trlv_hug_width/height` and `trlv_fill_width/height`. Fill
+- `trlv_hug_width/height` and `trlv_fill_width/height`. Fill
   grows along the parent's main axis and is 100 % across it (or without a
   flex parent), decided from the parent's layout when it is called. Hug and
   fill on one axis replace each other. Growing along the main axis of a
   parent that hugs that axis logs a warning naming the object, since the
   object always collapses there; filling across a hugging parent stretches
   to the widest sibling and doesn't warn.
-- Provisional `trlv_text(parent, text, role)`: an `lv_label` with a shared
+- `trlv_text(parent, text, role)`: an `lv_label` with a shared
   style per MD3 type-scale role (font, line spacing and letter spacing from
   the layout tokens). Like any LVGL label, it hugs its text and wraps once it
   has a width (for example from `trlv_fill_width`), and its colour is
