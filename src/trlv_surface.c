@@ -3,7 +3,8 @@
 
 /**
  * @file trlv_surface.c
- * Implementation of trlv_surface.h (placeholder until the API is reviewed).
+ * Implementation of trlv_surface.h: surfaces, cards and button variants
+ * (milestone 5).
  */
 
 #include "trelvis/trlv_surface.h"

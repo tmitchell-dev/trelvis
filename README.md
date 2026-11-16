@@ -35,10 +35,11 @@ calls stay valid everywhere. TreLVis does not wrap LVGL widgets; it styles them
 through LVGL's theme engine. It also doesn't rename LVGL calls that are
 already clear: for those, the docs name the LVGL call to use.
 
-> **Status: early development (0.x).** A first, provisional slice works:
-> layout primitives, text and the token template, with a
-> [demo screen](examples/demo). There is no theme yet, the full API is under
-> review, and it may change in any 0.x release. See [ROADMAP.md](ROADMAP.md).
+> **Status: early development (0.x).** The v1 API is reviewed and declared;
+> layout primitives, text and the token template work, with a
+> [demo screen](examples/demo). There is no theme yet, and functions not
+> built yet say so in their header. The API may still change in any 0.x
+> release. See [ROADMAP.md](ROADMAP.md).
 
 ## A taste of the API
 

@@ -3,7 +3,7 @@
 
 /**
  * @file trlv_text.c
- * Text primitive and the text role styles (provisional milestone 2 slice).
+ * Text primitive and the text role styles.
  * All label and text specifics live in this file.
  */
 

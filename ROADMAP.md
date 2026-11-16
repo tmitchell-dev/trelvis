@@ -30,7 +30,7 @@ LVGL's natural behaviour stands. Every deliberate difference (such as
 `trlv_box` not scrolling) is documented on the function.
 
 The v1 budget is about 20 layout and styling functions, plus four for
-initialisation and token access.
+initialisation and token access. The reviewed API has 18 plus four.
 
 ## Milestones
 
@@ -38,8 +38,8 @@ initialisation and token access.
 |---|---|---|
 | 1 | **Scaffold**: repository structure, CMake target, `trelvis.mk`, configuration mechanism, version header and LVGL version check, changelog, NOTICE, SPDX headers, CI (ci / weekly / release workflows, Dependabot), C++ include test. Placeholder headers that compile. | done |
 | 2 | **Vertical slice**: a first working slice of the library: the token template (`templates/`, copied into a project at setup and compiled in CI), a minimal `trlv_init` (no theme yet), `trlv_box`, `trlv_row`, `trlv_column`, `trlv_gap`, `trlv_pad`, `trlv_fill_*` / `trlv_hug_*` and `trlv_text`. One realistic screen is built with it as `examples/demo`: a plain `trlv_demo_create(parent)` function that any host project's simulator or target can call. A headless layout test harness (build a tree, update the layout, assert coordinates) starts running in CI. The slice is provisional: its job is to prove the approach and settle defaults before the API is fixed. | done |
-| 3 | **API review**: full public headers for the v1 API, with doc comments and mapping tables, informed by the slice. The API is reviewed before further implementation. | next |
-| 4 | **Tokens and theme**: full token types, the complete token template, the MD3 theme over the default parent theme, state layers, focus ring, colour-mode switching, line-height conversion. Widgets are covered in order: screen, label and button first, then one widget at a time. | |
+| 3 | **API review**: full public headers for the v1 API, with doc comments and mapping tables, informed by the slice. The API is reviewed before further implementation. | done |
+| 4 | **Tokens and theme**: full token types, the complete token template, the MD3 theme over the default parent theme, state layers, focus ring, colour-mode switching, line-height conversion. Widgets are covered in order: screen, label and button first, then one widget at a time. | next |
 | 5 | **Surfaces, cards and remaining primitives**: `trlv_surface`, `trlv_card`, `trlv_button_variant`, `trlv_text_role`, `trlv_spacer`, `trlv_divider`, `trlv_justify`, `trlv_align_items`, the `TRLV_USE_DEBUG_OUTLINE` option. Layout tests for every primitive and modifier. | |
 | 6 | **Demo and docs**: `examples/demo` grows from the slice screen to exercise every primitive: surface container ladder; filled / elevated / outlined cards; all button variants and covered widgets in each state; light/dark toggle; an example Compact token set next to the template values; visible keypad/encoder focus; a list built from rows (no `lv_list`). README quick start, `docs/concepts.md` and `docs/figma-handoff.md` brought up to date with the implementation. | |
 | 7 | **v1.1** (see below) | |
@@ -73,6 +73,30 @@ Inputs for the API review (milestone 3):
 - No naming changes came up. Filling both axes takes `trlv_fill_width` and
   `trlv_fill_height`; a combined call would only join two clear calls, so
   none is proposed.
+
+## Settled in the API review
+
+Milestone 3 wrote the full v1 headers; they are the source of truth for
+signatures, and the C++ include test pins them. Decisions that shape
+milestones 4 and 5:
+
+- **Cut:** `trlv_gap_xy`, `trlv_pad_xy` and `trlv_absolute`. Each joined two
+  clear LVGL calls; the layout header's "Left to LVGL" table names them.
+  Absolute position uses `lv_obj_set_floating`, which (unlike ignore-layout)
+  is left out of a hugging parent's size, as in Figma.
+- **Style catalogue:** a style is public only when no modifier can apply it
+  to an existing object: `trlv_style_box`, `trlv_style_row`,
+  `trlv_style_column`. Everything else is internal.
+- **Theme:** `trlv_init` comes before any objects are created. LVGL's default
+  theme gets its dark flag from the luminance of `surface`. The theme never
+  sets a text role on plain labels (the screen carries Body Medium, a button
+  Label Large), so `trlv_text_role` on a container reaches its labels.
+- **Surfaces and cards** are one style group and replace each other; cards
+  are not interactive in v1.
+- **Naming:** cross-axis values are `TRLV_ALIGN_ITEMS_*`, so they can't be
+  mistaken for `lv_align_t`.
+- **Token template:** text roles use LVGL's Montserrat sizes when enabled,
+  falling back to the next smaller enabled size.
 
 ## v1 acceptance criteria
 
