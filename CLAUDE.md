@@ -28,14 +28,16 @@ If an implementation decision changes the design, update the doc in the same PR.
 
 ## Current status
 
-Milestone 1 (scaffold) is done. **Next is milestone 2: a provisional vertical
-slice** (token template, box, row, column, gap, pad, fill/hug, text,
-one real screen as a `trlv_demo_create(parent)` function, first headless
-layout tests). TreLVis ships no simulator; host projects run the demo in
-their own. Milestone 3
-then writes the full public headers with doc comments and mapping tables:
-**stop there and present the API for review.** Don't implement milestone 4+
-before the API is approved.
+Milestones 1 (scaffold) and 2 (provisional vertical slice) are done. The
+slice has the token template, `trlv_init`, box, row, column, gap, pad,
+fill/hug and text, the demo screen `trlv_demo_create(parent)` in
+`examples/demo`, and headless layout tests. TreLVis ships no simulator; host
+projects run the demo in their own. What the slice settled, and its inputs
+for the review, are in ROADMAP "Settled in the slice".
+
+**Next is milestone 3: the API review.** Write the full public headers with
+doc comments and mapping tables, then **stop and present the API for
+review.** Don't implement milestone 4+ before the API is approved.
 
 Keep the API small. The library's main job is to turn blocks of LVGL calls
 that every project repeats into one standard call. Before adding a public

@@ -37,26 +37,41 @@ initialisation and token access.
 | # | Milestone | Status |
 |---|---|---|
 | 1 | **Scaffold**: repository structure, CMake target, `trelvis.mk`, configuration mechanism, version header and LVGL version check, changelog, NOTICE, SPDX headers, CI (ci / weekly / release workflows, Dependabot), C++ include test. Placeholder headers that compile. | done |
-| 2 | **Vertical slice**: a first working slice of the library: the token template (`templates/`, copied into a project at setup and compiled in CI), a minimal `trlv_init` (no theme yet), `trlv_box`, `trlv_row`, `trlv_column`, `trlv_gap`, `trlv_pad`, `trlv_fill_*` / `trlv_hug_*` and `trlv_text`. One realistic screen is built with it as `examples/demo`: a plain `trlv_demo_create(parent)` function that any host project's simulator or target can call. A headless layout test harness (build a tree, update the layout, assert coordinates) starts running in CI. The slice is provisional: its job is to prove the approach and settle defaults before the API is fixed. | next |
-| 3 | **API review**: full public headers for the v1 API, with doc comments and mapping tables, informed by the slice. The API is reviewed before further implementation. | |
+| 2 | **Vertical slice**: a first working slice of the library: the token template (`templates/`, copied into a project at setup and compiled in CI), a minimal `trlv_init` (no theme yet), `trlv_box`, `trlv_row`, `trlv_column`, `trlv_gap`, `trlv_pad`, `trlv_fill_*` / `trlv_hug_*` and `trlv_text`. One realistic screen is built with it as `examples/demo`: a plain `trlv_demo_create(parent)` function that any host project's simulator or target can call. A headless layout test harness (build a tree, update the layout, assert coordinates) starts running in CI. The slice is provisional: its job is to prove the approach and settle defaults before the API is fixed. | done |
+| 3 | **API review**: full public headers for the v1 API, with doc comments and mapping tables, informed by the slice. The API is reviewed before further implementation. | next |
 | 4 | **Tokens and theme**: full token types, the complete token template, the MD3 theme over the default parent theme, state layers, focus ring, colour-mode switching, line-height conversion. Widgets are covered in order: screen, label and button first, then one widget at a time. | |
 | 5 | **Surfaces, cards and remaining primitives**: `trlv_surface`, `trlv_card`, `trlv_button_variant`, `trlv_text_role`, `trlv_spacer`, `trlv_divider`, `trlv_justify`, `trlv_align_items`, `trlv_absolute`, `trlv_gap_xy`, `trlv_pad_xy`. Layout tests for every primitive and modifier. | |
 | 6 | **Demo and docs**: `examples/demo` grows from the slice screen to exercise every primitive: surface container ladder; filled / elevated / outlined cards; all button variants and covered widgets in each state; light/dark toggle; an example Compact token set next to the template values; visible keypad/encoder focus; a list built from rows (no `lv_list`). README quick start, `docs/concepts.md` and `docs/figma-handoff.md` brought up to date with the implementation. | |
 | 7 | **v1.1** (see below) | |
 
-## To confirm in the slice
+## Settled in the slice
 
-The API questions are decided (see [docs/concepts.md](docs/concepts.md)). Two
-behaviours are checked on a real screen in milestone 2:
+Milestone 2 checked two behaviours on a real screen (`examples/demo`):
 
-- **Fill inside a parent that hugs on the same axis.** The child asks to be
-  as big as its parent while the parent asks to be as big as its children.
-  TreLVis adds no behaviour of its own here: whatever LVGL does stands, and
-  the docs say what that is. `trlv_fill_*` logs an `LV_LOG_WARN` when it
-  sees the combination, so the cause is visible. Confirm the warning is
-  useful and not noisy.
-- **`trlv_text` hugging by default.** This is LVGL's native label behaviour;
-  confirm it reads well in practice.
+- **Fill inside a parent that hugs.** LVGL's result stands. Across the axis
+  it works: the child stretches to the widest sibling (CSS
+  `align-self: stretch`). Along the main axis the child always collapses to
+  0. `trlv_fill_*` therefore warns only in the main-axis case; warning on
+  the cross-axis case would flag a working pattern. See
+  [docs/concepts.md §7.2](docs/concepts.md#72-modifiers-verbs--properties).
+- **`trlv_text` hugging by default.** Kept. On the demo screen every name,
+  value, heading and button label wanted to hug; only the paragraph needed
+  `trlv_fill_width`, and forgetting it shows at once as one clipped line.
+
+Inputs for the API review (milestone 3):
+
+- The unedited token template gives every text role `LV_FONT_DEFAULT`, so
+  the demo has no type hierarchy until a project adds fonts. Consider having
+  the template use the Montserrat sizes LVGL ships when they are enabled.
+- Texts of different sizes side by side in a row are top-aligned until
+  `trlv_align_items` lands (milestone 5). LVGL flex has no baseline
+  alignment; centring is the closest match.
+- A `trlv_box` with children placed by `lv_obj_align` (left and right, at
+  `*_MID`) hugs its height correctly, which covers a title-and-status header
+  before `trlv_justify` exists.
+- No naming changes came up. Filling both axes takes `trlv_fill_width` and
+  `trlv_fill_height`; a combined call would only join two clear calls, so
+  none is proposed.
 
 ## v1 acceptance criteria
 
