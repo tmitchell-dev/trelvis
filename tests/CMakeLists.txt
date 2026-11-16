@@ -74,6 +74,10 @@ endfunction()
 
 trlv_add_test(layout_smoke layout/test_smoke.c)
 
+# Tests of internal helpers also see src/.
+trlv_add_test(internal_style_group internal/test_style_group.c)
+target_include_directories(internal_style_group PRIVATE ${PROJECT_SOURCE_DIR}/src)
+
 # Harness self-test: a deliberately wrong assertion must fail the program...
 trlv_add_test(harness_failure_exit harness/selftest_failure.c)
 set_tests_properties(harness_failure_exit PROPERTIES WILL_FAIL TRUE)

@@ -344,7 +344,9 @@ container 12%. These are the MD3 values; projects may tune them.
 - **Modifier groups replace rather than stack.** Calling `trlv_gap` (or
   `trlv_pad`, `trlv_card`, `trlv_surface`, `trlv_justify`, …) again removes
   that group's previous style before adding the new one. The target is 2–4
-  TreLVis styles per object.
+  TreLVis styles per object. The new style takes the old one's place in the
+  object's style list (`lv_obj_replace_style`), so calling a modifier again
+  doesn't change its precedence: a project style added after it still wins.
 
 ### 6.2 Style precedence
 
