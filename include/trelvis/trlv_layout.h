@@ -41,6 +41,43 @@ extern "C" {
  */
 lv_obj_t * trlv_box(lv_obj_t * parent);
 
+/**
+ * Create a row: Figma horizontal auto layout (→), CSS
+ * `display: flex; flex-direction: row; gap: ...`.
+ *
+ * A box (see trlv_box: not scrollable, not clickable, no theme styles, hugs
+ * its children) with trlv_style_row and the gap style. It replaces:
+ *
+ *     lv_obj_t * row = lv_obj_create(parent);
+ *     lv_obj_remove_style_all(row);
+ *     lv_obj_set_size(row, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+ *     lv_obj_set_scrollable(row, false);
+ *     lv_obj_set_clickable(row, false);
+ *     lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW);
+ *     lv_obj_set_style_pad_column(row, 8, 0);
+ *     lv_obj_set_style_pad_row(row, 8, 0);
+ *
+ * Children are placed left to right. To wrap them onto more lines, use
+ * lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW_WRAP).
+ *
+ * @param parent  the parent object
+ * @param gap     the gap between children; change it later with trlv_gap
+ * @return        the new row
+ */
+lv_obj_t * trlv_row(lv_obj_t * parent, trlv_space_t gap);
+
+/**
+ * Create a column: Figma vertical auto layout (↓), CSS
+ * `display: flex; flex-direction: column; gap: ...`.
+ *
+ * Like trlv_row, with children placed top to bottom.
+ *
+ * @param parent  the parent object
+ * @param gap     the gap between children; change it later with trlv_gap
+ * @return        the new column
+ */
+lv_obj_t * trlv_column(lv_obj_t * parent, trlv_space_t gap);
+
 /*---------------------------------------------------------------------------
  * Modifiers. Each works on any object, including ones TreLVis did not
  * create, and replaces its own previous style rather than adding another.

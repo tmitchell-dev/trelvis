@@ -97,6 +97,22 @@ lv_obj_t * trlv_box(lv_obj_t * parent)
     return obj;
 }
 
+lv_obj_t * trlv_row(lv_obj_t * parent, trlv_space_t gap)
+{
+    lv_obj_t * obj = trlv_box(parent);
+    lv_obj_add_style(obj, &trlv_style_row, LV_PART_MAIN);
+    trlv_gap(obj, gap);
+    return obj;
+}
+
+lv_obj_t * trlv_column(lv_obj_t * parent, trlv_space_t gap)
+{
+    lv_obj_t * obj = trlv_box(parent);
+    lv_obj_add_style(obj, &trlv_style_column, LV_PART_MAIN);
+    trlv_gap(obj, gap);
+    return obj;
+}
+
 /*---------------------------------------------------------------------------
  * Modifiers
  *-------------------------------------------------------------------------*/

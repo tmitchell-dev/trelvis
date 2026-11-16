@@ -21,3 +21,17 @@ static const lv_style_const_prop_t box_props[] = {
     LV_STYLE_CONST_PROPS_END
 };
 LV_STYLE_CONST_INIT(trlv_style_box, box_props);
+
+static const lv_style_const_prop_t row_props[] = {
+    LV_STYLE_CONST_LAYOUT(LV_LAYOUT_FLEX),
+    LV_STYLE_CONST_FLEX_FLOW(LV_FLEX_FLOW_ROW),
+    LV_STYLE_CONST_PROPS_END
+};
+LV_STYLE_CONST_INIT(trlv_style_row, row_props);
+
+static const lv_style_const_prop_t column_props[] = {
+    LV_STYLE_CONST_LAYOUT(LV_LAYOUT_FLEX),
+    LV_STYLE_CONST_FLEX_FLOW(LV_FLEX_FLOW_COLUMN),
+    LV_STYLE_CONST_PROPS_END
+};
+LV_STYLE_CONST_INIT(trlv_style_column, column_props);

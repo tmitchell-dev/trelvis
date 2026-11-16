@@ -33,6 +33,10 @@ While the version is 0.x, minor releases may contain breaking changes.
 - Provisional `trlv_pad(obj, space)`: padding on all four sides from the
   spacing scale, as a shared style per step. Works on any object; calling it
   again replaces the previous padding.
+- Provisional `trlv_row(parent, gap)` and `trlv_column(parent, gap)`: a box
+  with a horizontal or vertical flex flow and a gap from the spacing scale.
+  Their styles, `trlv_style_row` and `trlv_style_column`, are exposed in
+  `trlv_styles.h`.
 - CI: GCC and Clang builds against LVGL 9.6 with warnings as errors, C++17
   include test, non-CMake build, allocation and SPDX checks; weekly build
   against LVGL master; tag-driven release workflow.

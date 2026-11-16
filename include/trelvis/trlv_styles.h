@@ -28,6 +28,14 @@ extern "C" {
  */
 extern const lv_style_t trlv_style_box;
 
+/** Horizontal flex flow (constant): Figma auto layout →, CSS
+ *  `display: flex; flex-direction: row`. Applied by trlv_row. */
+extern const lv_style_t trlv_style_row;
+
+/** Vertical flex flow (constant): Figma auto layout ↓, CSS
+ *  `display: flex; flex-direction: column`. Applied by trlv_column. */
+extern const lv_style_t trlv_style_column;
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
