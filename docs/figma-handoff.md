@@ -10,8 +10,20 @@ means the design can't be built exactly, or needs hand-written exceptions.
 ## Setup
 
 - **Start from the Material 3 Figma kit.** Generate the colour scheme (light,
-  dark, plus success and warning custom colours) with **Material Theme
+  dark, plus any custom colours the product needs) with **Material Theme
   Builder**, from the product's seed colour.
+- **Custom colours are the product's own list**: success and warning, extra
+  brand accents, or alarm priorities. Agree the list and its order with the
+  developers; it becomes an enum in code. Each one has the four Material
+  Theme Builder values (colour, on colour, container, on container) in every
+  colour mode.
+- **Alarm colours come from the standard, not the brand.** For a process HMI
+  (ISA-101, ISA-18.2) or a medical device (IEC 60601-1-8), take the alarm
+  colours from the site's alarm philosophy or the standard, turn off
+  *harmonize* for them in Material Theme Builder, and use them for alarms
+  only. Check that MD3 `error` (invalid fields) is not the same colour as an
+  alarm priority. Never show a state by colour alone: pair it with text, an
+  icon or a shape.
 - **Draw frames at 1×, in real display pixels**, with one frame size per layout
   mode (e.g. 480×320 for compact, 800×480 for regular). There is no scaling
   step between Figma and the display.

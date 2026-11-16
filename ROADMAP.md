@@ -30,7 +30,7 @@ LVGL's natural behaviour stands. Every deliberate difference (such as
 `trlv_box` not scrolling) is documented on the function.
 
 The v1 budget is about 20 layout and styling functions, plus four for
-initialisation and token access. The reviewed API has 18 plus four.
+initialisation and token access. The reviewed API has 19 plus four.
 
 ## Milestones
 
@@ -40,7 +40,7 @@ initialisation and token access. The reviewed API has 18 plus four.
 | 2 | **Vertical slice**: a first working slice of the library: the token template (`templates/`, copied into a project at setup and compiled in CI), a minimal `trlv_init` (no theme yet), `trlv_box`, `trlv_row`, `trlv_column`, `trlv_gap`, `trlv_pad`, `trlv_fill_*` / `trlv_hug_*` and `trlv_text`. One realistic screen is built with it as `examples/demo`: a plain `trlv_demo_create(parent)` function that any host project's simulator or target can call. A headless layout test harness (build a tree, update the layout, assert coordinates) starts running in CI. The slice is provisional: its job is to prove the approach and settle defaults before the API is fixed. | done |
 | 3 | **API review**: full public headers for the v1 API, with doc comments and mapping tables, informed by the slice. The API is reviewed before further implementation. | done |
 | 4 | **Tokens and theme**: full token types, the complete token template, the MD3 theme over the default parent theme, state layers, focus ring, colour-mode switching, line-height conversion. Widgets are covered in order: screen, label and button first, then one widget at a time. | next |
-| 5 | **Surfaces, cards and remaining primitives**: `trlv_surface`, `trlv_card`, `trlv_button_variant`, `trlv_text_role`, `trlv_spacer`, `trlv_divider`, `trlv_justify`, `trlv_align_items`, the `TRLV_USE_DEBUG_OUTLINE` option. Layout tests for every primitive and modifier. | |
+| 5 | **Surfaces, cards and remaining primitives**: `trlv_surface`, `trlv_surface_custom`, `trlv_card`, `trlv_button_variant`, `trlv_text_role`, `trlv_spacer`, `trlv_divider`, `trlv_justify`, `trlv_align_items`, the `TRLV_USE_DEBUG_OUTLINE` option. Layout tests for every primitive and modifier. | |
 | 6 | **Demo and docs**: `examples/demo` grows from the slice screen to exercise every primitive: surface container ladder; filled / elevated / outlined cards; all button variants and covered widgets in each state; light/dark toggle; an example Compact token set next to the template values; visible keypad/encoder focus; a list built from rows (no `lv_list`). README quick start, `docs/concepts.md` and `docs/figma-handoff.md` brought up to date with the implementation. | |
 | 7 | **v1.1** (see below) | |
 
@@ -97,6 +97,15 @@ milestones 4 and 5:
   mistaken for `lv_align_t`.
 - **Token template:** text roles use LVGL's Montserrat sizes when enabled,
   falling back to the next smaller enabled size.
+
+Changed at the start of milestone 4, in a review of the token schema:
+
+- **Custom colours replace the fixed success and warning roles.** Colours
+  beyond the MD3 roles differ per product (ISA-101 alarm priorities,
+  IEC 60601-1-8 alarm levels, brand accents), so they are a project-defined
+  table in the colour tokens, applied with `trlv_surface_custom`. The token
+  structs keep one shape: no configuration option adds or removes fields.
+  `TRLV_CUSTOM_COLOR_MAX` only sizes the shared styles.
 
 ## v1 acceptance criteria
 

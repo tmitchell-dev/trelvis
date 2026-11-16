@@ -31,15 +31,19 @@
  * | `md.sys.typescale.body-medium`       | `font`, `line-height`, ...   | TRLV_TEXT_BODY_MEDIUM, `text[]`       | trlv_text, trlv_text_role, theme            |
  * | `md.sys.color.surface-container-high`| `--md-sys-color-*`           | `surface_container_high`              | theme, surfaces, cards                      |
  * | `md.sys.state.pressed.state-layer-opacity` | `opacity`              | `state.pressed`                       | theme state styles                          |
+ * | Material Theme Builder custom colour | `--md-extended-color-*`      | trlv_custom_color_t, `custom[]`       | trlv_surface_custom                         |
  *
- * Tokens that no TreLVis function reads (for example TRLV_SIZE_SM or
- * TRLV_ELEVATION_3) are there for a project's own components, so screens
- * hold no magic numbers.
+ * Tokens that no TreLVis function reads (for example TRLV_SIZE_SM,
+ * TRLV_ELEVATION_3 or `surface_dim`) are there for a project's own
+ * components, so screens hold no magic numbers.
  *
- * The structs hold only what v1 reads. Tokens for later features (icon
- * sizes, hover, motion) are added with the feature that uses them. They are
- * plain structs so that a future generator (DTCG or Material Theme Builder
- * JSON) can emit them unchanged.
+ * The structs hold the standard MD3 roles and scales, plus what v1 reads.
+ * Their shape never depends on a configuration option. Colours beyond the
+ * MD3 roles (status, alarm priorities, extra brand accents) are the
+ * project's own, in the custom colour table. Tokens for later features
+ * (icon sizes, hover, motion) are added with the feature that uses them.
+ * They are plain structs so that a future generator (DTCG or Material Theme
+ * Builder JSON) can emit them unchanged.
  */
 
 #ifndef TRLV_TOKENS_H
@@ -184,6 +188,31 @@ typedef struct {
                                       opacity (MD3 12 %) */
 } trlv_state_tokens_t;
 
+/**
+ * One custom colour: a colour family the project defines beyond the MD3
+ * roles. Material Theme Builder calls these custom (extended) colours and
+ * exports the same four values per colour mode: `color`, `onColor`,
+ * `colorContainer`, `onColorContainer`.
+ *
+ * TreLVis gives the entries no meaning; the project names them with its own
+ * enum and uses that as the index into trlv_color_tokens_t::custom:
+ *
+ * - a consumer product: success, warning, an extra brand accent;
+ * - a process HMI (ISA-101, ISA-18.2): one entry per alarm priority of the
+ *   site's alarm philosophy;
+ * - a medical device (IEC 60601-1-8): high, medium and low priority alarms.
+ *
+ * For alarm colours, take the values from the applicable standard or alarm
+ * philosophy as they are: don't harmonise them towards the brand colour in
+ * Material Theme Builder, and don't use them for anything but alarms.
+ */
+typedef struct {
+    lv_color_t color;               /**< The colour itself: strong fills, icons, text */
+    lv_color_t on_color;            /**< Content on color */
+    lv_color_t color_container;     /**< Lower-emphasis container */
+    lv_color_t on_color_container;  /**< Content on color_container */
+} trlv_custom_color_t;
+
 /*---------------------------------------------------------------------------
  * Collections (Figma variable collections)
  *-------------------------------------------------------------------------*/
@@ -239,22 +268,22 @@ typedef struct {
     lv_color_t scrim;                   /**< Modal backdrop */
     lv_color_t shadow;                  /**< Elevation shadow colour */
 
-    /* Extensions, named like Material Theme Builder custom colours */
-    lv_color_t success;                 /**< Extension: success */
-    lv_color_t on_success;              /**< Content on success */
-    lv_color_t success_container;       /**< Success containers */
-    lv_color_t on_success_container;    /**< Content on success_container */
-
-    lv_color_t warning;                 /**< Extension: warning */
-    lv_color_t on_warning;              /**< Content on warning */
-    lv_color_t warning_container;       /**< Warning containers */
-    lv_color_t on_warning_container;    /**< Content on warning_container */
-
     lv_color_t focus;                   /**< Extension: keypad / encoder focus ring.
                                              MD3 uses secondary; kept separate so a
                                              product can make focus more visible. */
 
     trlv_state_tokens_t state;          /**< State-layer and disabled opacities */
+
+    const trlv_custom_color_t * custom; /**< The project's custom colours for this
+                                             colour mode, indexed by the project's
+                                             own enum; NULL if it has none. The
+                                             array must outlive the tokens' use.
+                                             Give every colour mode the same
+                                             entries in the same order. */
+    uint32_t custom_count;              /**< Number of entries in custom. Entries
+                                             beyond TRLV_CUSTOM_COLOR_MAX can be
+                                             read with trlv_color() but not used
+                                             with trlv_surface_custom. */
 } trlv_color_tokens_t;
 
 /**
