@@ -58,6 +58,23 @@ lv_obj_t * trlv_box(lv_obj_t * parent);
  */
 void trlv_gap(lv_obj_t * obj, trlv_space_t space);
 
+/**
+ * Set the padding on all four sides: Figma auto layout padding, CSS
+ * `padding`. Sets LVGL `pad_top`, `pad_bottom`, `pad_left` and `pad_right`
+ * to the token value. For one side only, use raw LVGL
+ * (lv_obj_set_style_pad_left and so on), which adds a local style.
+ *
+ * Applies a shared style (one per space step), so it costs no RAM per
+ * object. Calling it again replaces the previous padding.
+ *
+ * As in Figma, a border is drawn inside the padding box: it doesn't add to
+ * the padding.
+ *
+ * @param obj    any object
+ * @param space  a step of the spacing scale
+ */
+void trlv_pad(lv_obj_t * obj, trlv_space_t space);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

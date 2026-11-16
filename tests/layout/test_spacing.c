@@ -102,6 +102,61 @@ static void gap_out_of_range_is_ignored(lv_obj_t * screen)
 }
 
 /*---------------------------------------------------------------------------
+ * trlv_pad
+ *-------------------------------------------------------------------------*/
+
+/* The child is offset by the token value, and the box hugs child + padding. */
+static void pad_offsets_the_child(lv_obj_t * screen)
+{
+    lv_obj_t * box = trlv_box(setup(screen));
+    lv_obj_t * c = child(box);
+    trlv_pad(box, TRLV_SPACE_LG);
+
+    TRLV_ASSERT_RECT(c, 16, 16, 10, 10);
+    TRLV_ASSERT_RECT(box, 0, 0, 16 + 10 + 16, 16 + 10 + 16);
+}
+
+/* A second call replaces the first. */
+static void second_pad_replaces_first(lv_obj_t * screen)
+{
+    lv_obj_t * box = trlv_box(setup(screen));
+    lv_obj_t * c = child(box);
+
+    trlv_pad(box, TRLV_SPACE_LG);
+    trlv_pad(box, TRLV_SPACE_SM);
+    TRLV_ASSERT_RECT(c, 8, 8, 10, 10);
+    TRLV_ASSERT_WIDTH(box, 8 + 10 + 8);
+}
+
+/* Works on a themed lv_obj that TreLVis did not create: the token value
+ * wins over the theme's padding on every side. */
+static void pad_on_a_plain_lv_obj(lv_obj_t * screen)
+{
+    lv_obj_t * obj = lv_obj_create(setup(screen));
+    trlv_pad(obj, TRLV_SPACE_XS);
+
+    TRLV_ASSERT_INT(lv_obj_get_style_pad_top(obj, LV_PART_MAIN), 4);
+    TRLV_ASSERT_INT(lv_obj_get_style_pad_bottom(obj, LV_PART_MAIN), 4);
+    TRLV_ASSERT_INT(lv_obj_get_style_pad_left(obj, LV_PART_MAIN), 4);
+    TRLV_ASSERT_INT(lv_obj_get_style_pad_right(obj, LV_PART_MAIN), 4);
+}
+
+/* Gap and pad are separate groups: setting one keeps the other. */
+static void pad_and_gap_are_independent(lv_obj_t * screen)
+{
+    lv_obj_t * a;
+    lv_obj_t * b;
+    lv_obj_t * box = flex_box(setup(screen), LV_FLEX_FLOW_ROW, &a, &b);
+    trlv_gap(box, TRLV_SPACE_SM);
+    trlv_pad(box, TRLV_SPACE_LG);
+    trlv_gap(box, TRLV_SPACE_MD);
+
+    TRLV_ASSERT_X(a, 16);
+    TRLV_ASSERT_X(b, 16 + 10 + 12);
+    TRLV_ASSERT_WIDTH(box, 16 + 10 + 12 + 10 + 16);
+}
+
+/*---------------------------------------------------------------------------
  * Token styles and trlv_init
  *-------------------------------------------------------------------------*/
 
@@ -142,6 +197,10 @@ int main(void)
     TRLV_TEST_RUN(second_gap_replaces_first);
     TRLV_TEST_RUN(gap_on_a_plain_lv_obj);
     TRLV_TEST_RUN(gap_out_of_range_is_ignored);
+    TRLV_TEST_RUN(pad_offsets_the_child);
+    TRLV_TEST_RUN(second_pad_replaces_first);
+    TRLV_TEST_RUN(pad_on_a_plain_lv_obj);
+    TRLV_TEST_RUN(pad_and_gap_are_independent);
     TRLV_TEST_RUN(init_again_updates_existing_objects);
     TRLV_TEST_RUN(modifier_before_init_takes_value_at_init);
     return trlv_test_finish();

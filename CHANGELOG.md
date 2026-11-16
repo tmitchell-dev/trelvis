@@ -30,6 +30,9 @@ While the version is 0.x, minor releases may contain breaking changes.
 - Provisional `trlv_gap(obj, space)`: the gap between flex or grid children
   from the spacing scale, as a shared style per step. Works on any object;
   calling it again replaces the previous gap.
+- Provisional `trlv_pad(obj, space)`: padding on all four sides from the
+  spacing scale, as a shared style per step. Works on any object; calling it
+  again replaces the previous padding.
 - CI: GCC and Clang builds against LVGL 9.6 with warnings as errors, C++17
   include test, non-CMake build, allocation and SPDX checks; weekly build
   against LVGL master; tag-driven release workflow.

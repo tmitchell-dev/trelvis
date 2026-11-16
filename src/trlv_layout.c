@@ -36,6 +36,26 @@ static const lv_style_t * const gap_styles[] = {
 TRLV_STATIC_ASSERT(sizeof(gap_styles) / sizeof(gap_styles[0]) == TRLV_SPACE_COUNT, gap_styles_cover_the_space_scale);
 static const trlv_style_group_t gap_group = TRLV_STYLE_GROUP_LIST(gap_styles);
 
+/* Pad: pad_top, pad_bottom, pad_left, pad_right, end marker. */
+static lv_style_const_prop_t pad_props[TRLV_SPACE_COUNT][5];
+
+static LV_STYLE_CONST_INIT(pad_none, pad_props[TRLV_SPACE_NONE]);
+static LV_STYLE_CONST_INIT(pad_2xs, pad_props[TRLV_SPACE_2XS]);
+static LV_STYLE_CONST_INIT(pad_xs, pad_props[TRLV_SPACE_XS]);
+static LV_STYLE_CONST_INIT(pad_sm, pad_props[TRLV_SPACE_SM]);
+static LV_STYLE_CONST_INIT(pad_md, pad_props[TRLV_SPACE_MD]);
+static LV_STYLE_CONST_INIT(pad_lg, pad_props[TRLV_SPACE_LG]);
+static LV_STYLE_CONST_INIT(pad_xl, pad_props[TRLV_SPACE_XL]);
+static LV_STYLE_CONST_INIT(pad_2xl, pad_props[TRLV_SPACE_2XL]);
+static LV_STYLE_CONST_INIT(pad_3xl, pad_props[TRLV_SPACE_3XL]);
+
+/* Indexed by trlv_space_t. */
+static const lv_style_t * const pad_styles[] = {
+    &pad_none, &pad_2xs, &pad_xs, &pad_sm, &pad_md, &pad_lg, &pad_xl, &pad_2xl, &pad_3xl
+};
+TRLV_STATIC_ASSERT(sizeof(pad_styles) / sizeof(pad_styles[0]) == TRLV_SPACE_COUNT, pad_styles_cover_the_space_scale);
+static const trlv_style_group_t pad_group = TRLV_STYLE_GROUP_LIST(pad_styles);
+
 void trlv_layout_styles_build(const trlv_layout_tokens_t * layout)
 {
     for(uint32_t i = 0; i < TRLV_SPACE_COUNT; i++) {
@@ -44,6 +64,12 @@ void trlv_layout_styles_build(const trlv_layout_tokens_t * layout)
         trlv_prop_set_num(&gap_props[i][0], LV_STYLE_PAD_ROW, space);
         trlv_prop_set_num(&gap_props[i][1], LV_STYLE_PAD_COLUMN, space);
         trlv_prop_set_end(&gap_props[i][2]);
+
+        trlv_prop_set_num(&pad_props[i][0], LV_STYLE_PAD_TOP, space);
+        trlv_prop_set_num(&pad_props[i][1], LV_STYLE_PAD_BOTTOM, space);
+        trlv_prop_set_num(&pad_props[i][2], LV_STYLE_PAD_LEFT, space);
+        trlv_prop_set_num(&pad_props[i][3], LV_STYLE_PAD_RIGHT, space);
+        trlv_prop_set_end(&pad_props[i][4]);
     }
 }
 
@@ -81,4 +107,12 @@ void trlv_gap(lv_obj_t * obj, trlv_space_t space)
     if(!space_is_valid(space, "trlv_gap")) return;
 
     trlv_style_group_apply(obj, &gap_group, gap_styles[space], LV_PART_MAIN);
+}
+
+void trlv_pad(lv_obj_t * obj, trlv_space_t space)
+{
+    LV_ASSERT_NULL(obj);
+    if(!space_is_valid(space, "trlv_pad")) return;
+
+    trlv_style_group_apply(obj, &pad_group, pad_styles[space], LV_PART_MAIN);
 }
