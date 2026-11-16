@@ -205,10 +205,16 @@ static bool parent_main_axis_is(lv_obj_t * obj, bool horizontal)
     return parent_is_row == horizontal;
 }
 
-/* Fill inside a parent that hugs the same axis is circular (Figma forbids
- * it). TreLVis lets LVGL's result stand, but says so, naming the object.
+/* Growing along the main axis of a parent that hugs it always collapses:
+ * the parent sizes itself without the growing child, so there is no free
+ * space. TreLVis lets LVGL's result stand, but says so, naming the object.
+ *
+ * Filling across the axis (100 %) of a hugging parent is not warned about:
+ * LVGL leaves the child out of the parent's content size, so it stretches
+ * to the widest sibling (CSS align-self: stretch), which is a useful pattern.
+ *
  * Compiled out unless LVGL logs warnings. */
-static void warn_if_parent_hugs(lv_obj_t * obj, bool horizontal, const char * func)
+static void warn_if_growing_in_hug(lv_obj_t * obj, bool horizontal, const char * func)
 {
 #if LV_USE_LOG && LV_LOG_LEVEL <= LV_LOG_LEVEL_WARN
     lv_obj_t * parent = lv_obj_get_parent(obj);
@@ -218,8 +224,9 @@ static void warn_if_parent_hugs(lv_obj_t * obj, bool horizontal, const char * fu
                    : lv_obj_get_style_height(parent, LV_PART_MAIN);
     if(size == LV_SIZE_CONTENT) {
         const char * axis = horizontal ? "width" : "height";
-        LV_LOG_WARN("%s(%p): the parent hugs its %s, so fill is circular. "
-                    "Give the parent a %s (lv_obj_set_%s or trlv_fill_%s) first.",
+        LV_LOG_WARN("%s(%p): the parent hugs its %s, so there is no space to grow into "
+                    "and the object collapses. Give the parent a %s (lv_obj_set_%s or "
+                    "trlv_fill_%s) first.",
                     func, (void *)obj, axis, axis, axis, axis);
     }
 #else
@@ -232,15 +239,15 @@ static void warn_if_parent_hugs(lv_obj_t * obj, bool horizontal, const char * fu
 void trlv_fill_width(lv_obj_t * obj)
 {
     LV_ASSERT_NULL(obj);
-    warn_if_parent_hugs(obj, true, "trlv_fill_width");
-    const lv_style_t * style = parent_main_axis_is(obj, true) ? &grow_width : &full_width;
-    trlv_style_group_apply(obj, &width_group, style, LV_PART_MAIN);
+    bool grow = parent_main_axis_is(obj, true);
+    if(grow) warn_if_growing_in_hug(obj, true, "trlv_fill_width");
+    trlv_style_group_apply(obj, &width_group, grow ? &grow_width : &full_width, LV_PART_MAIN);
 }
 
 void trlv_fill_height(lv_obj_t * obj)
 {
     LV_ASSERT_NULL(obj);
-    warn_if_parent_hugs(obj, false, "trlv_fill_height");
-    const lv_style_t * style = parent_main_axis_is(obj, false) ? &grow_height : &full_height;
-    trlv_style_group_apply(obj, &height_group, style, LV_PART_MAIN);
+    bool grow = parent_main_axis_is(obj, false);
+    if(grow) warn_if_growing_in_hug(obj, false, "trlv_fill_height");
+    trlv_style_group_apply(obj, &height_group, grow ? &grow_height : &full_height, LV_PART_MAIN);
 }

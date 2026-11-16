@@ -2,7 +2,9 @@
 /* Copyright (c) 2026 Timothy Mitchell */
 
 /*
- * trlv_fill_* warns when the parent hugs on the same axis, and only then.
+ * trlv_fill_* warns when it would grow along the main axis of a parent that
+ * hugs that axis (the child always collapses), and only then. Filling
+ * across a hugging parent (100 %) works, so it doesn't warn.
  * The test build turns LVGL logging on; warnings are caught with a log
  * callback.
  */
@@ -40,13 +42,13 @@ static lv_obj_t * child(lv_obj_t * parent, int32_t w, int32_t h)
     return obj;
 }
 
-/* Fill width across a column that hugs its width: warns once, naming the
+/* Fill width along a row that hugs its width (grow): warns once, naming the
  * function, the object and the axis. */
-static void warns_for_fill_across_a_hugging_column(lv_obj_t * screen)
+static void warns_for_fill_along_a_hugging_row(lv_obj_t * screen)
 {
     char obj_text[32];
-    lv_obj_t * column = trlv_column(setup(screen), TRLV_SPACE_SM);
-    lv_obj_t * filled = child(column, 10, 10);
+    lv_obj_t * row = trlv_row(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * filled = child(row, 10, 10);
     trlv_fill_width(filled);
 
     TRLV_ASSERT_INT(fill_warnings, 1);
@@ -55,16 +57,27 @@ static void warns_for_fill_across_a_hugging_column(lv_obj_t * screen)
     TRLV_ASSERT_INT(strstr(last_warning, "hugs its width") != NULL, true);
 }
 
-/* Fill width along a row that hugs its width (grow): warns. */
-static void warns_for_fill_along_a_hugging_row(lv_obj_t * screen)
+/* Fill width across a column that hugs its width (100 %): no warning. The
+ * child stretches to the widest sibling (see lvgl_result_for_fill_in_hug). */
+static void quiet_for_fill_across_a_hugging_column(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row(setup(screen), TRLV_SPACE_SM);
-    trlv_fill_width(child(row, 10, 10));
+    lv_obj_t * column = trlv_column(setup(screen), TRLV_SPACE_SM);
+    trlv_fill_width(child(column, 10, 10));
 
-    TRLV_ASSERT_INT(fill_warnings, 1);
+    TRLV_ASSERT_INT(fill_warnings, 0);
 }
 
-/* Fill height in a column that hugs its height: warns, naming the height. */
+/* The same in a hugging box without flex layout (100 %): no warning. */
+static void quiet_for_fill_in_a_hugging_box(lv_obj_t * screen)
+{
+    lv_obj_t * box = trlv_box(setup(screen));
+    trlv_fill_width(child(box, 10, 10));
+    trlv_fill_height(child(box, 10, 10));
+
+    TRLV_ASSERT_INT(fill_warnings, 0);
+}
+
+/* Fill height in a column that hugs its height (grow): warns, naming the height. */
 static void warns_for_fill_height(lv_obj_t * screen)
 {
     lv_obj_t * column = trlv_column(setup(screen), TRLV_SPACE_SM);
@@ -113,10 +126,10 @@ static void quiet_when_parent_fills(lv_obj_t * screen)
     TRLV_ASSERT_INT(fill_warnings, 0);
 }
 
-/* What LVGL does with fill inside hug, for the record (ROADMAP "To confirm
- * in the slice"). A 100 % child doesn't count towards its parent's content
- * size, so the column hugs its other children and the filled child takes
- * that width: as wide as the widest sibling. */
+/* What LVGL does with fill across a hugging parent: a 100 % child doesn't
+ * count towards its parent's content size, so the column hugs its other
+ * children and the filled child takes that width: as wide as the widest
+ * sibling (CSS align-self: stretch). With no sized sibling it would be 0. */
 static void lvgl_result_for_fill_in_hug(lv_obj_t * screen)
 {
     lv_obj_t * column = trlv_column(setup(screen), TRLV_SPACE_SM);
@@ -146,8 +159,9 @@ static void lvgl_result_for_grow_in_hug(lv_obj_t * screen)
 
 int main(void)
 {
-    TRLV_TEST_RUN(warns_for_fill_across_a_hugging_column);
     TRLV_TEST_RUN(warns_for_fill_along_a_hugging_row);
+    TRLV_TEST_RUN(quiet_for_fill_across_a_hugging_column);
+    TRLV_TEST_RUN(quiet_for_fill_in_a_hugging_box);
     TRLV_TEST_RUN(warns_for_fill_height);
     TRLV_TEST_RUN(quiet_in_a_sized_parent);
     TRLV_TEST_RUN(quiet_when_parent_hugs_the_other_axis);

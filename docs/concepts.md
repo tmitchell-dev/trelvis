@@ -489,12 +489,24 @@ the parent's flex flow and applies the grow style or the 100 % style
 (100 % when the parent has no flex layout). **Set the parent's direction
 first**: the decision is made when the modifier is called, and it stays as
 set, like any LVGL style. If the parent's direction changes later, call the
-fill modifier again. Fill inside a parent that hugs on the same axis is
-circular (Figma forbids it); TreLVis adds no behaviour of its own there, so
-LVGL's result stands. To make the cause visible, `trlv_fill_*` logs an
-`LV_LOG_WARN` naming the object when its parent hugs on that axis at the time
-of the call. The warning changes nothing and compiles out with LVGL logging.
-Size the parent before filling its children to avoid it.
+fill modifier again.
+
+**Fill inside a parent that hugs.** Figma doesn't allow it; TreLVis adds no
+behaviour of its own, so LVGL's result stands. The slice showed what that is
+(the tests in `tests/layout/test_fill_warning.c` pin it):
+
+- **Across the axis** (100 %), it works: LVGL leaves the filled child out of
+  the parent's content size, so the parent hugs its other children and the
+  filled child stretches to the widest of them, as with CSS
+  `align-self: stretch`. This is a useful pattern, for example equal-width
+  items in a menu that hugs its content. With no sized sibling the child is
+  0 wide (a text then wraps one character per line).
+- **Along the main axis** (grow), it always fails: the parent sizes itself
+  without the growing child, so there is no free space and the child
+  collapses to 0. `trlv_fill_*` logs an `LV_LOG_WARN` naming the object when
+  it sees this at the time of the call. The warning changes nothing and
+  compiles out with LVGL logging. Size the parent before filling its
+  children along its main axis.
 
 **Left to LVGL.** These Figma and CSS concepts are already short and clear in
 LVGL, so TreLVis adds no function for them. Setters named
@@ -541,7 +553,8 @@ handles them, and its docs note where:
 | LVGL behaviour | What TreLVis does |
 |---|---|
 | Plain `lv_obj`s are scrollable and clickable by default, and themed (background, border, padding). | `trlv_box` and the layout primitives remove theme styles and turn scroll and click off. Scrolling is opt-in via `lv_obj_set_scrollable`. |
-| Labels hug their text and don't wrap unless they have a width. | `trlv_text` keeps that default (Figma "auto width"). `trlv_fill_width` gives the label a width, so it wraps (Figma "auto height"). |
+| Labels hug their text and don't wrap unless they have a width. | `trlv_text` keeps that default (Figma "auto width"), confirmed on the slice's demo screen: names, values, headings and button labels all want to hug. `trlv_fill_width` gives the label a width, so it wraps (Figma "auto height"); a paragraph needs it. |
+| A child that fills (grows) along the main axis of a parent that hugs that axis collapses to 0. | `trlv_fill_*` logs a warning naming the object. Filling *across* a hugging parent stretches to the widest sibling and is left alone (§7.2). |
 | `lv_obj_set_style_*` allocates a local style per object. | Modifiers use shared styles; any exceptions are documented. |
 | Border is drawn inside the padding box. | Matches Figma "inside stroke, include in layout". See the hand-off guide. |
 | LVGL uses line *spacing*, Figma uses line *height*. | Tokens use line height; TreLVis converts (`line_height − font line height`). |

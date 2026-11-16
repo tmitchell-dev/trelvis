@@ -141,11 +141,16 @@ void trlv_hug_height(lv_obj_t * obj);
  * Set the parent's direction first. If it changes later, call this again:
  * the choice stays as made, like any LVGL style.
  *
- * Give the parent a width first, too. Filling a parent that hugs its width
- * is circular (Figma doesn't allow it). TreLVis adds no behaviour of its own
- * there, so LVGL's result stands, and it logs an LV_LOG_WARN naming the
- * object to show the cause. The warning changes nothing and is compiled out
- * when LVGL logging is off.
+ * Inside a parent that hugs its width, TreLVis adds no behaviour of its own
+ * and LVGL's result stands:
+ *
+ * - across a column (or without flex), the parent hugs its other children
+ *   and the object stretches to the widest of them (CSS
+ *   `align-self: stretch`). With no sized sibling, it is 0 wide.
+ * - along a row, there is no free space, so the object collapses to 0
+ *   wide. This is always a mistake: TreLVis logs an LV_LOG_WARN naming the
+ *   object. Give the row a width first. The warning changes nothing and is
+ *   compiled out when LVGL logging is off.
  *
  * Hug and fill on one axis replace each other: this clears an earlier
  * trlv_hug_width. A width set with lv_obj_set_width is a local style and
