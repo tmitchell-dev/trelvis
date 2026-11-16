@@ -37,6 +37,10 @@ While the version is 0.x, minor releases may contain breaking changes.
   with a horizontal or vertical flex flow and a gap from the spacing scale.
   Their styles, `trlv_style_row` and `trlv_style_column`, are exposed in
   `trlv_styles.h`.
+- Provisional `trlv_hug_width/height` and `trlv_fill_width/height`. Fill
+  grows along the parent's main axis and is 100 % across it (or without a
+  flex parent), decided from the parent's layout when it is called. Hug and
+  fill on one axis replace each other.
 - CI: GCC and Clang builds against LVGL 9.6 with warnings as errors, C++17
   include test, non-CMake build, allocation and SPDX checks; weekly build
   against LVGL master; tag-driven release workflow.

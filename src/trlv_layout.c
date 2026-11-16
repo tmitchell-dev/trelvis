@@ -12,6 +12,54 @@
 #include "trlv_style_group.h"
 
 /*---------------------------------------------------------------------------
+ * Sizing styles (constant). Each axis has its own group of three: hug, fill
+ * by percentage (cross axis, or no flex parent) and fill by growing (main
+ * axis). The two grow styles are identical but separate, so that changing
+ * one axis never removes the other axis's style.
+ *-------------------------------------------------------------------------*/
+
+static const lv_style_const_prop_t hug_width_props[] = {
+    LV_STYLE_CONST_WIDTH(LV_SIZE_CONTENT),
+    LV_STYLE_CONST_PROPS_END
+};
+static LV_STYLE_CONST_INIT(hug_width, hug_width_props);
+
+static const lv_style_const_prop_t full_width_props[] = {
+    LV_STYLE_CONST_WIDTH(LV_PCT(100)),
+    LV_STYLE_CONST_PROPS_END
+};
+static LV_STYLE_CONST_INIT(full_width, full_width_props);
+
+static const lv_style_const_prop_t grow_width_props[] = {
+    LV_STYLE_CONST_FLEX_GROW(1),
+    LV_STYLE_CONST_PROPS_END
+};
+static LV_STYLE_CONST_INIT(grow_width, grow_width_props);
+
+static const lv_style_const_prop_t hug_height_props[] = {
+    LV_STYLE_CONST_HEIGHT(LV_SIZE_CONTENT),
+    LV_STYLE_CONST_PROPS_END
+};
+static LV_STYLE_CONST_INIT(hug_height, hug_height_props);
+
+static const lv_style_const_prop_t full_height_props[] = {
+    LV_STYLE_CONST_HEIGHT(LV_PCT(100)),
+    LV_STYLE_CONST_PROPS_END
+};
+static LV_STYLE_CONST_INIT(full_height, full_height_props);
+
+static const lv_style_const_prop_t grow_height_props[] = {
+    LV_STYLE_CONST_FLEX_GROW(1),
+    LV_STYLE_CONST_PROPS_END
+};
+static LV_STYLE_CONST_INIT(grow_height, grow_height_props);
+
+static const lv_style_t * const width_styles[] = { &hug_width, &full_width, &grow_width };
+static const lv_style_t * const height_styles[] = { &hug_height, &full_height, &grow_height };
+static const trlv_style_group_t width_group = TRLV_STYLE_GROUP_LIST(width_styles);
+static const trlv_style_group_t height_group = TRLV_STYLE_GROUP_LIST(height_styles);
+
+/*---------------------------------------------------------------------------
  * Token styles: one per space step, written by trlv_layout_styles_build.
  * See trlv_internal.h for how token styles work.
  *-------------------------------------------------------------------------*/
@@ -131,4 +179,42 @@ void trlv_pad(lv_obj_t * obj, trlv_space_t space)
     if(!space_is_valid(space, "trlv_pad")) return;
 
     trlv_style_group_apply(obj, &pad_group, pad_styles[space], LV_PART_MAIN);
+}
+
+void trlv_hug_width(lv_obj_t * obj)
+{
+    LV_ASSERT_NULL(obj);
+    trlv_style_group_apply(obj, &width_group, &hug_width, LV_PART_MAIN);
+}
+
+void trlv_hug_height(lv_obj_t * obj)
+{
+    LV_ASSERT_NULL(obj);
+    trlv_style_group_apply(obj, &height_group, &hug_height, LV_PART_MAIN);
+}
+
+/* True if obj's parent is a flex container whose main axis is horizontal
+ * (a row) when `horizontal` is true, or vertical (a column) when false. */
+static bool parent_main_axis_is(lv_obj_t * obj, bool horizontal)
+{
+    lv_obj_t * parent = lv_obj_get_parent(obj);
+    if(parent == NULL) return false;
+    if(lv_obj_get_style_layout(parent, LV_PART_MAIN) != LV_LAYOUT_FLEX) return false;
+
+    bool parent_is_row = (lv_obj_get_style_flex_flow(parent, LV_PART_MAIN) & LV_FLEX_COLUMN) == 0;
+    return parent_is_row == horizontal;
+}
+
+void trlv_fill_width(lv_obj_t * obj)
+{
+    LV_ASSERT_NULL(obj);
+    const lv_style_t * style = parent_main_axis_is(obj, true) ? &grow_width : &full_width;
+    trlv_style_group_apply(obj, &width_group, style, LV_PART_MAIN);
+}
+
+void trlv_fill_height(lv_obj_t * obj)
+{
+    LV_ASSERT_NULL(obj);
+    const lv_style_t * style = parent_main_axis_is(obj, false) ? &grow_height : &full_height;
+    trlv_style_group_apply(obj, &height_group, style, LV_PART_MAIN);
 }

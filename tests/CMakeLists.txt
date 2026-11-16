@@ -78,6 +78,8 @@ trlv_add_test(layout_spacing layout/test_spacing.c)
 target_link_libraries(layout_spacing PRIVATE trlv_tokens_template)
 trlv_add_test(layout_row_column layout/test_row_column.c)
 target_link_libraries(layout_row_column PRIVATE trlv_tokens_template)
+trlv_add_test(layout_sizing layout/test_sizing.c)
+target_link_libraries(layout_sizing PRIVATE trlv_tokens_template)
 
 trlv_add_test(theme_init theme/test_init.c)
 target_link_libraries(theme_init PRIVATE trlv_tokens_template)

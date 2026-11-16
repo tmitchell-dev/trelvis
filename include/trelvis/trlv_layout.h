@@ -112,6 +112,52 @@ void trlv_gap(lv_obj_t * obj, trlv_space_t space);
  */
 void trlv_pad(lv_obj_t * obj, trlv_space_t space);
 
+/**
+ * Hug the content's width: Figma "hug contents", CSS `width: fit-content`.
+ * Sets LVGL `width` to LV_SIZE_CONTENT.
+ *
+ * Hug and fill on one axis replace each other: this clears an earlier
+ * trlv_fill_width. A fixed size is set with lv_obj_set_width, which is a
+ * local style and so takes precedence over hug and fill.
+ *
+ * @param obj  any object
+ */
+void trlv_hug_width(lv_obj_t * obj);
+
+/** Hug the content's height. Like trlv_hug_width, for the height. */
+void trlv_hug_height(lv_obj_t * obj);
+
+/**
+ * Fill the parent's width: Figma "fill container", CSS `flex: 1` in a row or
+ * `align-self: stretch` in a column.
+ *
+ * LVGL has no single "fill", so this makes the choice from the parent's
+ * layout **at the time of the call**:
+ *
+ * - parent is a row (width is its main axis): `flex_grow = 1`, so the object
+ *   takes the free space, shared with any other growing siblings;
+ * - parent is a column (cross axis), or has no flex layout: `width = 100 %`.
+ *
+ * Set the parent's direction first. If it changes later, call this again:
+ * the choice stays as made, like any LVGL style.
+ *
+ * Hug and fill on one axis replace each other: this clears an earlier
+ * trlv_hug_width. A width set with lv_obj_set_width is a local style and
+ * takes precedence. On an lv_label, a width makes the text wrap (Figma
+ * "auto height").
+ *
+ * @param obj  any object
+ */
+void trlv_fill_width(lv_obj_t * obj);
+
+/**
+ * Fill the parent's height. Like trlv_fill_width, for the height: grows in
+ * a column (main axis), 100 % in a row (cross axis) or without flex layout.
+ *
+ * @param obj  any object
+ */
+void trlv_fill_height(lv_obj_t * obj);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif
