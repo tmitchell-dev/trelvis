@@ -30,10 +30,20 @@ FetchContent_MakeAvailable(lvgl)
 set(TRLV_STRICT_WARNINGS -Wall -Wextra -Wpedantic -Werror)
 target_compile_options(trelvis PRIVATE ${TRLV_STRICT_WARNINGS})
 
+# ---- Compile-only: the token template must build unedited ----
+add_library(trlv_tokens_template OBJECT ../templates/trlv_tokens_template.c)
+target_include_directories(trlv_tokens_template PUBLIC ${PROJECT_SOURCE_DIR}/templates)
+target_link_libraries(trlv_tokens_template PUBLIC trelvis)
+target_compile_options(trlv_tokens_template PRIVATE ${TRLV_STRICT_WARNINGS})
+set_target_properties(trlv_tokens_template PROPERTIES
+    C_STANDARD 99
+    C_STANDARD_REQUIRED ON
+    C_EXTENSIONS OFF)
+
 # ---- Compile-only: the public headers must work from C++17 ----
 enable_language(CXX)
 add_library(trlv_cpp_include_test OBJECT cpp_include_test.cpp)
-target_link_libraries(trlv_cpp_include_test PRIVATE trelvis)
+target_link_libraries(trlv_cpp_include_test PRIVATE trelvis trlv_tokens_template)
 target_compile_options(trlv_cpp_include_test PRIVATE ${TRLV_STRICT_WARNINGS})
 set_target_properties(trlv_cpp_include_test PROPERTIES
     CXX_STANDARD 17

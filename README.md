@@ -46,7 +46,7 @@ This shows the intended API, which is still under review:
 ```c
 #include <trelvis/trelvis.h>
 
-trlv_init(disp, &tokens_light, &tokens_layout);   /* once; tokens come from your copy of the template */
+trlv_init(disp, &tokens_light, &tokens_regular);  /* once; tokens come from your copy of the template */
 
 lv_obj_t * card = trlv_column(parent, TRLV_SPACE_SM);   /* Figma: auto layout, vertical */
 trlv_card(card, TRLV_CARD_FILLED);                      /* MD3 filled card               */

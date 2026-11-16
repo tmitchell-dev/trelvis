@@ -16,6 +16,9 @@ While the version is 0.x, minor releases may contain breaking changes.
 - Placeholder public headers (`trelvis.h` and modules), compiling from C99 and C++17.
 - Provisional MD3 token types in `trlv_tokens.h`: spacing, radius, size,
   elevation and type-scale enums, and the colour and layout token structs.
+- Token template in `templates/` for projects to copy: MD3 baseline light
+  and dark colour schemes with example success and warning colours, and
+  Regular layout values with `LV_FONT_DEFAULT` for every text role.
 - CI: GCC and Clang builds against LVGL 9.6 with warnings as errors, C++17
   include test, non-CMake build, allocation and SPDX checks; weekly build
   against LVGL master; tag-driven release workflow.
