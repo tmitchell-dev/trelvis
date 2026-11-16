@@ -50,6 +50,10 @@ jobs:
           cmake -B build
           cmake --build build --parallel
 
+      # Headless layout tests (tests/layout) and the harness self-test.
+      - name: Tests
+        run: ctest --test-dir build --output-on-failure
+
       # Proves src/ + include/ alone is enough (STM32CubeIDE-style builds).
       - name: Build without CMake
         run: |

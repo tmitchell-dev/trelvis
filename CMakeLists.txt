@@ -42,5 +42,6 @@ set_target_properties(trelvis PROPERTIES
     C_EXTENSIONS OFF)
 
 if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    enable_testing()
     add_subdirectory(tests)
 endif()

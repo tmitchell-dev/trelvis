@@ -49,3 +49,35 @@ set_target_properties(trlv_cpp_include_test PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF)
+
+# ---- Headless layout tests (run with: ctest --test-dir build) ----
+add_library(trlv_test_harness STATIC harness/trlv_test.c)
+target_include_directories(trlv_test_harness PUBLIC harness)
+target_link_libraries(trlv_test_harness PUBLIC trelvis)
+target_compile_options(trlv_test_harness PRIVATE ${TRLV_STRICT_WARNINGS})
+set_target_properties(trlv_test_harness PROPERTIES
+    C_STANDARD 99
+    C_STANDARD_REQUIRED ON
+    C_EXTENSIONS OFF)
+
+# One executable per test file; each file's main() runs its tests.
+function(trlv_add_test name source)
+    add_executable(${name} ${source})
+    target_link_libraries(${name} PRIVATE trlv_test_harness)
+    target_compile_options(${name} PRIVATE ${TRLV_STRICT_WARNINGS})
+    set_target_properties(${name} PROPERTIES
+        C_STANDARD 99
+        C_STANDARD_REQUIRED ON
+        C_EXTENSIONS OFF)
+    add_test(NAME ${name} COMMAND ${name})
+endfunction()
+
+trlv_add_test(layout_smoke layout/test_smoke.c)
+
+# Harness self-test: a deliberately wrong assertion must fail the program...
+trlv_add_test(harness_failure_exit harness/selftest_failure.c)
+set_tests_properties(harness_failure_exit PROPERTIES WILL_FAIL TRUE)
+# ...and print a readable message (same program, checked on its output).
+add_test(NAME harness_failure_message COMMAND harness_failure_exit)
+set_tests_properties(harness_failure_message PROPERTIES
+    PASS_REGULAR_EXPRESSION "selftest_failure\\.c:[0-9]+: in wrong_expectation: box\\.x expected 99, got 10")

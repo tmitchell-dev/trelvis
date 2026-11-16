@@ -49,10 +49,13 @@ deliberate difference.
 ```sh
 cmake -B build && cmake --build build     # fetches LVGL v9.6; strict warnings; C++17 include test
 cmake -B build -DFETCHCONTENT_SOURCE_DIR_LVGL=../lvgl   # use a local LVGL tree
+ctest --test-dir build --output-on-failure  # headless layout tests
 ```
 
-There are no unit tests yet; the first headless layout tests arrive in
-milestone 2.
+Layout tests live in `tests/layout/`, one file per area, built on the plain-C
+harness in `tests/harness/trlv_test.h` and registered with `trlv_add_test`
+in `tests/CMakeLists.txt`. Positions in assertions are measured from the
+parent's outer edge (as in Figma), not from inside its padding.
 If no compiler is available locally, say so rather than claiming a build
 passed; CI ([.github/workflows/ci.yml](.github/workflows/ci.yml)) is the
 reference.
