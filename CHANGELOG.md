@@ -14,6 +14,8 @@ While the version is 0.x, minor releases may contain breaking changes.
   `trlv_conf.h` configuration mechanism with defaults in `trlv_conf_default.h`,
   `trlv_version.h` with a compile-time check for LVGL 9.6+ (9.x).
 - Placeholder public headers (`trelvis.h` and modules), compiling from C99 and C++17.
+- Provisional MD3 token types in `trlv_tokens.h`: spacing, radius, size,
+  elevation and type-scale enums, and the colour and layout token structs.
 - CI: GCC and Clang builds against LVGL 9.6 with warnings as errors, C++17
   include test, non-CMake build, allocation and SPDX checks; weekly build
   against LVGL master; tag-driven release workflow.
