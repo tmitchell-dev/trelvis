@@ -27,6 +27,7 @@ set(TRLV_LVGL_TARGET "lvgl" CACHE STRING "Name of the project's LVGL CMake targe
 
 add_library(trelvis STATIC
     src/trlv_layout.c
+    src/trlv_style_group.c
     src/trlv_styles.c
     src/trlv_surface.c
     src/trlv_text.c
@@ -42,5 +43,6 @@ set_target_properties(trelvis PROPERTIES
     C_EXTENSIONS OFF)
 
 if(CMAKE_SOURCE_DIR STREQUAL PROJECT_SOURCE_DIR)
+    enable_testing()
     add_subdirectory(tests)
 endif()

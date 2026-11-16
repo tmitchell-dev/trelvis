@@ -61,11 +61,16 @@ git config core.hooksPath .githooks   # shared hooks: blocks direct pushes to ma
 
 cmake -B build                        # fetches LVGL v9.6 on first run
 cmake --build build
+ctest --test-dir build --output-on-failure
 ```
 
-Built on its own, TreLVis fetches LVGL and compiles the library and the C++17
-include test with `-Wall -Wextra -Wpedantic -Werror`, which is the same build
-CI runs (see [`tests/CMakeLists.txt`](tests/CMakeLists.txt)). Useful options:
+Built on its own, TreLVis fetches LVGL and compiles the library, the token
+template, the C++17 include test and the headless layout tests with
+`-Wall -Wextra -Wpedantic -Werror`, which is the same build CI runs (see
+[`tests/CMakeLists.txt`](tests/CMakeLists.txt)). The layout tests build an
+object tree on a test display that renders nothing, let LVGL lay it out and
+check positions and sizes; see [`tests/harness/trlv_test.h`](tests/harness/trlv_test.h).
+Useful options:
 
 - `-DFETCHCONTENT_SOURCE_DIR_LVGL=path/to/lvgl` uses a local LVGL tree.
 - `-DTRLV_LVGL_GIT_TAG=master` builds against another LVGL version. For

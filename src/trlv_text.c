@@ -7,3 +7,10 @@
  */
 
 #include "trelvis/trlv_text.h"
+#include "trlv_internal.h"
+
+void trlv_text_styles_build(const trlv_layout_tokens_t * layout)
+{
+    /* The text role styles arrive with #17. */
+    (void)layout;
+}
