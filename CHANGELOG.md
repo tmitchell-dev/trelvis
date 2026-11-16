@@ -50,4 +50,7 @@ While the version is 0.x, minor releases may contain breaking changes.
   `0` keeps the font's own line height.
 - CI: GCC and Clang builds against LVGL 9.6 with warnings as errors, C++17
   include test, non-CMake build, allocation and SPDX checks; weekly build
+- Demo screen in `examples/demo`: `trlv_demo_create(parent)` builds one
+  realistic screen with the slice, for host projects to show in their own
+  simulator. A headless test checks its layout in CI.
   against LVGL master; tag-driven release workflow.

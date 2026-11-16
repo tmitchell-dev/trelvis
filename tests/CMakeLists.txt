@@ -55,6 +55,16 @@ set_target_properties(trlv_cpp_include_test PROPERTIES
     CXX_STANDARD_REQUIRED ON
     CXX_EXTENSIONS OFF)
 
+# ---- The demo screen (examples/demo), built with the same strict flags ----
+add_library(trlv_demo STATIC ../examples/demo/trlv_demo.c)
+target_include_directories(trlv_demo PUBLIC ${PROJECT_SOURCE_DIR}/examples/demo)
+target_link_libraries(trlv_demo PUBLIC trelvis)
+target_compile_options(trlv_demo PRIVATE ${TRLV_STRICT_WARNINGS})
+set_target_properties(trlv_demo PROPERTIES
+    C_STANDARD 99
+    C_STANDARD_REQUIRED ON
+    C_EXTENSIONS OFF)
+
 # ---- Headless layout tests (run with: ctest --test-dir build) ----
 add_library(trlv_test_harness STATIC harness/trlv_test.c)
 target_include_directories(trlv_test_harness PUBLIC harness)
