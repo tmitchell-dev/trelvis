@@ -3,9 +3,9 @@
 
 /**
  * @file trlv_surface.h
- * MD3 surfaces and cards: modifiers that give any object an MD3 container
- * colour, with its matching `on_` content colour inherited by everything
- * inside.
+ * MD3 surfaces, cards and button variants: modifiers that give any object
+ * an MD3 container colour, with its matching `on_` content colour inherited
+ * by everything inside.
  *
  * Mapping: Figma / MD3 → CSS → TreLVis → LVGL mechanism
  *
@@ -13,11 +13,13 @@
  * |-------------------------------------|------------------------------|--------------------|---------------------------------------------------------|
  * | Fill with a surface / container role | `background` + `color`      | trlv_surface       | shared style: `bg_color`, `bg_opa`, inherited `text_color` |
  * | MD3 card (filled, elevated, outlined) | `background`, `border-radius`, `border` / `box-shadow` | trlv_card | shared style: `bg_*`, `radius`, `border_*` / `shadow_*`, inherited `text_color` |
+ * | MD3 button type (filled, tonal, outlined, text) | button classes with `:active`, `:focus-visible`, `:disabled` | trlv_button_variant | shared styles with LV_STATE_PRESSED / FOCUS_KEY / DISABLED selectors |
  *
- * Both are shared token styles, one per value, so they cost no RAM per
- * object and recolour on trlv_theme_set_color_mode. They form one style
- * group: trlv_surface and trlv_card replace each other, and calling either
- * again replaces the previous value.
+ * All are shared token styles, one per value, so they cost no RAM per
+ * object and recolour on trlv_theme_set_color_mode. trlv_surface and
+ * trlv_card form one style group and replace each other; button variants
+ * are a group of their own. Calling a modifier again replaces its previous
+ * value.
  *
  * All functions must be called from the LVGL thread.
  */
@@ -63,6 +65,15 @@ typedef enum {
     TRLV_CARD_OUTLINED,   /**< surface with a border_width outline_variant border */
     TRLV_CARD_COUNT       /**< Number of card types; not a card type */
 } trlv_card_t;
+
+/** The MD3 common button types (v1 has no elevated button). */
+typedef enum {
+    TRLV_BUTTON_FILLED,   /**< primary / on_primary: the theme's default */
+    TRLV_BUTTON_TONAL,    /**< secondary_container / on_secondary_container */
+    TRLV_BUTTON_OUTLINED, /**< transparent, border_width outline border, primary content */
+    TRLV_BUTTON_TEXT,     /**< transparent, no border, primary content */
+    TRLV_BUTTON_COUNT     /**< Number of button types; not a button type */
+} trlv_button_t;
 
 /*---------------------------------------------------------------------------
  * Modifiers
@@ -121,6 +132,41 @@ void trlv_surface(lv_obj_t * obj, trlv_surface_t surface);
  * @note Not implemented yet (milestone 5).
  */
 void trlv_card(lv_obj_t * obj, trlv_card_t card);
+
+/**
+ * Restyle an lv_button as another MD3 button type. Figma: the MD3 button
+ * component's "Style" property; CSS a button class.
+ *
+ * With the TreLVis theme, every lv_button is already an MD3 filled button:
+ * radius FULL, height control_height[TRLV_SIZE_MD], Label Large text, and
+ * pressed, focus and disabled states. This changes only what differs
+ * between the types: the container colour, the border and the content
+ * colour (inherited by the button's label and icons), each with its state
+ * styles:
+ *
+ * - pressed: the MD3 state layer, the content colour over the container
+ *   at `state.pressed` opacity, pre-mixed at init and on each colour-mode
+ *   switch;
+ * - focused by keypad or encoder: the same with `state.focus`, plus the
+ *   theme's focus ring;
+ * - disabled: content in on_surface at `state.disabled_content`, container
+ *   (or the outlined border) in on_surface at `state.disabled_container`.
+ *
+ * TRLV_BUTTON_FILLED returns the button to the theme's default. Shape,
+ * height and text role stay the theme's; change the height with
+ * lv_obj_set_height(btn, trlv_layout()->control_height[TRLV_SIZE_LG]).
+ * Calling it again replaces the previous variant.
+ *
+ * With TRLV_USE_THEME 0 the variant still sets its colours and states, but
+ * the shape, height and text role come from whatever theme is installed.
+ *
+ * @param btn      an lv_button (it works on any object, but the states are
+ *                 only meaningful on a clickable one)
+ * @param variant  the button type
+ *
+ * @note Not implemented yet (milestone 5).
+ */
+void trlv_button_variant(lv_obj_t * btn, trlv_button_t variant);
 
 #ifdef __cplusplus
 } /* extern "C" */
