@@ -40,7 +40,8 @@ While the version is 0.x, minor releases may contain breaking changes.
 - Provisional `trlv_hug_width/height` and `trlv_fill_width/height`. Fill
   grows along the parent's main axis and is 100 % across it (or without a
   flex parent), decided from the parent's layout when it is called. Hug and
-  fill on one axis replace each other.
+  fill on one axis replace each other. Filling a parent that hugs on the
+  same axis logs a warning naming the object.
 - CI: GCC and Clang builds against LVGL 9.6 with warnings as errors, C++17
   include test, non-CMake build, allocation and SPDX checks; weekly build
   against LVGL master; tag-driven release workflow.

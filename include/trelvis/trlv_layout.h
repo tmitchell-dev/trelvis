@@ -141,6 +141,12 @@ void trlv_hug_height(lv_obj_t * obj);
  * Set the parent's direction first. If it changes later, call this again:
  * the choice stays as made, like any LVGL style.
  *
+ * Give the parent a width first, too. Filling a parent that hugs its width
+ * is circular (Figma doesn't allow it). TreLVis adds no behaviour of its own
+ * there, so LVGL's result stands, and it logs an LV_LOG_WARN naming the
+ * object to show the cause. The warning changes nothing and is compiled out
+ * when LVGL logging is off.
+ *
  * Hug and fill on one axis replace each other: this clears an earlier
  * trlv_hug_width. A width set with lv_obj_set_width is a local style and
  * takes precedence. On an lv_label, a width makes the text wrap (Figma

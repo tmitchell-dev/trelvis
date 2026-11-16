@@ -205,9 +205,34 @@ static bool parent_main_axis_is(lv_obj_t * obj, bool horizontal)
     return parent_is_row == horizontal;
 }
 
+/* Fill inside a parent that hugs the same axis is circular (Figma forbids
+ * it). TreLVis lets LVGL's result stand, but says so, naming the object.
+ * Compiled out unless LVGL logs warnings. */
+static void warn_if_parent_hugs(lv_obj_t * obj, bool horizontal, const char * func)
+{
+#if LV_USE_LOG && LV_LOG_LEVEL <= LV_LOG_LEVEL_WARN
+    lv_obj_t * parent = lv_obj_get_parent(obj);
+    if(parent == NULL) return;
+
+    int32_t size = horizontal ? lv_obj_get_style_width(parent, LV_PART_MAIN)
+                   : lv_obj_get_style_height(parent, LV_PART_MAIN);
+    if(size == LV_SIZE_CONTENT) {
+        const char * axis = horizontal ? "width" : "height";
+        LV_LOG_WARN("%s(%p): the parent hugs its %s, so fill is circular. "
+                    "Give the parent a %s (lv_obj_set_%s or trlv_fill_%s) first.",
+                    func, (void *)obj, axis, axis, axis, axis);
+    }
+#else
+    LV_UNUSED(obj);
+    LV_UNUSED(horizontal);
+    LV_UNUSED(func);
+#endif
+}
+
 void trlv_fill_width(lv_obj_t * obj)
 {
     LV_ASSERT_NULL(obj);
+    warn_if_parent_hugs(obj, true, "trlv_fill_width");
     const lv_style_t * style = parent_main_axis_is(obj, true) ? &grow_width : &full_width;
     trlv_style_group_apply(obj, &width_group, style, LV_PART_MAIN);
 }
@@ -215,6 +240,7 @@ void trlv_fill_width(lv_obj_t * obj)
 void trlv_fill_height(lv_obj_t * obj)
 {
     LV_ASSERT_NULL(obj);
+    warn_if_parent_hugs(obj, false, "trlv_fill_height");
     const lv_style_t * style = parent_main_axis_is(obj, false) ? &grow_height : &full_height;
     trlv_style_group_apply(obj, &height_group, style, LV_PART_MAIN);
 }
