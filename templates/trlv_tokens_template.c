@@ -31,12 +31,12 @@
 #define TOKEN_HEX(hex) LV_COLOR_MAKE(((hex) >> 16) & 0xFF, ((hex) >> 8) & 0xFF, (hex) & 0xFF)
 
 /* MD3 state-layer and disabled opacities, shared by both colour modes. */
-#define TOKEN_STATE_MD3         \
-    {                           \
-        LV_OPA_10, /* focus */  \
-        LV_OPA_10, /* pressed */ \
-        97,        /* disabled_content: 38 % */ \
-        31,        /* disabled_container: 12 % */ \
+#define TOKEN_STATE_MD3                             \
+    {                                               \
+        .focus              = LV_OPA_10,            \
+        .pressed            = LV_OPA_10,            \
+        .disabled_content   = 97,   /* 38 % */      \
+        .disabled_container = 31,   /* 12 % */      \
     }
 
 /*---------------------------------------------------------------------------
@@ -180,64 +180,66 @@ const trlv_color_tokens_t tokens_dark = {
 
 /* A text role with no design values yet: the default font, its own line
  * height and no letter spacing. */
-#define TOKEN_TEXT_DEFAULT { LV_FONT_DEFAULT, 0, 0 }
+#define TOKEN_TEXT_DEFAULT { .font = LV_FONT_DEFAULT, .line_height = 0, .letter_spacing = 0 }
 
-/* A text role in an LVGL Montserrat size with its line height, if that size
+/* A text role in an LVGL Montserrat size with its line height and no letter
+ * spacing (a field left out of a designated initialiser is 0), if that size
  * is enabled in lv_conf.h. If it isn't, the next smaller enabled size is
  * used with its own line height, so the type hierarchy holds with any set of
  * sizes; with none enabled, TOKEN_TEXT_DEFAULT. Montserrat ships in one
  * weight, so this gives size hierarchy only. Once your roles have real
- * fonts, replace these with { &my_font, line_height, letter_spacing } and
+ * fonts, replace these with
+ * { .font = &my_font, .line_height = 24, .letter_spacing = 0 } and
  * delete this block. */
 #if LV_FONT_MONTSERRAT_12
-#  define TOKEN_TEXT_12(line_height) { &lv_font_montserrat_12, line_height, 0 }
+#  define TOKEN_TEXT_12(line_px) { .font = &lv_font_montserrat_12, .line_height = (line_px) }
 #else
-#  define TOKEN_TEXT_12(line_height) TOKEN_TEXT_DEFAULT
+#  define TOKEN_TEXT_12(line_px) TOKEN_TEXT_DEFAULT
 #endif
 #if LV_FONT_MONTSERRAT_14
-#  define TOKEN_TEXT_14(line_height) { &lv_font_montserrat_14, line_height, 0 }
+#  define TOKEN_TEXT_14(line_px) { .font = &lv_font_montserrat_14, .line_height = (line_px) }
 #else
-#  define TOKEN_TEXT_14(line_height) TOKEN_TEXT_12(0)
+#  define TOKEN_TEXT_14(line_px) TOKEN_TEXT_12(0)
 #endif
 #if LV_FONT_MONTSERRAT_16
-#  define TOKEN_TEXT_16(line_height) { &lv_font_montserrat_16, line_height, 0 }
+#  define TOKEN_TEXT_16(line_px) { .font = &lv_font_montserrat_16, .line_height = (line_px) }
 #else
-#  define TOKEN_TEXT_16(line_height) TOKEN_TEXT_14(0)
+#  define TOKEN_TEXT_16(line_px) TOKEN_TEXT_14(0)
 #endif
 #if LV_FONT_MONTSERRAT_22
-#  define TOKEN_TEXT_22(line_height) { &lv_font_montserrat_22, line_height, 0 }
+#  define TOKEN_TEXT_22(line_px) { .font = &lv_font_montserrat_22, .line_height = (line_px) }
 #else
-#  define TOKEN_TEXT_22(line_height) TOKEN_TEXT_16(0)
+#  define TOKEN_TEXT_22(line_px) TOKEN_TEXT_16(0)
 #endif
 #if LV_FONT_MONTSERRAT_24
-#  define TOKEN_TEXT_24(line_height) { &lv_font_montserrat_24, line_height, 0 }
+#  define TOKEN_TEXT_24(line_px) { .font = &lv_font_montserrat_24, .line_height = (line_px) }
 #else
-#  define TOKEN_TEXT_24(line_height) TOKEN_TEXT_22(0)
+#  define TOKEN_TEXT_24(line_px) TOKEN_TEXT_22(0)
 #endif
 #if LV_FONT_MONTSERRAT_28
-#  define TOKEN_TEXT_28(line_height) { &lv_font_montserrat_28, line_height, 0 }
+#  define TOKEN_TEXT_28(line_px) { .font = &lv_font_montserrat_28, .line_height = (line_px) }
 #else
-#  define TOKEN_TEXT_28(line_height) TOKEN_TEXT_24(0)
+#  define TOKEN_TEXT_28(line_px) TOKEN_TEXT_24(0)
 #endif
 #if LV_FONT_MONTSERRAT_32
-#  define TOKEN_TEXT_32(line_height) { &lv_font_montserrat_32, line_height, 0 }
+#  define TOKEN_TEXT_32(line_px) { .font = &lv_font_montserrat_32, .line_height = (line_px) }
 #else
-#  define TOKEN_TEXT_32(line_height) TOKEN_TEXT_28(0)
+#  define TOKEN_TEXT_32(line_px) TOKEN_TEXT_28(0)
 #endif
 #if LV_FONT_MONTSERRAT_36
-#  define TOKEN_TEXT_36(line_height) { &lv_font_montserrat_36, line_height, 0 }
+#  define TOKEN_TEXT_36(line_px) { .font = &lv_font_montserrat_36, .line_height = (line_px) }
 #else
-#  define TOKEN_TEXT_36(line_height) TOKEN_TEXT_32(0)
+#  define TOKEN_TEXT_36(line_px) TOKEN_TEXT_32(0)
 #endif
 #if LV_FONT_MONTSERRAT_44
-#  define TOKEN_TEXT_44(line_height) { &lv_font_montserrat_44, line_height, 0 }
+#  define TOKEN_TEXT_44(line_px) { .font = &lv_font_montserrat_44, .line_height = (line_px) }
 #else
-#  define TOKEN_TEXT_44(line_height) TOKEN_TEXT_36(0)
+#  define TOKEN_TEXT_44(line_px) TOKEN_TEXT_36(0)
 #endif
 #if LV_FONT_MONTSERRAT_48
-#  define TOKEN_TEXT_48(line_height) { &lv_font_montserrat_48, line_height, 0 }
+#  define TOKEN_TEXT_48(line_px) { .font = &lv_font_montserrat_48, .line_height = (line_px) }
 #else
-#  define TOKEN_TEXT_48(line_height) TOKEN_TEXT_44(0)
+#  define TOKEN_TEXT_48(line_px) TOKEN_TEXT_44(0)
 #endif
 
 const trlv_layout_tokens_t tokens_regular = {
@@ -275,13 +277,12 @@ const trlv_layout_tokens_t tokens_regular = {
     /* One LVGL shadow per level, approximating MD3's two-layer elevation
      * shadows (the ambient layer's geometry). Colour: tokens.shadow. */
     .elevation = {
-        /*                    blur spread  x  y  opa */
-        [TRLV_ELEVATION_0] = {  0,   0,    0, 0, LV_OPA_0  },
-        [TRLV_ELEVATION_1] = {  3,   1,    0, 1, LV_OPA_20 },
-        [TRLV_ELEVATION_2] = {  6,   2,    0, 2, LV_OPA_20 },
-        [TRLV_ELEVATION_3] = {  8,   3,    0, 4, LV_OPA_20 },
-        [TRLV_ELEVATION_4] = { 10,   4,    0, 6, LV_OPA_20 },
-        [TRLV_ELEVATION_5] = { 12,   6,    0, 8, LV_OPA_20 },
+        [TRLV_ELEVATION_0] = { .blur =  0, .spread = 0, .offset_x = 0, .offset_y = 0, .opa = LV_OPA_0  },
+        [TRLV_ELEVATION_1] = { .blur =  3, .spread = 1, .offset_x = 0, .offset_y = 1, .opa = LV_OPA_20 },
+        [TRLV_ELEVATION_2] = { .blur =  6, .spread = 2, .offset_x = 0, .offset_y = 2, .opa = LV_OPA_20 },
+        [TRLV_ELEVATION_3] = { .blur =  8, .spread = 3, .offset_x = 0, .offset_y = 4, .opa = LV_OPA_20 },
+        [TRLV_ELEVATION_4] = { .blur = 10, .spread = 4, .offset_x = 0, .offset_y = 6, .opa = LV_OPA_20 },
+        [TRLV_ELEVATION_5] = { .blur = 12, .spread = 6, .offset_x = 0, .offset_y = 8, .opa = LV_OPA_20 },
     },
 
     /* MD3 type scale: MD3 size / line height in px noted for each role.
@@ -346,14 +347,14 @@ const trlv_layout_tokens_t tokens_compact = {
         [TRLV_SIZE_LG] = 44,
     },
 
-    /* Tone-only elevation: every level zero. */
+    /* Tone-only elevation: every level zero (no blur, spread or offset). */
     .elevation = {
-        [TRLV_ELEVATION_0] = { 0, 0, 0, 0, LV_OPA_0 },
-        [TRLV_ELEVATION_1] = { 0, 0, 0, 0, LV_OPA_0 },
-        [TRLV_ELEVATION_2] = { 0, 0, 0, 0, LV_OPA_0 },
-        [TRLV_ELEVATION_3] = { 0, 0, 0, 0, LV_OPA_0 },
-        [TRLV_ELEVATION_4] = { 0, 0, 0, 0, LV_OPA_0 },
-        [TRLV_ELEVATION_5] = { 0, 0, 0, 0, LV_OPA_0 },
+        [TRLV_ELEVATION_0] = { .opa = LV_OPA_0 },
+        [TRLV_ELEVATION_1] = { .opa = LV_OPA_0 },
+        [TRLV_ELEVATION_2] = { .opa = LV_OPA_0 },
+        [TRLV_ELEVATION_3] = { .opa = LV_OPA_0 },
+        [TRLV_ELEVATION_4] = { .opa = LV_OPA_0 },
+        [TRLV_ELEVATION_5] = { .opa = LV_OPA_0 },
     },
 
     /* Size / line height in px for each role. */

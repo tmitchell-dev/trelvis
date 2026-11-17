@@ -105,6 +105,18 @@ Every PR that changes behaviour or the public API adds an entry under
 Changed, Deprecated, Removed, Fixed, Security). Changes to docs, CI or tests
 only don't need an entry.
 
+The entry must let a project judge the upgrade against the
+[compatibility promise](README.md#what-a-version-number-promises):
+
+- A change to the theme's look goes under *Changed*, naming what looks
+  different.
+- A change to a token struct ends with a **Migration:** note saying what to
+  add to or change in a copied token template. A new token field must be
+  safe at zero (fall back to a documented value and log a warning), and the
+  templates keep using designated initialisers.
+- A deprecation goes under *Deprecated* with the replacement, and the doc
+  comment gets a matching `@deprecated` note.
+
 ## Coding rules
 
 These rules keep TreLVis portable, small and ready for LVGL v10. CI enforces
@@ -228,13 +240,21 @@ Never commit secrets.
 
 TreLVis follows [Semantic Versioning](https://semver.org). In 0.x, minor
 releases may break the API. 1.0.0 follows once the API has been proven in a
-real product.
+real product. What counts as breaking (public headers, configuration
+options, token struct shapes, public style names, supported LVGL versions)
+and how the theme's look, deprecations and LVGL versions are handled is in
+[Compatibility](README.md#what-a-version-number-promises).
 
 Maintainers release like this:
 
-1. In a PR, bump the version in `include/trelvis/trlv_version.h` (the only
-   place it is defined; CMake reads it from there) and move the *Unreleased*
-   changelog entries under a new `## [X.Y.Z] - YYYY-MM-DD` heading.
+1. In a PR, choose the version from the *Unreleased* entries using the
+   compatibility rules: any breaking change makes a major release, any
+   *Added*, *Changed* (including the theme's look) or *Deprecated* entry a
+   minor one, and only *Fixed* or *Security* entries a patch. Check that
+   every token schema change has its **Migration** note. Bump the version
+   in `include/trelvis/trlv_version.h` (the only place it is defined; CMake
+   reads it from there) and move the *Unreleased* changelog entries under a
+   new `## [X.Y.Z] - YYYY-MM-DD` heading.
 2. Squash-merge the PR.
 3. Tag `main` and push the tag:
    `git tag -a vX.Y.Z -m "TreLVis X.Y.Z" && git push origin vX.Y.Z`.
@@ -244,6 +264,14 @@ Maintainers release like this:
 Maintenance branches (`release/vX.x`) are created only when an older line
 needs fixes while `main` moves on, for example an LVGL 9 line after the move
 to LVGL v10.
+
+## Product-trial findings
+
+Before 1.0.0, anything found while using TreLVis in a real product (a bug,
+a missing piece, a surprise, raw LVGL written more than once) is filed with
+the *Product-trial finding* issue form, which asks whether a fix would be
+breaking or additive. Breaking fixes go in before the 1.0 API freeze;
+additive ones can wait for v1.x.
 
 ## Reporting bugs
 

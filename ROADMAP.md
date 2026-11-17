@@ -42,7 +42,8 @@ initialisation and token access. The reviewed API has 19 plus four.
 | 4 | **Tokens and theme**: full token types, the complete token template, the MD3 theme over the default parent theme, state layers, focus ring, colour-mode switching, line-height conversion. Widgets are covered in order: screen, label and button first, then one widget at a time. | done |
 | 5 | **Surfaces, cards and remaining primitives**: `trlv_surface`, `trlv_surface_custom`, `trlv_card`, `trlv_button_variant`, `trlv_text_role`, `trlv_spacer`, `trlv_divider`, `trlv_justify`, `trlv_align_items`, the `TRLV_USE_DEBUG_OUTLINE` option. Layout tests for every primitive and modifier. | done |
 | 6 | **Demo and docs**: `examples/demo` grows from the slice screen to exercise every primitive: surface container ladder; filled / elevated / outlined cards; all button variants and covered widgets in each state; light/dark toggle; an example Compact token set next to the template values; visible keypad/encoder focus; a list built from rows (no `lv_list`). README quick start, `docs/concepts.md` and `docs/figma-handoff.md` brought up to date with the implementation. | done |
-| 7 | **v1.1** (see below) | |
+| 7 | **v1.x (on demand)**: additive items, each built only when a product needs it, before or after 1.0 (see below). A backlog, not a milestone with an end. | ongoing |
+| 8 | **1.0**: the [compatibility promise](README.md#what-a-version-number-promises); CI that builds TreLVis the ways products do (a minimal `lv_conf.h`, a Cortex-M cross build with a footprint report, a consumer project, a check that every public symbol is documented); an audit of theme coverage for every LVGL 9.6 widget; a product trial, with findings filed as `product-trial` issues; then the API freeze review and the 1.0.0 release. | in progress |
 
 ## Settled in the slice
 
@@ -182,17 +183,44 @@ Changed at the start of milestone 4, in a review of the token schema:
 - Builds by adding `src/` + `include/` alone (CI step).
 - Every public function is documented with its Figma / MD3 / CSS equivalent.
 
-## v1.1
+## 1.0
 
-Each item is added only when a product needs it:
+TreLVis 1.0.0 is released once it has been used in a real product. In 0.x
+a breaking change is cheap; after 1.0.0 it costs a major version, so
+anything that might break goes in before the API freeze. From 1.0.0 the
+[compatibility promise](README.md#what-a-version-number-promises) applies.
+
+- Findings from the product trial are filed with the *Product-trial
+  finding* issue form. Each is fixed before 1.0.0, or moved to v1.x or
+  Later as non-breaking.
+- CI builds TreLVis against a minimal `lv_conf.h`, cross-builds it for a
+  Cortex-M target with a footprint report, builds a consumer project the
+  way products use TreLVis, and checks that every public symbol is
+  documented.
+- An audit of every LVGL 9.6 widget decides which ones the theme covers;
+  gaps it finds become v1.x items.
+- The API freeze review records its decisions here.
+
+Trimmed in the pre-1.0 triage, as they don't pass "What earns a place":
+
+- **Subject-bound theme switching** (`trlv_theme_bind_subject`): following
+  a subject is one observer calling `trlv_theme_set_color_mode`, a recipe
+  in [docs/concepts.md §6.3](docs/concepts.md#63-theme-api).
+- **Responsive helpers** (for example a row that becomes a column by
+  layout mode): the layout mode is fixed at `trlv_init`, so this is one
+  `if` in the screen code.
+
+## v1.x (on demand)
+
+Additive items, each built only when a product needs it, before or after
+1.0:
 
 - `trlv_icon(parent, symbol, TRLV_SIZE_*)`: an icon-font glyph sized by a new
   `icon_size` token, with inherited colour.
-- Subject-bound theme switching (`TRLV_USE_SUBJECT_THEME`,
-  `trlv_theme_bind_subject`).
+- Checked (toggle) buttons styled as MD3 selected, for each button variant.
 - Motion tokens (`duration_short` / `duration_medium`) and style transitions
   for state changes.
-- Elevated button variant; selected / activated state styles.
+- Elevated button variant.
 - Hover state layer (`LV_STATE_HOVERED`) for pointer-driven products.
 - `trlv_debug_dump(obj)`: prints the object tree with sizes, padding, gaps and
   styles for comparison with Figma (`TRLV_USE_DEBUG`).
@@ -204,10 +232,10 @@ Each item is added only when a product needs it:
   exceptions or RTTI.
 - **Token generator:** DTCG (2025.10) JSON and Material Theme Builder JSON →
   the same token structs.
-- **Responsive helpers:** e.g. switching between row and column by layout mode.
 - **LVGL v10:** TreLVis already follows v10 forward-compatibility rules and
-  builds weekly against LVGL master. If the move changes the TreLVis API, it
-  becomes a new major version, with an LVGL 9 maintenance branch if needed.
+  builds weekly against LVGL master. Support for v10 comes in a new major
+  version, with a `release/v1.x` branch for products that stay on LVGL 9
+  (see the [compatibility promise](README.md#what-a-version-number-promises)).
 
 ## Related project: `trelvis-starter`
 

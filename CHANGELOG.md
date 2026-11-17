@@ -8,6 +8,16 @@ While the version is 0.x, minor releases may contain breaking changes.
 
 ## [Unreleased]
 
+### Changed
+
+- The token templates name every field they set (designated initialisers),
+  including the state opacities, the text styles and the elevation
+  shadows. A field added to a token struct in a later minor release is
+  then zero in an existing copy instead of shifting the values after it.
+  The values are unchanged; copies made from 0.1.0 keep working, but are
+  worth converting the same way (see "What a version number promises" in
+  the README).
+
 ## [0.1.0] - 2026-11-17
 
 The v1 feature-complete release: every function of the v1 API is built,

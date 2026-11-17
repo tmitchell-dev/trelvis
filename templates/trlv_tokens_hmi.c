@@ -30,12 +30,12 @@
 #define TOKEN_HEX(hex) LV_COLOR_MAKE(((hex) >> 16) & 0xFF, ((hex) >> 8) & 0xFF, (hex) & 0xFF)
 
 /* MD3 state-layer and disabled opacities, as in the template. */
-#define TOKEN_STATE_MD3         \
-    {                           \
-        LV_OPA_10, /* focus */  \
-        LV_OPA_10, /* pressed */ \
-        97,        /* disabled_content: 38 % */ \
-        31,        /* disabled_container: 12 % */ \
+#define TOKEN_STATE_MD3                             \
+    {                                               \
+        .focus              = LV_OPA_10,            \
+        .pressed            = LV_OPA_10,            \
+        .disabled_content   = 97,   /* 38 % */      \
+        .disabled_container = 31,   /* 12 % */      \
     }
 
 /* Alarm priorities. The strong colour (an alarm banner, a priority badge)

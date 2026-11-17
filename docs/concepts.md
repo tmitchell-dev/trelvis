@@ -6,7 +6,7 @@ modifiers it provides.
 
 > **Status:** this describes TreLVis v1, which is fully implemented. The
 > public headers are the source of truth for exact signatures; this document
-> explains the reasons behind them. Items marked *(planned, v1.1)* are not
+> explains the reasons behind them. Items marked *(planned, v1.x)* are not
 > built yet (see [ROADMAP.md](../ROADMAP.md)).
 
 - [1. What TreLVis is](#1-what-trelvis-is)
@@ -348,7 +348,7 @@ container 12%. These are the MD3 values; projects may tune them.
   (its colour pair); the focus ring and the disabled style are shared.
   The ring is `focus_width` thick and `space[2XS]` outside the widget, and
   only shows for keypad or encoder focus (`LV_STATE_FOCUS_KEY`).
-- **Transitions** use `lv_style_transition_dsc_t` with motion tokens *(planned, v1.1)*.
+- **Transitions** use `lv_style_transition_dsc_t` with motion tokens *(planned, v1.x)*.
 - **Modifier groups replace rather than stack.** Calling `trlv_gap` (or
   `trlv_pad`, `trlv_card`, `trlv_surface`, `trlv_justify`, …) again removes
   that group's previous style before adding the new one. The target is 2–4
@@ -399,9 +399,37 @@ const trlv_layout_tokens_t * trlv_layout(void);
 - **Parent theme:** LVGL's default theme, initialised with MD3 `primary` /
   `secondary`, the dark flag and the Body Medium font, so widgets TreLVis
   doesn't cover still match. Set with `TRLV_THEME_PARENT` (default / none).
-- *(planned, v1.1)* `TRLV_USE_SUBJECT_THEME`:
-  `trlv_theme_bind_subject(lv_subject_t * subject, const trlv_color_tokens_t * const modes[], uint32_t count)`.
-  The app sets an integer subject (0 = light, 1 = dark, …) and the theme follows.
+- **Following a subject.** TreLVis has no subject binding of its own: an
+  integer subject (0 = light, 1 = dark, …) drives the colour mode through
+  one observer the project writes once. Add it after `trlv_init`: LVGL calls
+  an observer as soon as it is added, which applies the subject's current
+  mode.
+
+  ```c
+  static const trlv_color_tokens_t * const color_modes[] = { &tokens_light, &tokens_dark };
+
+  static void color_mode_cb(lv_observer_t * observer, lv_subject_t * subject)
+  {
+      LV_UNUSED(observer);
+      int32_t mode = lv_subject_get_int(subject);
+      if(mode >= 0 && mode < (int32_t)(sizeof(color_modes) / sizeof(color_modes[0]))) {
+          trlv_theme_set_color_mode(color_modes[mode]);
+      }
+  }
+
+  /* after trlv_init */
+  lv_subject_t * color_mode = lv_subject_create(LV_SUBJECT_TYPE_INT);
+  lv_subject_add_observer(color_mode, color_mode_cb, NULL);
+
+  /* a light/dark switch anywhere in the UI */
+  lv_obj_t * sw = lv_switch_create(parent);
+  lv_obj_bind_checked(sw, color_mode);
+  ```
+
+  [`tests/theme/test_color_mode.c`](../tests/theme/test_color_mode.c) runs
+  this recipe. A built-in binding (`trlv_theme_bind_subject` behind a
+  config option) was planned for v1.1 and dropped: it would save only
+  these lines.
 
 ### 6.4 MD3 widget coverage (v1)
 
@@ -586,7 +614,7 @@ LVGL, so TreLVis adds no function for them. Setters named
 - `TRLV_USE_DEBUG_OUTLINE` draws a 1 px outline around every box, row,
   column and spacer. It is drawn outside the object, in magenta,
   and takes no space, so the layout it shows doesn't change.
-- *(planned, v1.1)* `trlv_debug_dump(obj)` prints the tree with sizes,
+- *(planned, v1.x)* `trlv_debug_dump(obj)` prints the tree with sizes,
   padding, gaps and styles for comparison with Figma (`TRLV_USE_DEBUG`).
 
 ## 8. Memory and threading
