@@ -587,7 +587,7 @@ handles them, and its docs note where:
 | Labels hug their text and don't wrap unless they have a width. | `trlv_text` keeps that default (Figma "auto width"), confirmed on the slice's demo screen: names, values, headings and button labels all want to hug. `trlv_fill_width` gives the label a width, so it wraps (Figma "auto height"); a paragraph needs it. |
 | A child that fills (grows) along the main axis of a parent that hugs that axis collapses to 0. | `trlv_fill_*` logs a warning naming the object. Filling *across* a hugging parent stretches to the widest sibling and is left alone (§7.2). |
 | `lv_obj_set_style_*` allocates a local style per object. | Modifiers use shared styles; any exceptions are documented. |
-| Border is drawn inside the padding box. | Matches Figma "inside stroke, include in layout". See the hand-off guide. |
+| A border sits inside the object's size and insets the content by its width, on top of the padding. | Matches Figma "inside stroke, include in layout" and CSS `box-sizing: border-box`. See the hand-off guide. |
 | LVGL uses line *spacing*, Figma uses line *height*. | Tokens use line height; TreLVis converts (`line_height − font line height`). |
 | Object flags use per-flag setters in 9.6+ (`lv_obj_set_scrollable`). | TreLVis uses them only; the generic flag API is deprecated. |
 | Style precedence: later-added styles win, and local styles beat all. | Documented precedence (§6.2). Modifier groups replace their own previous style. |
