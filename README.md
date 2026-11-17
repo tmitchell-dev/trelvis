@@ -260,7 +260,8 @@ LVGL 9.
 
 From an LVGL 9.6 project with a working display to a themed screen in
 five steps. Your project provides LVGL and its `lv_conf.h`; TreLVis
-doesn't vendor it.
+doesn't vendor it. CI builds [`tests/consumer`](tests/consumer), a small
+project that follows these steps with CMake and with a Makefile.
 
 ### 1. Add TreLVis
 
@@ -280,13 +281,24 @@ target_link_libraries(my_app PRIVATE trelvis)
 ```
 
 TreLVis links against your project's `lvgl` target. If your LVGL target has
-another name, set `TRLV_LVGL_TARGET` before `add_subdirectory`.
+another name, set it first: `set(TRLV_LVGL_TARGET my_lvgl)` before
+`add_subdirectory(external/trelvis)`.
+
+TreLVis finds a `trlv_conf.h` (see [Configuration](#configuration)) on its
+include path, which includes your LVGL target's public include
+directories. LVGL's own CMake keeps the directory of `lv_conf.h` to itself,
+so if you configure TreLVis, add that directory to TreLVis too:
+
+```cmake
+target_include_directories(trelvis PUBLIC config)   # holds lv_conf.h and trlv_conf.h
+```
 
 **Makefile:** `include external/trelvis/trelvis.mk` adds the sources to
 `CSRCS` and the include path to `CFLAGS`, next to LVGL's own `lvgl.mk`.
 `lvgl.mk` puts only LVGL's own directory on the include path, so also add
 `-Iexternal/lvgl/include` (or the directory that holds `lvgl/`) for the
-`<lvgl/lvgl.h>` that TreLVis includes.
+`<lvgl/lvgl.h>` that TreLVis includes, and the directory of your
+`lv_conf.h` and `trlv_conf.h`.
 
 **Anything else** (STM32CubeIDE and other IDE-managed builds): add
 `external/trelvis/src/*.c` to your sources and `external/trelvis/include`
@@ -359,8 +371,15 @@ them and builds in your project the same way.
 All options have defaults in
 [`trlv_conf_default.h`](include/trelvis/trlv_conf_default.h). To change one,
 create a `trlv_conf.h` next to your `lv_conf.h` (anywhere on the include path
-works), or pass a compiler definition. A different file name or location can
-be given with `TRLV_CONF_PATH`.
+works, as long as TreLVis's sources see it too; see
+[step 2](#2-build-it-with-your-project)), or pass a compiler definition. A
+different file name or location can be given with `TRLV_CONF_PATH`, defined
+for TreLVis and your code alike:
+
+```cmake
+target_compile_definitions(trelvis PUBLIC
+    "TRLV_CONF_PATH=\"${CMAKE_SOURCE_DIR}/config/my_trlv_conf.h\"")
+```
 
 ```c
 /* trlv_conf.h */
@@ -376,6 +395,31 @@ be given with `TRLV_CONF_PATH`.
 | `TRLV_CUSTOM_COLOR_MAX` | `4` | How many of the project's custom colours `trlv_surface_custom` can apply (two small shared styles each). |
 | `TRLV_USE_DEBUG_OUTLINE` | `0` | Draw a 1 px outline on every TreLVis container. |
 | `TRLV_IGNORE_LVGL_VERSION` | `0` | Skip the LVGL version check (unsupported; for trying LVGL master). |
+
+## Footprint
+
+TreLVis itself, cross-compiled for Cortex-M4 with `arm-none-eabi-gcc` 14.2
+at `-Os` against LVGL 9.6. LVGL, fonts and your token tables are not
+included. These are object-file sizes before the linker drops functions you
+don't call, so they are an upper bound.
+
+| Configuration | Flash | Static RAM |
+|---|---:|---:|
+| Minimal `lv_conf.h` (no widgets but the label), theme on | 5.4 KB | 2.5 KB |
+| Minimal `lv_conf.h`, theme off (`TRLV_USE_THEME 0`) | 4.8 KB | 2.5 KB |
+| LVGL's default `lv_conf.h` (every widget), theme on | 10.5 KB | 3.8 KB |
+| LVGL's default `lv_conf.h`, theme off | 5.2 KB | 2.7 KB |
+| Each custom colour allowed by `TRLV_CUSTOM_COLOR_MAX` | 108 B | 64 B |
+
+The static RAM is the token styles' property arrays, which `trlv_init` and
+colour-mode switches fill in. Constant styles live in flash. The theme's
+styles for widgets turned off in `lv_conf.h` are compiled out. Cortex-M7
+numbers are within a few bytes of these. CI prints the full report,
+per object, on every run; to reproduce it:
+
+```sh
+sh tests/footprint.sh path/to/lvgl cortex-m4   # needs arm-none-eabi-gcc
+```
 
 ## Threading
 

@@ -54,6 +54,10 @@ decisions are in ROADMAP "Settled in milestone 5".
 replaces its previous style; add a case there for any new group.
 Config options are tested by building a copy of the library with the
 option set (`trlv_add_option_test` in `tests/CMakeLists.txt`).
+`-DTRLV_TEST_CONFIG=minimal` builds against `tests/config/minimal` (a
+small product's `lv_conf.h` and `trlv_conf.h`) and runs only the tests
+that need no widgets, log or extra fonts; register a new test in that
+group when it can run there.
 
 Milestone 6 grew `examples/demo` into sections that exercise every
 primitive (surfaces, cards, button variants and themed widgets in their

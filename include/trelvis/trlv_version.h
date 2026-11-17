@@ -18,9 +18,16 @@
 /*---------------------------------------------------------------------------
  * TreLVis version (semantic versioning)
  *-------------------------------------------------------------------------*/
+/* Each definition stays on one line of its own: CMakeLists.txt and the
+ * release workflow read them with a pattern. */
+
+/** Major version: a change breaks the compatibility promise (README). */
 #define TRLV_VERSION_MAJOR  0
+/** Minor version: additions and changes to the theme's look. */
 #define TRLV_VERSION_MINOR  1
+/** Patch version: fixes only. */
 #define TRLV_VERSION_PATCH  0
+/** The version as a string, "MAJOR.MINOR.PATCH". */
 #define TRLV_VERSION_STRING "0.1.0"
 
 /*---------------------------------------------------------------------------

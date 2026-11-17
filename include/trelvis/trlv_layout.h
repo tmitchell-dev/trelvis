@@ -302,7 +302,11 @@ void trlv_align_items(lv_obj_t * obj, trlv_align_items_t align);
  */
 void trlv_hug_width(lv_obj_t * obj);
 
-/** Hug the content's height. Like trlv_hug_width, for the height. */
+/**
+ * Hug the content's height. Like trlv_hug_width, for the height.
+ *
+ * @param obj  any object
+ */
 void trlv_hug_height(lv_obj_t * obj);
 
 /**

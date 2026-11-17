@@ -59,3 +59,116 @@ jobs:
         run: |
           $CC -std=c99 -Wall -Wextra -Wpedantic -Werror -fsyntax-only \
               -Iinclude -isystem build/_deps/lvgl-src/include -DLV_CONF_SKIP src/*.c
+
+  minimal:
+    name: Build (minimal lv_conf)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      # tests/config/minimal: RGB565, no log, Montserrat 14 only, no default
+      # theme, no widgets but the label, TRLV_THEME_PARENT_NONE and
+      # TRLV_CUSTOM_COLOR_MAX 0. Runs the tests that need no widgets.
+      - name: CMake build
+        run: |
+          cmake -B build -DTRLV_TEST_CONFIG=minimal
+          cmake --build build --parallel
+
+      - name: Tests
+        run: ctest --test-dir build --output-on-failure
+
+      # Each widget the theme styles on its own (with the widget LVGL
+      # requires for it), so every style group compiles without the others.
+      - name: Theme guards, one widget at a time
+        run: |
+          others="ANIMIMG ARCLABEL BUTTONMATRIX CALENDAR CANVAS CHART IMAGE IMAGEBUTTON KEYBOARD
+                  LED LINE LIST MENU MSGBOX ROLLER SCALE SPAN SPINBOX TABLE TILEVIEW WIN"
+          styled="BUTTON SWITCH CHECKBOX SLIDER BAR ARC SPINNER DROPDOWN TEXTAREA TABVIEW"
+          for on in $styled; do
+            defs="-DLV_USE_THEME_DEFAULT=0 -DTRLV_THEME_PARENT=0"
+            for w in $others; do defs="$defs -DLV_USE_$w=0"; done
+            for w in $styled; do
+              case "$on:$w" in "$w:$w"|SLIDER:BAR|SPINNER:ARC|TABVIEW:BUTTON) v=1 ;; *) v=0 ;; esac
+              defs="$defs -DLV_USE_$w=$v"
+            done
+            echo "LV_USE_$on"
+            gcc -std=c99 -Wall -Wextra -Wpedantic -Werror -fsyntax-only \
+                -Iinclude -isystem build/_deps/lvgl-src/include -DLV_CONF_SKIP $defs src/trlv_theme.c
+          done
+
+  consumer:
+    name: Consumer project
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      # The LVGL version the development build pins, as a product's submodule.
+      - name: Fetch LVGL
+        run: |
+          tag=$(sed -n 's/^set(TRLV_LVGL_GIT_TAG "\([^"]*\)".*/\1/p' tests/CMakeLists.txt)
+          git clone --quiet --depth 1 --branch "$tag" https://github.com/lvgl/lvgl.git "$RUNNER_TEMP/lvgl"
+
+      # tests/consumer: its own LVGL target (app_lvgl) and lv_conf.h, TreLVis
+      # by add_subdirectory, the copied token template, and the demo run
+      # headless in light and dark.
+      - name: CMake, trlv_conf.h on the include path
+        run: |
+          cmake -S tests/consumer -B build-include -DLVGL_DIR="$RUNNER_TEMP/lvgl"
+          cmake --build build-include --parallel
+          ctest --test-dir build-include --output-on-failure
+
+      - name: CMake, trlv_conf.h through TRLV_CONF_PATH
+        run: |
+          cmake -S tests/consumer -B build-conf-path -DLVGL_DIR="$RUNNER_TEMP/lvgl" -DCONSUMER_CONF=conf_path
+          cmake --build build-conf-path --parallel
+          ctest --test-dir build-conf-path --output-on-failure
+
+      - name: Makefile with trelvis.mk
+        run: make -C tests/consumer -j"$(nproc)" LVGL_DIR="$RUNNER_TEMP/lvgl" run
+
+  docs:
+    name: API docs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+
+      # Doxyfile: fails on any public symbol, parameter or return value in
+      # include/trelvis without documentation.
+      - name: Every public symbol is documented
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq doxygen
+          doxygen --version
+          doxygen
+
+  cortex-m:
+    name: Cortex-M (${{ matrix.cpu }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        cpu: [cortex-m4, cortex-m7]
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install the Arm toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq gcc-arm-none-eabi libnewlib-arm-none-eabi
+
+      - name: Fetch LVGL
+        run: |
+          tag=$(sed -n 's/^set(TRLV_LVGL_GIT_TAG "\([^"]*\)".*/\1/p' tests/CMakeLists.txt)
+          git clone --quiet --depth 1 --branch "$tag" https://github.com/lvgl/lvgl.git "$RUNNER_TEMP/lvgl"
+
+      # -mthumb -Os with newlib, 32-bit pointers and RGB565: the library and
+      # the token template with the strict warnings, against the minimal
+      # lv_conf.h and LVGL's defaults. The sizes go to the job summary.
+      - name: Cross build and footprint
+        run: |
+          set -o pipefail
+          sh tests/footprint.sh "$RUNNER_TEMP/lvgl" ${{ matrix.cpu }} | tee -a "$GITHUB_STEP_SUMMARY"
