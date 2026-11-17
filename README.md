@@ -43,31 +43,113 @@ already clear: for those, the docs name the LVGL call to use.
 
 ## A taste of the API
 
+The same card built with TreLVis and with plain LVGL 9.6 under LVGL's
+default theme. Each side runs after a one-off set-up: for TreLVis,
+`trlv_init(disp, &tokens_light, &tokens_regular)` with tokens from the
+template you copy; for plain LVGL, a palette for light and dark and shared
+styles for the card, the text roles and each button state (75 lines). A
+[headless test](tests/layout/test_readme_card.c) checks that both versions
+lay out the same and get the same fonts and colours, in light and dark.
+
+<!-- The code below is copied from tests/layout/test_readme_card.c, with
+     blank lines in the TreLVis column so each call lines up with the LVGL
+     calls it replaces. Change them together, and the line counts. -->
+
+<table>
+<tr><th>TreLVis</th><th>Plain LVGL 9.6</th></tr>
+<tr>
+<td valign="top">
+
 ```c
-#include <trelvis/trelvis.h>
+lv_obj_t * card = trlv_column(parent, TRLV_SPACE_SM);
 
-trlv_init(disp, &tokens_light, &tokens_regular);  /* once; tokens come from your copy of the template */
 
-lv_obj_t * card = trlv_column(parent, TRLV_SPACE_SM);   /* Figma: auto layout, vertical */
-trlv_card(card, TRLV_CARD_FILLED);                      /* MD3 filled card               */
+
+
+trlv_card(card, TRLV_CARD_FILLED);
 trlv_pad(card, TRLV_SPACE_LG);
-trlv_fill_width(card);                                  /* Figma: fill container         */
+trlv_fill_width(card);
 
 lv_obj_t * header = trlv_row(card, TRLV_SPACE_SM);
-trlv_fill_width(header);
-trlv_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);       /* CSS: justify-content          */
-trlv_align_items(header, TRLV_ALIGN_ITEMS_CENTER);      /* CSS: align-items              */
-trlv_text(header, "Temperature", TRLV_TEXT_TITLE_MEDIUM);
-trlv_text(header, "37.2 °C",     TRLV_TEXT_HEADLINE_SMALL);
 
-lv_obj_t * btn = lv_button_create(card);                /* plain LVGL; MD3 filled button via the theme */
+
+
+
+trlv_fill_width(header);
+trlv_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);
+trlv_align_items(header, TRLV_ALIGN_ITEMS_CENTER);
+
+trlv_text(header, "Temperature", TRLV_TEXT_TITLE_MEDIUM);
+
+
+trlv_text(header, "37.2 °C", TRLV_TEXT_HEADLINE_SMALL);
+
+
+
+lv_obj_t * btn = lv_button_create(card);
 trlv_button_variant(btn, TRLV_BUTTON_TONAL);
+
+
+
+
 trlv_text(btn, "Calibrate", TRLV_TEXT_LABEL_LARGE);
+
+
+
 ```
 
-The text in the card takes the card's `on_` colour by inheritance, and
-`trlv_theme_set_color_mode(&tokens_dark)` recolours all of it, the button
-included, with no per-screen code.
+</td>
+<td valign="top">
+
+```c
+lv_obj_t * card = lv_obj_create(parent);
+lv_obj_remove_style_all(card);   /* theme pad, border */
+lv_obj_set_scrollable(card, false);
+lv_obj_set_flex_flow(card, LV_FLEX_FLOW_COLUMN);
+lv_obj_set_style_pad_row(card, SPACE_SM, 0);   /* gap */
+lv_obj_add_style(card, &style_card, 0);
+lv_obj_set_style_pad_all(card, SPACE_LG, 0);
+lv_obj_set_size(card, LV_PCT(100), LV_SIZE_CONTENT);
+
+lv_obj_t * header = lv_obj_create(card);
+lv_obj_remove_style_all(header);
+lv_obj_set_scrollable(header, false);
+lv_obj_set_flex_flow(header, LV_FLEX_FLOW_ROW);
+lv_obj_set_style_pad_column(header, SPACE_SM, 0);   /* gap */
+lv_obj_set_size(header, LV_PCT(100), LV_SIZE_CONTENT);
+lv_obj_set_flex_align(header, LV_FLEX_ALIGN_SPACE_BETWEEN,
+                      LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+
+lv_obj_t * title = lv_label_create(header);
+lv_label_set_text(title, "Temperature");
+lv_obj_add_style(title, &style_title_medium, 0);
+lv_obj_t * value = lv_label_create(header);
+lv_label_set_text(value, "37.2 °C");
+lv_obj_add_style(value, &style_headline_small, 0);
+
+lv_obj_t * btn = lv_button_create(card);
+lv_obj_add_style(btn, &style_button, 0);
+lv_obj_add_style(btn, &style_tonal, 0);
+lv_obj_add_style(btn, &style_tonal_pressed, LV_STATE_PRESSED);
+lv_obj_add_style(btn, &style_tonal_focus, LV_STATE_FOCUS_KEY);
+lv_obj_add_style(btn, &style_tonal_disabled, LV_STATE_DISABLED);
+lv_obj_t * label = lv_label_create(btn);
+lv_label_set_text(label, "Calibrate");
+lv_obj_add_style(label, &style_label_large, 0);
+lv_obj_center(label);
+```
+
+</td>
+</tr>
+</table>
+
+**13 lines instead of 32.** TreLVis also handles what the plain version
+repeats on every screen: choosing a percentage or flex grow for fill and
+`pad_row` or `pad_column` for the gap (both depend on the parent's
+direction), and a style with its states for every other card, surface,
+text role and button variant. `trlv_theme_set_color_mode(&tokens_dark)`
+recolours everything, and Compact density is just another token set for
+`trlv_init`.
 
 ## Design principles
 

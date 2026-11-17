@@ -137,6 +137,8 @@ trlv_add_test(layout_replace_not_stack layout/test_replace_not_stack.c)
 target_link_libraries(layout_replace_not_stack PRIVATE trlv_tokens_template)
 trlv_add_test(layout_demo layout/test_demo.c)
 target_link_libraries(layout_demo PRIVATE trlv_tokens_template trlv_tokens_hmi trlv_demo)
+trlv_add_test(layout_readme_card layout/test_readme_card.c)
+target_link_libraries(layout_readme_card PRIVATE trlv_tokens_template)
 
 trlv_add_test(theme_init theme/test_init.c)
 target_link_libraries(theme_init PRIVATE trlv_tokens_template)
