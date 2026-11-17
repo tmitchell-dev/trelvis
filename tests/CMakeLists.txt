@@ -117,6 +117,8 @@ trlv_add_test(layout_divider layout/test_divider.c)
 target_link_libraries(layout_divider PRIVATE trlv_tokens_template)
 trlv_add_test(layout_text_role layout/test_text_role.c)
 target_link_libraries(layout_text_role PRIVATE trlv_tokens_template)
+trlv_add_test(layout_replace_not_stack layout/test_replace_not_stack.c)
+target_link_libraries(layout_replace_not_stack PRIVATE trlv_tokens_template)
 trlv_add_test(layout_demo layout/test_demo.c)
 target_link_libraries(layout_demo PRIVATE trlv_tokens_template trlv_demo)
 
