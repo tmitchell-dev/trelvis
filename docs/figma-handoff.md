@@ -119,7 +119,7 @@ means the design can't be built exactly, or needs hand-written exceptions.
 | Gap | `gap` | `trlv_gap` | `pad_row` / `pad_column` |
 | Padding | `padding` | `trlv_pad` | `pad_*` |
 | Space between / packed | `justify-content` | `trlv_justify` | `flex_main_place` |
-| Cross-axis alignment | `align-items` | `trlv_align_items` | `flex_cross_place` |
+| Cross-axis alignment | `align-items` | `trlv_align_items` | `flex_cross_place` + `flex_track_place` |
 | Hug / Fill / Fixed | `fit-content` / `flex: 1` / `width` | `trlv_hug_*` / `trlv_fill_*` / `lv_obj_set_size` | `LV_SIZE_CONTENT` / `flex_grow` or `LV_PCT(100)` / `width` |
 | Absolute position | `position: absolute` | *raw LVGL* | `lv_obj_set_floating` + `lv_obj_align` |
 | Colour role | `--md-sys-color-*` | `trlv_color()->…` | `lv_color_t` |

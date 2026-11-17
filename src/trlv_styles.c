@@ -18,6 +18,14 @@ static const lv_style_const_prop_t box_props[] = {
     LV_STYLE_CONST_PAD_RIGHT(0),
     LV_STYLE_CONST_WIDTH(LV_SIZE_CONTENT),
     LV_STYLE_CONST_HEIGHT(LV_SIZE_CONTENT),
+#if TRLV_USE_DEBUG_OUTLINE
+    /* Outside the object (outline_pad 0), so it takes no space. Magenta, a
+     * colour no MD3 scheme uses. */
+    LV_STYLE_CONST_OUTLINE_WIDTH(1),
+    LV_STYLE_CONST_OUTLINE_PAD(0),
+    LV_STYLE_CONST_OUTLINE_OPA(LV_OPA_COVER),
+    LV_STYLE_CONST_OUTLINE_COLOR(LV_COLOR_MAKE(0xFF, 0x00, 0xFF)),
+#endif
     LV_STYLE_CONST_PROPS_END
 };
 LV_STYLE_CONST_INIT(trlv_style_box, box_props);

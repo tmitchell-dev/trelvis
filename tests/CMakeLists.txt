@@ -107,6 +107,12 @@ trlv_add_test(layout_fill_warning layout/test_fill_warning.c)
 target_link_libraries(layout_fill_warning PRIVATE trlv_tokens_template)
 trlv_add_test(layout_text layout/test_text.c)
 target_link_libraries(layout_text PRIVATE trlv_tokens_template)
+trlv_add_test(layout_flex_place layout/test_flex_place.c)
+target_link_libraries(layout_flex_place PRIVATE trlv_tokens_template)
+trlv_add_test(layout_spacer layout/test_spacer.c)
+target_link_libraries(layout_spacer PRIVATE trlv_tokens_template)
+trlv_add_test(layout_debug_outline_off layout/test_debug_outline.c)
+target_link_libraries(layout_debug_outline_off PRIVATE trlv_tokens_template)
 trlv_add_test(layout_demo layout/test_demo.c)
 target_link_libraries(layout_demo PRIVATE trlv_tokens_template trlv_demo)
 
@@ -121,26 +127,36 @@ target_link_libraries(theme_color_mode PRIVATE trlv_tokens_template)
 trlv_add_test(theme_widgets theme/test_widgets.c)
 target_link_libraries(theme_widgets PRIVATE trlv_tokens_template)
 
-# TRLV_USE_THEME 0: a second copy of the library built with the option, and
-# a test linked against it alone (its own harness and template objects).
+# Config options: a copy of the library built with one option set, and a
+# test linked against it alone (its own harness and template objects).
 get_target_property(TRLV_SOURCES trelvis SOURCES)
 list(TRANSFORM TRLV_SOURCES PREPEND ${PROJECT_SOURCE_DIR}/)
-add_library(trelvis_no_theme STATIC ${TRLV_SOURCES})
-target_include_directories(trelvis_no_theme PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_link_libraries(trelvis_no_theme PUBLIC ${TRLV_LVGL_TARGET})
-target_compile_definitions(trelvis_no_theme PUBLIC TRLV_USE_THEME=0)
-target_compile_options(trelvis_no_theme PRIVATE ${TRLV_STRICT_WARNINGS})
-add_executable(theme_no_theme theme/test_no_theme.c harness/trlv_test.c ../templates/trlv_tokens_template.c)
-target_include_directories(theme_no_theme PRIVATE harness ${PROJECT_SOURCE_DIR}/templates)
-target_link_libraries(theme_no_theme PRIVATE trelvis_no_theme)
-target_compile_options(theme_no_theme PRIVATE ${TRLV_STRICT_WARNINGS})
-foreach(target trelvis_no_theme theme_no_theme)
-    set_target_properties(${target} PROPERTIES
+function(trlv_add_option_test name source library definition)
+    if(NOT TARGET ${library})
+        add_library(${library} STATIC ${TRLV_SOURCES})
+        target_include_directories(${library} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+        target_link_libraries(${library} PUBLIC ${TRLV_LVGL_TARGET})
+        target_compile_definitions(${library} PUBLIC ${definition})
+        target_compile_options(${library} PRIVATE ${TRLV_STRICT_WARNINGS})
+        set_target_properties(${library} PROPERTIES
+            C_STANDARD 99
+            C_STANDARD_REQUIRED ON
+            C_EXTENSIONS OFF)
+    endif()
+    add_executable(${name} ${source} harness/trlv_test.c ../templates/trlv_tokens_template.c)
+    target_include_directories(${name} PRIVATE harness ${PROJECT_SOURCE_DIR}/templates)
+    target_link_libraries(${name} PRIVATE ${library})
+    target_compile_options(${name} PRIVATE ${TRLV_STRICT_WARNINGS})
+    set_target_properties(${name} PROPERTIES
         C_STANDARD 99
         C_STANDARD_REQUIRED ON
         C_EXTENSIONS OFF)
-endforeach()
-add_test(NAME theme_no_theme COMMAND theme_no_theme)
+    add_test(NAME ${name} COMMAND ${name})
+endfunction()
+
+trlv_add_option_test(theme_no_theme theme/test_no_theme.c trelvis_no_theme TRLV_USE_THEME=0)
+trlv_add_option_test(layout_debug_outline_on layout/test_debug_outline.c
+                     trelvis_debug_outline TRLV_USE_DEBUG_OUTLINE=1)
 
 # Tests of internal helpers also see src/.
 trlv_add_test(internal_style_group internal/test_style_group.c)

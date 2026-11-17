@@ -60,6 +60,55 @@ static const trlv_style_group_t width_group = TRLV_STYLE_GROUP_LIST(width_styles
 static const trlv_style_group_t height_group = TRLV_STYLE_GROUP_LIST(height_styles);
 
 /*---------------------------------------------------------------------------
+ * Flex placement styles (constant): one per value, so each modifier is one
+ * group. trlv_justify_t and trlv_align_items_t equal lv_flex_align_t, but
+ * the styles are picked through a switch rather than indexed by value, which
+ * keeps them independent of LVGL's numbering.
+ *-------------------------------------------------------------------------*/
+
+#define TRLV_PLACE_STYLE(name_, prop_, value_)                \
+    static const lv_style_const_prop_t name_##_props[] = {    \
+        LV_STYLE_CONST_##prop_(value_),                       \
+        LV_STYLE_CONST_PROPS_END                              \
+    };                                                        \
+    static LV_STYLE_CONST_INIT(name_, name_##_props)
+
+TRLV_PLACE_STYLE(justify_start, FLEX_MAIN_PLACE, LV_FLEX_ALIGN_START);
+TRLV_PLACE_STYLE(justify_center, FLEX_MAIN_PLACE, LV_FLEX_ALIGN_CENTER);
+TRLV_PLACE_STYLE(justify_end, FLEX_MAIN_PLACE, LV_FLEX_ALIGN_END);
+TRLV_PLACE_STYLE(justify_space_between, FLEX_MAIN_PLACE, LV_FLEX_ALIGN_SPACE_BETWEEN);
+TRLV_PLACE_STYLE(justify_space_around, FLEX_MAIN_PLACE, LV_FLEX_ALIGN_SPACE_AROUND);
+TRLV_PLACE_STYLE(justify_space_evenly, FLEX_MAIN_PLACE, LV_FLEX_ALIGN_SPACE_EVENLY);
+
+/* Align items sets the track placement too. LVGL places items within their
+ * line (track), which is only as deep as the deepest item and sits at the
+ * start of the container, so cross_place alone would centre a short item
+ * against its tallest sibling rather than in the row. Placing the line the
+ * same way gives Figma's and CSS's result. */
+#define TRLV_ALIGN_ITEMS_STYLE(name_, value_)                 \
+    static const lv_style_const_prop_t name_##_props[] = {    \
+        LV_STYLE_CONST_FLEX_CROSS_PLACE(value_),              \
+        LV_STYLE_CONST_FLEX_TRACK_PLACE(value_),              \
+        LV_STYLE_CONST_PROPS_END                              \
+    };                                                        \
+    static LV_STYLE_CONST_INIT(name_, name_##_props)
+
+TRLV_ALIGN_ITEMS_STYLE(align_items_start, LV_FLEX_ALIGN_START);
+TRLV_ALIGN_ITEMS_STYLE(align_items_center, LV_FLEX_ALIGN_CENTER);
+TRLV_ALIGN_ITEMS_STYLE(align_items_end, LV_FLEX_ALIGN_END);
+
+static const lv_style_t * const justify_styles[] = {
+    &justify_start, &justify_center, &justify_end,
+    &justify_space_between, &justify_space_around, &justify_space_evenly
+};
+static const trlv_style_group_t justify_group = TRLV_STYLE_GROUP_LIST(justify_styles);
+
+static const lv_style_t * const align_items_styles[] = {
+    &align_items_start, &align_items_center, &align_items_end
+};
+static const trlv_style_group_t align_items_group = TRLV_STYLE_GROUP_LIST(align_items_styles);
+
+/*---------------------------------------------------------------------------
  * Token styles: one per space step, written by trlv_layout_styles_build.
  * See trlv_internal.h for how token styles work.
  *-------------------------------------------------------------------------*/
@@ -161,6 +210,21 @@ lv_obj_t * trlv_column(lv_obj_t * parent, trlv_space_t gap)
     return obj;
 }
 
+/* Defined with the modifiers below. */
+static bool parent_main_axis_is(lv_obj_t * obj, bool horizontal);
+static void fill(lv_obj_t * obj, bool horizontal, const char * func);
+
+lv_obj_t * trlv_spacer(lv_obj_t * parent)
+{
+    lv_obj_t * obj = trlv_box(parent);
+
+    /* An empty box hugs to 0 x 0. Fill only along the main axis, so it takes
+     * no room across it; with no flex parent it stays 0 x 0. */
+    if(parent_main_axis_is(obj, true)) fill(obj, true, "trlv_spacer");
+    else if(parent_main_axis_is(obj, false)) fill(obj, false, "trlv_spacer");
+    return obj;
+}
+
 /*---------------------------------------------------------------------------
  * Modifiers
  *-------------------------------------------------------------------------*/
@@ -236,18 +300,63 @@ static void warn_if_growing_in_hug(lv_obj_t * obj, bool horizontal, const char *
 #endif
 }
 
+/* Axis-aware fill on one axis; `func` names the public caller in the warning. */
+static void fill(lv_obj_t * obj, bool horizontal, const char * func)
+{
+    bool grow = parent_main_axis_is(obj, horizontal);
+    if(grow) warn_if_growing_in_hug(obj, horizontal, func);
+
+    if(horizontal) {
+        trlv_style_group_apply(obj, &width_group, grow ? &grow_width : &full_width, LV_PART_MAIN);
+    }
+    else {
+        trlv_style_group_apply(obj, &height_group, grow ? &grow_height : &full_height, LV_PART_MAIN);
+    }
+}
+
 void trlv_fill_width(lv_obj_t * obj)
 {
     LV_ASSERT_NULL(obj);
-    bool grow = parent_main_axis_is(obj, true);
-    if(grow) warn_if_growing_in_hug(obj, true, "trlv_fill_width");
-    trlv_style_group_apply(obj, &width_group, grow ? &grow_width : &full_width, LV_PART_MAIN);
+    fill(obj, true, "trlv_fill_width");
 }
 
 void trlv_fill_height(lv_obj_t * obj)
 {
     LV_ASSERT_NULL(obj);
-    bool grow = parent_main_axis_is(obj, false);
-    if(grow) warn_if_growing_in_hug(obj, false, "trlv_fill_height");
-    trlv_style_group_apply(obj, &height_group, grow ? &grow_height : &full_height, LV_PART_MAIN);
+    fill(obj, false, "trlv_fill_height");
+}
+
+void trlv_justify(lv_obj_t * obj, trlv_justify_t justify)
+{
+    LV_ASSERT_NULL(obj);
+
+    const lv_style_t * style;
+    switch(justify) {
+        case TRLV_JUSTIFY_START:         style = &justify_start; break;
+        case TRLV_JUSTIFY_CENTER:        style = &justify_center; break;
+        case TRLV_JUSTIFY_END:           style = &justify_end; break;
+        case TRLV_JUSTIFY_SPACE_BETWEEN: style = &justify_space_between; break;
+        case TRLV_JUSTIFY_SPACE_AROUND:  style = &justify_space_around; break;
+        case TRLV_JUSTIFY_SPACE_EVENLY:  style = &justify_space_evenly; break;
+        default:
+            LV_LOG_WARN("trlv_justify: %d is not a trlv_justify_t value", (int)justify);
+            return;
+    }
+    trlv_style_group_apply(obj, &justify_group, style, LV_PART_MAIN);
+}
+
+void trlv_align_items(lv_obj_t * obj, trlv_align_items_t align)
+{
+    LV_ASSERT_NULL(obj);
+
+    const lv_style_t * style;
+    switch(align) {
+        case TRLV_ALIGN_ITEMS_START:  style = &align_items_start; break;
+        case TRLV_ALIGN_ITEMS_CENTER: style = &align_items_center; break;
+        case TRLV_ALIGN_ITEMS_END:    style = &align_items_end; break;
+        default:
+            LV_LOG_WARN("trlv_align_items: %d is not a trlv_align_items_t value", (int)align);
+            return;
+    }
+    trlv_style_group_apply(obj, &align_items_group, style, LV_PART_MAIN);
 }
