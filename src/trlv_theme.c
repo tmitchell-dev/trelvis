@@ -665,6 +665,7 @@ void trlv_init(lv_display_t * disp, const trlv_color_tokens_t * color,
 
     trlv_layout_styles_build(layout);
     trlv_text_styles_build(layout);
+    trlv_surface_styles_build(color, layout);
 
 #if TRLV_USE_THEME
     theme_styles_build(color, layout);
@@ -687,6 +688,7 @@ void trlv_theme_set_color_mode(const trlv_color_tokens_t * color)
     }
 
     current_color = color;
+    trlv_surface_styles_build(color, current_layout);
 
 #if TRLV_USE_THEME
     theme_styles_build(color, current_layout);

@@ -108,9 +108,8 @@ typedef enum {
  * boxes, rows and columns. LVGL widgets have their colours from the theme.
  *
  * @param obj      any object
- * @param surface  the surface or container role
- *
- * @note Not implemented yet (milestone 5).
+ * @param surface  the surface or container role; any other value logs a
+ *                 warning and changes nothing
  */
 void trlv_surface(lv_obj_t * obj, trlv_surface_t surface);
 

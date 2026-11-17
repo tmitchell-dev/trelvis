@@ -128,6 +128,8 @@ trlv_add_test(theme_color_mode theme/test_color_mode.c)
 target_link_libraries(theme_color_mode PRIVATE trlv_tokens_template)
 trlv_add_test(theme_widgets theme/test_widgets.c)
 target_link_libraries(theme_widgets PRIVATE trlv_tokens_template)
+trlv_add_test(theme_surface theme/test_surface.c)
+target_link_libraries(theme_surface PRIVATE trlv_tokens_template)
 
 # Config options: a copy of the library built with one option set, and a
 # test linked against it alone (its own harness and template objects).
