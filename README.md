@@ -79,9 +79,10 @@ constants instead of magic numbers. A
 checks that every object lands at the same position and size and gets
 the same fonts and colours, in light and in dark.
 
-<!-- The per-card block below is copied from tests/layout/test_readme_card.c,
-     and the set-up summary and line counts describe the rest of that file's
-     plain-LVGL part. Change them together. -->
+<!-- The two per-card blocks below are copied from
+     tests/layout/test_readme_card.c (the TreLVis one is the example above
+     without its comments), and the set-up summary and line count describe
+     the rest of that file's plain-LVGL part. Change them together. -->
 
 **Once per project**, the plain version needs what the token template and
 `trlv_init` give TreLVis (75 lines in the test):
@@ -97,17 +98,43 @@ the same fonts and colours, in light and in dark.
   called at start-up and on each light/dark switch before
   `lv_obj_report_style_change(NULL)`.
 
-**Per card**, using those styles:
+**Per card**, the plain version using those styles:
+
+<table>
+<tr><th>TreLVis</th><th>Plain LVGL 9.6</th></tr>
+<tr>
+<td valign="top">
+
+```c
+lv_obj_t * card = trlv_column(parent, TRLV_SPACE_SM);
+trlv_card(card, TRLV_CARD_FILLED);
+trlv_pad(card, TRLV_SPACE_LG);
+trlv_fill_width(card);
+
+lv_obj_t * header = trlv_row(card, TRLV_SPACE_SM);
+trlv_fill_width(header);
+trlv_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);
+trlv_align_items(header, TRLV_ALIGN_ITEMS_CENTER);
+trlv_text(header, "Temperature", TRLV_TEXT_TITLE_MEDIUM);
+trlv_text(header, "37.2 °C", TRLV_TEXT_HEADLINE_SMALL);
+
+lv_obj_t * btn = lv_button_create(card);
+trlv_button_variant(btn, TRLV_BUTTON_TONAL);
+trlv_text(btn, "Calibrate", TRLV_TEXT_LABEL_LARGE);
+```
+
+</td>
+<td valign="top">
 
 ```c
 lv_obj_t * card = lv_obj_create(parent);
-lv_obj_remove_style_all(card);                      /* no theme padding, border, scrollbar */
+lv_obj_remove_style_all(card);   /* theme pad, border */
 lv_obj_add_style(card, &style_card, 0);
 lv_obj_set_scrollable(card, false);
-lv_obj_set_size(card, LV_PCT(100), LV_SIZE_CONTENT);  /* in a row: lv_obj_set_flex_grow */
+lv_obj_set_size(card, LV_PCT(100), LV_SIZE_CONTENT);
 lv_obj_set_flex_flow(card, LV_FLEX_FLOW_COLUMN);
 lv_obj_set_style_pad_all(card, SPACE_LG, 0);
-lv_obj_set_style_pad_row(card, SPACE_SM, 0);        /* a column's gap is pad_row */
+lv_obj_set_style_pad_row(card, SPACE_SM, 0);   /* gap */
 
 lv_obj_t * header = lv_obj_create(card);
 lv_obj_remove_style_all(header);
@@ -115,8 +142,8 @@ lv_obj_set_scrollable(header, false);
 lv_obj_set_size(header, LV_PCT(100), LV_SIZE_CONTENT);
 lv_obj_set_flex_flow(header, LV_FLEX_FLOW_ROW);
 lv_obj_set_flex_align(header, LV_FLEX_ALIGN_SPACE_BETWEEN,
-                      LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);   /* track too */
-lv_obj_set_style_pad_column(header, SPACE_SM, 0);   /* a row's gap is pad_column */
+                      LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+lv_obj_set_style_pad_column(header, SPACE_SM, 0);   /* gap */
 
 lv_obj_t * title = lv_label_create(header);
 lv_label_set_text(title, "Temperature");
@@ -136,6 +163,10 @@ lv_label_set_text(label, "Calibrate");
 lv_obj_add_style(label, &style_label_large, 0);
 lv_obj_center(label);
 ```
+
+</td>
+</tr>
+</table>
 
 **32 lines per card instead of 13** (non-blank lines).
 

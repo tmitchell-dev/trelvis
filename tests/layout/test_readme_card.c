@@ -7,9 +7,10 @@
  * comparison shows them. Both trees must lay out the same and resolve the
  * same colours and fonts, in light and in dark.
  *
- * card_trelvis and card_lvgl are the README's code blocks, and the README
- * summarises the plain-LVGL set-up above card_lvgl. If you change any of
- * them, change the README (and its line count) in the same PR.
+ * card_trelvis and card_lvgl are the README's side-by-side comparison
+ * (card_trelvis is also its first example, there with comments), and the
+ * README summarises the plain-LVGL set-up above card_lvgl. If you change
+ * any of them, change the README (and its line count) in the same PR.
  *
  * Each test runs on a fresh LVGL, so the bare-LVGL tests record what they
  * measured and the TreLVis tests compare against it. The bare side runs
@@ -21,24 +22,24 @@
 #include "trlv_tokens_template.h"
 
 /*===========================================================================
- * With TreLVis (README block 1, after trlv_init)
+ * With TreLVis (README comparison, left; after trlv_init)
  *=========================================================================*/
 
 static lv_obj_t * card_trelvis(lv_obj_t * parent)
 {
-    lv_obj_t * card = trlv_column(parent, TRLV_SPACE_SM);   /* Figma: auto layout, vertical */
-    trlv_card(card, TRLV_CARD_FILLED);                      /* MD3 filled card               */
+    lv_obj_t * card = trlv_column(parent, TRLV_SPACE_SM);
+    trlv_card(card, TRLV_CARD_FILLED);
     trlv_pad(card, TRLV_SPACE_LG);
-    trlv_fill_width(card);                                  /* Figma: fill container         */
+    trlv_fill_width(card);
 
     lv_obj_t * header = trlv_row(card, TRLV_SPACE_SM);
     trlv_fill_width(header);
-    trlv_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);       /* CSS: justify-content          */
-    trlv_align_items(header, TRLV_ALIGN_ITEMS_CENTER);      /* CSS: align-items              */
+    trlv_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);
+    trlv_align_items(header, TRLV_ALIGN_ITEMS_CENTER);
     trlv_text(header, "Temperature", TRLV_TEXT_TITLE_MEDIUM);
-    trlv_text(header, "37.2 °C",     TRLV_TEXT_HEADLINE_SMALL);
+    trlv_text(header, "37.2 °C", TRLV_TEXT_HEADLINE_SMALL);
 
-    lv_obj_t * btn = lv_button_create(card);                /* plain LVGL; MD3 filled button via the theme */
+    lv_obj_t * btn = lv_button_create(card);
     trlv_button_variant(btn, TRLV_BUTTON_TONAL);
     trlv_text(btn, "Calibrate", TRLV_TEXT_LABEL_LARGE);
 
@@ -46,7 +47,7 @@ static lv_obj_t * card_trelvis(lv_obj_t * parent)
 }
 
 /*===========================================================================
- * Plain LVGL 9.6 (README block 2)
+ * Plain LVGL 9.6 (README comparison, right)
  *=========================================================================*/
 
 /* ---- Once per project ---- */
@@ -143,13 +144,13 @@ static void styles_init(const palette_t * p)
 static lv_obj_t * card_lvgl(lv_obj_t * parent)
 {
     lv_obj_t * card = lv_obj_create(parent);
-    lv_obj_remove_style_all(card);                      /* no theme padding, border, scrollbar */
+    lv_obj_remove_style_all(card);   /* theme pad, border */
     lv_obj_add_style(card, &style_card, 0);
     lv_obj_set_scrollable(card, false);
-    lv_obj_set_size(card, LV_PCT(100), LV_SIZE_CONTENT);  /* in a row: lv_obj_set_flex_grow */
+    lv_obj_set_size(card, LV_PCT(100), LV_SIZE_CONTENT);
     lv_obj_set_flex_flow(card, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_style_pad_all(card, SPACE_LG, 0);
-    lv_obj_set_style_pad_row(card, SPACE_SM, 0);        /* a column's gap is pad_row */
+    lv_obj_set_style_pad_row(card, SPACE_SM, 0);   /* gap */
 
     lv_obj_t * header = lv_obj_create(card);
     lv_obj_remove_style_all(header);
@@ -157,8 +158,8 @@ static lv_obj_t * card_lvgl(lv_obj_t * parent)
     lv_obj_set_size(header, LV_PCT(100), LV_SIZE_CONTENT);
     lv_obj_set_flex_flow(header, LV_FLEX_FLOW_ROW);
     lv_obj_set_flex_align(header, LV_FLEX_ALIGN_SPACE_BETWEEN,
-                          LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);   /* track too */
-    lv_obj_set_style_pad_column(header, SPACE_SM, 0);   /* a row's gap is pad_column */
+                          LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_pad_column(header, SPACE_SM, 0);   /* gap */
 
     lv_obj_t * title = lv_label_create(header);
     lv_label_set_text(title, "Temperature");
