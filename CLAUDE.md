@@ -28,8 +28,8 @@ If an implementation decision changes the design, update the doc in the same PR.
 
 ## Current status
 
-Milestones 1 (scaffold), 2 (vertical slice), 3 (API review) and 4 (tokens
-and theme) are done.
+Milestones 1 (scaffold), 2 (vertical slice), 3 (API review), 4 (tokens
+and theme) and 5 (surfaces, cards and remaining primitives) are done.
 The slice implemented the token template, `trlv_init`, box, row, column,
 gap, pad, fill/hug and text, the demo screen `trlv_demo_create(parent)` in
 `examples/demo`, and headless layout tests. TreLVis ships no simulator; host
@@ -37,9 +37,7 @@ projects run the demo in their own.
 
 The API review wrote the full v1 public headers. They are the source of
 truth for signatures, and `tests/cpp_include_test.cpp` pins every one.
-Functions not built yet say so in their doc comment ("Not implemented yet
-(milestone N)"); remove that note when you implement one. The review's
-decisions are in ROADMAP "Settled in the API review".
+The review's decisions are in ROADMAP "Settled in the API review".
 
 Milestone 4 built the MD3 theme in `src/trlv_theme.c` over LVGL's default
 theme: screen, plain objects, labels, the filled button with its states,
@@ -47,9 +45,20 @@ switch, checkbox, slider, bar, arc, spinner, dropdown and textarea, and
 colour-mode switching. Its decisions are in ROADMAP "Settled in
 milestone 4". Theme tests are in `tests/theme/`.
 
-**Next is milestone 5: surfaces, cards and remaining primitives.**
-Implement against the approved headers; an API change needs the docs, the
-include test and the changelog updated with it.
+Milestone 5 implemented the rest of the v1 API: justify, align items,
+spacer, divider, text roles, surfaces, custom colours, cards, button
+variants and the debug outline. Every v1 function is now built. Its
+decisions are in ROADMAP "Settled in milestone 5".
+`tests/layout/test_replace_not_stack.c` checks that every modifier group
+replaces its previous style; add a case there for any new group.
+Config options are tested by building a copy of the library with the
+option set (`trlv_add_option_test` in `tests/CMakeLists.txt`).
+
+**Next is milestone 6: demo and docs.** The demo grows to exercise every
+primitive, the README, concepts and Figma hand-off docs catch up with the
+implementation, and the milestone ends with the v1 acceptance check. An
+API change still needs the docs, the include test and the changelog
+updated with it.
 
 Work is tracked in GitHub issues, one per item, under milestones
 `M<N>: …` with a tracking issue each. Each PR says `Closes #N` for the
