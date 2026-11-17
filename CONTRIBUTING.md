@@ -230,6 +230,10 @@ See [docs/concepts.md](docs/concepts.md) for the full design.
   **Figma / MD3 / CSS equivalent** and any surprising LVGL behaviour it
   handles. Each public header includes a mapping table (Figma/MD3 → CSS →
   `trlv` → LVGL mechanism).
+- Every public symbol (function, type, field, enum value, macro) is
+  documented, with every parameter and return value. CI runs `doxygen`
+  with the [Doxyfile](Doxyfile) and fails on a warning; run it locally to
+  see the HTML reference in `build/doxygen/html`.
 - Prefer clarity to cleverness. Code should be readable by someone new to LVGL.
 - All public functions are called from the LVGL thread only. Say so wherever
   it's not obvious.
