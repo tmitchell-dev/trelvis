@@ -396,6 +396,31 @@ target_compile_definitions(trelvis PUBLIC
 | `TRLV_USE_DEBUG_OUTLINE` | `0` | Draw a 1 px outline on every TreLVis container. |
 | `TRLV_IGNORE_LVGL_VERSION` | `0` | Skip the LVGL version check (unsupported; for trying LVGL master). |
 
+## Footprint
+
+TreLVis itself, cross-compiled for Cortex-M4 with `arm-none-eabi-gcc` 14.2
+at `-Os` against LVGL 9.6. LVGL, fonts and your token tables are not
+included. These are object-file sizes before the linker drops functions you
+don't call, so they are an upper bound.
+
+| Configuration | Flash | Static RAM |
+|---|---:|---:|
+| Minimal `lv_conf.h` (no widgets but the label), theme on | 5.4 KB | 2.5 KB |
+| Minimal `lv_conf.h`, theme off (`TRLV_USE_THEME 0`) | 4.8 KB | 2.5 KB |
+| LVGL's default `lv_conf.h` (every widget), theme on | 10.5 KB | 3.8 KB |
+| LVGL's default `lv_conf.h`, theme off | 5.2 KB | 2.7 KB |
+| Each custom colour allowed by `TRLV_CUSTOM_COLOR_MAX` | 108 B | 64 B |
+
+The static RAM is the token styles' property arrays, which `trlv_init` and
+colour-mode switches fill in. Constant styles live in flash. The theme's
+styles for widgets turned off in `lv_conf.h` are compiled out. Cortex-M7
+numbers are within a few bytes of these. CI prints the full report,
+per object, on every run; to reproduce it:
+
+```sh
+sh tests/footprint.sh path/to/lvgl cortex-m4   # needs arm-none-eabi-gcc
+```
+
 ## Threading
 
 Like LVGL itself, every TreLVis function must be called from the LVGL thread
