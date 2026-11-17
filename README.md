@@ -79,102 +79,25 @@ constants instead of magic numbers. A
 checks that every object lands at the same position and size and gets
 the same fonts and colours, in light and in dark.
 
-<!-- The code blocks below are copied from tests/layout/test_readme_card.c.
-     Change both together, and the line counts under them. -->
+<!-- The per-card block below is copied from tests/layout/test_readme_card.c,
+     and the set-up summary and line counts describe the rest of that file's
+     plain-LVGL part. Change them together. -->
 
+**Once per project**, the plain version needs what the token template and
+`trlv_init` give TreLVis (75 lines in the test):
 
-Once per project:
+- `#define`s for the spacing, radius, button height and focus width it uses;
+- a palette struct with the card's colours, filled in for light and for dark;
+- shared styles: the card (background, radius), three text roles (font and
+  line height converted to LVGL's line spacing), the button's MD3 shape
+  over the default theme's (height, pill radius, padding, no shadow), and
+  the tonal variant in four states (default, pressed and focus state layers
+  that also cancel the theme's recolour and grow, disabled opacities);
+- `styles_set_colors(palette)`, which writes every colour into those styles,
+  called at start-up and on each light/dark switch before
+  `lv_obj_report_style_change(NULL)`.
 
-```c
-#define SPACE_SM       8      /* the project's spacing, shape and sizes */
-#define SPACE_LG       16
-#define SPACE_XL       24
-#define RADIUS_MD      12
-#define BUTTON_HEIGHT  40
-#define FOCUS_WIDTH    3
-
-typedef struct {              /* the colours this card uses, per colour mode */
-    lv_color_t surface_container_highest, on_surface;
-    lv_color_t secondary_container, on_secondary_container;
-    lv_color_t focus;
-} palette_t;
-
-static const palette_t palette_light = {
-    LV_COLOR_MAKE(0xE6, 0xE0, 0xE9), LV_COLOR_MAKE(0x1D, 0x1B, 0x20),
-    LV_COLOR_MAKE(0xE8, 0xDE, 0xF8), LV_COLOR_MAKE(0x1D, 0x19, 0x2B),
-    LV_COLOR_MAKE(0x62, 0x5B, 0x71),
-};
-static const palette_t palette_dark = {
-    LV_COLOR_MAKE(0x36, 0x34, 0x3B), LV_COLOR_MAKE(0xE6, 0xE0, 0xE9),
-    LV_COLOR_MAKE(0x4A, 0x44, 0x58), LV_COLOR_MAKE(0xE8, 0xDE, 0xF8),
-    LV_COLOR_MAKE(0xCC, 0xC2, 0xDC),
-};
-
-static lv_style_t style_card;
-static lv_style_t style_title_medium, style_headline_small, style_label_large;
-static lv_style_t style_button, style_tonal, style_tonal_pressed, style_tonal_focus,
-       style_tonal_disabled;
-
-static void text_style_init(lv_style_t * style, const lv_font_t * font, int32_t line_height)
-{
-    lv_style_init(style);
-    lv_style_set_text_font(style, font);
-    lv_style_set_text_line_space(style, line_height - lv_font_get_line_height(font));
-}
-
-/* At start-up, and on every light/dark switch followed by
- * lv_obj_report_style_change(NULL). */
-static void styles_set_colors(const palette_t * p)
-{
-    lv_color_t layer = lv_color_mix(p->on_secondary_container, p->secondary_container, LV_OPA_10);
-
-    lv_style_set_bg_color(&style_card, p->surface_container_highest);
-    lv_style_set_text_color(&style_card, p->on_surface);
-    lv_style_set_bg_color(&style_tonal, p->secondary_container);
-    lv_style_set_text_color(&style_tonal, p->on_secondary_container);
-    lv_style_set_bg_color(&style_tonal_pressed, layer);
-    lv_style_set_bg_color(&style_tonal_focus, layer);
-    lv_style_set_outline_color(&style_tonal_focus, p->focus);
-    lv_style_set_bg_color(&style_tonal_disabled, p->on_surface);
-    lv_style_set_text_color(&style_tonal_disabled, p->on_surface);
-}
-
-static void styles_init(const palette_t * p)
-{
-    lv_style_init(&style_card);
-    lv_style_set_bg_opa(&style_card, LV_OPA_COVER);
-    lv_style_set_radius(&style_card, RADIUS_MD);
-
-    text_style_init(&style_title_medium, &lv_font_montserrat_16, 24);
-    text_style_init(&style_headline_small, &lv_font_montserrat_24, 32);
-    text_style_init(&style_label_large, &lv_font_montserrat_14, 20);
-
-    /* On top of the default theme's button: MD3 shape, no shadow. */
-    lv_style_init(&style_button);
-    lv_style_set_height(&style_button, BUTTON_HEIGHT);
-    lv_style_set_radius(&style_button, LV_RADIUS_CIRCLE);
-    lv_style_set_pad_hor(&style_button, SPACE_XL);
-    lv_style_set_pad_ver(&style_button, 0);
-    lv_style_set_shadow_width(&style_button, 0);
-
-    lv_style_init(&style_tonal);
-    lv_style_init(&style_tonal_pressed);            /* state layer instead of the */
-    lv_style_set_recolor_opa(&style_tonal_pressed, LV_OPA_TRANSP);   /* theme's dark */
-    lv_style_set_transform_width(&style_tonal_pressed, 0);           /* recolour and */
-    lv_style_set_transform_height(&style_tonal_pressed, 0);          /* grow         */
-    lv_style_init(&style_tonal_focus);
-    lv_style_set_outline_width(&style_tonal_focus, FOCUS_WIDTH);
-    lv_style_set_outline_opa(&style_tonal_focus, LV_OPA_COVER);
-    lv_style_init(&style_tonal_disabled);
-    lv_style_set_bg_opa(&style_tonal_disabled, 31);                  /* MD3: 12 % */
-    lv_style_set_text_opa(&style_tonal_disabled, 97);                /* MD3: 38 % */
-    lv_style_set_recolor_opa(&style_tonal_disabled, LV_OPA_TRANSP);
-
-    styles_set_colors(p);
-}
-```
-
-Per card:
+**Per card**, using those styles:
 
 ```c
 lv_obj_t * card = lv_obj_create(parent);
@@ -214,9 +137,7 @@ lv_obj_add_style(label, &style_label_large, 0);
 lv_obj_center(label);
 ```
 
-**32 lines per card instead of 13, plus 75 lines of set-up** (non-blank
-lines). The TreLVis set-up is one `trlv_init` call; its tokens come from
-the template you copy.
+**32 lines per card instead of 13** (non-blank lines).
 
 The plain version also has to repeat, on every screen:
 

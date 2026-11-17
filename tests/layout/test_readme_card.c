@@ -7,8 +7,9 @@
  * comparison shows them. Both trees must lay out the same and resolve the
  * same colours and fonts, in light and in dark.
  *
- * The two builders below are the README's code blocks. If you change one,
- * change the README (and the line counts under it) in the same PR.
+ * card_trelvis and card_lvgl are the README's code blocks, and the README
+ * summarises the plain-LVGL set-up above card_lvgl. If you change any of
+ * them, change the README (and its line count) in the same PR.
  *
  * Each test runs on a fresh LVGL, so the bare-LVGL tests record what they
  * measured and the TreLVis tests compare against it. The bare side runs
