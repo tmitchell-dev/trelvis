@@ -81,7 +81,8 @@ means the design can't be built exactly, or needs hand-written exceptions.
 ## Strokes, corners and effects
 
 - **Strokes: inside only**, with "include strokes in layout" turned on. LVGL
-  draws borders inside the padding box.
+  does the same: the border sits inside the object's size and insets the
+  content by its width, on top of the padding (CSS `box-sizing: border-box`).
 - **Outside strokes are reserved for the focus ring** (LVGL `outline`).
 - **No centre strokes.**
 - **Corner radius** comes from the MD3 shape scale and is uniform per object.

@@ -17,6 +17,18 @@ While the version is 0.x, minor releases may contain breaking changes.
   placed in the container as in Figma, not only within their line.
 - `trlv_spacer`: an empty box that takes the free space along its parent's
   main axis, warning (as `trlv_spacer`) in a parent that hugs that axis.
+- `trlv_text_role`: sets an MD3 text role on any object; on a container it
+  reaches every label inside through inheritance.
+- `trlv_surface`: fills any object with an MD3 surface or container colour
+  and sets the matching `on_` content colour, inherited by everything
+  inside. Shared token styles, recoloured on a colour-mode switch.
+- `trlv_surface_custom`: fills any object with one of the project's custom
+  colours, or its container, and sets the matching content colour. It is in
+  the same group as `trlv_surface`. `TRLV_CUSTOM_COLOR_MAX` (at most 8)
+  sets how many indexes have styles.
+- `trlv_card`: MD3 filled, elevated and outlined cards as shared token
+  styles (tone, radius MD, border or level 1 shadow), in the same group as
+  the surfaces, recoloured on a colour-mode switch. Padding stays explicit.
 - `TRLV_USE_DEBUG_OUTLINE`: a 1 px magenta outline outside every box, row,
   column and spacer, to compare a layout with its Figma frames.
 - The MD3 theme, installed by `trlv_init` over LVGL's default theme (seeded

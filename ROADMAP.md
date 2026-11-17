@@ -87,6 +87,16 @@ Inputs for the API review (milestone 3):
   hugs its main axis, and has no size in a parent without flex.
 - **Debug outline** is part of `trlv_style_box`: magenta, 1 px, outside
   the object. It costs nothing when off and no RAM when on.
+- **Fill group:** surfaces, custom colours and cards are one style group.
+  Every card sets every border and shadow property (to none where its type
+  has none), so cards replace each other cleanly and override a theme
+  border on a plain `lv_obj`.
+- **Custom colours** are capped at `TRLV_CUSTOM_COLOR_MAX` 8: each style is
+  a separate constant, spelled out per index.
+- **Borders inset the content.** LVGL lays children out inside the border
+  and then the padding, as Figma does for an inside stroke included in
+  layout (CSS `border-box`). The docs said the border didn't add to the
+  padding; they are corrected.
 
 ## Settled in milestone 4
 

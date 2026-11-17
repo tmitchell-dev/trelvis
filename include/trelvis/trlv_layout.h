@@ -231,7 +231,9 @@ void trlv_gap(lv_obj_t * obj, trlv_space_t space);
  * Applies a shared style (one per space step), so it costs no RAM per
  * object. Calling it again replaces the previous padding.
  *
- * As in Figma, a border is drawn inside the padding box: it doesn't add to
+ * As in Figma with an inside stroke included in layout (CSS
+ * `box-sizing: border-box`), a border sits inside the object's size and the
+ * padding is measured from it: children are inset by the border width plus
  * the padding.
  *
  * @param obj    any object

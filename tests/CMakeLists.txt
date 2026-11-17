@@ -113,6 +113,8 @@ trlv_add_test(layout_spacer layout/test_spacer.c)
 target_link_libraries(layout_spacer PRIVATE trlv_tokens_template)
 trlv_add_test(layout_debug_outline_off layout/test_debug_outline.c)
 target_link_libraries(layout_debug_outline_off PRIVATE trlv_tokens_template)
+trlv_add_test(layout_text_role layout/test_text_role.c)
+target_link_libraries(layout_text_role PRIVATE trlv_tokens_template)
 trlv_add_test(layout_demo layout/test_demo.c)
 target_link_libraries(layout_demo PRIVATE trlv_tokens_template trlv_demo)
 
@@ -126,6 +128,10 @@ trlv_add_test(theme_color_mode theme/test_color_mode.c)
 target_link_libraries(theme_color_mode PRIVATE trlv_tokens_template)
 trlv_add_test(theme_widgets theme/test_widgets.c)
 target_link_libraries(theme_widgets PRIVATE trlv_tokens_template)
+trlv_add_test(theme_surface theme/test_surface.c)
+target_link_libraries(theme_surface PRIVATE trlv_tokens_template)
+trlv_add_test(theme_surface_custom theme/test_surface_custom.c)
+target_link_libraries(theme_surface_custom PRIVATE trlv_tokens_template)
 
 # Config options: a copy of the library built with one option set, and a
 # test linked against it alone (its own harness and template objects).
@@ -157,6 +163,8 @@ endfunction()
 trlv_add_option_test(theme_no_theme theme/test_no_theme.c trelvis_no_theme TRLV_USE_THEME=0)
 trlv_add_option_test(layout_debug_outline_on layout/test_debug_outline.c
                      trelvis_debug_outline TRLV_USE_DEBUG_OUTLINE=1)
+trlv_add_option_test(theme_surface_custom_max0 theme/test_surface_custom.c
+                     trelvis_custom_color_max0 TRLV_CUSTOM_COLOR_MAX=0)
 
 # Tests of internal helpers also see src/.
 trlv_add_test(internal_style_group internal/test_style_group.c)

@@ -97,9 +97,8 @@ lv_obj_t * trlv_text(lv_obj_t * parent, const char * text, trlv_text_role_t role
  * RAM per object.
  *
  * @param obj   any object
- * @param role  a role of the MD3 type scale, such as TRLV_TEXT_LABEL_LARGE
- *
- * @note Not implemented yet (milestone 5).
+ * @param role  a role of the MD3 type scale, such as TRLV_TEXT_LABEL_LARGE;
+ *              any other value logs a warning and changes nothing
  */
 void trlv_text_role(lv_obj_t * obj, trlv_text_role_t role);
 
