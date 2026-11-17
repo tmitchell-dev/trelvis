@@ -53,6 +53,24 @@ static inline void trlv_prop_set_ptr(lv_style_const_prop_t * entry, lv_style_pro
     entry->value.ptr = ptr;
 }
 
+/** Write one colour property into a token style's property array. */
+static inline void trlv_prop_set_color(lv_style_const_prop_t * entry, lv_style_prop_t prop, lv_color_t color)
+{
+    entry->prop = prop;
+    entry->value.color = color;
+}
+
+/**
+ * An MD3 state layer, pre-mixed: the content colour over the container at
+ * the state's opacity (`state.pressed`, `state.focus`). Used as the
+ * container colour of a state style, so the content keeps its own colour
+ * (an LVGL colour filter or recolour would tint the content too).
+ */
+static inline lv_color_t trlv_state_layer(lv_color_t container, lv_color_t content, lv_opa_t opa)
+{
+    return lv_color_mix(content, container, opa);
+}
+
 /** Write the end marker that closes a token style's property array. */
 static inline void trlv_prop_set_end(lv_style_const_prop_t * entry)
 {
