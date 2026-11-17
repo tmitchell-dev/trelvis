@@ -69,6 +69,11 @@ void trlv_text_styles_build(const trlv_layout_tokens_t * layout)
     }
 }
 
+const lv_style_t * trlv_text_role_style(trlv_text_role_t role)
+{
+    return (uint32_t)role < TRLV_TEXT_COUNT ? text_styles[role] : NULL;
+}
+
 /*---------------------------------------------------------------------------
  * Constructor
  *-------------------------------------------------------------------------*/

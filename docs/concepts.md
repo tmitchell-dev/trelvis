@@ -389,9 +389,10 @@ The theme's apply callback checks each object's class with
 
 | LVGL widget | MD3 treatment |
 |---|---|
-| Screen / plain `lv_obj` | `surface` background, `on_surface` text, body font (inherited) |
+| Screen | `surface` background, `on_surface` text and the Body Medium role, inherited by everything on it. `trlv_init` restyles the active screen while it is still empty, since it exists before `trlv_init` can run. |
+| Plain `lv_obj` | LVGL's container shape (radius, border, padding, scrolling) in MD3 colours: `surface`, `outline_variant` border, `on_surface` content. Boxes, rows and columns remove all theme styles, so this never reaches them. |
 | `lv_label` | No role or colour of its own: it inherits Body Medium and `on_surface` from the screen, or the role and `on_` colour of the surface, card or button it sits in. |
-| `lv_button` | Filled button by default (`primary` / `on_primary`, radius FULL, height `control_height[MD]`, Label Large); variants via `trlv_button_variant()` |
+| `lv_button` | Filled button by default (`primary` / `on_primary`, radius FULL, height `control_height[MD]`, side padding `space[XL]`, no shadow, Label Large); variants via `trlv_button_variant()`. Content is a centred flex row with a `space[SM]` gap, so a label is centred and an icon sits beside it, as in an MD3 button. This differs from LVGL's default theme, which leaves placement to the caller. |
 | `lv_switch`, `lv_checkbox` | MD3 track / handle / box colours, checked states |
 | `lv_slider`, `lv_bar`, `lv_arc` | `primary` indicator, `surface_container_highest` track |
 | `lv_dropdown`, `lv_textarea` | outlined field (`outline`, focus → `primary`), menu on `surface_container` |

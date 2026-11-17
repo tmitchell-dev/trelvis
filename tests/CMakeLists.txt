@@ -31,6 +31,14 @@ FetchContent_MakeAvailable(lvgl)
 # still compiles src/ with logging off, LVGL's default.
 target_compile_definitions(lvgl PUBLIC LV_USE_LOG=1)
 
+# A few Montserrat sizes besides LVGL's default 14 px, so the token
+# template's type scale has real hierarchy and the text tests can check the
+# line-height conversion with a font that isn't LV_FONT_DEFAULT.
+target_compile_definitions(lvgl PUBLIC
+    LV_FONT_MONTSERRAT_12=1
+    LV_FONT_MONTSERRAT_16=1
+    LV_FONT_MONTSERRAT_24=1)
+
 # ---- Strict warnings for TreLVis code (not for LVGL) ----
 set(TRLV_STRICT_WARNINGS -Wall -Wextra -Wpedantic -Werror)
 target_compile_options(trelvis PRIVATE ${TRLV_STRICT_WARNINGS})
@@ -104,6 +112,29 @@ target_link_libraries(layout_demo PRIVATE trlv_tokens_template trlv_demo)
 
 trlv_add_test(theme_init theme/test_init.c)
 target_link_libraries(theme_init PRIVATE trlv_tokens_template)
+trlv_add_test(theme_theme theme/test_theme.c)
+target_link_libraries(theme_theme PRIVATE trlv_tokens_template)
+
+# TRLV_USE_THEME 0: a second copy of the library built with the option, and
+# a test linked against it alone (its own harness and template objects).
+get_target_property(TRLV_SOURCES trelvis SOURCES)
+list(TRANSFORM TRLV_SOURCES PREPEND ${PROJECT_SOURCE_DIR}/)
+add_library(trelvis_no_theme STATIC ${TRLV_SOURCES})
+target_include_directories(trelvis_no_theme PUBLIC ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(trelvis_no_theme PUBLIC ${TRLV_LVGL_TARGET})
+target_compile_definitions(trelvis_no_theme PUBLIC TRLV_USE_THEME=0)
+target_compile_options(trelvis_no_theme PRIVATE ${TRLV_STRICT_WARNINGS})
+add_executable(theme_no_theme theme/test_no_theme.c harness/trlv_test.c ../templates/trlv_tokens_template.c)
+target_include_directories(theme_no_theme PRIVATE harness ${PROJECT_SOURCE_DIR}/templates)
+target_link_libraries(theme_no_theme PRIVATE trelvis_no_theme)
+target_compile_options(theme_no_theme PRIVATE ${TRLV_STRICT_WARNINGS})
+foreach(target trelvis_no_theme theme_no_theme)
+    set_target_properties(${target} PROPERTIES
+        C_STANDARD 99
+        C_STANDARD_REQUIRED ON
+        C_EXTENSIONS OFF)
+endforeach()
+add_test(NAME theme_no_theme COMMAND theme_no_theme)
 
 # Tests of internal helpers also see src/.
 trlv_add_test(internal_style_group internal/test_style_group.c)

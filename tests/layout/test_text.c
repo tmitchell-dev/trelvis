@@ -163,6 +163,57 @@ static void reinit_updates_existing_text(lv_obj_t * screen)
     TRLV_ASSERT_HEIGHT(text, 2 * font_line_height() + 4);
 }
 
+/* Every one of the 15 roles has a style with its token's font, line
+ * spacing and letter spacing (the template's values). */
+static void every_role_has_its_style(lv_obj_t * screen)
+{
+    trlv_init(lv_obj_get_display(screen), &tokens_light, &tokens_regular);
+
+    for(int32_t i = 0; i < TRLV_TEXT_COUNT; i++) {
+        const trlv_text_style_t * token = &tokens_regular.text[i];
+        lv_obj_t * text = trlv_text(screen, "Role", (trlv_text_role_t)i);
+        int32_t line_space = token->line_height == 0 ? 0
+                             : token->line_height - lv_font_get_line_height(token->font);
+
+        TRLV_ASSERT_INT(lv_obj_get_style_text_font(text, LV_PART_MAIN) == token->font, true);
+        TRLV_ASSERT_INT(lv_obj_get_style_text_line_space(text, LV_PART_MAIN), line_space);
+        TRLV_ASSERT_INT(lv_obj_get_style_text_letter_space(text, LV_PART_MAIN), token->letter_spacing);
+    }
+}
+
+/* The conversion with a real font that isn't LV_FONT_DEFAULT (the test
+ * build enables Montserrat 16): Body Large, 16 px text on a 24 px line. */
+static void line_height_with_a_real_font(lv_obj_t * screen)
+{
+    const lv_font_t * font = &lv_font_montserrat_16;
+    int32_t font_height = lv_font_get_line_height(font);
+    layout = tokens_regular;
+    layout.text[TRLV_TEXT_BODY_LARGE].font = font;
+    layout.text[TRLV_TEXT_BODY_LARGE].line_height = 24;
+    trlv_init(lv_obj_get_display(screen), &tokens_light, &layout);
+
+    lv_obj_t * text = trlv_text(screen, "one\ntwo", TRLV_TEXT_BODY_LARGE);
+
+    TRLV_ASSERT_INT(font != LV_FONT_DEFAULT, true);
+    TRLV_ASSERT_INT(lv_obj_get_style_text_line_space(text, LV_PART_MAIN), 24 - font_height);
+    TRLV_ASSERT_HEIGHT(text, 2 * font_height + (24 - font_height));
+}
+
+/* With the same real font, a line height of 0 keeps the font's own. */
+static void zero_line_height_with_a_real_font(lv_obj_t * screen)
+{
+    const lv_font_t * font = &lv_font_montserrat_16;
+    layout = tokens_regular;
+    layout.text[TRLV_TEXT_BODY_LARGE].font = font;
+    layout.text[TRLV_TEXT_BODY_LARGE].line_height = 0;
+    trlv_init(lv_obj_get_display(screen), &tokens_light, &layout);
+
+    lv_obj_t * text = trlv_text(screen, "one\ntwo", TRLV_TEXT_BODY_LARGE);
+
+    TRLV_ASSERT_INT(lv_obj_get_style_text_line_space(text, LV_PART_MAIN), 0);
+    TRLV_ASSERT_HEIGHT(text, 2 * lv_font_get_line_height(font));
+}
+
 /* An invalid role still gives a plain label, with a warning. */
 static void invalid_role_gives_a_plain_label(lv_obj_t * screen)
 {
@@ -184,6 +235,9 @@ int main(void)
     TRLV_TEST_RUN(role_sets_the_font);
     TRLV_TEST_RUN(colour_is_inherited);
     TRLV_TEST_RUN(reinit_updates_existing_text);
+    TRLV_TEST_RUN(every_role_has_its_style);
+    TRLV_TEST_RUN(line_height_with_a_real_font);
+    TRLV_TEST_RUN(zero_line_height_with_a_real_font);
     TRLV_TEST_RUN(invalid_role_gives_a_plain_label);
     return trlv_test_finish();
 }
