@@ -20,6 +20,14 @@ While the version is 0.x, minor releases may contain breaking changes.
 
 ### Fixed
 
+- The token template's include guard is now `TOKENS_TEMPLATE_H` (the HMI
+  example's `TOKENS_HMI_H`). Renamed the obvious way, the old
+  `TRLV_TOKENS_TEMPLATE_H` became `TRLV_TOKENS_H`, the guard of
+  `trlv_tokens.h`, so one of the two headers was skipped and the build
+  failed with errors pointing elsewhere. The template comment and the
+  README Quick start say to keep the `TRLV_` prefix for the library. A
+  copy whose guard is already `TRLV_TOKENS_H` should rename it, for example
+  to `TOKENS_H`.
 - `set(TRLV_LVGL_TARGET my_lvgl)` before `add_subdirectory` now takes
   effect. On the first configure TreLVis's cache entry replaced it and
   TreLVis linked a target called `lvgl`, so the build failed (or used the
