@@ -327,7 +327,12 @@ container 12%. These are the MD3 values; projects may tune them.
   styles use `LV_STATE_*` selectors. MD3 state layers are **pre-mixed
   colours** (`lv_color_mix(on_role, role, opa)`) in state styles, computed at
   init and on each colour-mode switch. LVGL colour filters are not used for
-  state layers because they also tint the content.
+  state layers because they also tint the content. The disabled treatment
+  is real opacity (`on_surface` at 12 % container, 38 % content), as MD3
+  specifies. Each interactive widget has its own pressed and focus styles
+  (its colour pair); the focus ring and the disabled style are shared.
+  The ring is `focus_width` thick and `space[2XS]` outside the widget, and
+  only shows for keypad or encoder focus (`LV_STATE_FOCUS_KEY`).
 - **Transitions** use `lv_style_transition_dsc_t` with motion tokens *(planned, v1.1)*.
 - **Modifier groups replace rather than stack.** Calling `trlv_gap` (or
   `trlv_pad`, `trlv_card`, `trlv_surface`, `trlv_justify`, …) again removes

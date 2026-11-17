@@ -19,12 +19,22 @@ While the version is 0.x, minor releases may contain breaking changes.
   and `lv_button` as an MD3 filled button whose content is a centred row.
   `trlv_init` restyles the display's active screen while it is still empty.
   Calling `trlv_init` again reuses the theme and allocates nothing.
+- MD3 states on the filled button: pressed and keypad/encoder focus state
+  layers pre-mixed from the `state` opacities (LVGL's recolour and grow on
+  press are switched off), a focus-key ring in the `focus` colour,
+  `focus_width` thick and 2 px outside, and the disabled treatment
+  (`on_surface` at 12 % for the container, 38 % for the content).
+- `trlv_theme_set_color_mode(color)`: switches the colour mode at run time.
+  The shared styles, including the pre-mixed state colours, are re-set in
+  place, LVGL's default theme is re-initialised with the new colours and
+  dark flag, and `lv_obj_report_style_change(NULL)` redraws everything.
+  Existing objects, built-in widgets included, recolour with no per-screen
+  code, and repeated switches use no more memory.
 - The v1 public API, settled in the milestone 3 review: `trelvis.h` and its
   module headers, each documented with its Figma / MD3 / CSS equivalents
   and a mapping table, compiling from C99 and C++17. The C++ include test
   pins every public signature. Declared but not implemented yet (calling
-  them fails to link until they land): `trlv_theme_set_color_mode`
-  (milestone 4); `trlv_spacer`, `trlv_divider`, `trlv_justify`,
+  them fails to link until they land): `trlv_spacer`, `trlv_divider`, `trlv_justify`,
   `trlv_align_items`, `trlv_text_role`, `trlv_surface`,
   `trlv_surface_custom`, `trlv_card` and `trlv_button_variant`
   (milestone 5).
