@@ -8,6 +8,7 @@ simulator or on its target. TreLVis ships no simulator.
 | Section  | File                   | Shows |
 |----------|------------------------|-------|
 | Readouts | `trlv_demo_readouts.c` | A screen built from boxes, rows, columns and text: fill and hug, wrapping text, a wrapping row of buttons |
+| Surfaces | `trlv_demo_surfaces.c` | Every MD3 surface and container role and the custom colours, with text taking the `on_` colour by inheritance |
 
 The frame (bar, navigation and content area) is in `trlv_demo.c`. It is built
 from rows, columns and buttons, not `lv_tabview`, `lv_list` or `lv_menu`.

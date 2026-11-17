@@ -55,6 +55,12 @@ lv_obj_t * trlv_demo_create(lv_obj_t * parent);
  */
 lv_obj_t * trlv_demo_readouts_create(lv_obj_t * parent);
 
+/**
+ * Surfaces: every MD3 surface and container role, and the custom colours,
+ * as swatches whose text takes the `on_` colour by inheritance.
+ */
+lv_obj_t * trlv_demo_surfaces_create(lv_obj_t * parent);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

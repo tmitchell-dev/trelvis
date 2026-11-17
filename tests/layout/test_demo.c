@@ -32,7 +32,11 @@ static const struct {
     lv_obj_t * (*create)(lv_obj_t * parent);
 } sections[] = {
     { "Readouts", trlv_demo_readouts_create },
+    { "Surfaces", trlv_demo_surfaces_create },
 };
+
+/* Indexes into sections[]. */
+enum { SECTION_READOUTS, SECTION_SURFACES };
 
 #define SECTION_COUNT ((int32_t)(sizeof(sections) / sizeof(sections[0])))
 
@@ -409,6 +413,125 @@ static void readouts_stand_alone(lv_obj_t * screen)
     TRLV_ASSERT_INT(trelvis_warnings, 0);
 }
 
+/*---------------------------------------------------------------------------
+ * Surfaces
+ *-------------------------------------------------------------------------*/
+
+/* Groups of the Surfaces section, in order. */
+enum { SURFACES_LADDER, SURFACES_CONTAINERS, SURFACES_CUSTOM };
+
+typedef struct {
+    lv_color_t fill;
+    lv_color_t content;
+} color_pair_t;
+
+/* The swatch column of a group (its child 1, after the heading). */
+static lv_obj_t * swatches(lv_obj_t * demo, int32_t group)
+{
+    return lv_obj_get_child(lv_obj_get_child(section(demo), group), 1);
+}
+
+/* The swatches of a group are stacked with no gap, fill the width, and
+ * have the expected fill. The name on each has the matching content colour
+ * through inheritance only: no local text colour. */
+static void assert_swatches(lv_obj_t * demo, int32_t group, const color_pair_t * pairs, int32_t count)
+{
+    lv_obj_t * column = swatches(demo, group);
+    int32_t y = 0;
+
+    TRLV_ASSERT_INT(lv_obj_get_child_count(column), count);
+    for(int32_t i = 0; i < count; i++) {
+        lv_obj_t * swatch = lv_obj_get_child(column, i);
+        lv_obj_t * name = lv_obj_get_child(swatch, 0);
+        lv_style_value_t local;
+
+        TRLV_ASSERT_RECT(swatch, 0, y, trlv_test_width(column), trlv_test_height(swatch));
+        TRLV_ASSERT_INT(lv_obj_get_style_bg_opa(swatch, LV_PART_MAIN), LV_OPA_COVER);
+        TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(swatch, LV_PART_MAIN), pairs[i].fill), true);
+        TRLV_ASSERT_INT(same_color(lv_obj_get_style_text_color(name, LV_PART_MAIN), pairs[i].content), true);
+        TRLV_ASSERT_INT(lv_obj_get_local_style_prop(name, LV_STYLE_TEXT_COLOR, &local, LV_PART_MAIN),
+                        LV_STYLE_RES_NOT_FOUND);
+        y += trlv_test_height(swatch);
+    }
+    TRLV_ASSERT_HEIGHT(column, y);
+}
+
+/* The ladder runs from Surface to Surface Container Highest, all with
+ * on_surface text. */
+static void surfaces_show_the_ladder(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+    const trlv_color_tokens_t * c = trlv_color();
+    const color_pair_t ladder[] = {
+        { c->surface, c->on_surface },
+        { c->surface_container_lowest, c->on_surface },
+        { c->surface_container_low, c->on_surface },
+        { c->surface_container, c->on_surface },
+        { c->surface_container_high, c->on_surface },
+        { c->surface_container_highest, c->on_surface },
+    };
+
+    select_section(demo, SECTION_SURFACES);
+    assert_swatches(demo, SURFACES_LADDER, ladder, 6);
+}
+
+/* The accent containers and the inverse surface, each with its own
+ * content colour. */
+static void surfaces_show_the_containers(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+    const trlv_color_tokens_t * c = trlv_color();
+    const color_pair_t containers[] = {
+        { c->primary_container, c->on_primary_container },
+        { c->secondary_container, c->on_secondary_container },
+        { c->tertiary_container, c->on_tertiary_container },
+        { c->error_container, c->on_error_container },
+        { c->inverse_surface, c->inverse_on_surface },
+    };
+
+    select_section(demo, SECTION_SURFACES);
+    assert_swatches(demo, SURFACES_CONTAINERS, containers, 5);
+}
+
+/* Each of the template's custom colours shows as its strong colour and its
+ * container, and together with the two groups above every
+ * TRLV_SURFACE_* is shown. */
+static void surfaces_show_the_custom_colors(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+    const trlv_custom_color_t * custom = trlv_color()->custom;
+    const color_pair_t pairs[] = {
+        { custom[TOKEN_CUSTOM_SUCCESS].color, custom[TOKEN_CUSTOM_SUCCESS].on_color },
+        { custom[TOKEN_CUSTOM_SUCCESS].color_container, custom[TOKEN_CUSTOM_SUCCESS].on_color_container },
+        { custom[TOKEN_CUSTOM_WARNING].color, custom[TOKEN_CUSTOM_WARNING].on_color },
+        { custom[TOKEN_CUSTOM_WARNING].color_container, custom[TOKEN_CUSTOM_WARNING].on_color_container },
+    };
+
+    select_section(demo, SECTION_SURFACES);
+    TRLV_ASSERT_INT(lv_obj_get_child_count(section(demo)), 3);
+    assert_swatches(demo, SURFACES_CUSTOM, pairs, 4);
+    TRLV_ASSERT_INT(lv_obj_get_child_count(swatches(demo, SURFACES_LADDER)) +
+                    lv_obj_get_child_count(swatches(demo, SURFACES_CONTAINERS)), TRLV_SURFACE_COUNT);
+}
+
+/* With no custom colours in the tokens, the custom group is left out. */
+static void surfaces_without_custom_colors(lv_obj_t * screen)
+{
+    trlv_color_tokens_t no_custom = tokens_light;
+    lv_obj_t * demo;
+
+    no_custom.custom = NULL;
+    no_custom.custom_count = 0;
+    trelvis_warnings = 0;
+    lv_log_register_print_cb(log_cb);
+    trlv_init(lv_obj_get_display(screen), &no_custom, &tokens_regular);
+    demo = trlv_demo_create(screen);
+
+    select_section(demo, SECTION_SURFACES);
+    TRLV_ASSERT_INT(lv_obj_get_child_count(section(demo)), 2);
+    TRLV_ASSERT_INT(trelvis_warnings, 0);
+}
+
 int main(void)
 {
     TRLV_TEST_RUN(frame_fills_the_screen);
@@ -423,6 +546,11 @@ int main(void)
     TRLV_TEST_RUN(readouts_body_text_wraps);
     TRLV_TEST_RUN(readouts_buttons_sit_in_a_row);
     TRLV_TEST_RUN(readouts_stand_alone);
+
+    TRLV_TEST_RUN(surfaces_show_the_ladder);
+    TRLV_TEST_RUN(surfaces_show_the_containers);
+    TRLV_TEST_RUN(surfaces_show_the_custom_colors);
+    TRLV_TEST_RUN(surfaces_without_custom_colors);
 
     trlv_test_set_display_size(320, 480);
     TRLV_TEST_RUN(every_section_fits_and_builds_quietly);
