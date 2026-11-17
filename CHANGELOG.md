@@ -20,6 +20,10 @@ While the version is 0.x, minor releases may contain breaking changes.
 
 ### Fixed
 
+- `set(TRLV_LVGL_TARGET my_lvgl)` before `add_subdirectory` now takes
+  effect. On the first configure TreLVis's cache entry replaced it and
+  TreLVis linked a target called `lvgl`, so the build failed (or used the
+  wrong LVGL) until CMake was run a second time.
 - The theme builds with any set of widgets turned on in `lv_conf.h`. A
   build without the button, switch, checkbox, slider, dropdown or
   textarea failed with unused-style warnings under `-Werror`, and one with

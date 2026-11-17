@@ -23,7 +23,12 @@ project(trelvis
     DESCRIPTION "A light and versatile layout layer for LVGL"
     LANGUAGES C)
 
-set(TRLV_LVGL_TARGET "lvgl" CACHE STRING "Name of the project's LVGL CMake target")
+# A plain set(TRLV_LVGL_TARGET ...) in the parent project wins: with
+# CMake's old CMP0126 behaviour, set(CACHE) would otherwise drop it on the
+# first configure and link "lvgl" instead.
+if(NOT DEFINED TRLV_LVGL_TARGET)
+    set(TRLV_LVGL_TARGET "lvgl" CACHE STRING "Name of the project's LVGL CMake target")
+endif()
 
 add_library(trelvis STATIC
     src/trlv_layout.c
