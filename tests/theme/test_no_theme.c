@@ -48,10 +48,28 @@ static void shared_styles_still_work(lv_obj_t * screen)
     TRLV_ASSERT_INT(lv_obj_get_style_pad_left(box, LV_PART_MAIN), tokens_regular.space[TRLV_SPACE_LG]);
 }
 
+/* Surfaces and button variants set their colours without the theme. */
+static void colour_modifiers_still_work(lv_obj_t * screen)
+{
+    trlv_init(lv_obj_get_display(screen), &tokens_light, &tokens_regular);
+    lv_obj_t * box = trlv_box(screen);
+    trlv_surface(box, TRLV_SURFACE_CONTAINER_HIGH);
+    lv_obj_t * btn = lv_button_create(screen);
+    trlv_button_variant(btn, TRLV_BUTTON_TONAL);
+
+    ASSERT_TRUE(lv_color_eq(lv_obj_get_style_bg_color(box, LV_PART_MAIN),
+                            tokens_light.surface_container_high));
+    ASSERT_TRUE(lv_color_eq(lv_obj_get_style_bg_color(btn, LV_PART_MAIN),
+                            tokens_light.secondary_container));
+    ASSERT_TRUE(lv_color_eq(lv_obj_get_style_text_color(btn, LV_PART_MAIN),
+                            tokens_light.on_secondary_container));
+}
+
 int main(void)
 {
     TRLV_TEST_RUN(display_keeps_its_theme);
     TRLV_TEST_RUN(buttons_are_not_md3);
     TRLV_TEST_RUN(shared_styles_still_work);
+    TRLV_TEST_RUN(colour_modifiers_still_work);
     return trlv_test_finish();
 }

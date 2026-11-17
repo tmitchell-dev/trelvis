@@ -3,8 +3,8 @@
 
 /**
  * @file trlv_surface.c
- * Surfaces, custom colours and cards: MD3 container colours with their
- * inherited content colour.
+ * Surfaces, custom colours, cards and button variants: MD3 container
+ * colours with their inherited content colour.
  */
 
 #include "trelvis/trlv_surface.h"
@@ -60,6 +60,55 @@ static LV_STYLE_CONST_INIT(card_outlined, card_props[TRLV_CARD_OUTLINED]);
 static const lv_style_t * const card_styles[] = { &card_filled, &card_elevated, &card_outlined };
 TRLV_STATIC_ASSERT(sizeof(card_styles) / sizeof(card_styles[0]) == TRLV_CARD_COUNT,
                    card_styles_cover_the_enum);
+
+/* Button variants: one style per variant at each of four selectors. The
+ * theme's filled-button styles stay on the button; LVGL resolves a property
+ * by state first, so each variant sets the same properties as the theme at
+ * every state it styles, and wins at each because it is added later.
+ *
+ * Default: bg_color, bg_opa, text_color, border_width, border_color,
+ * border_opa. Pressed and focus: bg_color, bg_opa. Disabled: bg_color,
+ * bg_opa, text_color, text_opa, border_color, border_opa. Plus end markers. */
+#define BUTTON_PROPS 7
+#define BUTTON_STATE_PROPS 3
+#define BUTTON_DISABLED_PROPS 7
+
+static lv_style_const_prop_t button_props[TRLV_BUTTON_COUNT][BUTTON_PROPS];
+static lv_style_const_prop_t button_pressed_props[TRLV_BUTTON_COUNT][BUTTON_STATE_PROPS];
+static lv_style_const_prop_t button_focus_props[TRLV_BUTTON_COUNT][BUTTON_STATE_PROPS];
+static lv_style_const_prop_t button_disabled_props[TRLV_BUTTON_COUNT][BUTTON_DISABLED_PROPS];
+
+#define BUTTON_STYLES(name_, variant_)                                                             \
+    static LV_STYLE_CONST_INIT(button_##name_, button_props[variant_]);                           \
+    static LV_STYLE_CONST_INIT(button_##name_##_pressed, button_pressed_props[variant_]);         \
+    static LV_STYLE_CONST_INIT(button_##name_##_focus, button_focus_props[variant_]);             \
+    static LV_STYLE_CONST_INIT(button_##name_##_disabled, button_disabled_props[variant_])
+
+BUTTON_STYLES(filled, TRLV_BUTTON_FILLED);
+BUTTON_STYLES(tonal, TRLV_BUTTON_TONAL);
+BUTTON_STYLES(outlined, TRLV_BUTTON_OUTLINED);
+BUTTON_STYLES(text, TRLV_BUTTON_TEXT);
+
+/* Indexed by trlv_button_t, one list per selector. */
+static const lv_style_t * const button_styles[] = {
+    &button_filled, &button_tonal, &button_outlined, &button_text
+};
+static const lv_style_t * const button_pressed_styles[] = {
+    &button_filled_pressed, &button_tonal_pressed, &button_outlined_pressed, &button_text_pressed
+};
+static const lv_style_t * const button_focus_styles[] = {
+    &button_filled_focus, &button_tonal_focus, &button_outlined_focus, &button_text_focus
+};
+static const lv_style_t * const button_disabled_styles[] = {
+    &button_filled_disabled, &button_tonal_disabled, &button_outlined_disabled, &button_text_disabled
+};
+TRLV_STATIC_ASSERT(sizeof(button_styles) / sizeof(button_styles[0]) == TRLV_BUTTON_COUNT,
+                   button_styles_cover_the_enum);
+
+static const trlv_style_group_t button_group = TRLV_STYLE_GROUP_LIST(button_styles);
+static const trlv_style_group_t button_pressed_group = TRLV_STYLE_GROUP_LIST(button_pressed_styles);
+static const trlv_style_group_t button_focus_group = TRLV_STYLE_GROUP_LIST(button_focus_styles);
+static const trlv_style_group_t button_disabled_group = TRLV_STYLE_GROUP_LIST(button_disabled_styles);
 
 /* Custom colours: two styles (colour, container) for each of the first
  * TRLV_CUSTOM_COLOR_MAX indexes. LV_STYLE_CONST_INIT defines one variable,
@@ -182,8 +231,63 @@ static void build_card(trlv_card_t card, lv_color_t container, int32_t border_wi
     LV_ASSERT(entry == &card_props[card][CARD_PROPS - 1]);
 }
 
+/* A state layer: the content colour over the container at `opa`. On an
+ * opaque container it is pre-mixed, so the content keeps its colour. A
+ * transparent container (outlined, text) has nothing to mix with, so the
+ * layer is the content colour at `opa`, over whatever is behind. */
+static void put_state_layer(lv_style_const_prop_t * entry, bool opaque, lv_color_t container,
+                            lv_color_t content, lv_opa_t opa)
+{
+    if(opaque) {
+        trlv_prop_set_color(entry++, LV_STYLE_BG_COLOR, trlv_state_layer(container, content, opa));
+        trlv_prop_set_num(entry++, LV_STYLE_BG_OPA, LV_OPA_COVER);
+    }
+    else {
+        trlv_prop_set_color(entry++, LV_STYLE_BG_COLOR, content);
+        trlv_prop_set_num(entry++, LV_STYLE_BG_OPA, opa);
+    }
+    trlv_prop_set_end(entry);
+}
+
+/* One button variant at all four selectors. `opaque` is false for the
+ * transparent variants; `border_width` is 0 except for outlined. */
+static void build_button(trlv_button_t variant, bool opaque, lv_color_t container,
+                         lv_color_t content, int32_t border_width, const trlv_color_tokens_t * color)
+{
+    const trlv_state_tokens_t * state = &color->state;
+    lv_style_const_prop_t * entry;
+
+    entry = button_props[variant];
+    trlv_prop_set_color(entry++, LV_STYLE_BG_COLOR, container);
+    trlv_prop_set_num(entry++, LV_STYLE_BG_OPA, opaque ? LV_OPA_COVER : LV_OPA_TRANSP);
+    trlv_prop_set_color(entry++, LV_STYLE_TEXT_COLOR, content);
+    trlv_prop_set_num(entry++, LV_STYLE_BORDER_WIDTH, border_width);
+    trlv_prop_set_color(entry++, LV_STYLE_BORDER_COLOR, color->outline);
+    trlv_prop_set_num(entry++, LV_STYLE_BORDER_OPA, LV_OPA_COVER);
+    trlv_prop_set_end(entry);
+
+    put_state_layer(button_pressed_props[variant], opaque, container, content, state->pressed);
+    put_state_layer(button_focus_props[variant], opaque, container, content, state->focus);
+
+    /* MD3 disabled: content on_surface at 38 %; an opaque container, or
+     * the outlined border, on_surface at 12 %. */
+    entry = button_disabled_props[variant];
+    trlv_prop_set_color(entry++, LV_STYLE_BG_COLOR, color->on_surface);
+    trlv_prop_set_num(entry++, LV_STYLE_BG_OPA, opaque ? state->disabled_container : LV_OPA_TRANSP);
+    trlv_prop_set_color(entry++, LV_STYLE_TEXT_COLOR, color->on_surface);
+    trlv_prop_set_num(entry++, LV_STYLE_TEXT_OPA, state->disabled_content);
+    trlv_prop_set_color(entry++, LV_STYLE_BORDER_COLOR, color->on_surface);
+    trlv_prop_set_num(entry++, LV_STYLE_BORDER_OPA, state->disabled_container);
+    trlv_prop_set_end(entry);
+}
+
 void trlv_surface_styles_build(const trlv_color_tokens_t * color, const trlv_layout_tokens_t * layout)
 {
+    build_button(TRLV_BUTTON_FILLED, true, color->primary, color->on_primary, 0, color);
+    build_button(TRLV_BUTTON_TONAL, true, color->secondary_container, color->on_secondary_container, 0, color);
+    build_button(TRLV_BUTTON_OUTLINED, false, color->primary, color->primary, layout->border_width, color);
+    build_button(TRLV_BUTTON_TEXT, false, color->primary, color->primary, 0, color);
+
     build_card(TRLV_CARD_FILLED, color->surface_container_highest, 0, NULL, color, layout);
     build_card(TRLV_CARD_ELEVATED, color->surface_container_low, 0,
                &layout->elevation[TRLV_ELEVATION_1], color, layout);
@@ -248,6 +352,23 @@ void trlv_card(lv_obj_t * obj, trlv_card_t card)
         return;
     }
     trlv_style_group_apply(obj, &fill_group, card_styles[card], LV_PART_MAIN);
+}
+
+void trlv_button_variant(lv_obj_t * btn, trlv_button_t variant)
+{
+    LV_ASSERT_NULL(btn);
+
+    if((uint32_t)variant >= TRLV_BUTTON_COUNT) {
+        LV_LOG_WARN("trlv_button_variant: %d is not a trlv_button_t", (int)variant);
+        return;
+    }
+    trlv_style_group_apply(btn, &button_group, button_styles[variant], LV_PART_MAIN);
+    trlv_style_group_apply(btn, &button_pressed_group, button_pressed_styles[variant],
+                           LV_PART_MAIN | LV_STATE_PRESSED);
+    trlv_style_group_apply(btn, &button_focus_group, button_focus_styles[variant],
+                           LV_PART_MAIN | LV_STATE_FOCUS_KEY);
+    trlv_style_group_apply(btn, &button_disabled_group, button_disabled_styles[variant],
+                           LV_PART_MAIN | LV_STATE_DISABLED);
 }
 
 void trlv_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t surface)

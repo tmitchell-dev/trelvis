@@ -29,6 +29,9 @@ While the version is 0.x, minor releases may contain breaking changes.
 - `trlv_card`: MD3 filled, elevated and outlined cards as shared token
   styles (tone, radius MD, border or level 1 shadow), in the same group as
   the surfaces, recoloured on a colour-mode switch. Padding stays explicit.
+- `trlv_button_variant`: restyles an `lv_button` as an MD3 filled, tonal,
+  outlined or text button, with pressed and focus state layers and the
+  disabled treatment; shape, height and text role stay the theme's.
 - `TRLV_USE_DEBUG_OUTLINE`: a 1 px magenta outline outside every box, row,
   column and spacer, to compare a layout with its Figma frames.
 - The MD3 theme, installed by `trlv_init` over LVGL's default theme (seeded
