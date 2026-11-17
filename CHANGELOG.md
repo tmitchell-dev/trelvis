@@ -26,6 +26,9 @@ While the version is 0.x, minor releases may contain breaking changes.
   colours, or its container, and sets the matching content colour. It is in
   the same group as `trlv_surface`. `TRLV_CUSTOM_COLOR_MAX` (at most 8)
   sets how many indexes have styles.
+- `trlv_card`: MD3 filled, elevated and outlined cards as shared token
+  styles (tone, radius MD, border or level 1 shadow), in the same group as
+  the surfaces, recoloured on a colour-mode switch. Padding stays explicit.
 - `TRLV_USE_DEBUG_OUTLINE`: a 1 px magenta outline outside every box, row,
   column and spacer, to compare a layout with its Figma frames.
 - The MD3 theme, installed by `trlv_init` over LVGL's default theme (seeded

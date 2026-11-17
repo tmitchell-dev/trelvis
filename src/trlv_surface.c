@@ -3,8 +3,8 @@
 
 /**
  * @file trlv_surface.c
- * Surfaces and custom colours: MD3 container colours with their inherited
- * content colour.
+ * Surfaces, custom colours and cards: MD3 container colours with their
+ * inherited content colour.
  */
 
 #include "trelvis/trlv_surface.h"
@@ -43,6 +43,23 @@ static const lv_style_t * const surface_styles[] = {
 };
 TRLV_STATIC_ASSERT(sizeof(surface_styles) / sizeof(surface_styles[0]) == TRLV_SURFACE_COUNT,
                    surface_styles_cover_the_enum);
+
+/* Card: the tone (bg_color, bg_opa, text_color), radius, then the border
+ * (width, colour, opa) and the shadow (width, spread, offset x and y, opa,
+ * colour), end marker. Every card sets every property, so a card replaces
+ * another card fully and overrides a theme border or shadow on the object. */
+#define CARD_PROPS 14
+
+static lv_style_const_prop_t card_props[TRLV_CARD_COUNT][CARD_PROPS];
+
+static LV_STYLE_CONST_INIT(card_filled, card_props[TRLV_CARD_FILLED]);
+static LV_STYLE_CONST_INIT(card_elevated, card_props[TRLV_CARD_ELEVATED]);
+static LV_STYLE_CONST_INIT(card_outlined, card_props[TRLV_CARD_OUTLINED]);
+
+/* Indexed by trlv_card_t. */
+static const lv_style_t * const card_styles[] = { &card_filled, &card_elevated, &card_outlined };
+TRLV_STATIC_ASSERT(sizeof(card_styles) / sizeof(card_styles[0]) == TRLV_CARD_COUNT,
+                   card_styles_cover_the_enum);
 
 /* Custom colours: two styles (colour, container) for each of the first
  * TRLV_CUSTOM_COLOR_MAX indexes. LV_STYLE_CONST_INIT defines one variable,
@@ -121,6 +138,7 @@ static const lv_style_t * const fill_styles[] = {
     &surface_container, &surface_container_high, &surface_container_highest,
     &surface_primary_container, &surface_secondary_container,
     &surface_tertiary_container, &surface_error_container, &surface_inverse,
+    &card_filled, &card_elevated, &card_outlined,
     CUSTOM_EACH(CUSTOM_POINTERS)
 };
 static const trlv_style_group_t fill_group = TRLV_STYLE_GROUP_LIST(fill_styles);
@@ -141,9 +159,35 @@ static void build_surface(trlv_surface_t surface, lv_color_t container, lv_color
     trlv_prop_set_end(put_tone(surface_props[surface], container, content));
 }
 
+/* A card: a surface tone, radius MD, an optional border and shadow. */
+static void build_card(trlv_card_t card, lv_color_t container, int32_t border_width,
+                       const trlv_shadow_t * shadow, const trlv_color_tokens_t * color,
+                       const trlv_layout_tokens_t * layout)
+{
+    static const trlv_shadow_t no_shadow = { 0, 0, 0, 0, LV_OPA_TRANSP };
+    if(shadow == NULL) shadow = &no_shadow;
+
+    lv_style_const_prop_t * entry = put_tone(card_props[card], container, color->on_surface);
+    trlv_prop_set_num(entry++, LV_STYLE_RADIUS, layout->radius[TRLV_RADIUS_MD]);
+    trlv_prop_set_num(entry++, LV_STYLE_BORDER_WIDTH, border_width);
+    trlv_prop_set_color(entry++, LV_STYLE_BORDER_COLOR, color->outline_variant);
+    trlv_prop_set_num(entry++, LV_STYLE_BORDER_OPA, LV_OPA_COVER);
+    trlv_prop_set_num(entry++, LV_STYLE_SHADOW_WIDTH, shadow->blur);
+    trlv_prop_set_num(entry++, LV_STYLE_SHADOW_SPREAD, shadow->spread);
+    trlv_prop_set_num(entry++, LV_STYLE_SHADOW_OFFSET_X, shadow->offset_x);
+    trlv_prop_set_num(entry++, LV_STYLE_SHADOW_OFFSET_Y, shadow->offset_y);
+    trlv_prop_set_num(entry++, LV_STYLE_SHADOW_OPA, shadow->opa);
+    trlv_prop_set_color(entry++, LV_STYLE_SHADOW_COLOR, color->shadow);
+    trlv_prop_set_end(entry);
+    LV_ASSERT(entry == &card_props[card][CARD_PROPS - 1]);
+}
+
 void trlv_surface_styles_build(const trlv_color_tokens_t * color, const trlv_layout_tokens_t * layout)
 {
-    LV_UNUSED(layout);
+    build_card(TRLV_CARD_FILLED, color->surface_container_highest, 0, NULL, color, layout);
+    build_card(TRLV_CARD_ELEVATED, color->surface_container_low, 0,
+               &layout->elevation[TRLV_ELEVATION_1], color, layout);
+    build_card(TRLV_CARD_OUTLINED, color->surface, layout->border_width, NULL, color, layout);
 
     build_surface(TRLV_SURFACE_SURFACE, color->surface, color->on_surface);
     build_surface(TRLV_SURFACE_CONTAINER_LOWEST, color->surface_container_lowest, color->on_surface);
@@ -193,6 +237,17 @@ void trlv_surface(lv_obj_t * obj, trlv_surface_t surface)
         return;
     }
     trlv_style_group_apply(obj, &fill_group, surface_styles[surface], LV_PART_MAIN);
+}
+
+void trlv_card(lv_obj_t * obj, trlv_card_t card)
+{
+    LV_ASSERT_NULL(obj);
+
+    if((uint32_t)card >= TRLV_CARD_COUNT) {
+        LV_LOG_WARN("trlv_card: %d is not a trlv_card_t", (int)card);
+        return;
+    }
+    trlv_style_group_apply(obj, &fill_group, card_styles[card], LV_PART_MAIN);
 }
 
 void trlv_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t surface)

@@ -150,7 +150,9 @@ void trlv_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t s
  * - TRLV_CARD_FILLED: nothing more;
  * - TRLV_CARD_ELEVATED: the TRLV_ELEVATION_1 shadow in the `shadow` colour;
  * - TRLV_CARD_OUTLINED: a `border_width` border in `outline_variant`. As in
- *   Figma with an inside stroke, the border is drawn inside the padding box.
+ *   Figma with an inside stroke included in layout, the border sits inside
+ *   the card's size and insets the content by its width, on top of the
+ *   padding.
  *
  * Padding stays explicit, as in Figma: use trlv_pad, typically
  * TRLV_SPACE_LG. Children are not clipped to the rounded corners; if a
@@ -162,10 +164,12 @@ void trlv_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t s
  * or focus state: clickable MD3 cards, with state layers, are not part of
  * v1.
  *
- * @param obj   any object, usually a column
- * @param card  the card type
+ * Every card type sets the border and shadow properties (to none where the
+ * type has none), so on a plain lv_obj it also replaces the theme's border.
  *
- * @note Not implemented yet (milestone 5).
+ * @param obj   any object, usually a column
+ * @param card  the card type; any other value logs a warning and changes
+ *              nothing
  */
 void trlv_card(lv_obj_t * obj, trlv_card_t card);
 
