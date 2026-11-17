@@ -33,10 +33,11 @@ static const struct {
 } sections[] = {
     { "Readouts", trlv_demo_readouts_create },
     { "Surfaces", trlv_demo_surfaces_create },
+    { "Cards", trlv_demo_cards_create },
 };
 
 /* Indexes into sections[]. */
-enum { SECTION_READOUTS, SECTION_SURFACES };
+enum { SECTION_READOUTS, SECTION_SURFACES, SECTION_CARDS };
 
 #define SECTION_COUNT ((int32_t)(sizeof(sections) / sizeof(sections[0])))
 
@@ -532,6 +533,99 @@ static void surfaces_without_custom_colors(lv_obj_t * screen)
     TRLV_ASSERT_INT(trelvis_warnings, 0);
 }
 
+/*---------------------------------------------------------------------------
+ * Cards
+ *-------------------------------------------------------------------------*/
+
+#define CARD_PAD 16   /* TRLV_SPACE_LG */
+#define CARD_GAP 8    /* TRLV_SPACE_SM */
+
+/* Children of a card, in order. */
+enum { CARD_TYPE, CARD_TITLE, CARD_BODY, CARD_ACTIONS };
+
+/* The three cards are stacked the section gap apart and fill the width:
+ * filled (surface_container_highest, no border or shadow), elevated
+ * (surface_container_low with a shadow) and outlined (surface with an
+ * outline_variant border). */
+static void cards_show_each_type(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+    const trlv_color_tokens_t * c = trlv_color();
+    const lv_color_t fills[] = { c->surface_container_highest, c->surface_container_low, c->surface };
+    const int32_t borders[] = { 0, 0, trlv_layout()->border_width };
+    int32_t y = 0;
+
+    select_section(demo, SECTION_CARDS);
+    TRLV_ASSERT_INT(lv_obj_get_child_count(section(demo)), 3);
+    for(int32_t i = 0; i < 3; i++) {
+        lv_obj_t * card = lv_obj_get_child(section(demo), i);
+
+        TRLV_ASSERT_RECT(card, 0, y, 800 - 2 * FRAME_PAD, trlv_test_height(card));
+        TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(card, LV_PART_MAIN), fills[i]), true);
+        TRLV_ASSERT_INT(lv_obj_get_style_border_width(card, LV_PART_MAIN), borders[i]);
+        TRLV_ASSERT_INT(lv_obj_get_style_shadow_width(card, LV_PART_MAIN) > 0, i == 1);
+        y += trlv_test_height(card) + SECTION_GAP;
+    }
+    TRLV_ASSERT_INT(same_color(lv_obj_get_style_border_color(lv_obj_get_child(section(demo), 2), LV_PART_MAIN),
+                               c->outline_variant), true);
+}
+
+/* Inside each card, the content sits in the padding (and inside the
+ * outlined card's border), stacked the card gap apart. The body fills the
+ * width and wraps, and the text is on_surface by inheritance only. */
+static void cards_lay_out_their_content(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+
+    select_section(demo, SECTION_CARDS);
+    for(int32_t i = 0; i < 3; i++) {
+        lv_obj_t * card = lv_obj_get_child(section(demo), i);
+        lv_obj_t * body = lv_obj_get_child(card, CARD_BODY);
+        int32_t inset = CARD_PAD + lv_obj_get_style_border_width(card, LV_PART_MAIN);
+        int32_t width = trlv_test_width(card) - 2 * inset;
+        int32_t y = inset;
+
+        for(int32_t part = CARD_TYPE; part <= CARD_ACTIONS; part++) {
+            lv_obj_t * child = lv_obj_get_child(card, part);
+            lv_style_value_t local;
+
+            TRLV_ASSERT_X(child, inset);
+            TRLV_ASSERT_Y(child, y);
+            y += trlv_test_height(child) + CARD_GAP;
+            if(part != CARD_ACTIONS) {
+                TRLV_ASSERT_INT(same_color(lv_obj_get_style_text_color(child, LV_PART_MAIN),
+                                           trlv_color()->on_surface), true);
+                TRLV_ASSERT_INT(lv_obj_get_local_style_prop(child, LV_STYLE_TEXT_COLOR, &local, LV_PART_MAIN),
+                                LV_STYLE_RES_NOT_FOUND);
+            }
+        }
+        TRLV_ASSERT_HEIGHT(card, y - CARD_GAP + inset);
+        TRLV_ASSERT_RECT(body, inset, trlv_test_y(body), width, wrapped_height(body, width));
+        TRLV_ASSERT_WIDTH(lv_obj_get_child(card, CARD_ACTIONS), width);
+    }
+}
+
+/* The actions are packed at the end: a text button, then the main action
+ * as a filled button against the right edge. */
+static void cards_put_actions_at_the_end(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+
+    select_section(demo, SECTION_CARDS);
+    for(int32_t i = 0; i < 3; i++) {
+        lv_obj_t * actions = lv_obj_get_child(lv_obj_get_child(section(demo), i), CARD_ACTIONS);
+        lv_obj_t * secondary = lv_obj_get_child(actions, 0);
+        lv_obj_t * main_action = lv_obj_get_child(actions, 1);
+
+        TRLV_ASSERT_INT(lv_obj_get_child_count(actions), 2);
+        TRLV_ASSERT_X(main_action, trlv_test_width(actions) - trlv_test_width(main_action));
+        TRLV_ASSERT_X(secondary, trlv_test_x(main_action) - CARD_GAP - trlv_test_width(secondary));
+        TRLV_ASSERT_INT(lv_obj_get_style_bg_opa(secondary, LV_PART_MAIN), LV_OPA_TRANSP);
+        TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(main_action, LV_PART_MAIN),
+                                   trlv_color()->primary), true);
+    }
+}
+
 int main(void)
 {
     TRLV_TEST_RUN(frame_fills_the_screen);
@@ -551,6 +645,10 @@ int main(void)
     TRLV_TEST_RUN(surfaces_show_the_containers);
     TRLV_TEST_RUN(surfaces_show_the_custom_colors);
     TRLV_TEST_RUN(surfaces_without_custom_colors);
+
+    TRLV_TEST_RUN(cards_show_each_type);
+    TRLV_TEST_RUN(cards_lay_out_their_content);
+    TRLV_TEST_RUN(cards_put_actions_at_the_end);
 
     trlv_test_set_display_size(320, 480);
     TRLV_TEST_RUN(every_section_fits_and_builds_quietly);

@@ -67,7 +67,8 @@ set_target_properties(trlv_cpp_include_test PROPERTIES
 add_library(trlv_demo STATIC
     ../examples/demo/trlv_demo.c
     ../examples/demo/trlv_demo_readouts.c
-    ../examples/demo/trlv_demo_surfaces.c)
+    ../examples/demo/trlv_demo_surfaces.c
+    ../examples/demo/trlv_demo_cards.c)
 target_include_directories(trlv_demo PUBLIC ${PROJECT_SOURCE_DIR}/examples/demo)
 target_link_libraries(trlv_demo PUBLIC trelvis)
 target_compile_options(trlv_demo PRIVATE ${TRLV_STRICT_WARNINGS})

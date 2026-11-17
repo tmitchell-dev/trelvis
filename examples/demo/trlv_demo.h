@@ -61,6 +61,12 @@ lv_obj_t * trlv_demo_readouts_create(lv_obj_t * parent);
  */
 lv_obj_t * trlv_demo_surfaces_create(lv_obj_t * parent);
 
+/**
+ * Cards: a filled, an elevated and an outlined MD3 card, each with a title,
+ * body text and its actions.
+ */
+lv_obj_t * trlv_demo_cards_create(lv_obj_t * parent);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

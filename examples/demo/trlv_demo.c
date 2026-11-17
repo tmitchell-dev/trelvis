@@ -38,6 +38,7 @@ typedef struct {
 static const demo_section_t sections[] = {
     { "Readouts", trlv_demo_readouts_create },
     { "Surfaces", trlv_demo_surfaces_create },
+    { "Cards",    trlv_demo_cards_create },
 };
 
 #define SECTION_COUNT (sizeof(sections) / sizeof(sections[0]))
