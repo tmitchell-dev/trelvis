@@ -35,16 +35,13 @@ calls stay valid everywhere. TreLVis does not wrap LVGL widgets; it styles them
 through LVGL's theme engine. It also doesn't rename LVGL calls that are
 already clear: for those, the docs name the LVGL call to use.
 
-> **Status: early development (0.x).** The v1 API is reviewed and declared;
-> layout primitives, text and the token template work, with a
-> [demo screen](examples/demo). The MD3 theme styles LVGL's common
-> widgets and switches between light and dark at run time. Functions not
-> built yet say so in their header. The API may still change in any 0.x
-> release. See [ROADMAP.md](ROADMAP.md).
+> **Status: early development (0.x).** Every function of the v1 API is
+> built and covered by headless tests, and a [demo](examples/demo) shows
+> the whole library in light and dark, Regular and Compact. The API may
+> still change in any 0.x release; 1.0 follows once it has been proven in
+> a real product. See [ROADMAP.md](ROADMAP.md).
 
 ## A taste of the API
-
-This shows the intended API, which is still under review:
 
 ```c
 #include <trelvis/trelvis.h>
@@ -57,14 +54,20 @@ trlv_pad(card, TRLV_SPACE_LG);
 trlv_fill_width(card);                                  /* Figma: fill container         */
 
 lv_obj_t * header = trlv_row(card, TRLV_SPACE_SM);
+trlv_fill_width(header);
 trlv_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);       /* CSS: justify-content          */
 trlv_align_items(header, TRLV_ALIGN_ITEMS_CENTER);      /* CSS: align-items              */
 trlv_text(header, "Temperature", TRLV_TEXT_TITLE_MEDIUM);
-trlv_text(header, "37.2 °C",     TRLV_TEXT_DISPLAY_SMALL);
+trlv_text(header, "37.2 °C",     TRLV_TEXT_HEADLINE_SMALL);
 
 lv_obj_t * btn = lv_button_create(card);                /* plain LVGL; MD3 filled button via the theme */
 trlv_button_variant(btn, TRLV_BUTTON_TONAL);
+trlv_text(btn, "Calibrate", TRLV_TEXT_LABEL_LARGE);
 ```
+
+The text in the card takes the card's `on_` colour by inheritance, and
+`trlv_theme_set_color_mode(&tokens_dark)` recolours all of it, the button
+included, with no per-screen code.
 
 ## Design principles
 
@@ -100,35 +103,104 @@ TreLVis has no OS, HAL or platform dependencies. It targets both Linux
 (including Raspberry Pi) and microcontrollers such as STM32, from C or C++
 applications.
 
-## Getting started
+## Quick start
 
-### CMake (git submodule)
+From an LVGL 9.6 project with a working display to a themed screen in
+five steps. Your project provides LVGL and its `lv_conf.h`; TreLVis
+doesn't vendor it.
+
+### 1. Add TreLVis
 
 ```sh
 git submodule add https://github.com/tmitchell-dev/trelvis.git external/trelvis
 ```
 
+### 2. Build it with your project
+
+**CMake:**
+
 ```cmake
-add_subdirectory(external/lvgl)      # your project provides LVGL; TreLVis doesn't vendor it
+add_subdirectory(external/lvgl)
 add_subdirectory(external/trelvis)
 target_link_libraries(my_app PRIVATE trelvis)
 ```
 
 TreLVis links against your project's `lvgl` target. If your LVGL target has
-another name, set `TRLV_LVGL_TARGET`.
+another name, set `TRLV_LVGL_TARGET` before `add_subdirectory`.
 
-### Without CMake
+**Makefile:** `include external/trelvis/trelvis.mk` adds the sources to
+`CSRCS` and the include path to `CFLAGS`, next to LVGL's own `lvgl.mk`.
+`lvgl.mk` puts only LVGL's own directory on the include path, so also add
+`-Iexternal/lvgl/include` (or the directory that holds `lvgl/`) for the
+`<lvgl/lvgl.h>` that TreLVis includes.
 
-TreLVis needs no generated files. Add `trelvis/src/*.c` to your sources and
-`trelvis/include` to your include path, next to LVGL. This also works for
-IDE-managed builds such as STM32CubeIDE. Plain Makefiles can use
-`include trelvis/trelvis.mk`, which adds both to `CSRCS` and `CFLAGS`.
+**Anything else** (STM32CubeIDE and other IDE-managed builds): add
+`external/trelvis/src/*.c` to your sources and `external/trelvis/include`
+to your include path. TreLVis needs no generated files.
 
 TreLVis includes LVGL as `<lvgl/lvgl.h>`. LVGL 9.6's `include/` directory
 provides that path; if your build lays LVGL out differently, set
-`TRLV_LVGL_INCLUDE` (see below).
+`TRLV_LVGL_INCLUDE` (see [Configuration](#configuration)).
 
-### Configuration
+### 3. Copy the token template
+
+TreLVis compiles in no colours, spacing or fonts: your project owns them,
+starting from a template, the way LVGL's `lv_conf_template.h` works.
+
+```sh
+cp external/trelvis/templates/trlv_tokens_template.c src/tokens.c
+cp external/trelvis/templates/trlv_tokens_template.h src/tokens.h
+```
+
+In `tokens.c`, change `#include "trlv_tokens_template.h"` to
+`#include "tokens.h"`, and add `tokens.c` to your sources. The template
+works unedited: the MD3 baseline colours in light and dark, and the Regular
+and Compact layouts. Later you replace the colours with your product's
+(from Material Theme Builder), give the text roles real fonts, and delete
+what you don't use; see [Design tokens](docs/concepts.md#4-design-tokens).
+
+### 4. Call `trlv_init`
+
+Once, after creating the display and before building screens:
+
+```c
+#include <trelvis/trelvis.h>
+#include "tokens.h"
+
+trlv_init(disp, &tokens_light, &tokens_regular);
+```
+
+This installs the MD3 theme. The screen is now `surface` with `on_surface`
+text, and every LVGL widget you create gets its MD3 look.
+
+### 5. Build a screen
+
+```c
+lv_obj_t * page = trlv_column(lv_display_get_screen_active(disp), TRLV_SPACE_LG);
+trlv_pad(page, TRLV_SPACE_XL);
+trlv_fill_width(page);
+trlv_fill_height(page);
+
+trlv_text(page, "Hello, TreLVis", TRLV_TEXT_HEADLINE_SMALL);
+
+lv_obj_t * card = trlv_column(page, TRLV_SPACE_SM);
+trlv_card(card, TRLV_CARD_OUTLINED);
+trlv_pad(card, TRLV_SPACE_LG);
+trlv_fill_width(card);
+trlv_text(card, "Status", TRLV_TEXT_TITLE_MEDIUM);
+lv_obj_t * body = trlv_text(card, "All systems normal.", TRLV_TEXT_BODY_MEDIUM);
+trlv_fill_width(body);                                  /* a width makes text wrap */
+
+lv_obj_t * btn = lv_button_create(page);
+trlv_text(btn, "Continue", TRLV_TEXT_LABEL_LARGE);
+```
+
+Switch to dark at any time with `trlv_theme_set_color_mode(&tokens_dark)`.
+Rows, columns and the other primitives are described in
+[Concepts](docs/concepts.md); the [demo](examples/demo) shows every one of
+them and builds in your project the same way.
+
+## Configuration
 
 All options have defaults in
 [`trlv_conf_default.h`](include/trelvis/trlv_conf_default.h). To change one,
@@ -151,7 +223,7 @@ be given with `TRLV_CONF_PATH`.
 | `TRLV_USE_DEBUG_OUTLINE` | `0` | Draw a 1 px outline on every TreLVis container. |
 | `TRLV_IGNORE_LVGL_VERSION` | `0` | Skip the LVGL version check (unsupported; for trying LVGL master). |
 
-### Threading
+## Threading
 
 Like LVGL itself, every TreLVis function must be called from the LVGL thread
 (the one that runs `lv_timer_handler()`).

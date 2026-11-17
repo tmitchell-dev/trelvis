@@ -23,17 +23,17 @@
  * | Figma / MD3                          | CSS                          | TreLVis                               | Used by (v1)                                |
  * |--------------------------------------|------------------------------|---------------------------------------|---------------------------------------------|
  * | `space/md`                           | `--space-md`                 | TRLV_SPACE_MD, `space[]`              | trlv_gap, trlv_pad, row/column gap          |
- * | `md.sys.shape.corner.medium`         | `border-radius`              | TRLV_RADIUS_MD, `radius[]`            | cards (MD), buttons (FULL), fields (XS)     |
+ * | `md.sys.shape.corner.medium`         | `border-radius`              | TRLV_RADIUS_MD, `radius[]`            | cards (MD), buttons (FULL), fields, checkbox and menu (XS) |
  * | Stroke width                         | `border-width`               | `border_width`                        | outlined card, outlined button, fields      |
  * | Focus indicator thickness            | `outline-width`              | `focus_width`                         | theme focus ring                            |
- * | Control height                       | `height`                     | TRLV_SIZE_MD, `control_height[]`      | theme button height (MD)                    |
+ * | Control height                       | `height`                     | TRLV_SIZE_MD, `control_height[]`      | theme button (MD), switch track (SM)        |
  * | `md.sys.elevation.level1`            | `box-shadow`                 | TRLV_ELEVATION_1, `elevation[]`       | elevated card (level 1)                     |
  * | `md.sys.typescale.body-medium`       | `font`, `line-height`, ...   | TRLV_TEXT_BODY_MEDIUM, `text[]`       | trlv_text, trlv_text_role, theme            |
  * | `md.sys.color.surface-container-high`| `--md-sys-color-*`           | `surface_container_high`              | theme, surfaces, cards                      |
  * | `md.sys.state.pressed.state-layer-opacity` | `opacity`              | `state.pressed`                       | theme state styles                          |
  * | Material Theme Builder custom colour | `--md-extended-color-*`      | trlv_custom_color_t, `custom[]`       | trlv_surface_custom                         |
  *
- * Tokens that no TreLVis function reads (for example TRLV_SIZE_SM,
+ * Tokens that no TreLVis function reads (for example TRLV_SIZE_LG,
  * TRLV_ELEVATION_3 or `surface_dim`) are there for a project's own
  * components, so screens hold no magic numbers.
  *
