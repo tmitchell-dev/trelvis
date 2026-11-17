@@ -29,3 +29,4 @@ WARN_AS_ERROR          = FAIL_ON_WARNINGS
 
 GENERATE_HTML          = YES
 GENERATE_LATEX         = NO
+HAVE_DOT               = NO
