@@ -78,8 +78,11 @@ static void card(lv_obj_t * section, const demo_card_t * content)
     trlv_fill_width(body);
 
     /* Actions at the end of the card (Figma: auto layout packed right);
-     * on a narrow display they wrap rather than overflow. */
+     * on a narrow display they wrap rather than overflow. The padding is
+     * room for the keypad focus ring (docs/concepts.md, "Focus rings need
+     * clearance"). */
     lv_obj_t * actions = trlv_row(obj, TRLV_SPACE_SM);
+    trlv_pad(actions, TRLV_SPACE_SM);
     trlv_fill_width(actions);
     trlv_justify(actions, TRLV_JUSTIFY_END);
     lv_obj_set_flex_flow(actions, LV_FLEX_FLOW_ROW_WRAP);
