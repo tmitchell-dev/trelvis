@@ -75,8 +75,11 @@ lv_obj_t * trlv_demo_readouts_create(lv_obj_t * parent)
     trlv_fill_width(body);   /* a width makes the text wrap (Figma "auto height") */
 
     /* The buttons wrap onto a second line on a narrow display (Figma auto
-     * layout "wrap"); wrapping is raw LVGL and needs a width. */
+     * layout "wrap"); wrapping is raw LVGL and needs a width. The padding
+     * keeps the keypad focus ring, drawn outside a button, from being
+     * clipped by the row (docs/concepts.md, "Focus rings need clearance"). */
     lv_obj_t * actions = trlv_row(section, TRLV_SPACE_SM);
+    trlv_pad(actions, TRLV_SPACE_SM);
     trlv_fill_width(actions);
     lv_obj_set_flex_flow(actions, LV_FLEX_FLOW_ROW_WRAP);
     button(actions, "Start");

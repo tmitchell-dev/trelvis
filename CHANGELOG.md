@@ -121,11 +121,13 @@ While the version is 0.x, minor releases may contain breaking changes.
   has a width (for example from `trlv_fill_width`), and its colour is
   inherited. A token `line_height` in px is converted to LVGL line spacing;
   `0` keeps the font's own line height.
-- Demo in `examples/demo`: `trlv_demo_create(parent)` builds a demo in
-  sections, with a top bar to move between them, for host projects to show
-  in their own simulator. Each section is also a function of its own
-  (`trlv_demo_readouts_create`, ...). A headless test checks its layout in
-  CI.
+- Demo in `examples/demo`: `trlv_demo_create(parent, light, dark)` builds a
+  demo in sections, with a top bar to move between them and a light/dark
+  switch, for host projects to show in their own simulator. Each section is
+  also a function of its own (`trlv_demo_readouts_create`, ...). Its
+  widgets join LVGL's default group, so a keypad or encoder can move
+  through them. A headless test checks its layout, colour switching and
+  keypad focus in CI.
 - CI: GCC and Clang builds against LVGL 9.6 with warnings as errors, C++17
   include test, non-CMake build, allocation and SPDX checks; weekly build
   against LVGL master; tag-driven release workflow.

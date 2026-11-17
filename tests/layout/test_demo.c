@@ -3,8 +3,9 @@
 
 /*
  * The demo (examples/demo) on a fixed-size display: the frame (bar, nav and
- * content), moving between sections, each section's layout, nothing
- * overflowing its parent and no TreLVis warnings while it is built. Text
+ * content), moving between sections, the light/dark switch, keypad focus,
+ * each section's layout, nothing overflowing its parent, room for every
+ * focus ring and no TreLVis warnings while it is built. Text
  * sizes are computed from the font with lv_text_get_size, so the tests
  * don't depend on the fonts' metrics. The object trees are described at the
  * top of trlv_demo.c and of each section's file.
@@ -17,8 +18,11 @@
 #include <string.h>
 
 /* Token values from the template's Regular layout. */
-#define FRAME_PAD    16   /* TRLV_SPACE_LG: bar and content padding */
-#define BAR_GAP      8    /* TRLV_SPACE_SM */
+#define FRAME_PAD    16   /* TRLV_SPACE_LG: content padding */
+#define BAR_PAD      8    /* TRLV_SPACE_SM: the bar's padding... */
+#define ROW_PAD      8    /* TRLV_SPACE_SM: ...and that of every row holding
+                             focusable widgets (focus ring clearance) */
+#define TOP_GAP      8    /* TRLV_SPACE_SM */
 #define NAV_GAP      4    /* TRLV_SPACE_XS */
 #define SECTION_GAP  16   /* TRLV_SPACE_LG: between a section's parts */
 #define READOUTS_GAP 8    /* TRLV_SPACE_SM */
@@ -34,16 +38,19 @@ static const struct {
     { "Readouts", trlv_demo_readouts_create },
     { "Surfaces", trlv_demo_surfaces_create },
     { "Cards", trlv_demo_cards_create },
+    { "Controls", trlv_demo_controls_create },
 };
 
 /* Indexes into sections[]. */
-enum { SECTION_READOUTS, SECTION_SURFACES, SECTION_CARDS };
+enum { SECTION_READOUTS, SECTION_SURFACES, SECTION_CARDS, SECTION_CONTROLS };
 
 #define SECTION_COUNT ((int32_t)(sizeof(sections) / sizeof(sections[0])))
 
-/* Children of the demo, of its bar and of the Readouts section, in order. */
+/* Children of the demo, of its bar, of the bar's top row and of the
+ * Readouts section, in order. */
 enum { DEMO_BAR, DEMO_CONTENT };
-enum { BAR_TITLE, BAR_NAV };
+enum { BAR_TOP, BAR_NAV };
+enum { TOP_TITLE, TOP_LABEL, TOP_SWITCH };
 enum { HEADER, READOUTS, ABOUT, ACTIONS };
 
 static int trelvis_warnings;
@@ -59,13 +66,25 @@ static lv_obj_t * build(lv_obj_t * screen)
     trelvis_warnings = 0;
     lv_log_register_print_cb(log_cb);
     trlv_init(lv_obj_get_display(screen), &tokens_light, &tokens_regular);
-    return trlv_demo_create(screen);
+    return trlv_demo_create(screen, &tokens_light, &tokens_dark);
 }
 
 static lv_obj_t * bar(lv_obj_t * demo)
 {
     return lv_obj_get_child(demo, DEMO_BAR);
 }
+
+static lv_obj_t * top(lv_obj_t * demo)
+{
+    return lv_obj_get_child(bar(demo), BAR_TOP);
+}
+
+static lv_obj_t * dark_switch(lv_obj_t * demo)
+{
+    return lv_obj_get_child(top(demo), TOP_SWITCH);
+}
+
+static void set_dark(lv_obj_t * demo, bool dark);
 
 static lv_obj_t * nav(lv_obj_t * demo)
 {
@@ -154,21 +173,58 @@ static void assert_nothing_overflows(lv_obj_t * obj, const char * path)
  * The frame
  *-------------------------------------------------------------------------*/
 
-/* The demo fills the screen: the bar across the top hugs its content, and
- * the content takes the rest of the height. */
+/* The demo fills the screen: the bar across the top hugs its two rows,
+ * and the content takes the rest of the height. The bar's padding plus
+ * each row's brings the title and the first nav button 16 px in, in line
+ * with the content. */
 static void frame_fills_the_screen(lv_obj_t * screen)
 {
     lv_obj_t * demo = build(screen);
-    lv_obj_t * title = lv_obj_get_child(bar(demo), BAR_TITLE);
-    int32_t bar_height = FRAME_PAD + line_height(title) + BAR_GAP + trlv_test_height(nav(demo)) + FRAME_PAD;
+    int32_t row_width = 800 - 2 * BAR_PAD;
+    int32_t top_height = trlv_test_height(top(demo));
+    int32_t nav_height = trlv_test_height(lv_obj_get_child(nav(demo), 0)) + 2 * ROW_PAD;
+    int32_t bar_height = BAR_PAD + top_height + nav_height + BAR_PAD;
 
     TRLV_ASSERT_RECT(demo, 0, 0, 800, 480);
     TRLV_ASSERT_RECT(bar(demo), 0, 0, 800, bar_height);
-    TRLV_ASSERT_RECT(title, FRAME_PAD, FRAME_PAD, text_width(title), line_height(title));
-    TRLV_ASSERT_RECT(nav(demo), FRAME_PAD, FRAME_PAD + line_height(title) + BAR_GAP,
-                     800 - 2 * FRAME_PAD, trlv_test_height(lv_obj_get_child(nav(demo), 0)));
+    TRLV_ASSERT_RECT(top(demo), BAR_PAD, BAR_PAD, row_width, top_height);
+    TRLV_ASSERT_RECT(nav(demo), BAR_PAD, BAR_PAD + top_height, row_width, nav_height);
+    TRLV_ASSERT_X(lv_obj_get_child(nav(demo), 0), ROW_PAD);
     TRLV_ASSERT_RECT(content(demo), 0, bar_height, 800, 480 - bar_height);
     TRLV_ASSERT_RECT(section(demo), FRAME_PAD, FRAME_PAD, 800 - 2 * FRAME_PAD, trlv_test_height(section(demo)));
+}
+
+/* The top row: the title fills, pushing the "Dark" label and the switch to
+ * the right; all are centred on the row. */
+static void top_row_puts_the_switch_on_the_right(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+    lv_obj_t * title = lv_obj_get_child(top(demo), TOP_TITLE);
+    lv_obj_t * label = lv_obj_get_child(top(demo), TOP_LABEL);
+    lv_obj_t * sw = dark_switch(demo);
+    int32_t inner_width = 800 - 2 * BAR_PAD - 2 * ROW_PAD;
+    int32_t inner_height = LV_MAX(line_height(title), trlv_test_height(sw));
+
+    TRLV_ASSERT_INT(lv_obj_check_type(sw, &lv_switch_class), true);
+    TRLV_ASSERT_INT(strcmp(lv_label_get_text(label), "Dark"), 0);
+    TRLV_ASSERT_HEIGHT(top(demo), inner_height + 2 * ROW_PAD);
+    TRLV_ASSERT_RECT(sw, ROW_PAD + inner_width - trlv_test_width(sw),
+                     ROW_PAD + (inner_height - trlv_test_height(sw)) / 2,
+                     trlv_test_width(sw), trlv_test_height(sw));
+    TRLV_ASSERT_X(label, trlv_test_x(sw) - TOP_GAP - text_width(label));
+    TRLV_ASSERT_Y(label, ROW_PAD + (inner_height - line_height(label)) / 2);
+    TRLV_ASSERT_RECT(title, ROW_PAD, ROW_PAD + (inner_height - line_height(title)) / 2,
+                     trlv_test_x(label) - TOP_GAP - ROW_PAD, line_height(title));
+}
+
+/* Without dark tokens the switch is left out. */
+static void no_switch_without_dark_tokens(lv_obj_t * screen)
+{
+    lv_obj_t * demo;
+
+    trlv_init(lv_obj_get_display(screen), &tokens_light, &tokens_regular);
+    demo = trlv_demo_create(screen, &tokens_light, NULL);
+    TRLV_ASSERT_INT(lv_obj_get_child_count(top(demo)), 1);
 }
 
 /* The bar is a Surface Container, and its text gets on_surface by
@@ -176,7 +232,7 @@ static void frame_fills_the_screen(lv_obj_t * screen)
 static void bar_is_a_surface_container(lv_obj_t * screen)
 {
     lv_obj_t * demo = build(screen);
-    lv_obj_t * title = lv_obj_get_child(bar(demo), BAR_TITLE);
+    lv_obj_t * title = lv_obj_get_child(top(demo), TOP_TITLE);
 
     TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(bar(demo), LV_PART_MAIN),
                                trlv_color()->surface_container), true);
@@ -190,7 +246,7 @@ static void bar_is_a_surface_container(lv_obj_t * screen)
 static void nav_has_a_button_per_section(lv_obj_t * screen)
 {
     lv_obj_t * demo = build(screen);
-    int32_t x = 0;
+    int32_t x = ROW_PAD;
 
     TRLV_ASSERT_INT(lv_obj_get_child_count(nav(demo)), SECTION_COUNT);
     for(int32_t i = 0; i < SECTION_COUNT; i++) {
@@ -199,7 +255,7 @@ static void nav_has_a_button_per_section(lv_obj_t * screen)
 
         TRLV_ASSERT_INT(strcmp(lv_label_get_text(label), sections[i].name), 0);
         TRLV_ASSERT_X(btn, x);
-        TRLV_ASSERT_Y(btn, 0);
+        TRLV_ASSERT_Y(btn, ROW_PAD);
         x += trlv_test_width(btn) + NAV_GAP;
     }
     TRLV_ASSERT_INT(lv_obj_get_child_count(content(demo)), 1);
@@ -221,27 +277,56 @@ static void assert_selected(lv_obj_t * demo, int32_t selected)
 }
 
 /* Clicking a nav button selects it and replaces the section with the one
- * it names (compared with a copy built on its own). The content scrolls
- * back to the top. */
+ * it names (compared with a copy built on its own first: two copies of the
+ * largest section don't fit LVGL's default 64 KB pool). The content
+ * scrolls back to the top. */
 static void nav_shows_the_chosen_section(lv_obj_t * screen)
 {
-    lv_obj_t * demo = build(screen);
-    lv_obj_t * reference_parent = trlv_box(screen);
-    lv_obj_set_size(reference_parent, 800, 480);
+    uint32_t reference_children[SECTION_COUNT];
+    lv_obj_t * demo;
 
+    trlv_init(lv_obj_get_display(screen), &tokens_light, &tokens_regular);
+    for(int32_t i = 0; i < SECTION_COUNT; i++) {
+        lv_obj_t * reference = sections[i].create(screen);
+        reference_children[i] = lv_obj_get_child_count(reference);
+        lv_obj_delete(reference);
+    }
+
+    demo = build(screen);
     assert_selected(demo, 0);
     for(int32_t i = SECTION_COUNT - 1; i >= 0; i--) {
-        lv_obj_t * reference;
-
         lv_obj_scroll_to_y(content(demo), 40, LV_ANIM_OFF);
         select_section(demo, i);
-        lv_obj_clean(reference_parent);
-        reference = sections[i].create(reference_parent);
 
         assert_selected(demo, i);
         TRLV_ASSERT_INT(lv_obj_get_child_count(content(demo)), 1);
-        TRLV_ASSERT_INT(lv_obj_get_child_count(section(demo)), lv_obj_get_child_count(reference));
+        TRLV_ASSERT_INT(lv_obj_get_child_count(section(demo)), reference_children[i]);
         TRLV_ASSERT_INT(lv_obj_get_scroll_y(content(demo)), 0);
+    }
+}
+
+static uint32_t memory_in_use(void)
+{
+    lv_mem_monitor_t monitor;
+    lv_mem_monitor(&monitor);
+    return monitor.total_size - monitor.free_size;
+}
+
+/* Choosing a section frees the previous one: after rounds of every section
+ * and of the light/dark switch, the demo uses what it did at the start.
+ * The allocator's own bookkeeping varies by a few dozen bytes with
+ * fragmentation; a section left behind would be kilobytes. */
+static void sections_are_freed_when_left(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+    uint32_t start = memory_in_use();
+
+    for(int32_t round = 0; round < 3; round++) {
+        for(int32_t i = 0; i < SECTION_COUNT; i++) select_section(demo, i);
+        set_dark(demo, true);
+        set_dark(demo, false);
+        select_section(demo, 0);
+        TRLV_ASSERT_INT(memory_in_use() <= start + 256, true);
     }
 }
 
@@ -371,11 +456,11 @@ static void readouts_body_text_wraps(lv_obj_t * screen)
 }
 
 /* The buttons hug their labels and sit side by side, the gap apart, in a
- * row that fills the width. */
+ * row that fills the width, inside its focus ring padding. */
 static void readouts_buttons_sit_in_a_row(lv_obj_t * screen)
 {
     lv_obj_t * actions = readouts_part(build(screen), ACTIONS);
-    int32_t x = 0;
+    int32_t x = ROW_PAD;
 
     TRLV_ASSERT_INT(lv_obj_get_child_count(actions), 3);
     TRLV_ASSERT_WIDTH(actions, 800 - 2 * FRAME_PAD);
@@ -383,9 +468,9 @@ static void readouts_buttons_sit_in_a_row(lv_obj_t * screen)
         lv_obj_t * btn = lv_obj_get_child(actions, i);
         lv_obj_t * label = lv_obj_get_child(btn, 0);
         TRLV_ASSERT_X(btn, x);
-        TRLV_ASSERT_Y(btn, 0);
+        TRLV_ASSERT_Y(btn, ROW_PAD);
         TRLV_ASSERT_WIDTH(label, text_width(label));
-        TRLV_ASSERT_HEIGHT(btn, trlv_test_height(actions));
+        TRLV_ASSERT_HEIGHT(btn, trlv_test_height(actions) - 2 * ROW_PAD);
         x += trlv_test_width(btn) + ACTIONS_GAP;
     }
 }
@@ -394,15 +479,15 @@ static void readouts_buttons_sit_in_a_row(lv_obj_t * screen)
 static void readouts_buttons_wrap(lv_obj_t * screen)
 {
     lv_obj_t * actions = readouts_part(build(screen), ACTIONS);
-    int32_t width = trlv_test_width(actions);
-    int32_t x = 0;
-    int32_t y = 0;
+    int32_t width = trlv_test_width(actions) - ROW_PAD;   /* the right edge of the content */
+    int32_t x = ROW_PAD;
+    int32_t y = ROW_PAD;
     int32_t lines = 1;
 
     for(int32_t i = 0; i < 3; i++) {
         lv_obj_t * btn = lv_obj_get_child(actions, i);
-        if(x > 0 && x + trlv_test_width(btn) > width) {
-            x = 0;
+        if(x > ROW_PAD && x + trlv_test_width(btn) > width) {
+            x = ROW_PAD;
             y += trlv_test_height(btn) + ACTIONS_GAP;
             lines++;
         }
@@ -411,7 +496,7 @@ static void readouts_buttons_wrap(lv_obj_t * screen)
         x += trlv_test_width(btn) + ACTIONS_GAP;
     }
     TRLV_ASSERT_INT(lines > 1, true);   /* they need to wrap at this width */
-    TRLV_ASSERT_HEIGHT(actions, y + trlv_test_height(lv_obj_get_child(actions, 2)));
+    TRLV_ASSERT_HEIGHT(actions, y + trlv_test_height(lv_obj_get_child(actions, 2)) + ROW_PAD);
 }
 
 /* On a narrow, portrait display the body wraps onto more lines. */
@@ -552,7 +637,7 @@ static void surfaces_without_custom_colors(lv_obj_t * screen)
     trelvis_warnings = 0;
     lv_log_register_print_cb(log_cb);
     trlv_init(lv_obj_get_display(screen), &no_custom, &tokens_regular);
-    demo = trlv_demo_create(screen);
+    demo = trlv_demo_create(screen, &no_custom, NULL);
 
     select_section(demo, SECTION_SURFACES);
     TRLV_ASSERT_INT(lv_obj_get_child_count(section(demo)), 2);
@@ -632,7 +717,8 @@ static void cards_lay_out_their_content(lv_obj_t * screen)
 }
 
 /* The actions are packed at the end: a text button, then the main action
- * as a filled button against the right edge. */
+ * as a filled button against the right edge of the row's content (inside
+ * its focus ring padding). */
 static void cards_put_actions_at_the_end(lv_obj_t * screen)
 {
     lv_obj_t * demo = build(screen);
@@ -644,7 +730,8 @@ static void cards_put_actions_at_the_end(lv_obj_t * screen)
         lv_obj_t * main_action = lv_obj_get_child(actions, 1);
 
         TRLV_ASSERT_INT(lv_obj_get_child_count(actions), 2);
-        TRLV_ASSERT_X(main_action, trlv_test_width(actions) - trlv_test_width(main_action));
+        TRLV_ASSERT_X(main_action, trlv_test_width(actions) - ROW_PAD - trlv_test_width(main_action));
+        TRLV_ASSERT_Y(main_action, ROW_PAD);
         TRLV_ASSERT_X(secondary, trlv_test_x(main_action) - CARD_GAP - trlv_test_width(secondary));
         TRLV_ASSERT_INT(lv_obj_get_style_bg_opa(secondary, LV_PART_MAIN), LV_OPA_TRANSP);
         TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(main_action, LV_PART_MAIN),
@@ -652,12 +739,370 @@ static void cards_put_actions_at_the_end(lv_obj_t * screen)
     }
 }
 
+/*---------------------------------------------------------------------------
+ * Controls
+ *-------------------------------------------------------------------------*/
+
+/* Groups of the Controls section, in order; child 0 of each is its heading
+ * and the rest are rows. */
+enum { CONTROLS_BUTTONS, CONTROLS_SELECTION, CONTROLS_RANGE, CONTROLS_FIELDS };
+
+static lv_obj_t * controls_row(lv_obj_t * demo, int32_t group, int32_t row)
+{
+    return lv_obj_get_child(lv_obj_get_child(section(demo), group), row + 1);
+}
+
+/* Two rows of the four button types, the second disabled. */
+static void controls_show_every_button_variant(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+    const trlv_color_tokens_t * c = trlv_color();
+
+    select_section(demo, SECTION_CONTROLS);
+    for(int32_t row = 0; row < 2; row++) {
+        lv_obj_t * buttons = controls_row(demo, CONTROLS_BUTTONS, row);
+        lv_obj_t * filled = lv_obj_get_child(buttons, 0);
+        lv_obj_t * tonal = lv_obj_get_child(buttons, 1);
+        lv_obj_t * outlined = lv_obj_get_child(buttons, 2);
+        lv_obj_t * text = lv_obj_get_child(buttons, 3);
+
+        TRLV_ASSERT_INT(lv_obj_get_child_count(buttons), 4);
+        for(int32_t i = 0; i < 4; i++) {
+            TRLV_ASSERT_INT(lv_obj_has_state(lv_obj_get_child(buttons, i), LV_STATE_DISABLED), row == 1);
+        }
+        if(row == 0) {
+            TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(filled, LV_PART_MAIN), c->primary), true);
+            TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(tonal, LV_PART_MAIN), c->secondary_container), true);
+            TRLV_ASSERT_INT(lv_obj_get_style_bg_opa(outlined, LV_PART_MAIN), LV_OPA_TRANSP);
+            TRLV_ASSERT_INT(lv_obj_get_style_border_width(outlined, LV_PART_MAIN), trlv_layout()->border_width);
+            TRLV_ASSERT_INT(lv_obj_get_style_bg_opa(text, LV_PART_MAIN), LV_OPA_TRANSP);
+            TRLV_ASSERT_INT(lv_obj_get_style_border_width(text, LV_PART_MAIN), 0);
+        }
+    }
+}
+
+/* Switches and checkboxes off, on, off and disabled, on and disabled. */
+static void controls_show_switch_and_checkbox_states(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+    const lv_state_t states[] = {
+        LV_STATE_DEFAULT, LV_STATE_CHECKED, LV_STATE_DISABLED, LV_STATE_CHECKED | LV_STATE_DISABLED
+    };
+
+    select_section(demo, SECTION_CONTROLS);
+    for(int32_t row = 0; row < 2; row++) {
+        lv_obj_t * widgets = controls_row(demo, CONTROLS_SELECTION, row);
+        const lv_obj_class_t * expected = row == 0 ? &lv_switch_class : &lv_checkbox_class;
+
+        TRLV_ASSERT_INT(lv_obj_get_child_count(widgets), 4);
+        for(int32_t i = 0; i < 4; i++) {
+            lv_obj_t * widget = lv_obj_get_child(widgets, i);
+            TRLV_ASSERT_INT(lv_obj_check_type(widget, expected), true);
+            TRLV_ASSERT_INT(lv_obj_get_state(widget) & (LV_STATE_CHECKED | LV_STATE_DISABLED), states[i]);
+        }
+    }
+}
+
+/* Count the descendants of `obj` of a class, and how many are disabled. */
+static void count_class(lv_obj_t * obj, const lv_obj_class_t * cls, int32_t * total, int32_t * disabled)
+{
+    for(uint32_t i = 0; i < lv_obj_get_child_count(obj); i++) {
+        lv_obj_t * child = lv_obj_get_child(obj, (int32_t)i);
+        if(lv_obj_check_type(child, cls)) {
+            (*total)++;
+            if(lv_obj_has_state(child, LV_STATE_DISABLED)) (*disabled)++;
+        }
+        count_class(child, cls, total, disabled);
+    }
+}
+
+/* Every widget the theme covers is in the section, and every interactive
+ * one is also shown disabled. */
+static void controls_cover_every_themed_widget(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+    static const struct {
+        const lv_obj_class_t * cls;
+        bool interactive;
+    } widgets[] = {
+        { &lv_button_class, true },   { &lv_switch_class, true },   { &lv_checkbox_class, true },
+        { &lv_slider_class, true },   { &lv_bar_class, false },     { &lv_arc_class, true },
+        { &lv_spinner_class, false }, { &lv_dropdown_class, true }, { &lv_textarea_class, true },
+    };
+
+    select_section(demo, SECTION_CONTROLS);
+    for(uint32_t i = 0; i < sizeof(widgets) / sizeof(widgets[0]); i++) {
+        int32_t total = 0;
+        int32_t disabled = 0;
+        count_class(section(demo), widgets[i].cls, &total, &disabled);
+        TRLV_ASSERT_INT(total > 0, true);
+        if(widgets[i].interactive) TRLV_ASSERT_INT(disabled > 0, true);
+    }
+}
+
+/* Each heading's text lines up with the first control of the row below
+ * it: both are inset by the focus ring padding. */
+static void controls_line_up_with_their_headings(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+
+    select_section(demo, SECTION_CONTROLS);
+    for(int32_t group = CONTROLS_BUTTONS; group <= CONTROLS_FIELDS; group++) {
+        lv_obj_t * heading = lv_obj_get_child(lv_obj_get_child(section(demo), group), 0);
+        lv_obj_t * row = controls_row(demo, group, 0);
+
+        TRLV_ASSERT_X(heading, 0);
+        TRLV_ASSERT_INT(lv_obj_get_style_pad_left(heading, LV_PART_MAIN), ROW_PAD);
+        TRLV_ASSERT_X(row, 0);
+        TRLV_ASSERT_X(lv_obj_get_child(row, 0), ROW_PAD);
+    }
+}
+
+/*---------------------------------------------------------------------------
+ * Light/dark switch (a v1 acceptance criterion)
+ *-------------------------------------------------------------------------*/
+
+/* Flip the switch the way a click does: toggle the state, report the change. */
+static void set_dark(lv_obj_t * demo, bool dark)
+{
+    lv_obj_set_state(dark_switch(demo), LV_STATE_CHECKED, dark);
+    lv_obj_send_event(dark_switch(demo), LV_EVENT_VALUE_CHANGED, NULL);
+}
+
+static void assert_color(const char * what, int line, lv_color_t actual, lv_color_t expected)
+{
+    trlv_test_check_int(__FILE__, line, what, (int32_t)lv_color_to_u32(expected), (int32_t)lv_color_to_u32(actual));
+}
+
+#define ASSERT_COLOR(actual, expected) assert_color(#actual, __LINE__, (actual), (expected))
+
+/* Colours of the frame and of a few objects of the section on show, all
+ * from the tokens `c`. */
+static void assert_section_colors(lv_obj_t * demo, int32_t index, const trlv_color_tokens_t * c)
+{
+    lv_obj_t * s = section(demo);
+
+    ASSERT_COLOR(lv_obj_get_style_bg_color(lv_obj_get_parent(demo), LV_PART_MAIN), c->surface);
+    ASSERT_COLOR(lv_obj_get_style_bg_color(bar(demo), LV_PART_MAIN), c->surface_container);
+    ASSERT_COLOR(lv_obj_get_style_text_color(lv_obj_get_child(top(demo), TOP_TITLE), LV_PART_MAIN), c->on_surface);
+    ASSERT_COLOR(lv_obj_get_style_bg_color(lv_obj_get_child(nav(demo), index), LV_PART_MAIN), c->secondary_container);
+    if(lv_obj_has_state(dark_switch(demo), LV_STATE_CHECKED)) {
+        ASSERT_COLOR(lv_obj_get_style_bg_color(dark_switch(demo), LV_PART_INDICATOR), c->primary);
+    }
+    else {
+        ASSERT_COLOR(lv_obj_get_style_bg_color(dark_switch(demo), LV_PART_MAIN), c->surface_container_highest);
+    }
+
+    if(index == SECTION_READOUTS) {
+        lv_obj_t * title = lv_obj_get_child(lv_obj_get_child(s, HEADER), 0);
+        lv_obj_t * start = lv_obj_get_child(lv_obj_get_child(s, ACTIONS), 0);
+        ASSERT_COLOR(lv_obj_get_style_text_color(title, LV_PART_MAIN), c->on_surface);
+        ASSERT_COLOR(lv_obj_get_style_bg_color(start, LV_PART_MAIN), c->primary);
+        ASSERT_COLOR(lv_obj_get_style_text_color(lv_obj_get_child(start, 0), LV_PART_MAIN), c->on_primary);
+    }
+    else if(index == SECTION_SURFACES) {
+        lv_obj_t * highest = lv_obj_get_child(swatches(demo, SURFACES_LADDER), 5);
+        lv_obj_t * primary = lv_obj_get_child(swatches(demo, SURFACES_CONTAINERS), 0);
+        ASSERT_COLOR(lv_obj_get_style_bg_color(highest, LV_PART_MAIN), c->surface_container_highest);
+        ASSERT_COLOR(lv_obj_get_style_bg_color(primary, LV_PART_MAIN), c->primary_container);
+        ASSERT_COLOR(lv_obj_get_style_text_color(lv_obj_get_child(primary, 0), LV_PART_MAIN), c->on_primary_container);
+    }
+    else if(index == SECTION_CARDS) {
+        ASSERT_COLOR(lv_obj_get_style_bg_color(lv_obj_get_child(s, 0), LV_PART_MAIN), c->surface_container_highest);
+        ASSERT_COLOR(lv_obj_get_style_border_color(lv_obj_get_child(s, 2), LV_PART_MAIN), c->outline_variant);
+    }
+    else {
+        lv_obj_t * tonal = lv_obj_get_child(controls_row(demo, CONTROLS_BUTTONS, 0), 1);
+        lv_obj_t * on = lv_obj_get_child(controls_row(demo, CONTROLS_SELECTION, 0), 1);
+        lv_obj_t * slider = lv_obj_get_child(controls_row(demo, CONTROLS_RANGE, 0), 0);
+        lv_obj_t * field = lv_obj_get_child(controls_row(demo, CONTROLS_FIELDS, 0), 1);
+        ASSERT_COLOR(lv_obj_get_style_bg_color(tonal, LV_PART_MAIN), c->secondary_container);
+        ASSERT_COLOR(lv_obj_get_style_bg_color(on, LV_PART_INDICATOR), c->primary);
+        ASSERT_COLOR(lv_obj_get_style_bg_color(slider, LV_PART_INDICATOR), c->primary);
+        ASSERT_COLOR(lv_obj_get_style_border_color(field, LV_PART_MAIN), c->outline);
+    }
+}
+
+/* In every section, the switch turns the dark tokens on and off, and the
+ * frame, the section and its built-in widgets follow with no code of their
+ * own. */
+static void switch_recolors_every_section(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+
+    TRLV_ASSERT_INT(lv_obj_has_state(dark_switch(demo), LV_STATE_CHECKED), false);
+    for(int32_t i = 0; i < SECTION_COUNT; i++) {
+        select_section(demo, i);
+        assert_section_colors(demo, i, &tokens_light);
+
+        set_dark(demo, true);
+        TRLV_ASSERT_INT(trlv_color() == &tokens_dark, true);
+        assert_section_colors(demo, i, &tokens_dark);
+
+        set_dark(demo, false);
+        TRLV_ASSERT_INT(trlv_color() == &tokens_light, true);
+        assert_section_colors(demo, i, &tokens_light);
+    }
+}
+
+/* A section built while dark is dark, and the switch starts on when
+ * trlv_init was given the dark tokens. */
+static void switch_starts_on_in_dark(lv_obj_t * screen)
+{
+    lv_obj_t * demo;
+
+    trlv_init(lv_obj_get_display(screen), &tokens_dark, &tokens_regular);
+    demo = trlv_demo_create(screen, &tokens_light, &tokens_dark);
+
+    TRLV_ASSERT_INT(lv_obj_has_state(dark_switch(demo), LV_STATE_CHECKED), true);
+    for(int32_t i = 0; i < SECTION_COUNT; i++) {
+        select_section(demo, i);
+        assert_section_colors(demo, i, &tokens_dark);
+    }
+}
+
+/*---------------------------------------------------------------------------
+ * Keypad and encoder focus
+ *-------------------------------------------------------------------------*/
+
+static void keypad_read(lv_indev_t * indev, lv_indev_data_t * data)
+{
+    LV_UNUSED(indev);
+    data->state = LV_INDEV_STATE_RELEASED;
+}
+
+/* Build the demo the way the header says a keypad host does: a default
+ * group, given to a keypad, before trlv_demo_create. */
+static lv_obj_t * build_with_keypad(lv_obj_t * screen, lv_group_t ** group)
+{
+    lv_indev_t * keypad;
+
+    *group = lv_group_create();
+    lv_group_set_default(*group);
+    keypad = lv_indev_create();
+    lv_indev_set_type(keypad, LV_INDEV_TYPE_KEYPAD);
+    lv_indev_set_read_cb(keypad, keypad_read);
+    lv_indev_set_group(keypad, *group);
+    return build(screen);
+}
+
+static bool is_inside(lv_obj_t * obj, lv_obj_t * ancestor)
+{
+    for(lv_obj_t * o = obj; o != NULL; o = lv_obj_get_parent(o)) {
+        if(o == ancestor) return true;
+    }
+    return false;
+}
+
+/* The focus-key look: fields turn their border primary and focus_width
+ * thick; everything else gets the focus ring. */
+static void assert_focus_style(lv_obj_t * obj, const trlv_color_tokens_t * c)
+{
+    TRLV_ASSERT_INT(lv_obj_has_state(obj, LV_STATE_FOCUS_KEY), true);
+    if(lv_obj_check_type(obj, &lv_dropdown_class) || lv_obj_check_type(obj, &lv_textarea_class)) {
+        TRLV_ASSERT_INT(lv_obj_get_style_border_width(obj, LV_PART_MAIN), trlv_layout()->focus_width);
+        ASSERT_COLOR(lv_obj_get_style_border_color(obj, LV_PART_MAIN), c->primary);
+    }
+    else {
+        TRLV_ASSERT_INT(lv_obj_get_style_outline_width(obj, LV_PART_MAIN), trlv_layout()->focus_width);
+        TRLV_ASSERT_INT(lv_obj_get_style_outline_opa(obj, LV_PART_MAIN), LV_OPA_COVER);
+        ASSERT_COLOR(lv_obj_get_style_outline_color(obj, LV_PART_MAIN), c->focus);
+    }
+}
+
+/* In every section and both colour modes, moving focus with the keypad
+ * reaches every enabled widget of the section, skips the disabled ones,
+ * and gives each the focus-key look in the mode's colours. */
+static void keypad_focus_reaches_every_widget(lv_obj_t * screen)
+{
+    lv_group_t * group;
+    lv_obj_t * demo = build_with_keypad(screen, &group);
+
+    for(int32_t dark = 0; dark < 2; dark++) {
+        const trlv_color_tokens_t * c = dark ? &tokens_dark : &tokens_light;
+        set_dark(demo, dark);
+
+        for(int32_t i = 0; i < SECTION_COUNT; i++) {
+            int32_t enabled = 0;           /* in the whole group */
+            int32_t section_enabled = 0;   /* in the section on show */
+            int32_t focused = 0;
+
+            select_section(demo, i);
+            for(uint32_t k = 0; k < lv_group_get_obj_count(group); k++) {
+                lv_obj_t * obj = lv_group_get_obj_by_index(group, k);
+                if(lv_obj_has_state(obj, LV_STATE_DISABLED)) continue;
+                enabled++;
+                if(is_inside(obj, section(demo))) section_enabled++;
+            }
+
+            /* Once round the enabled objects (focus skips disabled ones):
+             * each once, the section's among them. */
+            for(int32_t k = 0; k < enabled; k++) {
+                lv_obj_t * obj;
+                lv_group_focus_next(group);
+                obj = lv_group_get_focused(group);
+                TRLV_ASSERT_INT(lv_obj_has_state(obj, LV_STATE_DISABLED), false);
+                assert_focus_style(obj, c);
+                if(is_inside(obj, section(demo))) focused++;
+            }
+            TRLV_ASSERT_INT(focused, section_enabled);
+        }
+    }
+    TRLV_ASSERT_INT(trelvis_warnings, 0);
+}
+
+/* Room for the ring: every focusable widget is at least the ring's reach
+ * (focus_width plus the space[2XS] gap) inside each of its ancestors, so
+ * no ancestor clips it. Along a direction an ancestor scrolls in, it and
+ * the ancestors above it are not checked: there, clipping is what
+ * scrolling does. */
+static void every_focus_ring_has_room(lv_obj_t * screen)
+{
+    lv_group_t * group;
+    lv_obj_t * demo = build_with_keypad(screen, &group);
+    int32_t ring = trlv_layout()->focus_width + trlv_layout()->space[TRLV_SPACE_2XS];
+
+    for(int32_t i = 0; i < SECTION_COUNT; i++) {
+        select_section(demo, i);
+        for(uint32_t k = 0; k < lv_group_get_obj_count(group); k++) {
+            lv_obj_t * obj = lv_group_get_obj_by_index(group, k);
+            lv_area_t area;
+            lv_dir_t scroll = LV_DIR_NONE;   /* directions scrolled so far, walking up */
+
+            lv_obj_update_layout(obj);
+            lv_obj_get_coords(obj, &area);
+            for(lv_obj_t * a = lv_obj_get_parent(obj); a != lv_obj_get_parent(demo); a = lv_obj_get_parent(a)) {
+                lv_area_t clip;
+                char what[96];
+
+                if(lv_obj_is_scrollable(a)) scroll |= lv_obj_get_scroll_dir(a);
+                lv_obj_get_coords(a, &clip);
+                lv_snprintf(what, sizeof(what), "%s: ring of child %" LV_PRIu32 " of the group fits across",
+                            sections[i].name, k);
+                if(!(scroll & LV_DIR_HOR)) {
+                    trlv_test_check_int(__FILE__, __LINE__, what, true,
+                                        area.x1 - ring >= clip.x1 && area.x2 + ring <= clip.x2);
+                }
+                lv_snprintf(what, sizeof(what), "%s: ring of child %" LV_PRIu32 " of the group fits down",
+                            sections[i].name, k);
+                if(!(scroll & LV_DIR_VER)) {
+                    trlv_test_check_int(__FILE__, __LINE__, what, true,
+                                        area.y1 - ring >= clip.y1 && area.y2 + ring <= clip.y2);
+                }
+            }
+        }
+    }
+}
+
 int main(void)
 {
     TRLV_TEST_RUN(frame_fills_the_screen);
+    TRLV_TEST_RUN(top_row_puts_the_switch_on_the_right);
+    TRLV_TEST_RUN(no_switch_without_dark_tokens);
     TRLV_TEST_RUN(bar_is_a_surface_container);
     TRLV_TEST_RUN(nav_has_a_button_per_section);
     TRLV_TEST_RUN(nav_shows_the_chosen_section);
+    TRLV_TEST_RUN(sections_are_freed_when_left);
     TRLV_TEST_RUN(every_section_fits_and_builds_quietly);
 
     TRLV_TEST_RUN(readouts_stack_their_parts);
@@ -676,10 +1121,22 @@ int main(void)
     TRLV_TEST_RUN(cards_lay_out_their_content);
     TRLV_TEST_RUN(cards_put_actions_at_the_end);
 
+    TRLV_TEST_RUN(controls_show_every_button_variant);
+    TRLV_TEST_RUN(controls_show_switch_and_checkbox_states);
+    TRLV_TEST_RUN(controls_cover_every_themed_widget);
+    TRLV_TEST_RUN(controls_line_up_with_their_headings);
+
+    TRLV_TEST_RUN(switch_recolors_every_section);
+    TRLV_TEST_RUN(switch_starts_on_in_dark);
+
+    TRLV_TEST_RUN(keypad_focus_reaches_every_widget);
+    TRLV_TEST_RUN(every_focus_ring_has_room);
+
     trlv_test_set_display_size(320, 480);
     TRLV_TEST_RUN(every_section_fits_and_builds_quietly);
     TRLV_TEST_RUN(nav_scrolls_the_choice_into_view);
     TRLV_TEST_RUN(readouts_on_a_narrow_display);
     TRLV_TEST_RUN(readouts_buttons_wrap);
+    TRLV_TEST_RUN(every_focus_ring_has_room);
     return trlv_test_finish();
 }
