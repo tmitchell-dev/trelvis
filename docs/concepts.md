@@ -630,6 +630,12 @@ handles them, and its docs note where:
 Rows marked *raw LVGL* have no TreLVis function on purpose: the LVGL call is
 already clear (see [What earns a place](#what-earns-a-place)).
 
+For the table applied to a whole card, see
+[The same card in plain LVGL](../README.md#the-same-card-in-plain-lvgl) in
+the README: the README's example card written both ways, checked by
+[`tests/layout/test_readme_card.c`](../tests/layout/test_readme_card.c) to
+lay out the same.
+
 | Figma / MD3 | CSS | TreLVis | LVGL mechanism |
 |---|---|---|---|
 | Frame, no auto layout | `div` | `trlv_box` | `lv_obj` + reset style, scroll/click off |

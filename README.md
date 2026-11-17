@@ -69,6 +69,170 @@ The text in the card takes the card's `on_` colour by inheritance, and
 `trlv_theme_set_color_mode(&tokens_dark)` recolours all of it, the button
 included, with no per-screen code.
 
+### The same card in plain LVGL
+
+Here is that card written with LVGL 9.6 calls only, under LVGL's default
+theme, the way a careful LVGL user would: shared styles for colours and
+fonts (so light/dark can re-set them), local styles for layout, project
+constants instead of magic numbers. A
+[headless test](tests/layout/test_readme_card.c) builds both versions and
+checks that every object lands at the same position and size and gets
+the same fonts and colours, in light and in dark.
+
+<!-- The code blocks below are copied from tests/layout/test_readme_card.c.
+     Change both together, and the line counts under them. -->
+
+
+Once per project:
+
+```c
+#define SPACE_SM       8      /* the project's spacing, shape and sizes */
+#define SPACE_LG       16
+#define SPACE_XL       24
+#define RADIUS_MD      12
+#define BUTTON_HEIGHT  40
+#define FOCUS_WIDTH    3
+
+typedef struct {              /* the colours this card uses, per colour mode */
+    lv_color_t surface_container_highest, on_surface;
+    lv_color_t secondary_container, on_secondary_container;
+    lv_color_t focus;
+} palette_t;
+
+static const palette_t palette_light = {
+    LV_COLOR_MAKE(0xE6, 0xE0, 0xE9), LV_COLOR_MAKE(0x1D, 0x1B, 0x20),
+    LV_COLOR_MAKE(0xE8, 0xDE, 0xF8), LV_COLOR_MAKE(0x1D, 0x19, 0x2B),
+    LV_COLOR_MAKE(0x62, 0x5B, 0x71),
+};
+static const palette_t palette_dark = {
+    LV_COLOR_MAKE(0x36, 0x34, 0x3B), LV_COLOR_MAKE(0xE6, 0xE0, 0xE9),
+    LV_COLOR_MAKE(0x4A, 0x44, 0x58), LV_COLOR_MAKE(0xE8, 0xDE, 0xF8),
+    LV_COLOR_MAKE(0xCC, 0xC2, 0xDC),
+};
+
+static lv_style_t style_card;
+static lv_style_t style_title_medium, style_headline_small, style_label_large;
+static lv_style_t style_button, style_tonal, style_tonal_pressed, style_tonal_focus,
+       style_tonal_disabled;
+
+static void text_style_init(lv_style_t * style, const lv_font_t * font, int32_t line_height)
+{
+    lv_style_init(style);
+    lv_style_set_text_font(style, font);
+    lv_style_set_text_line_space(style, line_height - lv_font_get_line_height(font));
+}
+
+/* At start-up, and on every light/dark switch followed by
+ * lv_obj_report_style_change(NULL). */
+static void styles_set_colors(const palette_t * p)
+{
+    lv_color_t layer = lv_color_mix(p->on_secondary_container, p->secondary_container, LV_OPA_10);
+
+    lv_style_set_bg_color(&style_card, p->surface_container_highest);
+    lv_style_set_text_color(&style_card, p->on_surface);
+    lv_style_set_bg_color(&style_tonal, p->secondary_container);
+    lv_style_set_text_color(&style_tonal, p->on_secondary_container);
+    lv_style_set_bg_color(&style_tonal_pressed, layer);
+    lv_style_set_bg_color(&style_tonal_focus, layer);
+    lv_style_set_outline_color(&style_tonal_focus, p->focus);
+    lv_style_set_bg_color(&style_tonal_disabled, p->on_surface);
+    lv_style_set_text_color(&style_tonal_disabled, p->on_surface);
+}
+
+static void styles_init(const palette_t * p)
+{
+    lv_style_init(&style_card);
+    lv_style_set_bg_opa(&style_card, LV_OPA_COVER);
+    lv_style_set_radius(&style_card, RADIUS_MD);
+
+    text_style_init(&style_title_medium, &lv_font_montserrat_16, 24);
+    text_style_init(&style_headline_small, &lv_font_montserrat_24, 32);
+    text_style_init(&style_label_large, &lv_font_montserrat_14, 20);
+
+    /* On top of the default theme's button: MD3 shape, no shadow. */
+    lv_style_init(&style_button);
+    lv_style_set_height(&style_button, BUTTON_HEIGHT);
+    lv_style_set_radius(&style_button, LV_RADIUS_CIRCLE);
+    lv_style_set_pad_hor(&style_button, SPACE_XL);
+    lv_style_set_pad_ver(&style_button, 0);
+    lv_style_set_shadow_width(&style_button, 0);
+
+    lv_style_init(&style_tonal);
+    lv_style_init(&style_tonal_pressed);            /* state layer instead of the */
+    lv_style_set_recolor_opa(&style_tonal_pressed, LV_OPA_TRANSP);   /* theme's dark */
+    lv_style_set_transform_width(&style_tonal_pressed, 0);           /* recolour and */
+    lv_style_set_transform_height(&style_tonal_pressed, 0);          /* grow         */
+    lv_style_init(&style_tonal_focus);
+    lv_style_set_outline_width(&style_tonal_focus, FOCUS_WIDTH);
+    lv_style_set_outline_opa(&style_tonal_focus, LV_OPA_COVER);
+    lv_style_init(&style_tonal_disabled);
+    lv_style_set_bg_opa(&style_tonal_disabled, 31);                  /* MD3: 12 % */
+    lv_style_set_text_opa(&style_tonal_disabled, 97);                /* MD3: 38 % */
+    lv_style_set_recolor_opa(&style_tonal_disabled, LV_OPA_TRANSP);
+
+    styles_set_colors(p);
+}
+```
+
+Per card:
+
+```c
+lv_obj_t * card = lv_obj_create(parent);
+lv_obj_remove_style_all(card);                      /* no theme padding, border, scrollbar */
+lv_obj_add_style(card, &style_card, 0);
+lv_obj_set_scrollable(card, false);
+lv_obj_set_size(card, LV_PCT(100), LV_SIZE_CONTENT);  /* in a row: lv_obj_set_flex_grow */
+lv_obj_set_flex_flow(card, LV_FLEX_FLOW_COLUMN);
+lv_obj_set_style_pad_all(card, SPACE_LG, 0);
+lv_obj_set_style_pad_row(card, SPACE_SM, 0);        /* a column's gap is pad_row */
+
+lv_obj_t * header = lv_obj_create(card);
+lv_obj_remove_style_all(header);
+lv_obj_set_scrollable(header, false);
+lv_obj_set_size(header, LV_PCT(100), LV_SIZE_CONTENT);
+lv_obj_set_flex_flow(header, LV_FLEX_FLOW_ROW);
+lv_obj_set_flex_align(header, LV_FLEX_ALIGN_SPACE_BETWEEN,
+                      LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);   /* track too */
+lv_obj_set_style_pad_column(header, SPACE_SM, 0);   /* a row's gap is pad_column */
+
+lv_obj_t * title = lv_label_create(header);
+lv_label_set_text(title, "Temperature");
+lv_obj_add_style(title, &style_title_medium, 0);
+lv_obj_t * value = lv_label_create(header);
+lv_label_set_text(value, "37.2 °C");
+lv_obj_add_style(value, &style_headline_small, 0);
+
+lv_obj_t * btn = lv_button_create(card);
+lv_obj_add_style(btn, &style_button, 0);
+lv_obj_add_style(btn, &style_tonal, 0);
+lv_obj_add_style(btn, &style_tonal_pressed, LV_STATE_PRESSED);
+lv_obj_add_style(btn, &style_tonal_focus, LV_STATE_FOCUS_KEY);
+lv_obj_add_style(btn, &style_tonal_disabled, LV_STATE_DISABLED);
+lv_obj_t * label = lv_label_create(btn);
+lv_label_set_text(label, "Calibrate");
+lv_obj_add_style(label, &style_label_large, 0);
+lv_obj_center(label);
+```
+
+**32 lines per card instead of 13, plus 75 lines of set-up** (non-blank
+lines). The TreLVis set-up is one `trlv_init` call; its tokens come from
+the template you copy.
+
+The plain version also has to repeat, on every screen:
+
+- **Which axis**: `LV_PCT(100)` or `lv_obj_set_flex_grow` depending on
+  the parent's direction, and `pad_row` or `pad_column` for the gap.
+  `trlv_fill_width` and `trlv_gap` read the parent and decide.
+- **Every other card, button variant, surface and text role** as more
+  styles, each with its pressed, focus and disabled states.
+- **Dark mode**: every colour style must be listed in `styles_set_colors`
+  (and LVGL's default theme re-initialised for its own widgets).
+  `trlv_theme_set_color_mode` covers the whole library and theme.
+- **Compact density**: the `#define`s are fixed at compile time. Choosing
+  a density at start-up means turning them into variables and
+  rebuilding every style from them. TreLVis takes a layout token set
+  in `trlv_init`.
+
 ## Design principles
 
 - **Small on purpose.** The main job is to turn the blocks of LVGL calls that
