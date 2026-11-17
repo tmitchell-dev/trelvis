@@ -31,8 +31,12 @@ static_assert(TRLV_CUSTOM_COLOR_MAX >= 0, "custom colour style count");
  * declares the collections with the token types. */
 #include "trlv_tokens_template.h"
 
+/* With the styles compiled out (TRLV_CUSTOM_COLOR_MAX 0, as in
+ * tests/config/minimal) the colours stay in the tokens, unused. */
+#if TRLV_CUSTOM_COLOR_MAX > 0
 static_assert(TOKEN_CUSTOM_COUNT <= TRLV_CUSTOM_COLOR_MAX,
               "the template's custom colours all work with trlv_surface_custom");
+#endif
 
 static_assert(std::is_same<decltype(tokens_light), const trlv_color_tokens_t>::value,
               "template light colours");

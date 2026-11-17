@@ -75,9 +75,15 @@ Useful options:
 - `-DFETCHCONTENT_SOURCE_DIR_LVGL=path/to/lvgl` uses a local LVGL tree.
 - `-DTRLV_LVGL_GIT_TAG=master` builds against another LVGL version. For
   LVGL 10, also pass `-DCMAKE_C_FLAGS=-DTRLV_IGNORE_LVGL_VERSION=1`.
+- `-DTRLV_TEST_CONFIG=minimal` builds against the small product's
+  configuration in [`tests/config/minimal`](tests/config/minimal) (RGB565,
+  no log, one font, no default theme, no widgets but the label) and runs
+  the tests that need no widgets.
 
-CI also checks that library code doesn't allocate directly, that every
-source file has an SPDX header, and that the sources compile without CMake.
+CI also builds that minimal configuration, compiles the theme with each
+widget it styles turned on alone, and checks that library code doesn't
+allocate directly, that every source file has an SPDX header, and that the
+sources compile without CMake.
 
 ## Workflow
 
@@ -156,6 +162,9 @@ LVGL 9.6 deprecates what v10 removes. Follow these rules:
   `LV_COLOR_FORMAT_DEFAULT` if the colour format is needed.
 - Don't use the deprecated composites `lv_list`, `lv_win` or `lv_menu`. Build
   them from flex `lv_obj`s instead.
+- Guard code for a widget with its `LV_USE_*` option, styles included, so a
+  product that turns the widget off pays nothing for it. CI builds the
+  theme with each styled widget on alone.
 - Keep areas likely to change upstream in one place: all theme integration in
   `trlv_theme.c`, and all label and text specifics in `trlv_text.c`.
 

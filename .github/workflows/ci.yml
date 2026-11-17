@@ -59,3 +59,40 @@ jobs:
         run: |
           $CC -std=c99 -Wall -Wextra -Wpedantic -Werror -fsyntax-only \
               -Iinclude -isystem build/_deps/lvgl-src/include -DLV_CONF_SKIP src/*.c
+
+  minimal:
+    name: Build (minimal lv_conf)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      # tests/config/minimal: RGB565, no log, Montserrat 14 only, no default
+      # theme, no widgets but the label, TRLV_THEME_PARENT_NONE and
+      # TRLV_CUSTOM_COLOR_MAX 0. Runs the tests that need no widgets.
+      - name: CMake build
+        run: |
+          cmake -B build -DTRLV_TEST_CONFIG=minimal
+          cmake --build build --parallel
+
+      - name: Tests
+        run: ctest --test-dir build --output-on-failure
+
+      # Each widget the theme styles on its own (with the widget LVGL
+      # requires for it), so every style group compiles without the others.
+      - name: Theme guards, one widget at a time
+        run: |
+          others="ANIMIMG ARCLABEL BUTTONMATRIX CALENDAR CANVAS CHART IMAGE IMAGEBUTTON KEYBOARD
+                  LED LINE LIST MENU MSGBOX ROLLER SCALE SPAN SPINBOX TABLE TILEVIEW WIN"
+          styled="BUTTON SWITCH CHECKBOX SLIDER BAR ARC SPINNER DROPDOWN TEXTAREA TABVIEW"
+          for on in $styled; do
+            defs="-DLV_USE_THEME_DEFAULT=0 -DTRLV_THEME_PARENT=0"
+            for w in $others; do defs="$defs -DLV_USE_$w=0"; done
+            for w in $styled; do
+              case "$on:$w" in "$w:$w"|SLIDER:BAR|SPINNER:ARC|TABVIEW:BUTTON) v=1 ;; *) v=0 ;; esac
+              defs="$defs -DLV_USE_$w=$v"
+            done
+            echo "LV_USE_$on"
+            gcc -std=c99 -Wall -Wextra -Wpedantic -Werror -fsyntax-only \
+                -Iinclude -isystem build/_deps/lvgl-src/include -DLV_CONF_SKIP $defs src/trlv_theme.c
+          done

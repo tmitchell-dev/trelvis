@@ -18,6 +18,14 @@ While the version is 0.x, minor releases may contain breaking changes.
   worth converting the same way (see "What a version number promises" in
   the README).
 
+### Fixed
+
+- The theme builds with any set of widgets turned on in `lv_conf.h`. A
+  build without the button, switch, checkbox, slider, dropdown or
+  textarea failed with unused-style warnings under `-Werror`, and one with
+  the arc but no bar, slider or switch didn't compile. Styles for widgets
+  that are turned off are now compiled out, so they cost no RAM.
+
 ## [0.1.0] - 2026-11-17
 
 The v1 feature-complete release: every function of the v1 API is built,

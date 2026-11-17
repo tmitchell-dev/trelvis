@@ -9,11 +9,27 @@
 # Options:
 #   -DTRLV_LVGL_GIT_TAG=master                    build against another LVGL ref
 #   -DFETCHCONTENT_SOURCE_DIR_LVGL=path/to/lvgl   use a local LVGL tree instead
+#   -DTRLV_TEST_CONFIG=minimal                    build against tests/config/minimal
+#                                                 (a small product's lv_conf.h and
+#                                                 trlv_conf.h) and run the tests
+#                                                 that need no widgets
 
-# ---- LVGL, default configuration ----
+# ---- LVGL ----
 set(TRLV_LVGL_GIT_TAG "v9.6.0" CACHE STRING "LVGL tag or branch for the development build")
+set(TRLV_TEST_CONFIG "default" CACHE STRING
+    "LVGL configuration: default (LVGL's defaults, every test) or minimal (tests/config/minimal)")
+set_property(CACHE TRLV_TEST_CONFIG PROPERTY STRINGS default minimal)
 
-set(LV_CONF_SKIP ON CACHE BOOL "" FORCE)
+if(TRLV_TEST_CONFIG STREQUAL "minimal")
+    set(TRLV_TEST_FULL OFF)
+    set(LV_CONF_SKIP OFF CACHE BOOL "" FORCE)
+    set(LV_BUILD_CONF_PATH ${CMAKE_CURRENT_LIST_DIR}/config/minimal/lv_conf.h CACHE PATH "" FORCE)
+elseif(TRLV_TEST_CONFIG STREQUAL "default")
+    set(TRLV_TEST_FULL ON)
+    set(LV_CONF_SKIP ON CACHE BOOL "" FORCE)
+else()
+    message(FATAL_ERROR "TRLV_TEST_CONFIG must be default or minimal, not '${TRLV_TEST_CONFIG}'")
+endif()
 set(LV_BUILD_INSTALL OFF CACHE BOOL "" FORCE)
 set(CONFIG_LV_BUILD_DEMOS OFF CACHE BOOL "" FORCE)
 set(CONFIG_LV_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -26,18 +42,23 @@ FetchContent_Declare(lvgl
     GIT_SHALLOW    TRUE)
 FetchContent_MakeAvailable(lvgl)
 
-# LVGL logging on, so tests can check TreLVis warnings through a log
-# callback. Nothing is printed (LV_LOG_PRINTF stays 0). CI's no-CMake step
-# still compiles src/ with logging off, LVGL's default.
-target_compile_definitions(lvgl PUBLIC LV_USE_LOG=1)
+if(TRLV_TEST_FULL)
+    # LVGL logging on, so tests can check TreLVis warnings through a log
+    # callback. Nothing is printed (LV_LOG_PRINTF stays 0). CI's no-CMake
+    # step and the minimal configuration compile src/ with logging off.
+    target_compile_definitions(lvgl PUBLIC LV_USE_LOG=1)
 
-# A few Montserrat sizes besides LVGL's default 14 px, so the token
-# template's type scale has real hierarchy and the text tests can check the
-# line-height conversion with a font that isn't LV_FONT_DEFAULT.
-target_compile_definitions(lvgl PUBLIC
-    LV_FONT_MONTSERRAT_12=1
-    LV_FONT_MONTSERRAT_16=1
-    LV_FONT_MONTSERRAT_24=1)
+    # A few Montserrat sizes besides LVGL's default 14 px, so the token
+    # template's type scale has real hierarchy and the text tests can check
+    # the line-height conversion with a font that isn't LV_FONT_DEFAULT.
+    target_compile_definitions(lvgl PUBLIC
+        LV_FONT_MONTSERRAT_12=1
+        LV_FONT_MONTSERRAT_16=1
+        LV_FONT_MONTSERRAT_24=1)
+else()
+    # The minimal trlv_conf.h, found on the include path as a product's is.
+    target_include_directories(trelvis PUBLIC ${CMAKE_CURRENT_LIST_DIR}/config/minimal)
+endif()
 
 # ---- Strict warnings for TreLVis code (not for LVGL) ----
 set(TRLV_STRICT_WARNINGS -Wall -Wextra -Wpedantic -Werror)
@@ -74,20 +95,23 @@ set_target_properties(trlv_cpp_include_test PROPERTIES
     CXX_EXTENSIONS OFF)
 
 # ---- The demo (examples/demo), built with the same strict flags ----
-add_library(trlv_demo STATIC
-    ../examples/demo/trlv_demo.c
-    ../examples/demo/trlv_demo_readouts.c
-    ../examples/demo/trlv_demo_surfaces.c
-    ../examples/demo/trlv_demo_cards.c
-    ../examples/demo/trlv_demo_controls.c
-    ../examples/demo/trlv_demo_list.c)
-target_include_directories(trlv_demo PUBLIC ${PROJECT_SOURCE_DIR}/examples/demo)
-target_link_libraries(trlv_demo PUBLIC trelvis)
-target_compile_options(trlv_demo PRIVATE ${TRLV_STRICT_WARNINGS})
-set_target_properties(trlv_demo PROPERTIES
-    C_STANDARD 99
-    C_STANDARD_REQUIRED ON
-    C_EXTENSIONS OFF)
+# It shows LVGL's widgets, so the minimal configuration leaves it out.
+if(TRLV_TEST_FULL)
+    add_library(trlv_demo STATIC
+        ../examples/demo/trlv_demo.c
+        ../examples/demo/trlv_demo_readouts.c
+        ../examples/demo/trlv_demo_surfaces.c
+        ../examples/demo/trlv_demo_cards.c
+        ../examples/demo/trlv_demo_controls.c
+        ../examples/demo/trlv_demo_list.c)
+    target_include_directories(trlv_demo PUBLIC ${PROJECT_SOURCE_DIR}/examples/demo)
+    target_link_libraries(trlv_demo PUBLIC trelvis)
+    target_compile_options(trlv_demo PRIVATE ${TRLV_STRICT_WARNINGS})
+    set_target_properties(trlv_demo PROPERTIES
+        C_STANDARD 99
+        C_STANDARD_REQUIRED ON
+        C_EXTENSIONS OFF)
+endif()
 
 # ---- Headless layout tests (run with: ctest --test-dir build) ----
 add_library(trlv_test_harness STATIC harness/trlv_test.c)
@@ -111,60 +135,66 @@ function(trlv_add_test name source)
     add_test(NAME ${name} COMMAND ${name})
 endfunction()
 
+# Tests that need no widget besides the label, no LVGL log and no font but
+# Montserrat 14: these also run in the minimal configuration.
 trlv_add_test(layout_smoke layout/test_smoke.c)
 trlv_add_test(layout_box layout/test_box.c)
 trlv_add_test(layout_spacing layout/test_spacing.c)
 target_link_libraries(layout_spacing PRIVATE trlv_tokens_template)
 trlv_add_test(layout_row_column layout/test_row_column.c)
 target_link_libraries(layout_row_column PRIVATE trlv_tokens_template)
-trlv_add_test(layout_sizing layout/test_sizing.c)
-target_link_libraries(layout_sizing PRIVATE trlv_tokens_template)
-trlv_add_test(layout_fill_warning layout/test_fill_warning.c)
-target_link_libraries(layout_fill_warning PRIVATE trlv_tokens_template)
-trlv_add_test(layout_text layout/test_text.c)
-target_link_libraries(layout_text PRIVATE trlv_tokens_template)
 trlv_add_test(layout_flex_place layout/test_flex_place.c)
 target_link_libraries(layout_flex_place PRIVATE trlv_tokens_template)
-trlv_add_test(layout_spacer layout/test_spacer.c)
-target_link_libraries(layout_spacer PRIVATE trlv_tokens_template)
 trlv_add_test(layout_debug_outline_off layout/test_debug_outline.c)
 target_link_libraries(layout_debug_outline_off PRIVATE trlv_tokens_template)
 trlv_add_test(layout_divider layout/test_divider.c)
 target_link_libraries(layout_divider PRIVATE trlv_tokens_template)
-trlv_add_test(layout_text_role layout/test_text_role.c)
-target_link_libraries(layout_text_role PRIVATE trlv_tokens_template)
-trlv_add_test(layout_replace_not_stack layout/test_replace_not_stack.c)
-target_link_libraries(layout_replace_not_stack PRIVATE trlv_tokens_template)
-trlv_add_test(layout_demo layout/test_demo.c)
-target_link_libraries(layout_demo PRIVATE trlv_tokens_template trlv_tokens_hmi trlv_demo)
-trlv_add_test(layout_readme_card layout/test_readme_card.c)
-target_link_libraries(layout_readme_card PRIVATE trlv_tokens_template)
-
 trlv_add_test(theme_init theme/test_init.c)
 target_link_libraries(theme_init PRIVATE trlv_tokens_template)
-trlv_add_test(theme_theme theme/test_theme.c)
-target_link_libraries(theme_theme PRIVATE trlv_tokens_template)
-trlv_add_test(theme_states theme/test_states.c)
-target_link_libraries(theme_states PRIVATE trlv_tokens_template)
-trlv_add_test(theme_color_mode theme/test_color_mode.c)
-target_link_libraries(theme_color_mode PRIVATE trlv_tokens_template)
-trlv_add_test(theme_widgets theme/test_widgets.c)
-target_link_libraries(theme_widgets PRIVATE trlv_tokens_template)
 trlv_add_test(theme_surface theme/test_surface.c)
 target_link_libraries(theme_surface PRIVATE trlv_tokens_template)
-trlv_add_test(theme_surface_custom theme/test_surface_custom.c)
-target_link_libraries(theme_surface_custom PRIVATE trlv_tokens_template)
-trlv_add_test(theme_button_variant theme/test_button_variant.c)
-target_link_libraries(theme_button_variant PRIVATE trlv_tokens_template)
+
+if(TRLV_TEST_FULL)
+    trlv_add_test(layout_sizing layout/test_sizing.c)
+    target_link_libraries(layout_sizing PRIVATE trlv_tokens_template)
+    trlv_add_test(layout_fill_warning layout/test_fill_warning.c)
+    target_link_libraries(layout_fill_warning PRIVATE trlv_tokens_template)
+    trlv_add_test(layout_text layout/test_text.c)
+    target_link_libraries(layout_text PRIVATE trlv_tokens_template)
+    trlv_add_test(layout_spacer layout/test_spacer.c)
+    target_link_libraries(layout_spacer PRIVATE trlv_tokens_template)
+    trlv_add_test(layout_text_role layout/test_text_role.c)
+    target_link_libraries(layout_text_role PRIVATE trlv_tokens_template)
+    trlv_add_test(layout_replace_not_stack layout/test_replace_not_stack.c)
+    target_link_libraries(layout_replace_not_stack PRIVATE trlv_tokens_template)
+    trlv_add_test(layout_demo layout/test_demo.c)
+    target_link_libraries(layout_demo PRIVATE trlv_tokens_template trlv_tokens_hmi trlv_demo)
+    trlv_add_test(layout_readme_card layout/test_readme_card.c)
+    target_link_libraries(layout_readme_card PRIVATE trlv_tokens_template)
+
+    trlv_add_test(theme_theme theme/test_theme.c)
+    target_link_libraries(theme_theme PRIVATE trlv_tokens_template)
+    trlv_add_test(theme_states theme/test_states.c)
+    target_link_libraries(theme_states PRIVATE trlv_tokens_template)
+    trlv_add_test(theme_color_mode theme/test_color_mode.c)
+    target_link_libraries(theme_color_mode PRIVATE trlv_tokens_template)
+    trlv_add_test(theme_widgets theme/test_widgets.c)
+    target_link_libraries(theme_widgets PRIVATE trlv_tokens_template)
+    trlv_add_test(theme_surface_custom theme/test_surface_custom.c)
+    target_link_libraries(theme_surface_custom PRIVATE trlv_tokens_template)
+    trlv_add_test(theme_button_variant theme/test_button_variant.c)
+    target_link_libraries(theme_button_variant PRIVATE trlv_tokens_template)
+endif()
 
 # Config options: a copy of the library built with one option set, and a
 # test linked against it alone (its own harness and template objects).
 get_target_property(TRLV_SOURCES trelvis SOURCES)
 list(TRANSFORM TRLV_SOURCES PREPEND ${PROJECT_SOURCE_DIR}/)
+get_target_property(TRLV_INCLUDES trelvis INCLUDE_DIRECTORIES)
 function(trlv_add_option_test name source library definition)
     if(NOT TARGET ${library})
         add_library(${library} STATIC ${TRLV_SOURCES})
-        target_include_directories(${library} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+        target_include_directories(${library} PUBLIC ${TRLV_INCLUDES})
         target_link_libraries(${library} PUBLIC ${TRLV_LVGL_TARGET})
         target_compile_definitions(${library} PUBLIC ${definition})
         target_compile_options(${library} PRIVATE ${TRLV_STRICT_WARNINGS})
@@ -184,11 +214,13 @@ function(trlv_add_option_test name source library definition)
     add_test(NAME ${name} COMMAND ${name})
 endfunction()
 
-trlv_add_option_test(theme_no_theme theme/test_no_theme.c trelvis_no_theme TRLV_USE_THEME=0)
 trlv_add_option_test(layout_debug_outline_on layout/test_debug_outline.c
                      trelvis_debug_outline TRLV_USE_DEBUG_OUTLINE=1)
-trlv_add_option_test(theme_surface_custom_max0 theme/test_surface_custom.c
-                     trelvis_custom_color_max0 TRLV_CUSTOM_COLOR_MAX=0)
+if(TRLV_TEST_FULL)
+    trlv_add_option_test(theme_no_theme theme/test_no_theme.c trelvis_no_theme TRLV_USE_THEME=0)
+    trlv_add_option_test(theme_surface_custom_max0 theme/test_surface_custom.c
+                         trelvis_custom_color_max0 TRLV_CUSTOM_COLOR_MAX=0)
+endif()
 
 # Tests of internal helpers also see src/.
 trlv_add_test(internal_style_group internal/test_style_group.c)
