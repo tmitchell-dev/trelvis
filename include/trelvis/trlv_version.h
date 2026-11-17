@@ -19,9 +19,9 @@
  * TreLVis version (semantic versioning)
  *-------------------------------------------------------------------------*/
 #define TRLV_VERSION_MAJOR  0
-#define TRLV_VERSION_MINOR  0
+#define TRLV_VERSION_MINOR  1
 #define TRLV_VERSION_PATCH  0
-#define TRLV_VERSION_STRING "0.0.0"
+#define TRLV_VERSION_STRING "0.1.0"
 
 /*---------------------------------------------------------------------------
  * Supported LVGL: 9.x with x >= 6
