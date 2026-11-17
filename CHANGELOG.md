@@ -8,6 +8,13 @@ While the version is 0.x, minor releases may contain breaking changes.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-17
+
+The v1 feature-complete release: every function of the v1 API is built,
+tested and documented, and the v1 acceptance criteria in ROADMAP.md are met.
+The API may still change in 0.x; 1.0.0 follows once it has been proven in a
+real product.
+
 ### Added
 
 - `trlv_justify`: main-axis distribution (CSS `justify-content`) with
@@ -40,7 +47,7 @@ While the version is 0.x, minor releases may contain breaking changes.
 - The MD3 theme, installed by `trlv_init` over LVGL's default theme (seeded
   with the MD3 `primary` and `secondary` colours, a dark flag from the
   luminance of `surface`, and the Body Medium font), or over no parent with
-  `TRLV_THEME_PARENT_NONE`. `TRLV_USE_THEME 0` installs none. So far it
+  `TRLV_THEME_PARENT_NONE`. `TRLV_USE_THEME 0` installs none. It
   covers the screen (`surface`, `on_surface`, Body Medium, inherited), plain
   `lv_obj` containers (MD3 colours on LVGL's shape), labels (inherit only)
   and `lv_button` as an MD3 filled button whose content is a centred row.
@@ -67,11 +74,7 @@ While the version is 0.x, minor releases may contain breaking changes.
 - The v1 public API, settled in the milestone 3 review: `trelvis.h` and its
   module headers, each documented with its Figma / MD3 / CSS equivalents
   and a mapping table, compiling from C99 and C++17. The C++ include test
-  pins every public signature. Declared but not implemented yet (calling
-  them fails to link until they land): `trlv_spacer`, `trlv_divider`, `trlv_justify`,
-  `trlv_align_items`, `trlv_text_role`, `trlv_surface`,
-  `trlv_surface_custom`, `trlv_card` and `trlv_button_variant`
-  (milestone 5).
+  pins every public signature.
 - Custom colours: `trlv_color_tokens_t` has a project-defined table of
   `trlv_custom_color_t` entries (`custom`, `custom_count`), named and
   indexed by the project's own enum, for status colours, alarm priorities
@@ -136,3 +139,6 @@ While the version is 0.x, minor releases may contain breaking changes.
 - CI: GCC and Clang builds against LVGL 9.6 with warnings as errors, C++17
   include test, non-CMake build, allocation and SPDX checks; weekly build
   against LVGL master; tag-driven release workflow.
+
+[Unreleased]: https://github.com/tmitchell-dev/trelvis/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/tmitchell-dev/trelvis/releases/tag/v0.1.0

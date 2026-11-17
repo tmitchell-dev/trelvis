@@ -113,6 +113,7 @@ doesn't vendor it.
 
 ```sh
 git submodule add https://github.com/tmitchell-dev/trelvis.git external/trelvis
+git -C external/trelvis checkout v0.1.0   # pin a release
 ```
 
 ### 2. Build it with your project
