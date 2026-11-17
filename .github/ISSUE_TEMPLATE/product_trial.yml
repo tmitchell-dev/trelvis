@@ -1,0 +1,47 @@
+name: Product-trial finding
+description: Something found while using TreLVis in a real product, before 1.0.
+labels: [product-trial]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this for anything a product ran into: a bug, a missing piece, a surprise, or raw LVGL written more than once. Findings decide what changes before the 1.0 API freeze, so say whether a fix would break existing code. Keep product names and other product-specific details out of the issue.
+  - type: textarea
+    id: need
+    attributes:
+      label: What did the product need?
+      description: The screen, component or behaviour, ideally with its Figma / CSS equivalent.
+    validations:
+      required: true
+  - type: textarea
+    id: workaround
+    attributes:
+      label: What did you write instead?
+      description: The raw LVGL (or other workaround) used in place of TreLVis, and how often it repeats.
+      render: c
+    validations:
+      required: true
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Would a fix be breaking or additive?
+      description: See "Compatibility" in the README. Breaking fixes have to land before 1.0.0.
+      options:
+        - Additive (new function, option, enum value or token field; existing code keeps working)
+        - Breaking (changes or removes something existing code uses)
+        - Docs or template only
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested fix
+      description: Optional. An API sketch, a doc change, or "none: the LVGL code is fine".
+  - type: input
+    id: versions
+    attributes:
+      label: TreLVis and LVGL versions
+      placeholder: "TreLVis 0.1.0, LVGL 9.6.0"
+    validations:
+      required: true
