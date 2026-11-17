@@ -66,13 +66,27 @@ Inputs for the API review (milestone 3):
   are enabled.
 - Texts of different sizes side by side in a row are top-aligned until
   `trlv_align_items` lands (milestone 5). LVGL flex has no baseline
-  alignment; centring is the closest match.
+  alignment; centring is the closest match. Resolved in milestone 5:
+  `trlv_align_items(row, TRLV_ALIGN_ITEMS_CENTER)`.
 - A `trlv_box` with children placed by `lv_obj_align` (left and right, at
   `*_MID`) hugs its height correctly, which covers a title-and-status header
   before `trlv_justify` exists.
 - No naming changes came up. Filling both axes takes `trlv_fill_width` and
   `trlv_fill_height`; a combined call would only join two clear calls, so
   none is proposed.
+
+## Settled in milestone 5
+
+- **Align items places the line too.** LVGL's `flex_cross_place` places
+  items within their line, which is only as deep as the deepest item and
+  sits at the start of the container. `trlv_align_items` also sets
+  `flex_track_place`, so items are placed in the container as in Figma and
+  CSS. A project wanting CSS `align-content` sets the track placement
+  afterwards as a local style.
+- **Spacer** warns under its own name (`trlv_spacer`) in a parent that
+  hugs its main axis, and has no size in a parent without flex.
+- **Debug outline** is part of `trlv_style_box`: magenta, 1 px, outside
+  the object. It costs nothing when off and no RAM when on.
 
 ## Settled in milestone 4
 

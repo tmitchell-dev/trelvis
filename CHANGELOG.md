@@ -10,6 +10,15 @@ While the version is 0.x, minor releases may contain breaking changes.
 
 ### Added
 
+- `trlv_justify`: main-axis distribution (CSS `justify-content`) with
+  shared constant styles, one per value; a second call replaces the first.
+- `trlv_align_items`: cross-axis placement (CSS `align-items`). It sets
+  LVGL's `flex_track_place` as well as `flex_cross_place`, so items are
+  placed in the container as in Figma, not only within their line.
+- `trlv_spacer`: an empty box that takes the free space along its parent's
+  main axis, warning (as `trlv_spacer`) in a parent that hugs that axis.
+- `TRLV_USE_DEBUG_OUTLINE`: a 1 px magenta outline outside every box, row,
+  column and spacer, to compare a layout with its Figma frames.
 - The MD3 theme, installed by `trlv_init` over LVGL's default theme (seeded
   with the MD3 `primary` and `secondary` colours, a dark flag from the
   luminance of `surface`, and the Body Medium font), or over no parent with

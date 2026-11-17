@@ -554,7 +554,7 @@ LVGL, so TreLVis adds no function for them. Setters named
 ### 7.3 Debug aids
 
 - `TRLV_USE_DEBUG_OUTLINE` draws a 1 px outline around every box, row,
-  column and spacer *(planned, milestone 5)*. It is drawn outside the object
+  column and spacer. It is drawn outside the object, in magenta,
   and takes no space, so the layout it shows doesn't change.
 - *(planned, v1.1)* `trlv_debug_dump(obj)` prints the tree with sizes,
   padding, gaps and styles for comparison with Figma (`TRLV_USE_DEBUG`).
@@ -593,6 +593,7 @@ handles them, and its docs note where:
 | Style precedence: later-added styles win, and local styles beat all. | Documented precedence (§6.2). Modifier groups replace their own previous style. |
 | Only some properties inherit (text colour, font, letter/line spacing, opa…); background and padding don't. | Surfaces/cards set the `on_` text colour so it inherits; documented per function. |
 | Flex has no cross-axis stretch. | `trlv_fill_*` emulates it with 100 % on the cross axis. |
+| `flex_cross_place` places items within their line, which is only as deep as the deepest item and sits at the start of the container, so a centred short item lines up with its tallest sibling, not the container. | `trlv_align_items` sets `flex_track_place` to the same value, so items are placed in the container as in Figma and CSS. |
 
 ## 10. Mapping: Figma / MD3 → CSS → TreLVis → LVGL
 
@@ -611,7 +612,7 @@ already clear (see [What earns a place](#what-earns-a-place)).
 | Padding | `padding` | `trlv_pad` | `pad_left/right/top/bottom` |
 | Horizontal / vertical / one-side padding | `padding: y x`, `padding-left` | *raw LVGL* | `lv_obj_set_style_pad_hor`, `…pad_ver`, `…pad_left`, … |
 | Alignment (main axis) / space between | `justify-content` | `trlv_justify` | `flex_main_place` |
-| Alignment (cross axis) | `align-items` | `trlv_align_items` | `flex_cross_place` |
+| Alignment (cross axis) | `align-items` | `trlv_align_items` | `flex_cross_place` + `flex_track_place` |
 | Wrap | `flex-wrap` | *raw LVGL* | `lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)` |
 | Hug contents | `width: fit-content` | `trlv_hug_width/height` | `LV_SIZE_CONTENT` |
 | Fill container | `flex: 1` / `align-self: stretch` | `trlv_fill_width/height` | `flex_grow` or `LV_PCT(100)` |

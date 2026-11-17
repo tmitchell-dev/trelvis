@@ -107,7 +107,10 @@
  * object and takes no space, so the layout doesn't change. For development
  * builds only.
  *
- * Not implemented yet (milestone 5).
+ * The outline is part of trlv_style_box, so it costs nothing when off and
+ * no RAM when on. Objects that hold trlv_style_box but draw something of
+ * their own (a divider) don't show it. An outline at the edge of a parent
+ * that clips its children (LVGL's default) is clipped there.
  */
 #ifndef TRLV_USE_DEBUG_OUTLINE
 #  define TRLV_USE_DEBUG_OUTLINE 0

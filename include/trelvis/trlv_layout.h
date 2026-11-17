@@ -23,7 +23,7 @@
  * | Gap between items              | `gap`                                 | trlv_gap                        | `pad_row`, `pad_column`                      |
  * | Padding                        | `padding`                             | trlv_pad                        | `pad_top/bottom/left/right`                  |
  * | Alignment, space between       | `justify-content`                     | trlv_justify                    | `flex_main_place`                            |
- * | Alignment (cross axis)         | `align-items`                         | trlv_align_items                | `flex_cross_place`                           |
+ * | Alignment (cross axis)         | `align-items`                         | trlv_align_items                | `flex_cross_place` + `flex_track_place`      |
  * | Hug contents                   | `width: fit-content`                  | trlv_hug_width / _height        | LV_SIZE_CONTENT                              |
  * | Fill container                 | `flex: 1` / `align-self: stretch`     | trlv_fill_width / _height       | `flex_grow = 1` or LV_PCT(100)               |
  *
@@ -173,13 +173,11 @@ lv_obj_t * trlv_column(lv_obj_t * parent, trlv_space_t gap);
  * spacers in one parent share the free space equally.
  *
  * In a parent that hugs its main axis there is no free space, so the spacer
- * is 0 px; it logs the same LV_LOG_WARN as trlv_fill_*. In a parent with no
- * flex layout it has no size.
+ * is 0 px; it logs an LV_LOG_WARN naming trlv_spacer, like trlv_fill_*.
+ * In a parent with no flex layout it has no size.
  *
  * @param parent  the parent object, normally a row or column
  * @return        the new spacer
- *
- * @note Not implemented yet (milestone 5).
  */
 lv_obj_t * trlv_spacer(lv_obj_t * parent);
 
@@ -257,28 +255,34 @@ void trlv_pad(lv_obj_t * obj, trlv_space_t space);
  * space and it looks like START.
  *
  * @param obj      any object with a flex layout, such as a row or column
- * @param justify  how to distribute the children
- *
- * @note Not implemented yet (milestone 5).
+ * @param justify  how to distribute the children; any other value logs a
+ *                 warning and changes nothing
  */
 void trlv_justify(lv_obj_t * obj, trlv_justify_t justify);
 
 /**
  * Place the children across the main axis: Figma auto layout alignment,
- * CSS `align-items`. Sets LVGL `flex_cross_place`; centre a row of texts of
- * different sizes with TRLV_ALIGN_ITEMS_CENTER.
+ * CSS `align-items`. Centre a row of texts of different sizes with
+ * TRLV_ALIGN_ITEMS_CENTER.
+ *
+ * Deliberate difference from LVGL: this sets **both** `flex_cross_place`
+ * and `flex_track_place` to the value. LVGL places items within their line
+ * (track), which is only as tall as the tallest item and sits at the top of
+ * the container, so `flex_cross_place` alone centres a short item against
+ * its tallest sibling, not in the row. Placing the line too gives the Figma
+ * and CSS result: the items are centred (or at the end) of the container.
+ *
+ * In a wrapping row, the lines are packed together at the same place, as in
+ * Figma. For CSS `align-content`, set the line placement afterwards with
+ * lv_obj_set_style_flex_track_place, a local style, which takes precedence.
  *
  * Applies a shared constant style (one per value), so it costs no RAM per
  * object. Calling it again replaces the previous value. See trlv_justify
  * for why these are separate calls.
  *
- * For the placement of whole lines in a wrapping row (CSS `align-content`),
- * use lv_obj_set_style_flex_track_place.
- *
  * @param obj    any object with a flex layout, such as a row or column
- * @param align  where to place the children across the axis
- *
- * @note Not implemented yet (milestone 5).
+ * @param align  where to place the children across the axis; any other
+ *               value logs a warning and changes nothing
  */
 void trlv_align_items(lv_obj_t * obj, trlv_align_items_t align);
 
