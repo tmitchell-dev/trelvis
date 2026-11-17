@@ -110,6 +110,16 @@ static const trlv_style_group_t button_pressed_group = TRLV_STYLE_GROUP_LIST(but
 static const trlv_style_group_t button_focus_group = TRLV_STYLE_GROUP_LIST(button_focus_styles);
 static const trlv_style_group_t button_disabled_group = TRLV_STYLE_GROUP_LIST(button_disabled_styles);
 
+/* Divider (trlv_divider in trlv_layout.c): bg_color, bg_opa, the line's
+ * thickness (height when horizontal, width when vertical), outline_width 0
+ * so the debug outline doesn't hide the line, end marker. */
+#define DIVIDER_PROPS 5
+
+static lv_style_const_prop_t divider_props[2][DIVIDER_PROPS];
+
+static LV_STYLE_CONST_INIT(divider_horizontal, divider_props[0]);
+static LV_STYLE_CONST_INIT(divider_vertical, divider_props[1]);
+
 /* Custom colours: two styles (colour, container) for each of the first
  * TRLV_CUSTOM_COLOR_MAX indexes. LV_STYLE_CONST_INIT defines one variable,
  * so the styles are spelled out per index, up to a fixed cap. */
@@ -281,8 +291,27 @@ static void build_button(trlv_button_t variant, bool opaque, lv_color_t containe
     trlv_prop_set_end(entry);
 }
 
+static void build_divider(uint32_t index, lv_style_prop_t thickness, const trlv_color_tokens_t * color,
+                          const trlv_layout_tokens_t * layout)
+{
+    lv_style_const_prop_t * entry = divider_props[index];
+    trlv_prop_set_color(entry++, LV_STYLE_BG_COLOR, color->outline_variant);
+    trlv_prop_set_num(entry++, LV_STYLE_BG_OPA, LV_OPA_COVER);
+    trlv_prop_set_num(entry++, thickness, layout->border_width);
+    trlv_prop_set_num(entry++, LV_STYLE_OUTLINE_WIDTH, 0);
+    trlv_prop_set_end(entry);
+}
+
+const lv_style_t * trlv_divider_style(bool vertical)
+{
+    return vertical ? &divider_vertical : &divider_horizontal;
+}
+
 void trlv_surface_styles_build(const trlv_color_tokens_t * color, const trlv_layout_tokens_t * layout)
 {
+    build_divider(0, LV_STYLE_HEIGHT, color, layout);
+    build_divider(1, LV_STYLE_WIDTH, color, layout);
+
     build_button(TRLV_BUTTON_FILLED, true, color->primary, color->on_primary, 0, color);
     build_button(TRLV_BUTTON_TONAL, true, color->secondary_container, color->on_secondary_container, 0, color);
     build_button(TRLV_BUTTON_OUTLINED, false, color->primary, color->primary, layout->border_width, color);

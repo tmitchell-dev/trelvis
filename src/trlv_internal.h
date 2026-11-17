@@ -84,9 +84,12 @@ void trlv_layout_styles_build(const trlv_layout_tokens_t * layout);
 /** Build the text role styles (trlv_text.c). */
 void trlv_text_styles_build(const trlv_layout_tokens_t * layout);
 
-/** Build the surface, custom colour and card styles (trlv_surface.c). Called
- *  by trlv_init and on each colour-mode switch. */
+/** Build the surface, custom colour, card, button variant and divider styles
+ *  (trlv_surface.c). Called by trlv_init and on each colour-mode switch. */
 void trlv_surface_styles_build(const trlv_color_tokens_t * color, const trlv_layout_tokens_t * layout);
+
+/** The divider's line style, for trlv_divider (trlv_surface.c). */
+const lv_style_t * trlv_divider_style(bool vertical);
 
 /** The shared style of a text role, for the theme (trlv_text.c). NULL for
  *  a value that is not a role. */

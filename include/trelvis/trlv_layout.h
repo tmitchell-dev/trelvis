@@ -197,10 +197,12 @@ lv_obj_t * trlv_spacer(lv_obj_t * parent);
  * For an MD3 inset divider, add a margin, which LVGL's flex layout honours:
  * lv_obj_set_style_margin_left(divider, trlv_layout()->space[TRLV_SPACE_LG], 0).
  *
+ * The thickness is a shared token style too, so it follows trlv_init. A
+ * divider is a box, so lv_obj_set_size and the modifiers work on it as on
+ * any other object.
+ *
  * @param parent  the parent object, normally a row or column
  * @return        the new divider
- *
- * @note Not implemented yet (milestone 5).
  */
 lv_obj_t * trlv_divider(lv_obj_t * parent);
 

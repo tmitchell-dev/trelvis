@@ -32,6 +32,9 @@ While the version is 0.x, minor releases may contain breaking changes.
 - `trlv_button_variant`: restyles an `lv_button` as an MD3 filled, tonal,
   outlined or text button, with pressed and focus state layers and the
   disabled treatment; shape, height and text role stay the theme's.
+- `trlv_divider`: an MD3 divider, a `border_width` line in
+  `outline_variant`, horizontal in a column and vertical in a row, filling
+  across the parent's main axis.
 - `TRLV_USE_DEBUG_OUTLINE`: a 1 px magenta outline outside every box, row,
   column and spacer, to compare a layout with its Figma frames.
 - The MD3 theme, installed by `trlv_init` over LVGL's default theme (seeded

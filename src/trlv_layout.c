@@ -225,6 +225,18 @@ lv_obj_t * trlv_spacer(lv_obj_t * parent)
     return obj;
 }
 
+lv_obj_t * trlv_divider(lv_obj_t * parent)
+{
+    lv_obj_t * obj = trlv_box(parent);
+
+    /* Vertical in a row, horizontal otherwise. The line fills across the
+     * parent's main axis (100 %), so it never grows along it. */
+    bool vertical = parent_main_axis_is(obj, true);
+    lv_obj_add_style(obj, trlv_divider_style(vertical), LV_PART_MAIN);
+    fill(obj, !vertical, "trlv_divider");
+    return obj;
+}
+
 /*---------------------------------------------------------------------------
  * Modifiers
  *-------------------------------------------------------------------------*/
