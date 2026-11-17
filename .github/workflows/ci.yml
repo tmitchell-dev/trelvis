@@ -143,3 +143,32 @@ jobs:
           sudo apt-get install -y -qq doxygen
           doxygen --version
           doxygen
+
+  cortex-m:
+    name: Cortex-M (${{ matrix.cpu }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        cpu: [cortex-m4, cortex-m7]
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install the Arm toolchain
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq gcc-arm-none-eabi libnewlib-arm-none-eabi
+
+      - name: Fetch LVGL
+        run: |
+          tag=$(sed -n 's/^set(TRLV_LVGL_GIT_TAG "\([^"]*\)".*/\1/p' tests/CMakeLists.txt)
+          git clone --quiet --depth 1 --branch "$tag" https://github.com/lvgl/lvgl.git "$RUNNER_TEMP/lvgl"
+
+      # -mthumb -Os with newlib, 32-bit pointers and RGB565: the library and
+      # the token template with the strict warnings, against the minimal
+      # lv_conf.h and LVGL's defaults. The sizes go to the job summary.
+      - name: Cross build and footprint
+        run: |
+          set -o pipefail
+          sh tests/footprint.sh "$RUNNER_TEMP/lvgl" ${{ matrix.cpu }} | tee -a "$GITHUB_STEP_SUMMARY"

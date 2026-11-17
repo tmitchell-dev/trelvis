@@ -80,10 +80,14 @@ Useful options:
   no log, one font, no default theme, no widgets but the label) and runs
   the tests that need no widgets.
 
-CI also builds that minimal configuration, compiles the theme with each
-widget it styles turned on alone, and checks that library code doesn't
-allocate directly, that every source file has an SPDX header, and that the
-sources compile without CMake.
+CI also builds that minimal configuration and compiles the theme with each
+widget it styles turned on alone; builds [`tests/consumer`](tests/consumer),
+a stand-in product, with CMake and with a Makefile; cross-compiles for
+Cortex-M4 and M7 and reports the footprint
+([`tests/footprint.sh`](tests/footprint.sh)); runs Doxygen to check every
+public symbol is documented; and checks that library code doesn't allocate
+directly, that every source file has an SPDX header, and that the sources
+compile without CMake.
 
 ## Workflow
 
