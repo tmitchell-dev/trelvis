@@ -11,6 +11,7 @@ in its own simulator or on its target. TreLVis ships no simulator.
 | Surfaces | `trlv_demo_surfaces.c` | Every MD3 surface and container role and the custom colours, with text taking the `on_` colour by inheritance |
 | Cards    | `trlv_demo_cards.c`    | Filled, elevated and outlined cards with a title, wrapping body text and actions packed at the end |
 | Controls | `trlv_demo_controls.c` | The four button types and every widget the theme covers (switch, checkbox, slider, bar, arc, spinner, dropdown, textarea), default, checked and disabled |
+| List     | `trlv_demo_list.c`     | A settings list built from rows and dividers, the replacement for `lv_list`: icons, supporting text, trailing switches, values and chevrons |
 
 The frame (bar, navigation and content area) is in `trlv_demo.c`. It is built
 from rows, columns and buttons, not `lv_tabview`, `lv_list` or `lv_menu`.

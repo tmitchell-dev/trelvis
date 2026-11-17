@@ -51,6 +51,7 @@ static const demo_section_t sections[] = {
     { "Surfaces", trlv_demo_surfaces_create },
     { "Cards",    trlv_demo_cards_create },
     { "Controls", trlv_demo_controls_create },
+    { "List",     trlv_demo_list_create },
 };
 
 #define SECTION_COUNT (sizeof(sections) / sizeof(sections[0]))

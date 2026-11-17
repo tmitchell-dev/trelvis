@@ -95,6 +95,12 @@ lv_obj_t * trlv_demo_cards_create(lv_obj_t * parent);
  */
 lv_obj_t * trlv_demo_controls_create(lv_obj_t * parent);
 
+/**
+ * List: a settings list built from rows and dividers, the replacement for
+ * lv_list, with icons, supporting text and trailing switches and values.
+ */
+lv_obj_t * trlv_demo_list_create(lv_obj_t * parent);
+
 #ifdef __cplusplus
 } /* extern "C" */
 #endif

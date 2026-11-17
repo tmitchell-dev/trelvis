@@ -39,10 +39,11 @@ static const struct {
     { "Surfaces", trlv_demo_surfaces_create },
     { "Cards", trlv_demo_cards_create },
     { "Controls", trlv_demo_controls_create },
+    { "List", trlv_demo_list_create },
 };
 
 /* Indexes into sections[]. */
-enum { SECTION_READOUTS, SECTION_SURFACES, SECTION_CARDS, SECTION_CONTROLS };
+enum { SECTION_READOUTS, SECTION_SURFACES, SECTION_CARDS, SECTION_CONTROLS, SECTION_LIST };
 
 #define SECTION_COUNT ((int32_t)(sizeof(sections) / sizeof(sections[0])))
 
@@ -137,6 +138,13 @@ static bool same_color(lv_color_t a, lv_color_t b)
 {
     return lv_color_eq(a, b);
 }
+
+static void assert_color(const char * what, int line, lv_color_t actual, lv_color_t expected)
+{
+    trlv_test_check_int(__FILE__, line, what, (int32_t)lv_color_to_u32(expected), (int32_t)lv_color_to_u32(actual));
+}
+
+#define ASSERT_COLOR(actual, expected) assert_color(#actual, __LINE__, (actual), (expected))
 
 /* Every descendant of `obj` lies inside its parent's outer box, except
  * along a direction the parent scrolls in. */
@@ -859,6 +867,86 @@ static void controls_line_up_with_their_headings(lv_obj_t * screen)
 }
 
 /*---------------------------------------------------------------------------
+ * List
+ *-------------------------------------------------------------------------*/
+
+#define LIST_ITEMS 8
+#define ITEM_GAP   16   /* TRLV_SPACE_LG */
+
+/* Children of the section, and of a list item, in order. */
+enum { LIST_HEADING, LIST_LIST };
+enum { ITEM_ICON, ITEM_TEXT, ITEM_TRAILING };
+
+/* The list alternates items and full-width dividers, stacked with no gap,
+ * and its heading lines up with the items' icons. */
+static void list_alternates_items_and_dividers(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+    lv_obj_t * list;
+    lv_obj_t * heading;
+    int32_t width = 800 - 2 * FRAME_PAD;
+    int32_t y = 0;
+
+    select_section(demo, SECTION_LIST);
+    list = lv_obj_get_child(section(demo), LIST_LIST);
+    heading = lv_obj_get_child(section(demo), LIST_HEADING);
+
+    TRLV_ASSERT_INT(lv_obj_get_style_pad_left(heading, LV_PART_MAIN), ROW_PAD);
+    TRLV_ASSERT_RECT(list, 0, trlv_test_height(heading), width, trlv_test_height(list));
+    TRLV_ASSERT_INT(lv_obj_get_child_count(list), 2 * LIST_ITEMS - 1);
+    for(int32_t i = 0; i < 2 * LIST_ITEMS - 1; i++) {
+        lv_obj_t * child = lv_obj_get_child(list, i);
+        if(i % 2 == 1) {   /* a divider */
+            TRLV_ASSERT_RECT(child, 0, y, width, trlv_layout()->border_width);
+            ASSERT_COLOR(lv_obj_get_style_bg_color(child, LV_PART_MAIN), trlv_color()->outline_variant);
+        }
+        else {
+            TRLV_ASSERT_RECT(child, 0, y, width, trlv_test_height(child));
+        }
+        y += trlv_test_height(child);
+    }
+    TRLV_ASSERT_HEIGHT(list, y);
+}
+
+/* In each item the icon sits at the start, the trailing item at the end,
+ * and the text takes the space between, its supporting text wrapping in
+ * it. Everything is centred on the item, inside its padding. */
+static void list_items_put_text_between_icon_and_trailing(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+    lv_obj_t * list;
+    int32_t switches = 0;
+
+    select_section(demo, SECTION_LIST);
+    list = lv_obj_get_child(section(demo), LIST_LIST);
+    for(int32_t i = 0; i < LIST_ITEMS; i++) {
+        lv_obj_t * item = lv_obj_get_child(list, 2 * i);
+        lv_obj_t * icon = lv_obj_get_child(item, ITEM_ICON);
+        lv_obj_t * text = lv_obj_get_child(item, ITEM_TEXT);
+        lv_obj_t * trailing = lv_obj_get_child(item, ITEM_TRAILING);
+        lv_obj_t * supporting = lv_obj_get_child(text, 1);
+        int32_t inner_width = trlv_test_width(item) - 2 * ROW_PAD;
+        int32_t text_x = ROW_PAD + trlv_test_width(icon) + ITEM_GAP;
+        int32_t trailing_x = ROW_PAD + inner_width - trlv_test_width(trailing);
+        int32_t text_width_px = trailing_x - ITEM_GAP - text_x;
+        int32_t inner_height = trlv_test_height(item) - 2 * ROW_PAD;
+
+        TRLV_ASSERT_INT(lv_obj_get_child_count(item), 3);
+        TRLV_ASSERT_RECT(icon, ROW_PAD, trlv_test_y(icon), line_height(icon), line_height(icon));
+        TRLV_ASSERT_X(text, ROW_PAD + line_height(icon) + ITEM_GAP);   /* the same in every item */
+        TRLV_ASSERT_RECT(text, text_x, trlv_test_y(text), text_width_px, trlv_test_height(text));
+        TRLV_ASSERT_X(trailing, trailing_x);
+        TRLV_ASSERT_RECT(supporting, 0, trlv_test_y(supporting), text_width_px,
+                         wrapped_height(supporting, text_width_px));
+        TRLV_ASSERT_Y(icon, ROW_PAD + (inner_height - trlv_test_height(icon)) / 2);
+        TRLV_ASSERT_Y(text, ROW_PAD + (inner_height - trlv_test_height(text)) / 2);
+        TRLV_ASSERT_Y(trailing, ROW_PAD + (inner_height - trlv_test_height(trailing)) / 2);
+        if(lv_obj_check_type(trailing, &lv_switch_class)) switches++;
+    }
+    TRLV_ASSERT_INT(switches, 2);
+}
+
+/*---------------------------------------------------------------------------
  * Light/dark switch (a v1 acceptance criterion)
  *-------------------------------------------------------------------------*/
 
@@ -868,13 +956,6 @@ static void set_dark(lv_obj_t * demo, bool dark)
     lv_obj_set_state(dark_switch(demo), LV_STATE_CHECKED, dark);
     lv_obj_send_event(dark_switch(demo), LV_EVENT_VALUE_CHANGED, NULL);
 }
-
-static void assert_color(const char * what, int line, lv_color_t actual, lv_color_t expected)
-{
-    trlv_test_check_int(__FILE__, line, what, (int32_t)lv_color_to_u32(expected), (int32_t)lv_color_to_u32(actual));
-}
-
-#define ASSERT_COLOR(actual, expected) assert_color(#actual, __LINE__, (actual), (expected))
 
 /* Colours of the frame and of a few objects of the section on show, all
  * from the tokens `c`. */
@@ -910,6 +991,13 @@ static void assert_section_colors(lv_obj_t * demo, int32_t index, const trlv_col
     else if(index == SECTION_CARDS) {
         ASSERT_COLOR(lv_obj_get_style_bg_color(lv_obj_get_child(s, 0), LV_PART_MAIN), c->surface_container_highest);
         ASSERT_COLOR(lv_obj_get_style_border_color(lv_obj_get_child(s, 2), LV_PART_MAIN), c->outline_variant);
+    }
+    else if(index == SECTION_LIST) {
+        lv_obj_t * list = lv_obj_get_child(s, 1);
+        lv_obj_t * wifi = lv_obj_get_child(list, 0);
+        ASSERT_COLOR(lv_obj_get_style_bg_color(lv_obj_get_child(list, 1), LV_PART_MAIN), c->outline_variant);
+        ASSERT_COLOR(lv_obj_get_style_text_color(lv_obj_get_child(wifi, 0), LV_PART_MAIN), c->on_surface);
+        ASSERT_COLOR(lv_obj_get_style_bg_color(lv_obj_get_child(wifi, 2), LV_PART_INDICATOR), c->primary);
     }
     else {
         lv_obj_t * tonal = lv_obj_get_child(controls_row(demo, CONTROLS_BUTTONS, 0), 1);
@@ -1125,6 +1213,9 @@ int main(void)
     TRLV_TEST_RUN(controls_show_switch_and_checkbox_states);
     TRLV_TEST_RUN(controls_cover_every_themed_widget);
     TRLV_TEST_RUN(controls_line_up_with_their_headings);
+
+    TRLV_TEST_RUN(list_alternates_items_and_dividers);
+    TRLV_TEST_RUN(list_items_put_text_between_icon_and_trailing);
 
     TRLV_TEST_RUN(switch_recolors_every_section);
     TRLV_TEST_RUN(switch_starts_on_in_dark);
