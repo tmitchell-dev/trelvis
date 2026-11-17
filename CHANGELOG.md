@@ -17,6 +17,8 @@ While the version is 0.x, minor releases may contain breaking changes.
   placed in the container as in Figma, not only within their line.
 - `trlv_spacer`: an empty box that takes the free space along its parent's
   main axis, warning (as `trlv_spacer`) in a parent that hugs that axis.
+- `trlv_text_role`: sets an MD3 text role on any object; on a container it
+  reaches every label inside through inheritance.
 - `TRLV_USE_DEBUG_OUTLINE`: a 1 px magenta outline outside every box, row,
   column and spacer, to compare a layout with its Figma frames.
 - The MD3 theme, installed by `trlv_init` over LVGL's default theme (seeded
