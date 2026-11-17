@@ -139,6 +139,50 @@ static void null_is_rejected(lv_obj_t * screen)
     ASSERT_TRUE(trlv_color() == &tokens_light);
 }
 
+/* The "Following a subject" recipe in docs/concepts.md section 6.3, as
+ * written there: an integer subject drives the colour mode, and a switch
+ * bound to it toggles light and dark. Change them together. */
+static const trlv_color_tokens_t * const color_modes[] = { &tokens_light, &tokens_dark };
+
+static void color_mode_cb(lv_observer_t * observer, lv_subject_t * subject)
+{
+    LV_UNUSED(observer);
+    int32_t mode = lv_subject_get_int(subject);
+    if(mode >= 0 && mode < (int32_t)(sizeof(color_modes) / sizeof(color_modes[0]))) {
+        trlv_theme_set_color_mode(color_modes[mode]);
+    }
+}
+
+static void subject_recipe_follows_the_subject(lv_obj_t * screen)
+{
+    init_light(screen);
+    trlv_theme_set_color_mode(&tokens_dark);
+
+    lv_subject_t * color_mode = lv_subject_create(LV_SUBJECT_TYPE_INT);
+    lv_subject_add_observer(color_mode, color_mode_cb, NULL);
+    lv_obj_t * sw = lv_switch_create(screen);
+    lv_obj_bind_checked(sw, color_mode);
+
+    /* Adding the observer applies the subject's current mode (0, light). */
+    ASSERT_TRUE(trlv_color() == &tokens_light);
+
+    lv_subject_set_int(color_mode, 1);
+    ASSERT_TRUE(trlv_color() == &tokens_dark);
+    ASSERT_TRUE(lv_obj_has_state(sw, LV_STATE_CHECKED));
+
+    /* Turning the switch off brings light back. */
+    lv_obj_remove_state(sw, LV_STATE_CHECKED);
+    lv_obj_send_event(sw, LV_EVENT_VALUE_CHANGED, NULL);
+    ASSERT_TRUE(trlv_color() == &tokens_light);
+
+    /* A value with no mode is ignored. */
+    lv_subject_set_int(color_mode, 7);
+    ASSERT_TRUE(trlv_color() == &tokens_light);
+
+    lv_obj_delete(sw);
+    lv_subject_delete(color_mode);
+}
+
 int main(void)
 {
     TRLV_TEST_RUN(switch_before_init_is_rejected);
@@ -148,5 +192,6 @@ int main(void)
     TRLV_TEST_RUN(switching_back_restores_light);
     TRLV_TEST_RUN(switches_do_not_grow_memory);
     TRLV_TEST_RUN(null_is_rejected);
+    TRLV_TEST_RUN(subject_recipe_follows_the_subject);
     return trlv_test_finish();
 }
