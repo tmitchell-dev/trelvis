@@ -8,14 +8,17 @@
  * TreLVis exposes a style only when no modifier can apply it to an object
  * that already exists. trlv_box, trlv_row and trlv_column create new
  * objects, so their styles are here: with them, a project can turn an
- * existing object, such as an lv_button or a list item, into a row or
- * column, or reset its theme look:
+ * existing object, such as a plain lv_obj used as a list item, into a row
+ * or column while it keeps its theme look, or reset its theme look:
  *
- *     lv_obj_t * btn = lv_button_create(parent);
- *     lv_obj_add_style(btn, &trlv_style_row, 0);
- *     trlv_gap(btn, TRLV_SPACE_SM);
- *     lv_image_set_src(lv_image_create(btn), &icon_play);
- *     trlv_text(btn, "Start", TRLV_TEXT_LABEL_LARGE);
+ *     lv_obj_t * item = lv_obj_create(list);
+ *     lv_obj_add_style(item, &trlv_style_row, 0);
+ *     trlv_gap(item, TRLV_SPACE_SM);
+ *     lv_image_set_src(lv_image_create(item), &icon_play);
+ *     trlv_text(item, "Start", TRLV_TEXT_BODY_LARGE);
+ *
+ * (An lv_button needs none of this: the theme already lays it out as a
+ * centred row.)
  *
  * Every other TreLVis style (gap, pad, justify, align items, hug and fill,
  * text roles, surfaces, cards, button variants, divider) stays internal:

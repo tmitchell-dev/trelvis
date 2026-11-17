@@ -184,6 +184,49 @@ static void button_height_can_be_changed(lv_obj_t * screen)
     TRLV_ASSERT_HEIGHT(btn, tokens_regular.control_height[TRLV_SIZE_LG]);
 }
 
+/* The row layout places a button's children, so lv_obj_align on them is
+ * ignored. Turning the layout off on the button gives LVGL's placement
+ * back; a floating child is placed by hand either way. */
+static void button_layout_can_be_turned_off(lv_obj_t * screen)
+{
+    init_with(screen, &tokens_light);
+    lv_obj_t * btn = lv_button_create(screen);
+    lv_obj_set_width(btn, 200);
+    lv_obj_t * label = lv_label_create(btn);
+    lv_label_set_text(label, "OK");
+    lv_obj_align(label, LV_ALIGN_LEFT_MID, 0, 0);
+    int32_t pad = tokens_regular.space[TRLV_SPACE_XL];
+
+    TRLV_ASSERT_X(label, (200 - trlv_test_width(label)) / 2);   /* centred by the row */
+
+    lv_obj_set_layout(btn, LV_LAYOUT_NONE);
+    TRLV_ASSERT_X(label, pad);                                  /* left, as aligned */
+
+    lv_obj_t * badge = trlv_box(btn);
+    lv_obj_set_size(badge, 8, 8);
+    lv_obj_set_layout(btn, LV_LAYOUT_FLEX);
+    lv_obj_set_floating(badge, true);
+    lv_obj_align(badge, LV_ALIGN_TOP_RIGHT, 0, 0);
+    TRLV_ASSERT_X(badge, 200 - pad - 8);
+    TRLV_ASSERT_X(label, (200 - trlv_test_width(label)) / 2);   /* the row ignores the badge */
+}
+
+/* The tabs of an lv_tabview are lv_buttons, but not MD3 buttons: they keep
+ * the parent theme's tab look. */
+static void tabview_tabs_are_not_filled_buttons(lv_obj_t * screen)
+{
+    init_with(screen, &tokens_light);
+    lv_obj_t * tabview = lv_tabview_create(screen);
+    lv_tabview_add_tab(tabview, "One");
+    lv_tabview_add_tab(tabview, "Two");
+    lv_obj_t * tab = lv_obj_get_child(lv_tabview_get_tab_bar(tabview), 1);
+
+    ASSERT_TRUE(lv_obj_check_type(tab, &lv_button_class));
+    ASSERT_TRUE(lv_obj_get_style_radius(tab, LV_PART_MAIN) != LV_RADIUS_CIRCLE);
+    ASSERT_TRUE(lv_obj_get_style_layout(tab, LV_PART_MAIN) != LV_LAYOUT_FLEX);
+    ASSERT_TRUE(lv_obj_get_style_bg_opa(tab, LV_PART_MAIN) != LV_OPA_COVER);
+}
+
 /* In dark mode the button uses the dark primary pair. */
 static void button_in_dark_mode(lv_obj_t * screen)
 {
@@ -208,6 +251,8 @@ int main(void)
     TRLV_TEST_RUN(button_is_an_md3_filled_button);
     TRLV_TEST_RUN(button_puts_icon_and_label_in_a_row);
     TRLV_TEST_RUN(button_height_can_be_changed);
+    TRLV_TEST_RUN(button_layout_can_be_turned_off);
+    TRLV_TEST_RUN(tabview_tabs_are_not_filled_buttons);
     TRLV_TEST_RUN(button_in_dark_mode);
     return trlv_test_finish();
 }

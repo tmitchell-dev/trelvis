@@ -28,7 +28,8 @@ If an implementation decision changes the design, update the doc in the same PR.
 
 ## Current status
 
-Milestones 1 (scaffold), 2 (vertical slice) and 3 (API review) are done.
+Milestones 1 (scaffold), 2 (vertical slice), 3 (API review) and 4 (tokens
+and theme) are done.
 The slice implemented the token template, `trlv_init`, box, row, column,
 gap, pad, fill/hug and text, the demo screen `trlv_demo_create(parent)` in
 `examples/demo`, and headless layout tests. TreLVis ships no simulator; host
@@ -40,9 +41,15 @@ Functions not built yet say so in their doc comment ("Not implemented yet
 (milestone N)"); remove that note when you implement one. The review's
 decisions are in ROADMAP "Settled in the API review".
 
-**Next is milestone 4: tokens and theme.** Implement against the approved
-headers; an API change needs the docs, the include test and the changelog
-updated with it.
+Milestone 4 built the MD3 theme in `src/trlv_theme.c` over LVGL's default
+theme: screen, plain objects, labels, the filled button with its states,
+switch, checkbox, slider, bar, arc, spinner, dropdown and textarea, and
+colour-mode switching. Its decisions are in ROADMAP "Settled in
+milestone 4". Theme tests are in `tests/theme/`.
+
+**Next is milestone 5: surfaces, cards and remaining primitives.**
+Implement against the approved headers; an API change needs the docs, the
+include test and the changelog updated with it.
 
 Work is tracked in GitHub issues, one per item, under milestones
 `M<N>: …` with a tracking issue each. Each PR says `Closes #N` for the

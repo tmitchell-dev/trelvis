@@ -39,7 +39,7 @@ initialisation and token access. The reviewed API has 19 plus four.
 | 1 | **Scaffold**: repository structure, CMake target, `trelvis.mk`, configuration mechanism, version header and LVGL version check, changelog, NOTICE, SPDX headers, CI (ci / weekly / release workflows, Dependabot), C++ include test. Placeholder headers that compile. | done |
 | 2 | **Vertical slice**: a first working slice of the library: the token template (`templates/`, copied into a project at setup and compiled in CI), a minimal `trlv_init` (no theme yet), `trlv_box`, `trlv_row`, `trlv_column`, `trlv_gap`, `trlv_pad`, `trlv_fill_*` / `trlv_hug_*` and `trlv_text`. One realistic screen is built with it as `examples/demo`: a plain `trlv_demo_create(parent)` function that any host project's simulator or target can call. A headless layout test harness (build a tree, update the layout, assert coordinates) starts running in CI. The slice is provisional: its job is to prove the approach and settle defaults before the API is fixed. | done |
 | 3 | **API review**: full public headers for the v1 API, with doc comments and mapping tables, informed by the slice. The API is reviewed before further implementation. | done |
-| 4 | **Tokens and theme**: full token types, the complete token template, the MD3 theme over the default parent theme, state layers, focus ring, colour-mode switching, line-height conversion. Widgets are covered in order: screen, label and button first, then one widget at a time. | next |
+| 4 | **Tokens and theme**: full token types, the complete token template, the MD3 theme over the default parent theme, state layers, focus ring, colour-mode switching, line-height conversion. Widgets are covered in order: screen, label and button first, then one widget at a time. | done |
 | 5 | **Surfaces, cards and remaining primitives**: `trlv_surface`, `trlv_surface_custom`, `trlv_card`, `trlv_button_variant`, `trlv_text_role`, `trlv_spacer`, `trlv_divider`, `trlv_justify`, `trlv_align_items`, the `TRLV_USE_DEBUG_OUTLINE` option. Layout tests for every primitive and modifier. | |
 | 6 | **Demo and docs**: `examples/demo` grows from the slice screen to exercise every primitive: surface container ladder; filled / elevated / outlined cards; all button variants and covered widgets in each state; light/dark toggle; an example Compact token set next to the template values; visible keypad/encoder focus; a list built from rows (no `lv_list`). README quick start, `docs/concepts.md` and `docs/figma-handoff.md` brought up to date with the implementation. | |
 | 7 | **v1.1** (see below) | |
@@ -73,6 +73,30 @@ Inputs for the API review (milestone 3):
 - No naming changes came up. Filling both axes takes `trlv_fill_width` and
   `trlv_fill_height`; a combined call would only join two clear calls, so
   none is proposed.
+
+## Settled in milestone 4
+
+- **Custom colours** replace the fixed success and warning roles: a
+  project-defined table in the colour tokens, applied with
+  `trlv_surface_custom`. The token structs have one shape for every
+  configuration.
+- **Theme install:** the TreLVis theme sits over LVGL's default theme and
+  is found again by a marker in its user data, so `trlv_init` and colour
+  switches allocate nothing new. `trlv_init` restyles the active screen
+  itself while it is empty, because LVGL 9.6's `lv_display_set_theme`
+  restyles the bottom layer instead.
+- **Buttons** lay out their content as a centred row (a documented
+  difference from LVGL's default theme: `lv_obj_align` on their children
+  is ignored unless the child floats or the layout is turned off).
+- **Focus ring clearance** is a layout rule: containers of focusable
+  widgets need padding of at least the ring's reach. LVGL's
+  overflow-visible flag cannot lift the clipping for a plain box.
+- **States:** pressed and focus layers are pre-mixed colours; disabled is
+  real opacity, as MD3 specifies. LVGL's recolour, grow and focus outline
+  are switched off. The switch, checkbox, slider and arc have no circular
+  state layer around the handle.
+- **Fields** (dropdown, textarea) show focus with a `primary` border
+  `focus_width` thick, not the focus ring.
 
 ## Settled in the API review
 
