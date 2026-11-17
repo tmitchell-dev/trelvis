@@ -24,7 +24,8 @@
  *  - replace the example custom colours with your own (status colours,
  *    alarm priorities, extra brand accents), or delete them;
  *  - give each text role a real font and its Figma line height;
- *  - delete what you don't use, and add a Compact layout if you need one.
+ *  - delete what you don't use: the second colour mode, or the layout
+ *    mode you don't ship (Regular or Compact).
  *
  * See docs/concepts.md section 4 for the token types and reference values.
  */
@@ -56,8 +57,11 @@ extern const trlv_color_tokens_t tokens_light;
 /** Color collection, dark mode: the MD3 baseline dark scheme. */
 extern const trlv_color_tokens_t tokens_dark;
 
-/** Layout collection, Regular mode. */
+/** Layout collection, Regular mode: the MD3 reference values. */
 extern const trlv_layout_tokens_t tokens_regular;
+
+/** Layout collection, Compact mode: denser, tone-only elevation. */
+extern const trlv_layout_tokens_t tokens_compact;
 
 #ifdef __cplusplus
 } /* extern "C" */

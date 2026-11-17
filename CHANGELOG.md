@@ -87,7 +87,9 @@ While the version is 0.x, minor releases may contain breaking changes.
   elevation and type-scale enums, and the colour and layout token structs.
 - Token template in `templates/` for projects to copy: MD3 baseline light
   and dark colour schemes with example success and warning custom colours, and
-  Regular layout values. Each text role uses the nearest Montserrat size
+  Regular and Compact layout values (Compact: denser spacing, smaller
+  controls and corners, tone-only elevation, a smaller type scale). Each
+  text role uses the nearest Montserrat size
   enabled in `lv_conf.h`, with its MD3 line height, falling back to smaller
   sizes and then `LV_FONT_DEFAULT`, so no font files are needed.
 - `trlv_init(disp, color, layout)` and the token
