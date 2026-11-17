@@ -426,6 +426,15 @@ the container does not help: LVGL extends the clip area only by the
 container's own outline or shadow size, which is zero for a box. Products
 with touch input only never show the ring.
 
+**Focus moved in code may show no ring.** The ring follows LVGL's
+`LV_STATE_FOCUS_KEY`, which LVGL sets only when the focus comes from a
+keypad or encoder. Key presses always qualify. Focus moved in code
+(`lv_group_focus_next`, `lv_group_focus_obj`) is credited to an input
+device LVGL picks, and it prefers a pointer: in a product with a touch
+screen and keys, focus set in code (on a new screen, say) gets
+`LV_STATE_FOCUSED` without the ring until the next key press. Add
+`LV_STATE_FOCUS_KEY` yourself if the ring should show at once.
+
 ### 6.5 Style catalogue
 
 TreLVis keeps its shared styles internal, with one exception: a style is
