@@ -631,8 +631,8 @@ Rows marked *raw LVGL* have no TreLVis function on purpose: the LVGL call is
 already clear (see [What earns a place](#what-earns-a-place)).
 
 For the table applied to a whole card, see
-[The same card in plain LVGL](../README.md#the-same-card-in-plain-lvgl) in
-the README: the README's example card written both ways, checked by
+[A taste of the API](../README.md#a-taste-of-the-api) in the README: one
+card written with TreLVis and with plain LVGL side by side, checked by
 [`tests/layout/test_readme_card.c`](../tests/layout/test_readme_card.c) to
 lay out the same.
 

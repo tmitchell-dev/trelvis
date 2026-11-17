@@ -7,10 +7,9 @@
  * comparison shows them. Both trees must lay out the same and resolve the
  * same colours and fonts, in light and in dark.
  *
- * card_trelvis and card_lvgl are the README's side-by-side comparison
- * (card_trelvis is also its first example, there with comments), and the
+ * card_trelvis and card_lvgl are the README's side-by-side code, and the
  * README summarises the plain-LVGL set-up above card_lvgl. If you change
- * any of them, change the README (and its line count) in the same PR.
+ * any of them, change the README (and its line counts) in the same PR.
  *
  * Each test runs on a fresh LVGL, so the bare-LVGL tests record what they
  * measured and the TreLVis tests compare against it. The bare side runs
