@@ -62,13 +62,21 @@ an example Compact token set and an HMI colour scheme next to the
 template, brought the README, concepts and Figma hand-off docs up to date,
 and checked the v1 acceptance criteria (evidence on issue #75).
 
-**Next is v1.1**, item by item and only when a product needs one (ROADMAP
-"v1.1"). An API change still needs the docs, the include test and the
-changelog updated with it.
+**Now: M8, 1.0** (ROADMAP "1.0", tracking issue #124): the compatibility
+promise (README "What a version number promises"), CI build coverage, a
+theme coverage audit and a product trial, then the API freeze and 1.0.0.
+Alongside it, v1.x items are built one at a time and only when a product
+needs one (ROADMAP "v1.x (on demand)"). An API change still needs the
+docs, the include test and the changelog updated with it, and must keep
+the compatibility promise: token fields safe at zero, templates on
+designated initialisers, a Migration note for any token schema change.
 
 Work is tracked in GitHub issues, one per item, under milestones
-`M<N>: …` with a tracking issue each. Each PR says `Closes #N` for the
-issues it completes, and the tracking issue is kept current.
+(`M<N>: …`, plus the `v1.x (on demand)` and `Later` backlogs) with a
+tracking issue each. Findings from using TreLVis in a product are filed
+with the product-trial issue form (label `product-trial`). Each PR says
+`Closes #N` for the issues it completes, and the tracking issue is kept
+current.
 
 Keep the API small. The library's main job is to turn blocks of LVGL calls
 that every project repeats into one standard call. Before adding a public
