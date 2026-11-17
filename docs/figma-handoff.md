@@ -17,6 +17,11 @@ means the design can't be built exactly, or needs hand-written exceptions.
   developers; it becomes an enum in code. Each one has the four Material
   Theme Builder values (colour, on colour, container, on container) in every
   colour mode.
+- **Leave room for the focus ring.** On products with a keypad or encoder,
+  the focused widget gets a ring outside its bounds (3 px thick, 2 px away
+  in the template). Any frame that directly holds focusable widgets needs
+  at least that much padding (use `space/sm`), or the ring is cut off: LVGL
+  clips children to their parent, unlike Figma without "Clip content".
 - **Alarm colours come from the standard, not the brand.** For a process HMI
   (ISA-101, ISA-18.2) or a medical device (IEC 60601-1-8), take the alarm
   colours from the site's alarm philosophy or the standard, turn off

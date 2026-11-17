@@ -330,7 +330,7 @@ static void dropdown_focused(lv_obj_t * screen)
     set_state(dd, LV_STATE_FOCUSED | LV_STATE_FOCUS_KEY);
 
     ASSERT_COLOR(lv_obj_get_style_border_color(dd, LV_PART_MAIN), L->primary);
-    TRLV_ASSERT_INT(lv_obj_get_style_border_width(dd, LV_PART_MAIN), 2 * tokens_regular.border_width);
+    TRLV_ASSERT_INT(lv_obj_get_style_border_width(dd, LV_PART_MAIN), tokens_regular.focus_width);
     TRLV_ASSERT_INT(lv_obj_get_style_outline_width(dd, LV_PART_MAIN), 0);
 }
 
@@ -387,7 +387,7 @@ static void textarea_focused(lv_obj_t * screen)
     set_state(ta, LV_STATE_FOCUSED);
 
     ASSERT_COLOR(lv_obj_get_style_border_color(ta, LV_PART_MAIN), L->primary);
-    TRLV_ASSERT_INT(lv_obj_get_style_border_width(ta, LV_PART_MAIN), 2 * tokens_regular.border_width);
+    TRLV_ASSERT_INT(lv_obj_get_style_border_width(ta, LV_PART_MAIN), tokens_regular.focus_width);
     ASSERT_COLOR(lv_obj_get_style_border_color(ta, LV_PART_CURSOR), L->primary);
 }
 

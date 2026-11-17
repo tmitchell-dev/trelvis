@@ -172,8 +172,8 @@ TOKEN_STYLE(checkbox_box, 4);
 TOKEN_STYLE(checkbox_box_checked, 4);
 TOKEN_STYLE(checkbox_box_disabled, 3);
 
-/* Dropdown and textarea: an MD3 outlined field. The border turns primary
- * and twice as thick when focused. */
+/* Dropdown and textarea: an MD3 outlined field. The focused border is
+ * primary and `focus_width` thick: the field's focus indicator. */
 TOKEN_STYLE(field, 7);
 TOKEN_STYLE(field_focused, 2);
 TOKEN_STYLE(field_disabled, 5);
@@ -335,7 +335,7 @@ static void theme_styles_build(const trlv_color_tokens_t * color, const trlv_lay
     });
     BUILD(field_focused, {
         put_color(w, LV_STYLE_BORDER_COLOR, color->primary);
-        put_num(w, LV_STYLE_BORDER_WIDTH, 2 * layout->border_width);
+        put_num(w, LV_STYLE_BORDER_WIDTH, layout->focus_width);
     });
     BUILD(field_disabled, {
         put_color(w, LV_STYLE_BORDER_COLOR, color->on_surface);
@@ -457,6 +457,17 @@ static void theme_apply(lv_theme_t * theme, lv_obj_t * obj)
     }
 #if LV_USE_BUTTON
     if(lv_obj_check_type(obj, &lv_button_class)) {
+#if LV_USE_TABVIEW
+        /* The tabs of an lv_tabview are lv_buttons in its tab bar (its
+         * first child). They are not MD3 buttons: leave them to the parent
+         * theme, as LVGL's default theme does. */
+        lv_obj_t * bar = lv_obj_get_parent(obj);
+        lv_obj_t * tabview = lv_obj_get_parent(bar);
+        if(tabview != NULL && lv_obj_check_type(tabview, &lv_tabview_class) &&
+           lv_obj_get_child(tabview, 0) == bar) {
+            return;
+        }
+#endif
         lv_obj_add_style(obj, &button_style, LV_PART_MAIN);
         lv_obj_add_style(obj, &button_layout_style, LV_PART_MAIN);
         lv_obj_add_style(obj, trlv_text_role_style(TRLV_TEXT_LABEL_LARGE), LV_PART_MAIN);

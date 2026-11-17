@@ -86,13 +86,17 @@ Inputs for the API review (milestone 3):
   itself while it is empty, because LVGL 9.6's `lv_display_set_theme`
   restyles the bottom layer instead.
 - **Buttons** lay out their content as a centred row (a documented
-  difference from LVGL's default theme).
+  difference from LVGL's default theme: `lv_obj_align` on their children
+  is ignored unless the child floats or the layout is turned off).
+- **Focus ring clearance** is a layout rule: containers of focusable
+  widgets need padding of at least the ring's reach. LVGL's
+  overflow-visible flag cannot lift the clipping for a plain box.
 - **States:** pressed and focus layers are pre-mixed colours; disabled is
   real opacity, as MD3 specifies. LVGL's recolour, grow and focus outline
   are switched off. The switch, checkbox, slider and arc have no circular
   state layer around the handle.
-- **Fields** (dropdown, textarea) show focus with a thicker `primary`
-  border, not the focus ring.
+- **Fields** (dropdown, textarea) show focus with a `primary` border
+  `focus_width` thick, not the focus ring.
 
 ## Settled in the API review
 

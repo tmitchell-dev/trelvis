@@ -75,7 +75,11 @@ extern "C" {
  *   side padding, no shadow, Label Large text. Unlike LVGL's default theme,
  *   it lays out its content as a centred row (flex), so a label is centred
  *   without lv_obj_center and an icon and a label sit side by side,
- *   `space[TRLV_SPACE_SM]` apart.
+ *   `space[TRLV_SPACE_SM]` apart. As for any flex child, lv_obj_align and
+ *   lv_obj_set_pos on its children are then ignored: make one child
+ *   floating (lv_obj_set_floating) to place it by hand, or turn the layout
+ *   off with lv_obj_set_layout(btn, LV_LAYOUT_NONE). The tab buttons of an
+ *   lv_tabview are not MD3 buttons and keep the parent theme's look.
  *
  * The switch, checkbox, slider, bar, arc, spinner, dropdown (and its
  * list) and textarea get their MD3 colours too; see docs/concepts.md
@@ -92,8 +96,10 @@ extern "C" {
  * - focused by keypad or encoder, or edited with an encoder: a ring in
  *   the `focus` colour, `focus_width` thick and `space[TRLV_SPACE_2XS]`
  *   outside the widget. A touch focus (LV_STATE_FOCUSED alone) draws no
- *   ring. Fields (dropdown, textarea) show focus with a thicker `primary`
- *   border instead.
+ *   ring. Fields (dropdown, textarea) show focus with a `primary` border
+ *   `focus_width` thick instead. LVGL clips children to their parent, so a
+ *   container needs padding of at least the ring's reach (`focus_width` +
+ *   `space[TRLV_SPACE_2XS]`) around focusable widgets.
  * - disabled (LV_STATE_DISABLED): `on_surface` at
  *   `state.disabled_container` opacity for containers and tracks, and at
  *   `state.disabled_content` for content, indicators and knobs, as real

@@ -29,7 +29,8 @@ While the version is 0.x, minor releases may contain breaking changes.
   handle, box and field colours from the tokens, checked and focused
   states, the shared disabled treatment and focus ring, and LVGL's default
   recolour, grow and focus outline switched off. Fields show focus with a
-  thicker `primary` border. All recolour on a colour-mode switch.
+  `primary` border `focus_width` thick. All recolour on a colour-mode
+  switch. The tab buttons of an `lv_tabview` keep the parent theme's look.
 - `trlv_theme_set_color_mode(color)`: switches the colour mode at run time.
   The shared styles, including the pre-mixed state colours, are re-set in
   place, LVGL's default theme is re-initialised with the new colours and
