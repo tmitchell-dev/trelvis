@@ -77,6 +77,21 @@ extern "C" {
  *   without lv_obj_center and an icon and a label sit side by side,
  *   `space[TRLV_SPACE_SM]` apart.
  *
+ * Interactive widgets (so far the button) get the MD3 states:
+ *
+ * - pressed (LV_STATE_PRESSED) and focused by keypad or encoder
+ *   (LV_STATE_FOCUS_KEY): a state layer, the content colour over the
+ *   container at `state.pressed` / `state.focus`, pre-mixed into the
+ *   container colour so the content keeps its own colour. LVGL's default
+ *   theme recolours (and may grow) a pressed button; the TreLVis theme
+ *   switches both off.
+ * - focused by keypad or encoder: also a ring in the `focus` colour,
+ *   `focus_width` thick and `space[TRLV_SPACE_2XS]` outside the widget.
+ *   A touch focus (LV_STATE_FOCUSED alone) draws no ring.
+ * - disabled (LV_STATE_DISABLED): the container in `on_surface` at
+ *   `state.disabled_container` opacity and the content in `on_surface` at
+ *   `state.disabled_content`, as real opacity, as MD3 specifies.
+ *
  * The **layout mode** is chosen here and stays for the life of the
  * application: layout tokens change sizes, so switching them at run time
  * would need every screen rebuilt. The **colour mode** can be switched
@@ -100,9 +115,9 @@ extern "C" {
  * A NULL argument is rejected with LV_LOG_WARN and nothing changes.
  *
  * @note The theme covers the screen, plain objects, labels and the filled
- *       button so far. Pressed, focus and disabled states and the other
- *       widgets in docs/concepts.md section 6.4 follow in milestone 4; until
- *       then they keep the parent theme's styles.
+ *       button, with its states, so far. The other widgets in
+ *       docs/concepts.md section 6.4 follow in milestone 4; until then they
+ *       keep the parent theme's styles, seeded with the MD3 colours.
  */
 void trlv_init(lv_display_t * disp, const trlv_color_tokens_t * color,
                const trlv_layout_tokens_t * layout);
@@ -135,8 +150,6 @@ void trlv_init(lv_display_t * disp, const trlv_color_tokens_t * color,
  * @param color  the Color collection mode to switch to. NULL is rejected
  *               with LV_LOG_WARN, and so is a call before trlv_init; in
  *               both cases nothing changes.
- *
- * @note Not implemented yet (milestone 4).
  */
 void trlv_theme_set_color_mode(const trlv_color_tokens_t * color);
 

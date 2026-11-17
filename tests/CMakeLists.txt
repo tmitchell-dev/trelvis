@@ -114,6 +114,10 @@ trlv_add_test(theme_init theme/test_init.c)
 target_link_libraries(theme_init PRIVATE trlv_tokens_template)
 trlv_add_test(theme_theme theme/test_theme.c)
 target_link_libraries(theme_theme PRIVATE trlv_tokens_template)
+trlv_add_test(theme_states theme/test_states.c)
+target_link_libraries(theme_states PRIVATE trlv_tokens_template)
+trlv_add_test(theme_color_mode theme/test_color_mode.c)
+target_link_libraries(theme_color_mode PRIVATE trlv_tokens_template)
 
 # TRLV_USE_THEME 0: a second copy of the library built with the option, and
 # a test linked against it alone (its own harness and template objects).
