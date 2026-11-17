@@ -58,6 +58,8 @@ static void show_section(lv_obj_t * demo, uint32_t index)
         trlv_button_variant(lv_obj_get_child(nav, (int32_t)i),
                             i == index ? TRLV_BUTTON_TONAL : TRLV_BUTTON_TEXT);
     }
+    /* On a narrow display the nav row scrolls: bring the choice into view. */
+    lv_obj_scroll_to_view(lv_obj_get_child(nav, (int32_t)index), LV_ANIM_OFF);
 
     lv_obj_clean(content);
     lv_obj_scroll_to_y(content, 0, LV_ANIM_OFF);

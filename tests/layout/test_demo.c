@@ -245,6 +245,32 @@ static void nav_shows_the_chosen_section(lv_obj_t * screen)
     }
 }
 
+/* Whether a nav button is wholly inside the nav row's visible area. The
+ * harness measures layout positions, which ignore scrolling, so the row's
+ * scroll offset is taken off here. */
+static bool nav_button_in_view(lv_obj_t * demo, int32_t index)
+{
+    lv_obj_t * btn = lv_obj_get_child(nav(demo), index);
+    int32_t x = trlv_test_x(btn) - lv_obj_get_scroll_x(nav(demo));
+    return x >= 0 && x + trlv_test_width(btn) <= trlv_test_width(nav(demo));
+}
+
+/* On a narrow display the nav buttons don't all fit; the nav row scrolls
+ * so that the chosen one is fully in view. */
+static void nav_scrolls_the_choice_into_view(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+
+    TRLV_ASSERT_INT(nav_button_in_view(demo, SECTION_COUNT - 1), false);   /* the case to test */
+
+    select_section(demo, SECTION_COUNT - 1);
+    TRLV_ASSERT_INT(nav_button_in_view(demo, SECTION_COUNT - 1), true);
+
+    select_section(demo, 0);
+    TRLV_ASSERT_INT(nav_button_in_view(demo, 0), true);
+    TRLV_ASSERT_INT(lv_obj_get_scroll_x(nav(demo)), 0);
+}
+
 /* Every section fits, nothing overflows its parent (except into a scroll
  * direction) and the demo raises no TreLVis warnings: it sizes every parent
  * before filling its children. Run on each display size. */
@@ -652,6 +678,7 @@ int main(void)
 
     trlv_test_set_display_size(320, 480);
     TRLV_TEST_RUN(every_section_fits_and_builds_quietly);
+    TRLV_TEST_RUN(nav_scrolls_the_choice_into_view);
     TRLV_TEST_RUN(readouts_on_a_narrow_display);
     TRLV_TEST_RUN(readouts_buttons_wrap);
     return trlv_test_finish();
