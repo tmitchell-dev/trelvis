@@ -53,6 +53,16 @@ set_target_properties(trlv_tokens_template PROPERTIES
     C_STANDARD_REQUIRED ON
     C_EXTENSIONS OFF)
 
+# The example HMI colour scheme next to the template, built the same way.
+add_library(trlv_tokens_hmi OBJECT ../templates/trlv_tokens_hmi.c)
+target_include_directories(trlv_tokens_hmi PUBLIC ${PROJECT_SOURCE_DIR}/templates)
+target_link_libraries(trlv_tokens_hmi PUBLIC trelvis)
+target_compile_options(trlv_tokens_hmi PRIVATE ${TRLV_STRICT_WARNINGS})
+set_target_properties(trlv_tokens_hmi PROPERTIES
+    C_STANDARD 99
+    C_STANDARD_REQUIRED ON
+    C_EXTENSIONS OFF)
+
 # ---- Compile-only: the public headers must work from C++17 ----
 enable_language(CXX)
 add_library(trlv_cpp_include_test OBJECT cpp_include_test.cpp)
@@ -69,7 +79,8 @@ add_library(trlv_demo STATIC
     ../examples/demo/trlv_demo_readouts.c
     ../examples/demo/trlv_demo_surfaces.c
     ../examples/demo/trlv_demo_cards.c
-    ../examples/demo/trlv_demo_controls.c)
+    ../examples/demo/trlv_demo_controls.c
+    ../examples/demo/trlv_demo_list.c)
 target_include_directories(trlv_demo PUBLIC ${PROJECT_SOURCE_DIR}/examples/demo)
 target_link_libraries(trlv_demo PUBLIC trelvis)
 target_compile_options(trlv_demo PRIVATE ${TRLV_STRICT_WARNINGS})
@@ -125,7 +136,7 @@ target_link_libraries(layout_text_role PRIVATE trlv_tokens_template)
 trlv_add_test(layout_replace_not_stack layout/test_replace_not_stack.c)
 target_link_libraries(layout_replace_not_stack PRIVATE trlv_tokens_template)
 trlv_add_test(layout_demo layout/test_demo.c)
-target_link_libraries(layout_demo PRIVATE trlv_tokens_template trlv_demo)
+target_link_libraries(layout_demo PRIVATE trlv_tokens_template trlv_tokens_hmi trlv_demo)
 
 trlv_add_test(theme_init theme/test_init.c)
 target_link_libraries(theme_init PRIVATE trlv_tokens_template)

@@ -12,11 +12,13 @@
  * with the primary colour). Replace them with your product's own: status
  * colours, alarm priorities, extra brand accents, or none.
  *
- * Layout: the Regular values from docs/concepts.md section 4.2. Each text
- * role uses the Montserrat size LVGL ships nearest to its MD3 size, with the
- * MD3 line height, when that size is enabled in lv_conf.h
- * (LV_FONT_MONTSERRAT_<size>), else the next smaller enabled size, else
- * LV_FONT_DEFAULT. The template needs no font files.
+ * Layout: the Regular and Compact values from docs/concepts.md section 4.2.
+ * Pass one of them to trlv_init; the layout mode is chosen once, at
+ * start-up. In Regular, each text role uses the Montserrat size LVGL ships
+ * nearest to its MD3 size, with the MD3 line height; Compact uses smaller
+ * sizes and tighter lines. A size not enabled in lv_conf.h
+ * (LV_FONT_MONTSERRAT_<size>) falls back to the next smaller enabled size,
+ * else LV_FONT_DEFAULT. The template needs no font files.
  *
  * The tokens are const, so they live in flash. If your fonts only exist at
  * run time (FreeType, Tiny TTF), keep the layout tokens in RAM instead and
@@ -300,5 +302,76 @@ const trlv_layout_tokens_t tokens_regular = {
         [TRLV_TEXT_LABEL_LARGE]     = TOKEN_TEXT_14(20),   /* 14 / 20 */
         [TRLV_TEXT_LABEL_MEDIUM]    = TOKEN_TEXT_12(16),   /* 12 / 16 */
         [TRLV_TEXT_LABEL_SMALL]     = TOKEN_TEXT_12(16),   /* 11 / 16 */
+    },
+};
+
+/* Compact: denser spacing, smaller corners and controls, no shadows (tone
+ * only, cheaper to draw on an MCU), the values from docs/concepts.md
+ * section 4.2. The display and headline roles step down one size; the
+ * others keep their size on tighter lines. A real product's compact type
+ * scale comes from its own design.
+ *
+ * The focus ring (focus_width plus space[2XS], 4 px) still fits in
+ * space[SM] (4 px), so containers padded TRLV_SPACE_SM keep it visible in
+ * both layouts. Delete this collection if you don't need it. */
+const trlv_layout_tokens_t tokens_compact = {
+    .space = {
+        [TRLV_SPACE_NONE] = 0,
+        [TRLV_SPACE_2XS]  = 2,
+        [TRLV_SPACE_XS]   = 2,
+        [TRLV_SPACE_SM]   = 4,
+        [TRLV_SPACE_MD]   = 8,
+        [TRLV_SPACE_LG]   = 12,
+        [TRLV_SPACE_XL]   = 16,
+        [TRLV_SPACE_2XL]  = 24,
+        [TRLV_SPACE_3XL]  = 32,
+    },
+
+    .radius = {
+        [TRLV_RADIUS_NONE] = 0,
+        [TRLV_RADIUS_XS]   = 2,
+        [TRLV_RADIUS_SM]   = 4,
+        [TRLV_RADIUS_MD]   = 8,
+        [TRLV_RADIUS_LG]   = 12,
+        [TRLV_RADIUS_XL]   = 20,
+        [TRLV_RADIUS_FULL] = LV_RADIUS_CIRCLE,
+    },
+
+    .border_width = 1,
+    .focus_width  = 2,
+
+    .control_height = {
+        [TRLV_SIZE_SM] = 28,
+        [TRLV_SIZE_MD] = 36,
+        [TRLV_SIZE_LG] = 44,
+    },
+
+    /* Tone-only elevation: every level zero. */
+    .elevation = {
+        [TRLV_ELEVATION_0] = { 0, 0, 0, 0, LV_OPA_0 },
+        [TRLV_ELEVATION_1] = { 0, 0, 0, 0, LV_OPA_0 },
+        [TRLV_ELEVATION_2] = { 0, 0, 0, 0, LV_OPA_0 },
+        [TRLV_ELEVATION_3] = { 0, 0, 0, 0, LV_OPA_0 },
+        [TRLV_ELEVATION_4] = { 0, 0, 0, 0, LV_OPA_0 },
+        [TRLV_ELEVATION_5] = { 0, 0, 0, 0, LV_OPA_0 },
+    },
+
+    /* Size / line height in px for each role. */
+    .text = {
+        [TRLV_TEXT_DISPLAY_LARGE]   = TOKEN_TEXT_44(52),
+        [TRLV_TEXT_DISPLAY_MEDIUM]  = TOKEN_TEXT_36(44),
+        [TRLV_TEXT_DISPLAY_SMALL]   = TOKEN_TEXT_32(40),
+        [TRLV_TEXT_HEADLINE_LARGE]  = TOKEN_TEXT_28(36),
+        [TRLV_TEXT_HEADLINE_MEDIUM] = TOKEN_TEXT_24(32),
+        [TRLV_TEXT_HEADLINE_SMALL]  = TOKEN_TEXT_22(28),
+        [TRLV_TEXT_TITLE_LARGE]     = TOKEN_TEXT_22(26),
+        [TRLV_TEXT_TITLE_MEDIUM]    = TOKEN_TEXT_16(20),
+        [TRLV_TEXT_TITLE_SMALL]     = TOKEN_TEXT_14(18),
+        [TRLV_TEXT_BODY_LARGE]      = TOKEN_TEXT_16(20),
+        [TRLV_TEXT_BODY_MEDIUM]     = TOKEN_TEXT_14(18),
+        [TRLV_TEXT_BODY_SMALL]      = TOKEN_TEXT_12(14),
+        [TRLV_TEXT_LABEL_LARGE]     = TOKEN_TEXT_14(18),
+        [TRLV_TEXT_LABEL_MEDIUM]    = TOKEN_TEXT_12(14),
+        [TRLV_TEXT_LABEL_SMALL]     = TOKEN_TEXT_12(14),
     },
 };

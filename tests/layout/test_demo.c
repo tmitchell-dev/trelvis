@@ -5,7 +5,9 @@
  * The demo (examples/demo) on a fixed-size display: the frame (bar, nav and
  * content), moving between sections, the light/dark switch, keypad focus,
  * each section's layout, nothing overflowing its parent, room for every
- * focus ring and no TreLVis warnings while it is built. Text
+ * focus ring and no TreLVis warnings while it is built. Every test runs in
+ * each layout mode (Regular and Compact) and colour scheme; expected
+ * spacing is read from the tokens in use. Text
  * sizes are computed from the font with lv_text_get_size, so the tests
  * don't depend on the fonts' metrics. The object trees are described at the
  * top of trlv_demo.c and of each section's file.
@@ -13,22 +15,36 @@
 
 #include "trlv_test.h"
 #include "trlv_tokens_template.h"
+#include "trlv_tokens_hmi.h"
 #include "trlv_demo.h"
 
+#include <stdio.h>
 #include <string.h>
 
-/* Token values from the template's Regular layout. */
-#define FRAME_PAD    16   /* TRLV_SPACE_LG: content padding */
-#define BAR_PAD      8    /* TRLV_SPACE_SM: the bar's padding... */
-#define ROW_PAD      8    /* TRLV_SPACE_SM: ...and that of every row holding
-                             focusable widgets (focus ring clearance) */
-#define TOP_GAP      8    /* TRLV_SPACE_SM */
-#define NAV_GAP      4    /* TRLV_SPACE_XS */
-#define SECTION_GAP  16   /* TRLV_SPACE_LG: between a section's parts */
-#define READOUTS_GAP 8    /* TRLV_SPACE_SM */
-#define READOUT_GAP  12   /* TRLV_SPACE_MD */
-#define ABOUT_GAP    4    /* TRLV_SPACE_XS */
-#define ACTIONS_GAP  8    /* TRLV_SPACE_SM */
+/* The tokens the tests run with. main() runs every test once per mode:
+ * each layout collection, and each colour scheme. */
+static const trlv_color_tokens_t * color_light;
+static const trlv_color_tokens_t * color_dark;
+static const trlv_layout_tokens_t * layout_tokens;
+
+/* A spacing step in the layout in use (valid once a test has called
+ * trlv_init). */
+static int32_t space(trlv_space_t step)
+{
+    return trlv_layout()->space[step];
+}
+
+#define FRAME_PAD    space(TRLV_SPACE_LG)   /* content padding */
+#define BAR_PAD      space(TRLV_SPACE_SM)   /* the bar's padding... */
+#define ROW_PAD      space(TRLV_SPACE_SM)   /* ...and that of every row holding
+                                               focusable widgets (ring clearance) */
+#define TOP_GAP      space(TRLV_SPACE_SM)
+#define NAV_GAP      space(TRLV_SPACE_XS)
+#define SECTION_GAP  space(TRLV_SPACE_LG)   /* between a section's parts */
+#define READOUTS_GAP space(TRLV_SPACE_SM)
+#define READOUT_GAP  space(TRLV_SPACE_MD)
+#define ABOUT_GAP    space(TRLV_SPACE_XS)
+#define ACTIONS_GAP  space(TRLV_SPACE_SM)
 
 /* The sections, in the order of the nav buttons. */
 static const struct {
@@ -39,10 +55,11 @@ static const struct {
     { "Surfaces", trlv_demo_surfaces_create },
     { "Cards", trlv_demo_cards_create },
     { "Controls", trlv_demo_controls_create },
+    { "List", trlv_demo_list_create },
 };
 
 /* Indexes into sections[]. */
-enum { SECTION_READOUTS, SECTION_SURFACES, SECTION_CARDS, SECTION_CONTROLS };
+enum { SECTION_READOUTS, SECTION_SURFACES, SECTION_CARDS, SECTION_CONTROLS, SECTION_LIST };
 
 #define SECTION_COUNT ((int32_t)(sizeof(sections) / sizeof(sections[0])))
 
@@ -65,8 +82,8 @@ static lv_obj_t * build(lv_obj_t * screen)
 {
     trelvis_warnings = 0;
     lv_log_register_print_cb(log_cb);
-    trlv_init(lv_obj_get_display(screen), &tokens_light, &tokens_regular);
-    return trlv_demo_create(screen, &tokens_light, &tokens_dark);
+    trlv_init(lv_obj_get_display(screen), color_light, layout_tokens);
+    return trlv_demo_create(screen, color_light, color_dark);
 }
 
 static lv_obj_t * bar(lv_obj_t * demo)
@@ -137,6 +154,13 @@ static bool same_color(lv_color_t a, lv_color_t b)
 {
     return lv_color_eq(a, b);
 }
+
+static void assert_color(const char * what, int line, lv_color_t actual, lv_color_t expected)
+{
+    trlv_test_check_int(__FILE__, line, what, (int32_t)lv_color_to_u32(expected), (int32_t)lv_color_to_u32(actual));
+}
+
+#define ASSERT_COLOR(actual, expected) assert_color(#actual, __LINE__, (actual), (expected))
 
 /* Every descendant of `obj` lies inside its parent's outer box, except
  * along a direction the parent scrolls in. */
@@ -222,8 +246,8 @@ static void no_switch_without_dark_tokens(lv_obj_t * screen)
 {
     lv_obj_t * demo;
 
-    trlv_init(lv_obj_get_display(screen), &tokens_light, &tokens_regular);
-    demo = trlv_demo_create(screen, &tokens_light, NULL);
+    trlv_init(lv_obj_get_display(screen), color_light, layout_tokens);
+    demo = trlv_demo_create(screen, color_light, NULL);
     TRLV_ASSERT_INT(lv_obj_get_child_count(top(demo)), 1);
 }
 
@@ -285,7 +309,7 @@ static void nav_shows_the_chosen_section(lv_obj_t * screen)
     uint32_t reference_children[SECTION_COUNT];
     lv_obj_t * demo;
 
-    trlv_init(lv_obj_get_display(screen), &tokens_light, &tokens_regular);
+    trlv_init(lv_obj_get_display(screen), color_light, layout_tokens);
     for(int32_t i = 0; i < SECTION_COUNT; i++) {
         lv_obj_t * reference = sections[i].create(screen);
         reference_children[i] = lv_obj_get_child_count(reference);
@@ -475,7 +499,8 @@ static void readouts_buttons_sit_in_a_row(lv_obj_t * screen)
     }
 }
 
-/* Buttons that don't fit across move to the next line, the gap below. */
+/* Buttons that don't fit across move to the next line, the gap below;
+ * they wrap if, and only if, they don't fit on one line. */
 static void readouts_buttons_wrap(lv_obj_t * screen)
 {
     lv_obj_t * actions = readouts_part(build(screen), ACTIONS);
@@ -483,6 +508,9 @@ static void readouts_buttons_wrap(lv_obj_t * screen)
     int32_t x = ROW_PAD;
     int32_t y = ROW_PAD;
     int32_t lines = 1;
+    int32_t one_line = ROW_PAD + 2 * ACTIONS_GAP;
+
+    for(int32_t i = 0; i < 3; i++) one_line += trlv_test_width(lv_obj_get_child(actions, i));
 
     for(int32_t i = 0; i < 3; i++) {
         lv_obj_t * btn = lv_obj_get_child(actions, i);
@@ -495,7 +523,7 @@ static void readouts_buttons_wrap(lv_obj_t * screen)
         TRLV_ASSERT_Y(btn, y);
         x += trlv_test_width(btn) + ACTIONS_GAP;
     }
-    TRLV_ASSERT_INT(lines > 1, true);   /* they need to wrap at this width */
+    TRLV_ASSERT_INT(lines > 1, one_line > width);
     TRLV_ASSERT_HEIGHT(actions, y + trlv_test_height(lv_obj_get_child(actions, 2)) + ROW_PAD);
 }
 
@@ -518,7 +546,7 @@ static void readouts_stand_alone(lv_obj_t * screen)
 
     trelvis_warnings = 0;
     lv_log_register_print_cb(log_cb);
-    trlv_init(lv_obj_get_display(screen), &tokens_light, &tokens_regular);
+    trlv_init(lv_obj_get_display(screen), color_light, layout_tokens);
     section_obj = trlv_demo_readouts_create(screen);
 
     TRLV_ASSERT_RECT(section_obj, 0, 0, 800, trlv_test_height(section_obj));
@@ -605,23 +633,27 @@ static void surfaces_show_the_containers(lv_obj_t * screen)
     assert_swatches(demo, SURFACES_CONTAINERS, containers, 5);
 }
 
-/* Each of the template's custom colours shows as its strong colour and its
- * container, and together with the two groups above every
- * TRLV_SURFACE_* is shown. */
+/* Each of the tokens' custom colours (up to TRLV_CUSTOM_COLOR_MAX) shows
+ * as its strong colour and its container, and together with the two groups
+ * above every TRLV_SURFACE_* is shown. */
 static void surfaces_show_the_custom_colors(lv_obj_t * screen)
 {
     lv_obj_t * demo = build(screen);
-    const trlv_custom_color_t * custom = trlv_color()->custom;
-    const color_pair_t pairs[] = {
-        { custom[TOKEN_CUSTOM_SUCCESS].color, custom[TOKEN_CUSTOM_SUCCESS].on_color },
-        { custom[TOKEN_CUSTOM_SUCCESS].color_container, custom[TOKEN_CUSTOM_SUCCESS].on_color_container },
-        { custom[TOKEN_CUSTOM_WARNING].color, custom[TOKEN_CUSTOM_WARNING].on_color },
-        { custom[TOKEN_CUSTOM_WARNING].color_container, custom[TOKEN_CUSTOM_WARNING].on_color_container },
-    };
+    const trlv_color_tokens_t * c = trlv_color();
+    int32_t count = (int32_t)LV_MIN(c->custom_count, (uint32_t)TRLV_CUSTOM_COLOR_MAX);
+    color_pair_t pairs[2 * TRLV_CUSTOM_COLOR_MAX];
+
+    for(int32_t i = 0; i < count; i++) {
+        pairs[2 * i].fill = c->custom[i].color;
+        pairs[2 * i].content = c->custom[i].on_color;
+        pairs[2 * i + 1].fill = c->custom[i].color_container;
+        pairs[2 * i + 1].content = c->custom[i].on_color_container;
+    }
 
     select_section(demo, SECTION_SURFACES);
+    TRLV_ASSERT_INT(count > 0, true);   /* every colour scheme tested has some */
     TRLV_ASSERT_INT(lv_obj_get_child_count(section(demo)), 3);
-    assert_swatches(demo, SURFACES_CUSTOM, pairs, 4);
+    assert_swatches(demo, SURFACES_CUSTOM, pairs, 2 * count);
     TRLV_ASSERT_INT(lv_obj_get_child_count(swatches(demo, SURFACES_LADDER)) +
                     lv_obj_get_child_count(swatches(demo, SURFACES_CONTAINERS)), TRLV_SURFACE_COUNT);
 }
@@ -629,14 +661,14 @@ static void surfaces_show_the_custom_colors(lv_obj_t * screen)
 /* With no custom colours in the tokens, the custom group is left out. */
 static void surfaces_without_custom_colors(lv_obj_t * screen)
 {
-    trlv_color_tokens_t no_custom = tokens_light;
+    trlv_color_tokens_t no_custom = *color_light;
     lv_obj_t * demo;
 
     no_custom.custom = NULL;
     no_custom.custom_count = 0;
     trelvis_warnings = 0;
     lv_log_register_print_cb(log_cb);
-    trlv_init(lv_obj_get_display(screen), &no_custom, &tokens_regular);
+    trlv_init(lv_obj_get_display(screen), &no_custom, layout_tokens);
     demo = trlv_demo_create(screen, &no_custom, NULL);
 
     select_section(demo, SECTION_SURFACES);
@@ -648,16 +680,16 @@ static void surfaces_without_custom_colors(lv_obj_t * screen)
  * Cards
  *-------------------------------------------------------------------------*/
 
-#define CARD_PAD 16   /* TRLV_SPACE_LG */
-#define CARD_GAP 8    /* TRLV_SPACE_SM */
+#define CARD_PAD space(TRLV_SPACE_LG)
+#define CARD_GAP space(TRLV_SPACE_SM)
 
 /* Children of a card, in order. */
 enum { CARD_TYPE, CARD_TITLE, CARD_BODY, CARD_ACTIONS };
 
 /* The three cards are stacked the section gap apart and fill the width:
  * filled (surface_container_highest, no border or shadow), elevated
- * (surface_container_low with a shadow) and outlined (surface with an
- * outline_variant border). */
+ * (surface_container_low with the level 1 shadow, none in Compact) and
+ * outlined (surface with an outline_variant border). */
 static void cards_show_each_type(lv_obj_t * screen)
 {
     lv_obj_t * demo = build(screen);
@@ -674,7 +706,8 @@ static void cards_show_each_type(lv_obj_t * screen)
         TRLV_ASSERT_RECT(card, 0, y, 800 - 2 * FRAME_PAD, trlv_test_height(card));
         TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(card, LV_PART_MAIN), fills[i]), true);
         TRLV_ASSERT_INT(lv_obj_get_style_border_width(card, LV_PART_MAIN), borders[i]);
-        TRLV_ASSERT_INT(lv_obj_get_style_shadow_width(card, LV_PART_MAIN) > 0, i == 1);
+        TRLV_ASSERT_INT(lv_obj_get_style_shadow_width(card, LV_PART_MAIN),
+                        i == 1 ? trlv_layout()->elevation[TRLV_ELEVATION_1].blur : 0);
         y += trlv_test_height(card) + SECTION_GAP;
     }
     TRLV_ASSERT_INT(same_color(lv_obj_get_style_border_color(lv_obj_get_child(section(demo), 2), LV_PART_MAIN),
@@ -859,6 +892,86 @@ static void controls_line_up_with_their_headings(lv_obj_t * screen)
 }
 
 /*---------------------------------------------------------------------------
+ * List
+ *-------------------------------------------------------------------------*/
+
+#define LIST_ITEMS 8
+#define ITEM_GAP   space(TRLV_SPACE_LG)
+
+/* Children of the section, and of a list item, in order. */
+enum { LIST_HEADING, LIST_LIST };
+enum { ITEM_ICON, ITEM_TEXT, ITEM_TRAILING };
+
+/* The list alternates items and full-width dividers, stacked with no gap,
+ * and its heading lines up with the items' icons. */
+static void list_alternates_items_and_dividers(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+    lv_obj_t * list;
+    lv_obj_t * heading;
+    int32_t width = 800 - 2 * FRAME_PAD;
+    int32_t y = 0;
+
+    select_section(demo, SECTION_LIST);
+    list = lv_obj_get_child(section(demo), LIST_LIST);
+    heading = lv_obj_get_child(section(demo), LIST_HEADING);
+
+    TRLV_ASSERT_INT(lv_obj_get_style_pad_left(heading, LV_PART_MAIN), ROW_PAD);
+    TRLV_ASSERT_RECT(list, 0, trlv_test_height(heading), width, trlv_test_height(list));
+    TRLV_ASSERT_INT(lv_obj_get_child_count(list), 2 * LIST_ITEMS - 1);
+    for(int32_t i = 0; i < 2 * LIST_ITEMS - 1; i++) {
+        lv_obj_t * child = lv_obj_get_child(list, i);
+        if(i % 2 == 1) {   /* a divider */
+            TRLV_ASSERT_RECT(child, 0, y, width, trlv_layout()->border_width);
+            ASSERT_COLOR(lv_obj_get_style_bg_color(child, LV_PART_MAIN), trlv_color()->outline_variant);
+        }
+        else {
+            TRLV_ASSERT_RECT(child, 0, y, width, trlv_test_height(child));
+        }
+        y += trlv_test_height(child);
+    }
+    TRLV_ASSERT_HEIGHT(list, y);
+}
+
+/* In each item the icon sits at the start, the trailing item at the end,
+ * and the text takes the space between, its supporting text wrapping in
+ * it. Everything is centred on the item, inside its padding. */
+static void list_items_put_text_between_icon_and_trailing(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+    lv_obj_t * list;
+    int32_t switches = 0;
+
+    select_section(demo, SECTION_LIST);
+    list = lv_obj_get_child(section(demo), LIST_LIST);
+    for(int32_t i = 0; i < LIST_ITEMS; i++) {
+        lv_obj_t * item = lv_obj_get_child(list, 2 * i);
+        lv_obj_t * icon = lv_obj_get_child(item, ITEM_ICON);
+        lv_obj_t * text = lv_obj_get_child(item, ITEM_TEXT);
+        lv_obj_t * trailing = lv_obj_get_child(item, ITEM_TRAILING);
+        lv_obj_t * supporting = lv_obj_get_child(text, 1);
+        int32_t inner_width = trlv_test_width(item) - 2 * ROW_PAD;
+        int32_t text_x = ROW_PAD + trlv_test_width(icon) + ITEM_GAP;
+        int32_t trailing_x = ROW_PAD + inner_width - trlv_test_width(trailing);
+        int32_t text_width_px = trailing_x - ITEM_GAP - text_x;
+        int32_t inner_height = trlv_test_height(item) - 2 * ROW_PAD;
+
+        TRLV_ASSERT_INT(lv_obj_get_child_count(item), 3);
+        TRLV_ASSERT_RECT(icon, ROW_PAD, trlv_test_y(icon), line_height(icon), line_height(icon));
+        TRLV_ASSERT_X(text, ROW_PAD + line_height(icon) + ITEM_GAP);   /* the same in every item */
+        TRLV_ASSERT_RECT(text, text_x, trlv_test_y(text), text_width_px, trlv_test_height(text));
+        TRLV_ASSERT_X(trailing, trailing_x);
+        TRLV_ASSERT_RECT(supporting, 0, trlv_test_y(supporting), text_width_px,
+                         wrapped_height(supporting, text_width_px));
+        TRLV_ASSERT_Y(icon, ROW_PAD + (inner_height - trlv_test_height(icon)) / 2);
+        TRLV_ASSERT_Y(text, ROW_PAD + (inner_height - trlv_test_height(text)) / 2);
+        TRLV_ASSERT_Y(trailing, ROW_PAD + (inner_height - trlv_test_height(trailing)) / 2);
+        if(lv_obj_check_type(trailing, &lv_switch_class)) switches++;
+    }
+    TRLV_ASSERT_INT(switches, 2);
+}
+
+/*---------------------------------------------------------------------------
  * Light/dark switch (a v1 acceptance criterion)
  *-------------------------------------------------------------------------*/
 
@@ -868,13 +981,6 @@ static void set_dark(lv_obj_t * demo, bool dark)
     lv_obj_set_state(dark_switch(demo), LV_STATE_CHECKED, dark);
     lv_obj_send_event(dark_switch(demo), LV_EVENT_VALUE_CHANGED, NULL);
 }
-
-static void assert_color(const char * what, int line, lv_color_t actual, lv_color_t expected)
-{
-    trlv_test_check_int(__FILE__, line, what, (int32_t)lv_color_to_u32(expected), (int32_t)lv_color_to_u32(actual));
-}
-
-#define ASSERT_COLOR(actual, expected) assert_color(#actual, __LINE__, (actual), (expected))
 
 /* Colours of the frame and of a few objects of the section on show, all
  * from the tokens `c`. */
@@ -911,6 +1017,13 @@ static void assert_section_colors(lv_obj_t * demo, int32_t index, const trlv_col
         ASSERT_COLOR(lv_obj_get_style_bg_color(lv_obj_get_child(s, 0), LV_PART_MAIN), c->surface_container_highest);
         ASSERT_COLOR(lv_obj_get_style_border_color(lv_obj_get_child(s, 2), LV_PART_MAIN), c->outline_variant);
     }
+    else if(index == SECTION_LIST) {
+        lv_obj_t * list = lv_obj_get_child(s, 1);
+        lv_obj_t * wifi = lv_obj_get_child(list, 0);
+        ASSERT_COLOR(lv_obj_get_style_bg_color(lv_obj_get_child(list, 1), LV_PART_MAIN), c->outline_variant);
+        ASSERT_COLOR(lv_obj_get_style_text_color(lv_obj_get_child(wifi, 0), LV_PART_MAIN), c->on_surface);
+        ASSERT_COLOR(lv_obj_get_style_bg_color(lv_obj_get_child(wifi, 2), LV_PART_INDICATOR), c->primary);
+    }
     else {
         lv_obj_t * tonal = lv_obj_get_child(controls_row(demo, CONTROLS_BUTTONS, 0), 1);
         lv_obj_t * on = lv_obj_get_child(controls_row(demo, CONTROLS_SELECTION, 0), 1);
@@ -933,15 +1046,15 @@ static void switch_recolors_every_section(lv_obj_t * screen)
     TRLV_ASSERT_INT(lv_obj_has_state(dark_switch(demo), LV_STATE_CHECKED), false);
     for(int32_t i = 0; i < SECTION_COUNT; i++) {
         select_section(demo, i);
-        assert_section_colors(demo, i, &tokens_light);
+        assert_section_colors(demo, i, color_light);
 
         set_dark(demo, true);
-        TRLV_ASSERT_INT(trlv_color() == &tokens_dark, true);
-        assert_section_colors(demo, i, &tokens_dark);
+        TRLV_ASSERT_INT(trlv_color() == color_dark, true);
+        assert_section_colors(demo, i, color_dark);
 
         set_dark(demo, false);
-        TRLV_ASSERT_INT(trlv_color() == &tokens_light, true);
-        assert_section_colors(demo, i, &tokens_light);
+        TRLV_ASSERT_INT(trlv_color() == color_light, true);
+        assert_section_colors(demo, i, color_light);
     }
 }
 
@@ -951,13 +1064,13 @@ static void switch_starts_on_in_dark(lv_obj_t * screen)
 {
     lv_obj_t * demo;
 
-    trlv_init(lv_obj_get_display(screen), &tokens_dark, &tokens_regular);
-    demo = trlv_demo_create(screen, &tokens_light, &tokens_dark);
+    trlv_init(lv_obj_get_display(screen), color_dark, layout_tokens);
+    demo = trlv_demo_create(screen, color_light, color_dark);
 
     TRLV_ASSERT_INT(lv_obj_has_state(dark_switch(demo), LV_STATE_CHECKED), true);
     for(int32_t i = 0; i < SECTION_COUNT; i++) {
         select_section(demo, i);
-        assert_section_colors(demo, i, &tokens_dark);
+        assert_section_colors(demo, i, color_dark);
     }
 }
 
@@ -1019,7 +1132,7 @@ static void keypad_focus_reaches_every_widget(lv_obj_t * screen)
     lv_obj_t * demo = build_with_keypad(screen, &group);
 
     for(int32_t dark = 0; dark < 2; dark++) {
-        const trlv_color_tokens_t * c = dark ? &tokens_dark : &tokens_light;
+        const trlv_color_tokens_t * c = dark ? color_dark : color_light;
         set_dark(demo, dark);
 
         for(int32_t i = 0; i < SECTION_COUNT; i++) {
@@ -1094,8 +1207,17 @@ static void every_focus_ring_has_room(lv_obj_t * screen)
     }
 }
 
-int main(void)
+/* Every test, on the wide display and then on the narrow one, with the
+ * tokens of one mode. */
+static void run_all(const char * mode, const trlv_color_tokens_t * light, const trlv_color_tokens_t * dark,
+                    const trlv_layout_tokens_t * layout)
 {
+    printf("-- %s\n", mode);
+    color_light = light;
+    color_dark = dark;
+    layout_tokens = layout;
+
+    trlv_test_set_display_size(800, 480);
     TRLV_TEST_RUN(frame_fills_the_screen);
     TRLV_TEST_RUN(top_row_puts_the_switch_on_the_right);
     TRLV_TEST_RUN(no_switch_without_dark_tokens);
@@ -1126,6 +1248,9 @@ int main(void)
     TRLV_TEST_RUN(controls_cover_every_themed_widget);
     TRLV_TEST_RUN(controls_line_up_with_their_headings);
 
+    TRLV_TEST_RUN(list_alternates_items_and_dividers);
+    TRLV_TEST_RUN(list_items_put_text_between_icon_and_trailing);
+
     TRLV_TEST_RUN(switch_recolors_every_section);
     TRLV_TEST_RUN(switch_starts_on_in_dark);
 
@@ -1138,5 +1263,13 @@ int main(void)
     TRLV_TEST_RUN(readouts_on_a_narrow_display);
     TRLV_TEST_RUN(readouts_buttons_wrap);
     TRLV_TEST_RUN(every_focus_ring_has_room);
+}
+
+int main(void)
+{
+    run_all("template colours, Regular layout", &tokens_light, &tokens_dark, &tokens_regular);
+    run_all("template colours, Compact layout", &tokens_light, &tokens_dark, &tokens_compact);
+    run_all("HMI colours, Regular layout", &tokens_hmi_light, &tokens_hmi_dark, &tokens_regular);
+    run_all("HMI colours, Compact layout", &tokens_hmi_light, &tokens_hmi_dark, &tokens_compact);
     return trlv_test_finish();
 }
