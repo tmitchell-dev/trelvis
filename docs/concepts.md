@@ -345,7 +345,8 @@ container 12%. These are the MD3 values; projects may tune them.
 
 From lowest to highest priority:
 
-1. theme styles
+1. theme styles: the parent theme's first, then the TreLVis theme's, which
+   override them
 2. TreLVis modifier styles
 3. project styles added later with `lv_obj_add_style`
 4. local style properties (`lv_obj_set_style_*`)
@@ -398,14 +399,25 @@ The theme's apply callback checks each object's class with
 | Plain `lv_obj` | LVGL's container shape (radius, border, padding, scrolling) in MD3 colours: `surface`, `outline_variant` border, `on_surface` content. Boxes, rows and columns remove all theme styles, so this never reaches them. |
 | `lv_label` | No role or colour of its own: it inherits Body Medium and `on_surface` from the screen, or the role and `on_` colour of the surface, card or button it sits in. |
 | `lv_button` | Filled button by default (`primary` / `on_primary`, radius FULL, height `control_height[MD]`, side padding `space[XL]`, no shadow, Label Large); variants via `trlv_button_variant()`. Content is a centred flex row with a `space[SM]` gap, so a label is centred and an icon sits beside it, as in an MD3 button. This differs from LVGL's default theme, which leaves placement to the caller. |
-| `lv_switch`, `lv_checkbox` | MD3 track / handle / box colours, checked states |
-| `lv_slider`, `lv_bar`, `lv_arc` | `primary` indicator, `surface_container_highest` track |
-| `lv_dropdown`, `lv_textarea` | outlined field (`outline`, focus → `primary`), menu on `surface_container` |
-| `lv_spinner` | `primary` |
-| All interactive widgets | pressed and focus state layers, disabled 38% / 12%, focus-key ring (`focus`, `focus_width`) |
+| `lv_switch` | MD3 52 × 32 track (`control_height[SM]` tall): `surface_container_highest` with an `outline` border when off, `primary` when on. Handle in `outline` (16 px) when off, `on_primary` (24 px) when on, 28 px while pressed, as fractions of the track height. |
+| `lv_checkbox` | Box with a `border_width` border in `on_surface_variant`, radius XS; checked: `primary` with an `on_primary` mark. Text inherits. No recolour on press. |
+| `lv_slider`, `lv_bar` | `surface_container_highest` track, `primary` indicator (and slider knob). The pressed knob doesn't grow. |
+| `lv_arc`, `lv_spinner` | The same pair as arc colours: `surface_container_highest` track, `primary` indicator (and arc knob). |
+| `lv_dropdown`, `lv_textarea` | MD3 outlined field: `surface`, a `border_width` border in `outline`, radius XS, `on_surface` text, `space[LG]` side padding. Focused: the border turns `primary` and twice as thick, with no extra ring. Textarea caret in `primary`, placeholder in `on_surface_variant`. |
+| Dropdown list | MD3 menu: `surface_container`, radius XS, the level 2 elevation shadow, `on_surface` text. The selected option is `secondary_container` / `on_secondary_container`; a pressed option gets the state layer. |
+| All interactive widgets | Disabled: `on_surface` at 12 % for containers and tracks, 38 % for content, indicators, knobs and check boxes, as real opacity. Keypad or encoder focus (and encoder editing): the focus ring (`focus`, `focus_width`, `space[2XS]` outside), except fields, which use their border. LVGL's default recolour on press, grow on press and focus outline are switched off. |
 
-Other widgets fall back to the parent default theme, seeded with MD3 colours.
-Coverage is built screen, label and button first, then one widget at a time.
+Filled widgets (so far the button) also get pressed and focus state
+layers, pre-mixed (§6.1). The switch, checkbox, slider and arc don't have
+the MD3 circular state layer around their handle: LVGL has no part for it.
+
+Other widgets fall back to the parent default theme, seeded with MD3
+colours. With `TRLV_THEME_PARENT_NONE`, they are unstyled.
+
+**Focus rings and clipping.** The ring is drawn outside the widget, and
+LVGL clips children to their parent. In a row or column that hugs its
+content, the ring is cut off; give the container padding (for example
+`trlv_pad(row, TRLV_SPACE_2XS)`) where widgets can take keypad focus.
 
 ### 6.5 Style catalogue
 
@@ -435,6 +447,11 @@ group's previous style:
 | Surfaces: one per `TRLV_SURFACE_*`; cards: filled, elevated, outlined | token | `trlv_surface`, `trlv_card` |
 | Buttons: tonal, outlined, text, each with state styles | token | `trlv_button_variant` |
 | Divider: horizontal, vertical | token | `trlv_divider` |
+
+The theme's own styles (screen, plain object, each covered widget and the
+shared state styles) are internal too, and only the theme applies them.
+They are token styles like the rest: `trlv_init` and every colour-mode
+switch rewrite them in place.
 
 ## 7. Primitives and modifiers
 
