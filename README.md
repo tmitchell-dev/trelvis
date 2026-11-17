@@ -81,8 +81,8 @@ the same fonts and colours, in light and in dark.
 
 <!-- The two per-card blocks below are copied from
      tests/layout/test_readme_card.c (the TreLVis one is the example above
-     without its comments, padded with blank lines so each call lines up
-     with the LVGL calls it replaces), and the set-up summary and line count describe
+     without its comments), one table row per TreLVis call with the LVGL
+     calls it replaces, and the set-up summary and line count describe
      the rest of that file's plain-LVGL part. Change them together. -->
 
 **Once per project**, the plain version needs what the token template and
@@ -108,40 +108,6 @@ the same fonts and colours, in light and in dark.
 
 ```c
 lv_obj_t * card = trlv_column(parent, TRLV_SPACE_SM);
-
-
-
-
-trlv_card(card, TRLV_CARD_FILLED);
-trlv_pad(card, TRLV_SPACE_LG);
-trlv_fill_width(card);
-
-lv_obj_t * header = trlv_row(card, TRLV_SPACE_SM);
-
-
-
-
-trlv_fill_width(header);
-trlv_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);
-trlv_align_items(header, TRLV_ALIGN_ITEMS_CENTER);
-
-trlv_text(header, "Temperature", TRLV_TEXT_TITLE_MEDIUM);
-
-
-trlv_text(header, "37.2 °C", TRLV_TEXT_HEADLINE_SMALL);
-
-
-
-lv_obj_t * btn = lv_button_create(card);
-trlv_button_variant(btn, TRLV_BUTTON_TONAL);
-
-
-
-
-trlv_text(btn, "Calibrate", TRLV_TEXT_LABEL_LARGE);
-
-
-
 ```
 
 </td>
@@ -153,32 +119,195 @@ lv_obj_remove_style_all(card);   /* theme pad, border */
 lv_obj_set_scrollable(card, false);
 lv_obj_set_flex_flow(card, LV_FLEX_FLOW_COLUMN);
 lv_obj_set_style_pad_row(card, SPACE_SM, 0);   /* gap */
-lv_obj_add_style(card, &style_card, 0);
-lv_obj_set_style_pad_all(card, SPACE_LG, 0);
-lv_obj_set_size(card, LV_PCT(100), LV_SIZE_CONTENT);
+```
 
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+```c
+trlv_card(card, TRLV_CARD_FILLED);
+```
+
+</td>
+<td valign="top">
+
+```c
+lv_obj_add_style(card, &style_card, 0);
+```
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+```c
+trlv_pad(card, TRLV_SPACE_LG);
+```
+
+</td>
+<td valign="top">
+
+```c
+lv_obj_set_style_pad_all(card, SPACE_LG, 0);
+```
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+```c
+trlv_fill_width(card);
+```
+
+</td>
+<td valign="top">
+
+```c
+lv_obj_set_size(card, LV_PCT(100), LV_SIZE_CONTENT);
+```
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+```c
+lv_obj_t * header = trlv_row(card, TRLV_SPACE_SM);
+```
+
+</td>
+<td valign="top">
+
+```c
 lv_obj_t * header = lv_obj_create(card);
 lv_obj_remove_style_all(header);
 lv_obj_set_scrollable(header, false);
 lv_obj_set_flex_flow(header, LV_FLEX_FLOW_ROW);
 lv_obj_set_style_pad_column(header, SPACE_SM, 0);   /* gap */
+```
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+```c
+trlv_fill_width(header);
+```
+
+</td>
+<td valign="top">
+
+```c
 lv_obj_set_size(header, LV_PCT(100), LV_SIZE_CONTENT);
+```
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+```c
+trlv_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);
+trlv_align_items(header, TRLV_ALIGN_ITEMS_CENTER);
+```
+
+</td>
+<td valign="top">
+
+```c
 lv_obj_set_flex_align(header, LV_FLEX_ALIGN_SPACE_BETWEEN,
                       LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+```
 
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+```c
+trlv_text(header, "Temperature", TRLV_TEXT_TITLE_MEDIUM);
+```
+
+</td>
+<td valign="top">
+
+```c
 lv_obj_t * title = lv_label_create(header);
 lv_label_set_text(title, "Temperature");
 lv_obj_add_style(title, &style_title_medium, 0);
+```
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+```c
+trlv_text(header, "37.2 °C", TRLV_TEXT_HEADLINE_SMALL);
+```
+
+</td>
+<td valign="top">
+
+```c
 lv_obj_t * value = lv_label_create(header);
 lv_label_set_text(value, "37.2 °C");
 lv_obj_add_style(value, &style_headline_small, 0);
+```
 
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+```c
 lv_obj_t * btn = lv_button_create(card);
+```
+
+</td>
+<td valign="top">
+
+```c
+lv_obj_t * btn = lv_button_create(card);
+```
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+```c
+trlv_button_variant(btn, TRLV_BUTTON_TONAL);
+```
+
+</td>
+<td valign="top">
+
+```c
 lv_obj_add_style(btn, &style_button, 0);
 lv_obj_add_style(btn, &style_tonal, 0);
 lv_obj_add_style(btn, &style_tonal_pressed, LV_STATE_PRESSED);
 lv_obj_add_style(btn, &style_tonal_focus, LV_STATE_FOCUS_KEY);
 lv_obj_add_style(btn, &style_tonal_disabled, LV_STATE_DISABLED);
+```
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+```c
+trlv_text(btn, "Calibrate", TRLV_TEXT_LABEL_LARGE);
+```
+
+</td>
+<td valign="top">
+
+```c
 lv_obj_t * label = lv_label_create(btn);
 lv_label_set_text(label, "Calibrate");
 lv_obj_add_style(label, &style_label_large, 0);
