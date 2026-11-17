@@ -4,13 +4,10 @@ This document explains how TreLVis is designed: its vocabulary, design tokens,
 fonts, how it uses LVGL's theme and style engine, and the primitives and
 modifiers it provides.
 
-> **Status:** this is the v1 design, and the v1 API has been reviewed
-> (milestone 3). The public headers are the source of truth for exact
-> signatures; this document explains the reasons behind them. Implemented so
-> far: the token types and template, `trlv_init` without a theme, `trlv_box`,
-> `trlv_row`, `trlv_column`, `trlv_gap`, `trlv_pad`, `trlv_hug_*`,
-> `trlv_fill_*` and `trlv_text`. Sections marked *(planned)* describe
-> features that are not implemented yet.
+> **Status:** this describes TreLVis v1, which is fully implemented. The
+> public headers are the source of truth for exact signatures; this document
+> explains the reasons behind them. Items marked *(planned, v1.1)* are not
+> built yet (see [ROADMAP.md](../ROADMAP.md)).
 
 - [1. What TreLVis is](#1-what-trelvis-is)
 - [2. Vocabulary](#2-vocabulary)
@@ -323,7 +320,8 @@ container 12%. These are the MD3 values; projects may tune them.
 - **Constant styles** (box reset / transparent, row and column flow, justify
   and align values, grow, fill width/height, hug) use `LV_STYLE_CONST_INIT`.
   They live in flash and need no RAM and no allocation. **Token-dependent
-  styles** (gap, pad, text roles, surfaces, cards) use the same
+  styles** (gap, pad, text roles, surfaces, cards, button variants, the
+  divider and the theme's own styles) use the same
   `LV_STYLE_CONST_INIT` mechanism, but their property array is a static,
   writable array in RAM: `trlv_init` and colour-mode switches write the token
   values into it instead of calling `lv_style_set_*`. They need no allocation,
@@ -424,9 +422,10 @@ The theme's apply callback checks each object's class with
 | Dropdown list | MD3 menu: `surface_container`, radius XS, the level 2 elevation shadow, `on_surface` text. The selected option is `secondary_container` / `on_secondary_container`; a pressed option gets the state layer. |
 | All interactive widgets | Disabled: `on_surface` at 12 % for containers and tracks, 38 % for content, indicators, knobs and check boxes, as real opacity. Keypad or encoder focus (and encoder editing): the focus ring (`focus`, `focus_width`, `space[2XS]` outside), except fields, which use their border. LVGL's default recolour on press, grow on press and focus outline are switched off. |
 
-Filled widgets (so far the button) also get pressed and focus state
-layers, pre-mixed (§6.1). The switch, checkbox, slider and arc don't have
-the MD3 circular state layer around their handle: LVGL has no part for it.
+Buttons, in every variant, and the dropdown list's options also get
+pressed state layers, and buttons a focus state layer, pre-mixed (§6.1).
+The switch, checkbox, slider and arc don't have the MD3 circular state
+layer around their handle: LVGL has no part for it.
 
 Other widgets fall back to the parent default theme, seeded with MD3
 colours. With `TRLV_THEME_PARENT_NONE`, they are unstyled.
@@ -496,14 +495,19 @@ trlv_pad(card, TRLV_SPACE_LG);
 trlv_fill_width(card);
 
 lv_obj_t * header = trlv_row(card, TRLV_SPACE_SM);
+trlv_fill_width(header);                          /* space-between needs free space */
 trlv_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);
 trlv_align_items(header, TRLV_ALIGN_ITEMS_CENTER);
 trlv_text(header, "Temperature", TRLV_TEXT_TITLE_MEDIUM);
-trlv_text(header, "37.2 °C", TRLV_TEXT_DISPLAY_SMALL);
+trlv_text(header, "37.2 °C", TRLV_TEXT_HEADLINE_SMALL);
 
 lv_obj_t * btn = lv_button_create(card);          /* MD3 filled button via the theme */
 trlv_button_variant(btn, TRLV_BUTTON_TONAL);
+trlv_text(btn, "Calibrate", TRLV_TEXT_LABEL_LARGE);
 ```
+
+The [demo](../examples/demo) uses every primitive and modifier on real
+screens, and each of its sections is a worked example.
 
 ### 7.1 Constructors (nouns)
 
@@ -544,8 +548,8 @@ set, like any LVGL style. If the parent's direction changes later, call the
 fill modifier again.
 
 **Fill inside a parent that hugs.** Figma doesn't allow it; TreLVis adds no
-behaviour of its own, so LVGL's result stands. The slice showed what that is
-(the tests in `tests/layout/test_fill_warning.c` pin it):
+behaviour of its own, so LVGL's result stands
+(`tests/layout/test_fill_warning.c` pins it):
 
 - **Across the axis** (100 %), it works: LVGL leaves the filled child out of
   the parent's content size, so the parent hugs its other children and the
@@ -596,9 +600,9 @@ LVGL, so TreLVis adds no function for them. Setters named
 - LVGL allocates internally for theme objects. TreLVis triggers this **only
   in `trlv_init` and colour-mode switches**, and it is bounded. Creating
   objects allocates as usual in LVGL.
-- Modifiers use shared styles. Where a value has no shared style (an uncommon
-  padding, gap or size), the function's documentation states that it uses a
-  local style and what that costs.
+- Every modifier applies shared styles; none creates a local style on the
+  object. A value with no shared style (an uncommon padding, gap or size)
+  is raw LVGL in the project (§7.2), with LVGL's per-object local style.
 - **Threading:** call every TreLVis function from the LVGL thread only, the
   same rule as for LVGL itself.
 
@@ -610,7 +614,7 @@ handles them, and its docs note where:
 | LVGL behaviour | What TreLVis does |
 |---|---|
 | Plain `lv_obj`s are scrollable and clickable by default, and themed (background, border, padding). | `trlv_box` and the layout primitives remove theme styles and turn scroll and click off. Scrolling is opt-in via `lv_obj_set_scrollable`. |
-| Labels hug their text and don't wrap unless they have a width. | `trlv_text` keeps that default (Figma "auto width"), confirmed on the slice's demo screen: names, values, headings and button labels all want to hug. `trlv_fill_width` gives the label a width, so it wraps (Figma "auto height"); a paragraph needs it. |
+| Labels hug their text and don't wrap unless they have a width. | `trlv_text` keeps that default (Figma "auto width"): names, values, headings and button labels all want to hug. `trlv_fill_width` gives the label a width, so it wraps (Figma "auto height"); a paragraph needs it. |
 | A child that fills (grows) along the main axis of a parent that hugs that axis collapses to 0. | `trlv_fill_*` logs a warning naming the object. Filling *across* a hugging parent stretches to the widest sibling and is left alone (§7.2). |
 | `lv_obj_set_style_*` allocates a local style per object. | Modifiers use shared styles; any exceptions are documented. |
 | A border sits inside the object's size and insets the content by its width, on top of the padding. | Matches Figma "inside stroke, include in layout" and CSS `box-sizing: border-box`. See the hand-off guide. |
@@ -650,8 +654,11 @@ already clear (see [What earns a place](#what-earns-a-place)).
 | Visible | `display: none` | *raw LVGL* | `lv_obj_set_hidden` |
 | Colour variable (MD3 role) | custom property `--md-sys-color-*` | `trlv_color()->role` | `lv_color_t` in styles |
 | Surface container | `background` + `color` | `trlv_surface` | `bg_color` + inherited `text_color` |
+| Custom colour (Material Theme Builder) | `--md-extended-color-*` | `trlv_surface_custom` | `bg_color` + inherited `text_color` |
 | MD3 card | — | `trlv_card` | shared style: `bg_color`, `radius`, `border_*` / `shadow_*` |
+| MD3 button type (filled, tonal, outlined, text) | button classes | `trlv_button_variant` | shared styles with `LV_STATE_PRESSED` / `FOCUS_KEY` / `DISABLED` selectors |
 | Text style (type scale) | `font`, `line-height`, `letter-spacing` | `trlv_text`, `trlv_text_role` | `text_font`, `text_line_space`, `text_letter_space` |
+| List (MD3 list items) | `ul` / `li` | `trlv_column` of `trlv_row` items with `trlv_divider` | flex; `lv_list` is deprecated in LVGL 9.6 |
 | Truncate text | `text-overflow: ellipsis` | *raw LVGL* | `lv_label_set_long_mode(label, LV_LABEL_LONG_MODE_DOTS)` |
 | Corner radius (shape scale) | `border-radius` | `TRLV_RADIUS_*` | `radius` |
 | Stroke, inside | `border` (`box-sizing: border-box`) | cards, fields | `border_width`, `border_color` |
