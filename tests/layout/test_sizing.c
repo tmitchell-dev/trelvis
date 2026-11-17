@@ -160,6 +160,19 @@ static void fill_on_a_widget(lv_obj_t * screen)
     TRLV_ASSERT_WIDTH(bar, 240);
 }
 
+/* Hug works on an lv_obj TreLVis did not create, replacing LVGL's default
+ * size. */
+static void hug_on_a_plain_object(lv_obj_t * screen)
+{
+    lv_obj_t * obj = lv_obj_create(setup(screen));
+    lv_obj_remove_style_all(obj);
+    child(obj, 30, 20);
+    trlv_hug_width(obj);
+    trlv_hug_height(obj);
+
+    TRLV_ASSERT_RECT(obj, 0, 0, 30, 20);
+}
+
 int main(void)
 {
     TRLV_TEST_RUN(fill_in_a_row);
@@ -172,5 +185,6 @@ int main(void)
     TRLV_TEST_RUN(axes_are_independent);
     TRLV_TEST_RUN(fill_again_after_direction_change);
     TRLV_TEST_RUN(fill_on_a_widget);
+    TRLV_TEST_RUN(hug_on_a_plain_object);
     return trlv_test_finish();
 }

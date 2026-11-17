@@ -263,6 +263,20 @@ static void align_items_line_placement_can_be_overridden(lv_obj_t * screen)
     TRLV_ASSERT_Y(big, 0);
 }
 
+/* Works on a flex lv_obj TreLVis did not create. */
+static void align_items_on_a_plain_object(lv_obj_t * screen)
+{
+    lv_obj_t * obj = lv_obj_create(setup(screen));
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, 100, 50);
+    lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW);
+    lv_obj_t * small = child(obj, 20, 10);
+    child(obj, 20, 30);
+    trlv_align_items(obj, TRLV_ALIGN_ITEMS_END);
+
+    TRLV_ASSERT_Y(small, 40);
+}
+
 /* Justify and align items are separate groups: one doesn't clear the other. */
 static void justify_and_align_items_are_independent(lv_obj_t * screen)
 {
@@ -294,6 +308,7 @@ int main(void)
     TRLV_TEST_RUN(align_items_in_a_column);
     TRLV_TEST_RUN(align_items_replaces_its_previous_style);
     TRLV_TEST_RUN(align_items_line_placement_can_be_overridden);
+    TRLV_TEST_RUN(align_items_on_a_plain_object);
     TRLV_TEST_RUN(justify_and_align_items_are_independent);
     return trlv_test_finish();
 }

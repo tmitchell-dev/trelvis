@@ -93,6 +93,19 @@ static void horizontal_without_flex(lv_obj_t * screen)
     TRLV_ASSERT_RECT(divider, 0, 0, 120, line());
 }
 
+/* In a flex lv_obj TreLVis did not create: follows its flow. */
+static void vertical_in_a_plain_flex_row(lv_obj_t * screen)
+{
+    lv_obj_t * obj = lv_obj_create(setup(screen));
+    lv_obj_remove_style_all(obj);
+    lv_obj_set_size(obj, 200, 40);
+    lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW);
+    child(obj, 30, 20);
+    lv_obj_t * divider = trlv_divider(obj);
+
+    TRLV_ASSERT_RECT(divider, 30, 0, line(), 40);
+}
+
 /* A margin insets it, as for an MD3 inset divider. */
 static void margin_insets_it(lv_obj_t * screen)
 {
@@ -136,6 +149,7 @@ int main(void)
     TRLV_TEST_RUN(vertical_in_a_row);
     TRLV_TEST_RUN(vertical_in_a_hugging_row);
     TRLV_TEST_RUN(horizontal_without_flex);
+    TRLV_TEST_RUN(vertical_in_a_plain_flex_row);
     TRLV_TEST_RUN(margin_insets_it);
     TRLV_TEST_RUN(recolours);
     TRLV_TEST_RUN(thickness_follows_the_tokens);
