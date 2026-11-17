@@ -11,6 +11,9 @@
  *
  *  1. Copy trlv_tokens_template.h and trlv_tokens_template.c into your
  *     project and rename them, for example to tokens.h and tokens.c.
+ *     If you rename the include guard too, give it a project name such
+ *     as TOKENS_H: the TRLV_ prefix is the library's, and TRLV_TOKENS_H
+ *     is the guard of <trelvis/trlv_tokens.h>.
  *  2. In the .c file, change the #include of this header to the new name.
  *  3. Build the .c file with your own sources.
  *  4. Pass the tokens to trlv_init:
@@ -31,8 +34,8 @@
  * See docs/concepts.md section 4 for the token types and reference values.
  */
 
-#ifndef TRLV_TOKENS_TEMPLATE_H
-#define TRLV_TOKENS_TEMPLATE_H
+#ifndef TOKENS_TEMPLATE_H
+#define TOKENS_TEMPLATE_H
 
 #include <trelvis/trelvis.h>
 
@@ -68,4 +71,4 @@ extern const trlv_layout_tokens_t tokens_compact;
 } /* extern "C" */
 #endif
 
-#endif /* TRLV_TOKENS_TEMPLATE_H */
+#endif /* TOKENS_TEMPLATE_H */

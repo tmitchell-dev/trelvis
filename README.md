@@ -319,7 +319,10 @@ cp external/trelvis/templates/trlv_tokens_template.h src/tokens.h
 ```
 
 In `tokens.c`, change `#include "trlv_tokens_template.h"` to
-`#include "tokens.h"`, and add `tokens.c` to your sources. The template
+`#include "tokens.h"`, and add `tokens.c` to your sources. If you rename
+the include guard in `tokens.h`, use a project name such as `TOKENS_H`, not
+a `TRLV_` one: `TRLV_TOKENS_H` is the guard of TreLVis's own
+`trlv_tokens.h`, and the two headers would hide each other. The template
 works unedited: the MD3 baseline colours in light and dark, and the Regular
 and Compact layouts. Later you replace the colours with your product's
 (from Material Theme Builder), give the text roles real fonts, and delete

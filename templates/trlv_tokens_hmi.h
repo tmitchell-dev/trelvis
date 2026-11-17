@@ -28,8 +28,8 @@
  * trlv_tokens_template.h), or take what you need from it.
  */
 
-#ifndef TRLV_TOKENS_HMI_H
-#define TRLV_TOKENS_HMI_H
+#ifndef TOKENS_HMI_H
+#define TOKENS_HMI_H
 
 #include <trelvis/trelvis.h>
 
@@ -60,4 +60,4 @@ extern const trlv_color_tokens_t tokens_hmi_dark;
 } /* extern "C" */
 #endif
 
-#endif /* TRLV_TOKENS_HMI_H */
+#endif /* TOKENS_HMI_H */
