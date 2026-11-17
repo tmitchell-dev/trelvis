@@ -186,7 +186,9 @@ void trlv_card(lv_obj_t * obj, trlv_card_t card);
  *
  * - pressed: the MD3 state layer, the content colour over the container
  *   at `state.pressed` opacity, pre-mixed at init and on each colour-mode
- *   switch;
+ *   switch. Outlined and text buttons have a transparent container, so
+ *   their layer is the content colour at that opacity, drawn over whatever
+ *   is behind the button;
  * - focused by keypad or encoder: the same with `state.focus`, plus the
  *   theme's focus ring;
  * - disabled: content in on_surface at `state.disabled_content`, container
@@ -198,13 +200,16 @@ void trlv_card(lv_obj_t * obj, trlv_card_t card);
  * Calling it again replaces the previous variant.
  *
  * With TRLV_USE_THEME 0 the variant still sets its colours and states, but
- * the shape, height and text role come from whatever theme is installed.
+ * the shape, height and text role come from whatever theme is installed,
+ * and there is no focus ring.
+ *
+ * The variant adds four shared styles (default, pressed, focus and
+ * disabled), each one group, so a second call replaces all four in place.
  *
  * @param btn      an lv_button (it works on any object, but the states are
  *                 only meaningful on a clickable one)
- * @param variant  the button type
- *
- * @note Not implemented yet (milestone 5).
+ * @param variant  the button type; any other value logs a warning and
+ *                 changes nothing
  */
 void trlv_button_variant(lv_obj_t * btn, trlv_button_t variant);
 

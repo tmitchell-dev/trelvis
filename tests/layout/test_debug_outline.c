@@ -55,17 +55,22 @@ static void layout_is_unchanged(lv_obj_t * screen)
     TRLV_ASSERT_RECT(b, 16 + 30 + 8, 16, 40, 10);
 }
 
-/* LVGL widgets are not outlined. */
-static void widgets_are_not_outlined(lv_obj_t * screen)
+/* LVGL widgets are not outlined, and neither is a divider: it draws a line
+ * of its own. */
+static void widgets_and_dividers_are_not_outlined(lv_obj_t * screen)
 {
     lv_obj_t * label = lv_label_create(setup(screen));
     TRLV_ASSERT_INT(lv_obj_get_style_outline_width(label, LV_PART_MAIN), 0);
+
+    lv_obj_t * column = trlv_column(screen, TRLV_SPACE_NONE);
+    lv_obj_t * divider = trlv_divider(column);
+    TRLV_ASSERT_INT(lv_obj_get_style_outline_width(divider, LV_PART_MAIN), 0);
 }
 
 int main(void)
 {
     TRLV_TEST_RUN(containers_have_the_outline);
     TRLV_TEST_RUN(layout_is_unchanged);
-    TRLV_TEST_RUN(widgets_are_not_outlined);
+    TRLV_TEST_RUN(widgets_and_dividers_are_not_outlined);
     return trlv_test_finish();
 }

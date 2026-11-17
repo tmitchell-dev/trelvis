@@ -113,6 +113,8 @@ trlv_add_test(layout_spacer layout/test_spacer.c)
 target_link_libraries(layout_spacer PRIVATE trlv_tokens_template)
 trlv_add_test(layout_debug_outline_off layout/test_debug_outline.c)
 target_link_libraries(layout_debug_outline_off PRIVATE trlv_tokens_template)
+trlv_add_test(layout_divider layout/test_divider.c)
+target_link_libraries(layout_divider PRIVATE trlv_tokens_template)
 trlv_add_test(layout_text_role layout/test_text_role.c)
 target_link_libraries(layout_text_role PRIVATE trlv_tokens_template)
 trlv_add_test(layout_demo layout/test_demo.c)
@@ -132,6 +134,8 @@ trlv_add_test(theme_surface theme/test_surface.c)
 target_link_libraries(theme_surface PRIVATE trlv_tokens_template)
 trlv_add_test(theme_surface_custom theme/test_surface_custom.c)
 target_link_libraries(theme_surface_custom PRIVATE trlv_tokens_template)
+trlv_add_test(theme_button_variant theme/test_button_variant.c)
+target_link_libraries(theme_button_variant PRIVATE trlv_tokens_template)
 
 # Config options: a copy of the library built with one option set, and a
 # test linked against it alone (its own harness and template objects).
