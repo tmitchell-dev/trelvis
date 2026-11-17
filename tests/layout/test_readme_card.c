@@ -36,6 +36,7 @@ static lv_obj_t * card_trelvis(lv_obj_t * parent)
     trlv_fill_width(header);
     trlv_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);
     trlv_align_items(header, TRLV_ALIGN_ITEMS_CENTER);
+
     trlv_text(header, "Temperature", TRLV_TEXT_TITLE_MEDIUM);
     trlv_text(header, "37.2 °C", TRLV_TEXT_HEADLINE_SMALL);
 
@@ -145,21 +146,21 @@ static lv_obj_t * card_lvgl(lv_obj_t * parent)
 {
     lv_obj_t * card = lv_obj_create(parent);
     lv_obj_remove_style_all(card);   /* theme pad, border */
-    lv_obj_add_style(card, &style_card, 0);
     lv_obj_set_scrollable(card, false);
-    lv_obj_set_size(card, LV_PCT(100), LV_SIZE_CONTENT);
     lv_obj_set_flex_flow(card, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_style_pad_all(card, SPACE_LG, 0);
     lv_obj_set_style_pad_row(card, SPACE_SM, 0);   /* gap */
+    lv_obj_add_style(card, &style_card, 0);
+    lv_obj_set_style_pad_all(card, SPACE_LG, 0);
+    lv_obj_set_size(card, LV_PCT(100), LV_SIZE_CONTENT);
 
     lv_obj_t * header = lv_obj_create(card);
     lv_obj_remove_style_all(header);
     lv_obj_set_scrollable(header, false);
-    lv_obj_set_size(header, LV_PCT(100), LV_SIZE_CONTENT);
     lv_obj_set_flex_flow(header, LV_FLEX_FLOW_ROW);
+    lv_obj_set_style_pad_column(header, SPACE_SM, 0);   /* gap */
+    lv_obj_set_size(header, LV_PCT(100), LV_SIZE_CONTENT);
     lv_obj_set_flex_align(header, LV_FLEX_ALIGN_SPACE_BETWEEN,
                           LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
-    lv_obj_set_style_pad_column(header, SPACE_SM, 0);   /* gap */
 
     lv_obj_t * title = lv_label_create(header);
     lv_label_set_text(title, "Temperature");
