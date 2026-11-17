@@ -1,0 +1,98 @@
+/* SPDX-License-Identifier: MIT */
+/* Copyright (c) 2026 Timothy Mitchell */
+
+/**
+ * @file trlv_demo_cards.c
+ * The Cards section: the three MD3 card types with realistic content. Each
+ * card is a column styled with trlv_card; its padding is set with trlv_pad,
+ * as in Figma, and its text takes on_surface by inheritance.
+ *
+ * The layout, as a Figma designer would draw it:
+ *
+ *     section        column, gap LG, fills the width
+ *     └─ card        column, gap SM, padding LG, fills the width   (× 3: filled,
+ *        │           elevated, outlined)
+ *        ├─ type     Label Medium: the card type
+ *        ├─ title    Title Medium
+ *        ├─ body     Body Medium, fills the width so it wraps
+ *        └─ actions  row, gap SM, fills the width, packed at the end, wraps
+ *           ├─ button  text button: the secondary action
+ *           └─ button  filled button: the main action
+ *
+ * The outlined card's border sits inside its size and insets the content by
+ * its width, on top of the padding (Figma: inside stroke).
+ *
+ * tests/layout/test_demo.c checks this section; keep the two in step.
+ */
+
+#include "trlv_demo.h"
+
+typedef struct {
+    trlv_card_t card;
+    const char * type;
+    const char * title;
+    const char * body;
+    const char * secondary;   /* text button */
+    const char * main;        /* filled button */
+} demo_card_t;
+
+static const demo_card_t cards[] = {
+    {
+        TRLV_CARD_FILLED, "Filled card", "Calibration due",
+        "The flow sensor was last calibrated eleven months ago. Book a "
+        "calibration before the end of the month to keep readings in tolerance.",
+        "Later", "Book"
+    },
+    {
+        TRLV_CARD_ELEVATED, "Elevated card", "Daily summary",
+        "Three runs finished today with no alarms. The longest took 2 h 14 min.",
+        "Share", "View report"
+    },
+    {
+        TRLV_CARD_OUTLINED, "Outlined card", "Update available",
+        "Version 2.4 starts faster and adds two languages. The device "
+        "restarts to install it.",
+        "Not now", "Install"
+    },
+};
+
+#define COUNT(array) (sizeof(array) / sizeof((array)[0]))
+
+static void button(lv_obj_t * parent, const char * text, trlv_button_t variant)
+{
+    lv_obj_t * btn = lv_button_create(parent);
+    trlv_button_variant(btn, variant);
+    trlv_text(btn, text, TRLV_TEXT_LABEL_LARGE);
+}
+
+static void card(lv_obj_t * section, const demo_card_t * content)
+{
+    lv_obj_t * obj = trlv_column(section, TRLV_SPACE_SM);
+    trlv_card(obj, content->card);
+    trlv_pad(obj, TRLV_SPACE_LG);
+    trlv_fill_width(obj);
+
+    trlv_text(obj, content->type, TRLV_TEXT_LABEL_MEDIUM);
+    trlv_text(obj, content->title, TRLV_TEXT_TITLE_MEDIUM);
+    lv_obj_t * body = trlv_text(obj, content->body, TRLV_TEXT_BODY_MEDIUM);
+    trlv_fill_width(body);
+
+    /* Actions at the end of the card (Figma: auto layout packed right);
+     * on a narrow display they wrap rather than overflow. */
+    lv_obj_t * actions = trlv_row(obj, TRLV_SPACE_SM);
+    trlv_fill_width(actions);
+    trlv_justify(actions, TRLV_JUSTIFY_END);
+    lv_obj_set_flex_flow(actions, LV_FLEX_FLOW_ROW_WRAP);
+    button(actions, content->secondary, TRLV_BUTTON_TEXT);
+    button(actions, content->main, TRLV_BUTTON_FILLED);
+}
+
+lv_obj_t * trlv_demo_cards_create(lv_obj_t * parent)
+{
+    lv_obj_t * section = trlv_column(parent, TRLV_SPACE_LG);
+    trlv_fill_width(section);
+
+    for(uint32_t i = 0; i < COUNT(cards); i++) card(section, &cards[i]);
+
+    return section;
+}
