@@ -89,9 +89,12 @@ While the version is 0.x, minor releases may contain breaking changes.
   and dark colour schemes with example success and warning custom colours, and
   Regular and Compact layout values (Compact: denser spacing, smaller
   controls and corners, tone-only elevation, a smaller type scale). Each
-  text role uses the nearest Montserrat size
-  enabled in `lv_conf.h`, with its MD3 line height, falling back to smaller
-  sizes and then `LV_FONT_DEFAULT`, so no font files are needed.
+  text role uses the nearest Montserrat size enabled in `lv_conf.h`, with
+  its line height, falling back to smaller sizes and then
+  `LV_FONT_DEFAULT`, so no font files are needed.
+- Example HMI colour scheme in `templates/trlv_tokens_hmi.c`: grey,
+  low-saturation light and dark colours in the high-performance HMI style,
+  with three alarm priorities as custom colours. Example values only.
 - `trlv_init(disp, color, layout)` and the token
   accessors `trlv_color()` and `trlv_layout()`. A `NULL` display or token
   pointer is rejected with a warning. Calling `trlv_init` again (also after

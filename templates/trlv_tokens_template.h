@@ -22,7 +22,8 @@
  *
  *  - regenerate the colours from your seed colour (Material Theme Builder);
  *  - replace the example custom colours with your own (status colours,
- *    alarm priorities, extra brand accents), or delete them;
+ *    alarm priorities, extra brand accents), or delete them
+ *    (trlv_tokens_hmi.h is an example scheme with alarm priorities);
  *  - give each text role a real font and its Figma line height;
  *  - delete what you don't use: the second colour mode, or the layout
  *    mode you don't ship (Regular or Compact).

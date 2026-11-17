@@ -215,6 +215,20 @@ The template defines four `const` collections, `tokens_light`, `tokens_dark`,
 The template is compiled in CI with the strict warning flags, so it stays in
 step with the token types.
 
+**An industrial example.** Next to the template,
+[`templates/trlv_tokens_hmi.c`](../templates/trlv_tokens_hmi.c) and `.h`
+hold an example colour scheme for a process or instrument HMI in the
+high-performance HMI style (ISA-101): neutral grey surfaces in light and
+dark, low-saturation accents, and a custom colour table of three alarm
+priorities (`tokens_hmi_light`, `tokens_hmi_dark`, indexed by
+`token_alarm_t`) in place of success and warning. The alarm colours are
+not harmonised with primary and are the same in both modes, and MD3
+`error` is a muted red kept apart from the high-priority alarm red. It
+uses the same token types as the MD3 baseline, with values only, and is
+compiled in CI and tested with the demo in both modes. The values are
+examples and claim compliance with no standard: a product's alarm colours
+come from its alarm philosophy (ISA-18.2) or the applicable standard.
+
 The project then owns the file: regenerate the colours from the product's
 seed colour, give each role a real font, and delete what it doesn't use,
 such as the layout mode it doesn't ship. The demo's tests run in both

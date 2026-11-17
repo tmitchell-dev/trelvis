@@ -61,7 +61,9 @@ trlv_demo_create(lv_display_get_screen_active(disp), &tokens_light, &tokens_dark
 If your project already has its own copy of the token template, pass your
 tokens instead and leave out `templates/`. For the template's Compact
 layout, pass `&tokens_compact` to `trlv_init`; the demo is laid out for
-both.
+both. To see the example HMI colours, build `templates/trlv_tokens_hmi.c`
+too and pass `&tokens_hmi_light` and `&tokens_hmi_dark` in place of the
+template's colours; their alarm priorities show in the Surfaces section.
 
 The demo fills the object it is given, and the content area scrolls
 vertically when a section is taller than the display. It is laid out for
@@ -88,7 +90,8 @@ the widget, is never clipped (see "Focus rings need clearance" in
 ## Tests
 
 [`tests/layout/test_demo.c`](../../tests/layout/test_demo.c) builds the demo on
-800 × 480 and 320 × 480 test displays, in the Regular and Compact layouts.
+800 × 480 and 320 × 480 test displays, in the Regular and Compact layouts,
+with the template's colours and the example HMI colours.
 It checks the frame, moving between
 sections (and that the one left is freed), each section's layout, that
 nothing overflows its parent, the light/dark switch recolouring every

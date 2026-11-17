@@ -15,6 +15,7 @@
 
 #include "trlv_test.h"
 #include "trlv_tokens_template.h"
+#include "trlv_tokens_hmi.h"
 #include "trlv_demo.h"
 
 #include <stdio.h>
@@ -1268,5 +1269,7 @@ int main(void)
 {
     run_all("template colours, Regular layout", &tokens_light, &tokens_dark, &tokens_regular);
     run_all("template colours, Compact layout", &tokens_light, &tokens_dark, &tokens_compact);
+    run_all("HMI colours, Regular layout", &tokens_hmi_light, &tokens_hmi_dark, &tokens_regular);
+    run_all("HMI colours, Compact layout", &tokens_hmi_light, &tokens_hmi_dark, &tokens_compact);
     return trlv_test_finish();
 }
