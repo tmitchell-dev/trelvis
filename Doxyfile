@@ -4,13 +4,13 @@
 # API reference for the public headers, and CI's check that every public
 # symbol is documented. Run from the repository root:
 #
-#   doxygen            # HTML in build/doxygen/html; fails on a warning
+#   doxygen            # HTML in build-doxygen/html; fails on a warning
 #
 # Options not set here keep Doxygen's defaults.
 
 PROJECT_NAME           = TreLVis
 PROJECT_BRIEF          = "Layout primitives, MD3 tokens and an MD3 theme for LVGL"
-OUTPUT_DIRECTORY       = build/doxygen
+OUTPUT_DIRECTORY       = build-doxygen
 
 INPUT                  = include/trelvis
 FILE_PATTERNS          = *.h
