@@ -39,7 +39,8 @@ already clear: for those, the docs name the LVGL call to use.
 > built and covered by headless tests, and a [demo](examples/demo) shows
 > the whole library in light and dark, Regular and Compact. The API may
 > still change in any 0.x release; 1.0 follows once it has been proven in
-> a real product. See [ROADMAP.md](ROADMAP.md).
+> a real product. See [ROADMAP.md](ROADMAP.md) and what 1.0 will
+> [promise](#what-a-version-number-promises).
 
 ## A taste of the API
 
@@ -178,12 +179,82 @@ recolours everything, and Compact density is just another token set for
 |---|---|---|---|
 | 0.x (in development) | 9.6 (any 9.x ≥ 9.6) | C99; headers usable from C++17 | Also built weekly against LVGL master (v10 development) as an early warning. |
 
-A compile-time check rejects unsupported LVGL versions. A move to LVGL v10 that
-changes the TreLVis API will be a new TreLVis major version.
+A compile-time check rejects unsupported LVGL versions.
 
 TreLVis has no OS, HAL or platform dependencies. It targets both Linux
 (including Raspberry Pi) and microcontrollers such as STM32, from C or C++
 applications.
+
+### What a version number promises
+
+TreLVis follows [Semantic Versioning](https://semver.org). Until 1.0.0, a
+minor release may break anything below, and the [changelog](CHANGELOG.md)
+says what. From 1.0.0 on, these rules hold.
+
+TreLVis is built from source with your project, so the promise is about
+source compatibility: code that builds and works with 1.x builds and works
+with any later 1.y. Binary compatibility is not promised; rebuild TreLVis
+when you update it.
+
+**Covered.** A change that breaks any of these needs a new major version:
+
+- The public headers in `include/trelvis/`: function names and parameters,
+  types, struct fields, enum names and macros. Numeric enum values are
+  covered only where a header documents them (such as `trlv_justify_t`
+  matching `LV_FLEX_ALIGN_*`).
+- What each function documents it does, including the deliberate
+  differences from LVGL. Making a function match its documentation is a
+  bug fix.
+- The configuration options in
+  [`trlv_conf_default.h`](include/trelvis/trlv_conf_default.h): their names
+  and defaults.
+- The shapes of the token structs (`trlv_color_tokens_t`,
+  `trlv_layout_tokens_t` and the structs inside them), which your copy of
+  the token template fills in. See the token rules below.
+- The names of the public styles `trlv_style_box`, `trlv_style_row` and
+  `trlv_style_column`, and what each is documented to do. The properties
+  inside them may change.
+- The supported LVGL versions, C99 for the sources and C++17 for the
+  headers.
+
+**Not covered:** anything under `src/` (including `trlv_internal.h`), the
+demo in `examples/`, the tests, and the values in `templates/`. Your copy
+of a template is yours; a later template is only a suggestion.
+
+**Token schema.** Your project owns a copy of the token template, so the
+token structs are filled in by code TreLVis doesn't control.
+
+- Adding a token field (or a step to a token scale) is a minor change,
+  provided an existing copy still builds and still works. That holds
+  because the template uses designated initialisers (`.primary = …`,
+  `[TRLV_SPACE_SM] = 8`), so a field your copy doesn't set is zero, and
+  the library treats zero in a new field safely: it falls back to a
+  documented value and logs a warning. Keep designated initialisers when
+  you edit your copy.
+- Renaming or removing a token field, or changing what an existing field
+  means, is a major change.
+- Every token schema change has a **Migration** note in its changelog
+  entry, saying what to add to or change in a copied template.
+
+**Visual output.** The theme's look (which colour role a widget uses, a
+padding, a state-layer opacity, a shape) can change in a minor release,
+listed under *Changed* in the changelog so you can check your screens. A
+patch release changes the look only to fix a bug: output that doesn't
+match the documentation or the MD3 role it names.
+
+**Deprecation.** Anything covered is deprecated in a minor release first: a
+`@deprecated` note in its doc comment naming the replacement, and an entry
+under *Deprecated* in the changelog. It keeps working until the next major
+release removes it.
+
+**LVGL versions.** TreLVis 1.x supports LVGL 9 from 9.6 on. Support for a
+newer LVGL 9 minor arrives in a minor or patch release once CI builds and
+tests it; the minimum LVGL version rises only in a major release. TreLVis
+already follows the rules that ease the move to LVGL v10 and builds weekly
+against LVGL master ([#88](https://github.com/tmitchell-dev/trelvis/issues/88)).
+When LVGL v10 is released, support for it comes in a new TreLVis major
+version, and a `release/v1.x` branch takes fixes for products that stay on
+LVGL 9.
 
 ## Quick start
 
