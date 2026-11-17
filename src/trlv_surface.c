@@ -3,10 +3,12 @@
 
 /**
  * @file trlv_surface.c
- * Surfaces: MD3 container colours with their inherited content colour.
+ * Surfaces and custom colours: MD3 container colours with their inherited
+ * content colour.
  */
 
 #include "trelvis/trlv_surface.h"
+#include "trelvis/trlv_theme.h"
 #include "trlv_internal.h"
 #include "trlv_style_group.h"
 
@@ -42,13 +44,84 @@ static const lv_style_t * const surface_styles[] = {
 TRLV_STATIC_ASSERT(sizeof(surface_styles) / sizeof(surface_styles[0]) == TRLV_SURFACE_COUNT,
                    surface_styles_cover_the_enum);
 
+/* Custom colours: two styles (colour, container) for each of the first
+ * TRLV_CUSTOM_COLOR_MAX indexes. LV_STYLE_CONST_INIT defines one variable,
+ * so the styles are spelled out per index, up to a fixed cap. */
+#if TRLV_CUSTOM_COLOR_MAX < 0 || TRLV_CUSTOM_COLOR_MAX > 8
+#error "TRLV_CUSTOM_COLOR_MAX must be between 0 and 8"
+#endif
+
+#if TRLV_CUSTOM_COLOR_MAX > 0
+static lv_style_const_prop_t custom_props[TRLV_CUSTOM_COLOR_MAX][TRLV_CUSTOM_SURFACE_COUNT][SURFACE_PROPS];
+#endif
+
+/* CUSTOM_EACH(X) expands X(i) for every index below TRLV_CUSTOM_COLOR_MAX. */
+#if TRLV_CUSTOM_COLOR_MAX > 0
+#define CUSTOM_0(X) X(0)
+#else
+#define CUSTOM_0(X)
+#endif
+#if TRLV_CUSTOM_COLOR_MAX > 1
+#define CUSTOM_1(X) X(1)
+#else
+#define CUSTOM_1(X)
+#endif
+#if TRLV_CUSTOM_COLOR_MAX > 2
+#define CUSTOM_2(X) X(2)
+#else
+#define CUSTOM_2(X)
+#endif
+#if TRLV_CUSTOM_COLOR_MAX > 3
+#define CUSTOM_3(X) X(3)
+#else
+#define CUSTOM_3(X)
+#endif
+#if TRLV_CUSTOM_COLOR_MAX > 4
+#define CUSTOM_4(X) X(4)
+#else
+#define CUSTOM_4(X)
+#endif
+#if TRLV_CUSTOM_COLOR_MAX > 5
+#define CUSTOM_5(X) X(5)
+#else
+#define CUSTOM_5(X)
+#endif
+#if TRLV_CUSTOM_COLOR_MAX > 6
+#define CUSTOM_6(X) X(6)
+#else
+#define CUSTOM_6(X)
+#endif
+#if TRLV_CUSTOM_COLOR_MAX > 7
+#define CUSTOM_7(X) X(7)
+#else
+#define CUSTOM_7(X)
+#endif
+#define CUSTOM_EACH(X) \
+    CUSTOM_0(X) CUSTOM_1(X) CUSTOM_2(X) CUSTOM_3(X) CUSTOM_4(X) CUSTOM_5(X) CUSTOM_6(X) CUSTOM_7(X)
+
+#define CUSTOM_DEFINE(i)                                                                     \
+    static LV_STYLE_CONST_INIT(custom_color_##i, custom_props[i][TRLV_CUSTOM_SURFACE_COLOR]); \
+    static LV_STYLE_CONST_INIT(custom_container_##i, custom_props[i][TRLV_CUSTOM_SURFACE_CONTAINER]);
+#define CUSTOM_POINTERS(i) &custom_color_##i, &custom_container_##i,
+
+CUSTOM_EACH(CUSTOM_DEFINE)
+
+#if TRLV_CUSTOM_COLOR_MAX > 0
+/* Indexed by index * TRLV_CUSTOM_SURFACE_COUNT + trlv_custom_surface_t. */
+static const lv_style_t * const custom_styles[] = { CUSTOM_EACH(CUSTOM_POINTERS) };
+TRLV_STATIC_ASSERT(sizeof(custom_styles) / sizeof(custom_styles[0])
+                   == TRLV_CUSTOM_COLOR_MAX * TRLV_CUSTOM_SURFACE_COUNT,
+                   custom_styles_cover_every_index);
+#endif
+
 /* The fill group: every style that sets an object's container colour.
  * trlv_surface, trlv_surface_custom and trlv_card replace each other. */
 static const lv_style_t * const fill_styles[] = {
     &surface_surface, &surface_container_lowest, &surface_container_low,
     &surface_container, &surface_container_high, &surface_container_highest,
     &surface_primary_container, &surface_secondary_container,
-    &surface_tertiary_container, &surface_error_container, &surface_inverse
+    &surface_tertiary_container, &surface_error_container, &surface_inverse,
+    CUSTOM_EACH(CUSTOM_POINTERS)
 };
 static const trlv_style_group_t fill_group = TRLV_STYLE_GROUP_LIST(fill_styles);
 
@@ -85,6 +158,26 @@ void trlv_surface_styles_build(const trlv_color_tokens_t * color, const trlv_lay
                   color->on_tertiary_container);
     build_surface(TRLV_SURFACE_ERROR_CONTAINER, color->error_container, color->on_error_container);
     build_surface(TRLV_SURFACE_INVERSE, color->inverse_surface, color->inverse_on_surface);
+
+#if TRLV_CUSTOM_COLOR_MAX > 0
+    /* An index the tokens don't define gets an empty style, so an object
+     * that has it shows its other styles rather than a stale colour. */
+    for(uint32_t i = 0; i < TRLV_CUSTOM_COLOR_MAX; i++) {
+        lv_style_const_prop_t * color_props = custom_props[i][TRLV_CUSTOM_SURFACE_COLOR];
+        lv_style_const_prop_t * container_props = custom_props[i][TRLV_CUSTOM_SURFACE_CONTAINER];
+
+        if(color->custom != NULL && i < color->custom_count) {
+            const trlv_custom_color_t * custom = &color->custom[i];
+            trlv_prop_set_end(put_tone(color_props, custom->color, custom->on_color));
+            trlv_prop_set_end(put_tone(container_props, custom->color_container,
+                                       custom->on_color_container));
+        }
+        else {
+            trlv_prop_set_end(color_props);
+            trlv_prop_set_end(container_props);
+        }
+    }
+#endif
 }
 
 /*---------------------------------------------------------------------------
@@ -100,4 +193,38 @@ void trlv_surface(lv_obj_t * obj, trlv_surface_t surface)
         return;
     }
     trlv_style_group_apply(obj, &fill_group, surface_styles[surface], LV_PART_MAIN);
+}
+
+void trlv_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t surface)
+{
+    LV_ASSERT_NULL(obj);
+
+    if((uint32_t)surface >= TRLV_CUSTOM_SURFACE_COUNT) {
+        LV_LOG_WARN("trlv_surface_custom: %d is not a trlv_custom_surface_t", (int)surface);
+        return;
+    }
+
+#if TRLV_CUSTOM_COLOR_MAX > 0
+    if(index >= TRLV_CUSTOM_COLOR_MAX) {
+        LV_LOG_WARN("trlv_surface_custom: index %d is at or beyond TRLV_CUSTOM_COLOR_MAX (%d)",
+                    (int)index, (int)TRLV_CUSTOM_COLOR_MAX);
+        return;
+    }
+
+    /* Before trlv_init the count is unknown; the style is empty until then. */
+    const trlv_color_tokens_t * color = trlv_color();
+    if(color != NULL && index >= color->custom_count) {
+        LV_LOG_WARN("trlv_surface_custom: index %d is beyond the tokens' custom_count (%d)",
+                    (int)index, (int)color->custom_count);
+        return;
+    }
+
+    trlv_style_group_apply(obj, &fill_group,
+                           custom_styles[index * TRLV_CUSTOM_SURFACE_COUNT + (uint32_t)surface],
+                           LV_PART_MAIN);
+#else
+    LV_UNUSED(obj);
+    LV_LOG_WARN("trlv_surface_custom: index %d is at or beyond TRLV_CUSTOM_COLOR_MAX (0)", (int)index);
+    LV_UNUSED(index);
+#endif
 }

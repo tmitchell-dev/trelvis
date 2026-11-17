@@ -88,7 +88,7 @@
  * How many of the project's custom colours (trlv_color_tokens_t::custom)
  * trlv_surface_custom can apply. Each one costs the RAM of two small shared
  * styles (the colour and its container), whether the tokens define it or
- * not. 0 compiles the styles out.
+ * not. 0 compiles the styles out; at most 8.
  *
  * This only sizes the library's static storage: the token structs are the
  * same for every value, and the tokens may hold more entries than this.

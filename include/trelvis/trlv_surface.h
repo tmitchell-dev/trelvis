@@ -135,9 +135,8 @@ void trlv_surface(lv_obj_t * obj, trlv_surface_t surface);
  * @param obj      any object
  * @param index    index into trlv_color_tokens_t::custom, normally a value
  *                 of the project's own enum
- * @param surface  which pair of the custom colour to use
- *
- * @note Not implemented yet (milestone 5).
+ * @param surface  which pair of the custom colour to use; any other value
+ *                 logs a warning and changes nothing
  */
 void trlv_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t surface);
 
