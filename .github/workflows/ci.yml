@@ -96,3 +96,34 @@ jobs:
             gcc -std=c99 -Wall -Wextra -Wpedantic -Werror -fsyntax-only \
                 -Iinclude -isystem build/_deps/lvgl-src/include -DLV_CONF_SKIP $defs src/trlv_theme.c
           done
+
+  consumer:
+    name: Consumer project
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      # The LVGL version the development build pins, as a product's submodule.
+      - name: Fetch LVGL
+        run: |
+          tag=$(sed -n 's/^set(TRLV_LVGL_GIT_TAG "\([^"]*\)".*/\1/p' tests/CMakeLists.txt)
+          git clone --quiet --depth 1 --branch "$tag" https://github.com/lvgl/lvgl.git "$RUNNER_TEMP/lvgl"
+
+      # tests/consumer: its own LVGL target (app_lvgl) and lv_conf.h, TreLVis
+      # by add_subdirectory, the copied token template, and the demo run
+      # headless in light and dark.
+      - name: CMake, trlv_conf.h on the include path
+        run: |
+          cmake -S tests/consumer -B build-include -DLVGL_DIR="$RUNNER_TEMP/lvgl"
+          cmake --build build-include --parallel
+          ctest --test-dir build-include --output-on-failure
+
+      - name: CMake, trlv_conf.h through TRLV_CONF_PATH
+        run: |
+          cmake -S tests/consumer -B build-conf-path -DLVGL_DIR="$RUNNER_TEMP/lvgl" -DCONSUMER_CONF=conf_path
+          cmake --build build-conf-path --parallel
+          ctest --test-dir build-conf-path --output-on-failure
+
+      - name: Makefile with trelvis.mk
+        run: make -C tests/consumer -j"$(nproc)" LVGL_DIR="$RUNNER_TEMP/lvgl" run

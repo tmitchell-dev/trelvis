@@ -260,7 +260,8 @@ LVGL 9.
 
 From an LVGL 9.6 project with a working display to a themed screen in
 five steps. Your project provides LVGL and its `lv_conf.h`; TreLVis
-doesn't vendor it.
+doesn't vendor it. CI builds [`tests/consumer`](tests/consumer), a small
+project that follows these steps with CMake and with a Makefile.
 
 ### 1. Add TreLVis
 
@@ -280,13 +281,24 @@ target_link_libraries(my_app PRIVATE trelvis)
 ```
 
 TreLVis links against your project's `lvgl` target. If your LVGL target has
-another name, set `TRLV_LVGL_TARGET` before `add_subdirectory`.
+another name, set it first: `set(TRLV_LVGL_TARGET my_lvgl)` before
+`add_subdirectory(external/trelvis)`.
+
+TreLVis finds a `trlv_conf.h` (see [Configuration](#configuration)) on its
+include path, which includes your LVGL target's public include
+directories. LVGL's own CMake keeps the directory of `lv_conf.h` to itself,
+so if you configure TreLVis, add that directory to TreLVis too:
+
+```cmake
+target_include_directories(trelvis PUBLIC config)   # holds lv_conf.h and trlv_conf.h
+```
 
 **Makefile:** `include external/trelvis/trelvis.mk` adds the sources to
 `CSRCS` and the include path to `CFLAGS`, next to LVGL's own `lvgl.mk`.
 `lvgl.mk` puts only LVGL's own directory on the include path, so also add
 `-Iexternal/lvgl/include` (or the directory that holds `lvgl/`) for the
-`<lvgl/lvgl.h>` that TreLVis includes.
+`<lvgl/lvgl.h>` that TreLVis includes, and the directory of your
+`lv_conf.h` and `trlv_conf.h`.
 
 **Anything else** (STM32CubeIDE and other IDE-managed builds): add
 `external/trelvis/src/*.c` to your sources and `external/trelvis/include`
@@ -359,8 +371,15 @@ them and builds in your project the same way.
 All options have defaults in
 [`trlv_conf_default.h`](include/trelvis/trlv_conf_default.h). To change one,
 create a `trlv_conf.h` next to your `lv_conf.h` (anywhere on the include path
-works), or pass a compiler definition. A different file name or location can
-be given with `TRLV_CONF_PATH`.
+works, as long as TreLVis's sources see it too; see
+[step 2](#2-build-it-with-your-project)), or pass a compiler definition. A
+different file name or location can be given with `TRLV_CONF_PATH`, defined
+for TreLVis and your code alike:
+
+```cmake
+target_compile_definitions(trelvis PUBLIC
+    "TRLV_CONF_PATH=\"${CMAKE_SOURCE_DIR}/config/my_trlv_conf.h\"")
+```
 
 ```c
 /* trlv_conf.h */
