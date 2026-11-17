@@ -93,6 +93,13 @@ Inputs for the API review (milestone 3):
   border on a plain `lv_obj`.
 - **Custom colours** are capped at `TRLV_CUSTOM_COLOR_MAX` 8: each style is
   a separate constant, spelled out per index.
+- **Button variants** style every state the theme styles (default,
+  pressed, focus key, disabled), because LVGL resolves a property by state
+  before style order. Outlined and text buttons have no container to
+  pre-mix a state layer with, so theirs is the content colour at the state
+  opacity, over whatever is behind.
+- **Divider** styles are token styles built with the colours, so the line
+  follows colour-mode switches and its thickness follows `trlv_init`.
 - **Borders inset the content.** LVGL lays children out inside the border
   and then the padding, as Figma does for an inside stroke included in
   layout (CSS `border-box`). The docs said the border didn't add to the
