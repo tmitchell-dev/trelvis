@@ -29,7 +29,8 @@ If an implementation decision changes the design, update the doc in the same PR.
 ## Current status
 
 Milestones 1 (scaffold), 2 (vertical slice), 3 (API review), 4 (tokens
-and theme) and 5 (surfaces, cards and remaining primitives) are done.
+and theme), 5 (surfaces, cards and remaining primitives) and 6 (demo and
+docs) are done, and 0.1.0 is the v1 feature-complete release.
 The slice implemented the token template, `trlv_init`, box, row, column,
 gap, pad, fill/hug and text, the demo screen `trlv_demo_create(parent)` in
 `examples/demo`, and headless layout tests. TreLVis ships no simulator; host
@@ -54,11 +55,16 @@ replaces its previous style; add a case there for any new group.
 Config options are tested by building a copy of the library with the
 option set (`trlv_add_option_test` in `tests/CMakeLists.txt`).
 
-**Next is milestone 6: demo and docs.** The demo grows to exercise every
-primitive, the README, concepts and Figma hand-off docs catch up with the
-implementation, and the milestone ends with the v1 acceptance check. An
-API change still needs the docs, the include test and the changelog
-updated with it.
+Milestone 6 grew `examples/demo` into sections that exercise every
+primitive (surfaces, cards, button variants and themed widgets in their
+states, a list built from rows, a light/dark switch, keypad focus), added
+an example Compact token set and an HMI colour scheme next to the
+template, brought the README, concepts and Figma hand-off docs up to date,
+and checked the v1 acceptance criteria (evidence on issue #75).
+
+**Next is v1.1**, item by item and only when a product needs one (ROADMAP
+"v1.1"). An API change still needs the docs, the include test and the
+changelog updated with it.
 
 Work is tracked in GitHub issues, one per item, under milestones
 `M<N>: …` with a tracking issue each. Each PR says `Closes #N` for the
