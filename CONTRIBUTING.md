@@ -12,10 +12,12 @@ agree on the approach before you write code.
 TreLVis is a **utility layer, not a framework**. Before proposing a feature,
 check it fits:
 
-**In scope:** layout primitives and modifiers (Figma auto layout / CSS
-flexbox), Material Design 3 token *types* and a token template projects copy,
-an MD3 theme for LVGL's built-in widgets using LVGL's theme and style engine,
-surfaces, cards, text roles, and documentation for the Figma hand-off.
+**In scope:** layout primitives and modifiers (CSS flexbox / Figma auto
+layout), design token *types* with MD3's role names and a token template
+projects copy, a theme for LVGL's built-in widgets (MD3's look by default)
+using LVGL's theme and style engine, surfaces, cards, text roles, and
+documentation for designing a screen, building a token set and the Figma
+hand-off.
 
 **What earns a place.** TreLVis stays small on purpose. Its main job is to
 turn the blocks of LVGL calls that every project repeats into one standard
@@ -24,7 +26,8 @@ call. A new public function must do at least one of these:
 - replace a block of LVGL calls that projects repeat, so it is written once
   and the same way everywhere;
 - take a design token, so screens hold no magic numbers;
-- fix an LVGL default that surprises people coming from Figma or CSS;
+- fix an LVGL default that surprises people coming from CSS, Figma or
+  other UI toolkits;
 - make a decision LVGL leaves to the caller (for example axis-aware fill).
 
 A function that only renames a single clear LVGL call does not qualify.
@@ -204,23 +207,26 @@ See [docs/concepts.md](docs/concepts.md) for the full design.
 - Prefixes: functions `trlv_*`, types `trlv_*_t`, macros and enums `TRLV_*`,
   config options `TRLV_USE_*` / `TRLV_*`, header guards `TRLV_*_H`, library
   styles `trlv_style_*`.
-- Vocabulary priority: **Figma / MD3 term → CSS term → LVGL term**. Never
-  invent a fourth vocabulary.
+- Vocabulary: **the most intuitive existing word** for someone who knows
+  CSS or LVGL but not Figma. Where CSS, Figma and MD3 agree, use that
+  word; colour, type and shape tokens use MD3's role names, for
+  compatibility. Never invent a fourth vocabulary. A rename needs a reason
+  better than where a word came from.
 - Avoid words that clash with LVGL or CSS: `frame`, `float`, `stack`, `layer`,
   `canvas`, `screen`. Don't use `align` for flex distribution
   (`lv_obj_align` means positioning).
-- **Words from Figma / CSS / MD3, grammar from LVGL.** Four kinds of
-  function:
+- **Familiar words, grammar from LVGL.** Four kinds of function:
   - constructors end in `_create` and return the new object
     (`trlv_row_create(parent)`). They take the parent plus only arguments
     whose type makes them clear at the call site
     (`trlv_text_create(parent, "Start", TRLV_TEXT_LABEL_LARGE)`), never a
     bare `TRLV_SPACE_*`;
-  - layout setters, `trlv_set_<property>`, are the properties of Figma's
-    auto layout panel (`trlv_set_gap`, `trlv_set_width_fill`);
-  - appearance functions, `trlv_apply_<look>`, are Figma's "apply a style"
-    (`trlv_apply_surface`, `trlv_apply_card`);
-  - getters use `_get_` (`trlv_get_color_tokens()`).
+  - layout setters, `trlv_set_<property>`, set one layout property: a
+    size, spacing or flow (`trlv_set_gap`, `trlv_set_width_fill`), as in a
+    row of Figma's auto layout panel;
+  - appearance functions, `trlv_apply_<look>`, apply a look, like a CSS
+    class or a Figma style (`trlv_apply_surface`, `trlv_apply_card`);
+  - getters use `_get_` (`trlv_get_color_tokens()`, `trlv_get_space()`).
 
   Setters and applies work on any object and replace their previous
   value. A set never changes colour and an apply never changes layout.
@@ -247,7 +253,7 @@ See [docs/concepts.md](docs/concepts.md) for the full design.
   ```
 
 - Every public function has a Doxygen-style comment that names its
-  **Figma / MD3 / CSS equivalent** and any surprising LVGL behaviour it
+  **CSS / Figma / MD3 equivalent** and any surprising LVGL behaviour it
   handles. Each public header includes a mapping table (Figma/MD3 → CSS →
   `trlv` → LVGL mechanism).
 - Every public symbol (function, type, field, enum value, macro) is

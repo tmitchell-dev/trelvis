@@ -310,7 +310,7 @@ Additive items, each built only when a product needs it, before or after
 - `trlv_debug_dump(obj)`: prints the object tree with sizes, padding, gaps and
   styles for comparison with Figma (`TRLV_USE_DEBUG`).
 - MD3 styles for the widgets the coverage audit found looking wrong next
-  to MD3 ([docs/concepts.md §6.4](docs/concepts.md#64-md3-widget-coverage-v1)):
+  to MD3 ([docs/concepts.md §6.4](docs/concepts.md#64-widget-coverage-v1)):
   roller, button matrix and keyboard, message box, spinbox, table, chart,
   calendar, and the tabview and tileview content. One issue each.
 

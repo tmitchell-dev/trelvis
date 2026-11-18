@@ -5,28 +5,31 @@
 [![CI](https://github.com/tmitchell-dev/trelvis/actions/workflows/ci.yml/badge.svg)](https://github.com/tmitchell-dev/trelvis/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-TreLVis is a small C utility layer on top of LVGL that lets people who know
-Figma, HTML/CSS or Qt build LVGL user interfaces in a familiar way, and makes
-the hand-off from a Figma design to LVGL code close to mechanical. Its design
-system is [Material Design 3](https://m3.material.io) (MD3): tokens use MD3
-names, and LVGL's widgets get an MD3 look out of the box. A design made with
-the Material 3 Figma kit and Material Theme Builder therefore maps straight
-onto code.
+TreLVis is a small C utility layer for LVGL: CSS-style layout, design
+tokens, and a theme that gives LVGL's widgets a consistent look out of the
+box. Its tokens use Material Design 3's colour roles and type scale, so
+Material tools and designs map straight across, with or without a designer.
 
 - **Layout primitives**: box, row, column, spacer, text and divider, with
-  fit-content, fill and fixed sizing (Figma's hug / fill / fixed) and CSS-style alignment.
-- **Material Design 3 tokens**: colour roles, surface containers, type scale,
-  shape scale, state layers and elevation, plus a 4 px spacing grid. Defined
-  once per project and named exactly like MD3 and the Figma variables. A
-  token template with the generic MD3 baseline is copied into the project at
-  setup, so it works before any value is edited and costs nothing unused.
-- **An MD3 theme built on LVGL's own theme and style engine**: LVGL's built-in
-  widgets get an MD3 look automatically. Colour modes (light / dark / brand)
-  switch at runtime; layout modes (compact / regular / …) are chosen at start-up.
-- **Surfaces and cards**: MD3 tonal surface containers and filled, elevated and
-  outlined cards. Text inside them picks up the right colour through inheritance.
-- **Figma hand-off conventions** aligned with the Material 3 Figma kit and
-  Material Theme Builder.
+  fit-content, fill and fixed sizing and CSS-style alignment.
+- **Design tokens**: colour roles, surface containers, type scale, shape
+  scale, state layers and elevation, plus a 4 px spacing grid. They use
+  [MD3](https://m3.material.io)'s role names, so Material Theme Builder and
+  the Material 3 Figma kit map onto them one-to-one. A token template is
+  copied into the project at setup, so they work before any value is
+  edited and cost nothing unused.
+- **A theme for LVGL's built-in widgets**, on LVGL's own theme and style
+  engine, with MD3's look by default. Colour modes (light / dark / brand)
+  switch at runtime; layout modes (compact / regular / …) are chosen at
+  start-up.
+- **Surfaces, cards and text roles**: tonal surface containers, filled,
+  elevated and outlined cards, the type scale and lower-emphasis text. Text
+  inside a surface picks up the right colour through inheritance.
+- **Design in code, or hand off from Figma**: a guide to
+  [designing a screen](docs/designing-a-screen.md) and
+  [building a token set](docs/building-a-token-set.md) without a designer,
+  and [conventions](docs/figma-handoff.md) that make a Figma design
+  translate directly.
 
 It is a **utility layer, not a framework**: a small toolset for starting LVGL
 projects quickly and keeping them consistent. Every function returns or takes
@@ -158,15 +161,15 @@ Five kinds of function, and the verb in the name says which:
 
 | Kind | Functions | What it does |
 |---|---|---|
-| Setup | `trlv_init`, `trlv_theme_set_color_mode` | Install the MD3 theme with your tokens, once; switch light and dark at any time. |
-| Constructors, `_create` | `trlv_box_create`, `trlv_row_create`, `trlv_column_create`, `trlv_spacer_create`, `trlv_divider_create`, `trlv_text_create` | Make a primitive and return a plain `lv_obj_t *`. Containers start like a fresh Figma frame: no gap, no padding, fit content. |
-| Layout setters, `trlv_set_*` | `trlv_set_gap`, `trlv_set_pad`, `trlv_set_width_fill` / `_fit`, `trlv_set_height_fill` / `_fit`, `trlv_set_justify`, `trlv_set_align_items` | One row of Figma's auto layout panel each. Never change colour. |
-| Appearance, `trlv_apply_*` | `trlv_apply_surface`, `trlv_apply_surface_custom`, `trlv_apply_card`, `trlv_apply_button_type`, `trlv_apply_text_role`, `trlv_apply_text_emphasis` | Figma's "apply a style": colour, shape and type. Never change layout. |
-| Getters, `trlv_get_*` | `trlv_get_color_tokens`, `trlv_get_layout_tokens`, `trlv_get_space`, `trlv_get_radius`, `trlv_get_control_height` | Token values for raw LVGL calls. |
+| Setup | `trlv_init`, `trlv_theme_set_color_mode` | Install the theme with your tokens, once; switch light and dark at any time. |
+| Constructors, `_create` | `trlv_box_create`, `trlv_row_create`, `trlv_column_create`, `trlv_spacer_create`, `trlv_divider_create`, `trlv_text_create` | Make a primitive and return a plain `lv_obj_t *`. Containers start like a CSS `div` or a fresh Figma frame: no gap, no padding, fit content. |
+| Layout setters, `trlv_set_*` | `trlv_set_gap`, `trlv_set_pad`, `trlv_set_width_fill` / `_fit`, `trlv_set_height_fill` / `_fit`, `trlv_set_justify`, `trlv_set_align_items` | One layout property each: size, spacing or flow (a row of Figma's auto layout panel). Never change colour. |
+| Appearance, `trlv_apply_*` | `trlv_apply_surface`, `trlv_apply_surface_custom`, `trlv_apply_card`, `trlv_apply_button_type`, `trlv_apply_text_role`, `trlv_apply_text_emphasis` | Colour, shape and type, applied like a CSS class or a Figma style. Never change layout. |
+| Getters, `trlv_get_*` | `trlv_get_color_tokens`, `trlv_get_layout_tokens`, `trlv_get_space`, `trlv_get_radius`, `trlv_get_control_height` | The tokens, or one token value, for raw LVGL calls. |
 
 Setters and applies work on any object, LVGL widgets included, and
 replace their previous value rather than stacking. A screen reads as one
-block per Figma frame: create, set its layout, apply its look. LVGL
+block per container: create, set its layout, apply its look. LVGL
 widgets (`lv_button_create`, `lv_slider_create`, …) need no TreLVis
 constructor: the theme styles them. See
 [The API by kind](docs/concepts.md#7-the-api-by-kind) for the rules of
@@ -181,10 +184,13 @@ each kind.
   a single clear LVGL call is left to LVGL.
 - **No new surprises for LVGL users.** Where TreLVis has no reason to differ,
   LVGL's natural behaviour stands. Deliberate differences are documented.
-- **Familiar vocabulary, LVGL's grammar.** Names come from Figma / MD3 first,
-  then CSS, then LVGL. No fourth vocabulary. The verbs say what a call
+- **Familiar vocabulary, LVGL's grammar.** Each name is the word a reader
+  who knows CSS or LVGL, but not Figma, would understand first; where
+  CSS, Figma and MD3 agree (row, column, gap, padding, fill), it is that
+  word. Colour, type and shape tokens use MD3's role names, so a Material
+  design maps one-to-one. No fourth vocabulary. The verbs say what a call
   does: constructors end in `_create`, layout properties are `trlv_set_*`
-  and appearance is `trlv_apply_*`, as you apply a style in Figma
+  and appearance is `trlv_apply_*`
   ([The API at a glance](#the-api-at-a-glance)).
 - **LVGL's engine, not a parallel one.** Layout, colour, type and states are
   all LVGL style properties on shared styles, with LVGL's part/state selectors
@@ -307,10 +313,15 @@ TreLVis links against your project's `lvgl` target. If your LVGL target has
 another name, set it first: `set(TRLV_LVGL_TARGET my_lvgl)` before
 `add_subdirectory(external/trelvis)`.
 
-TreLVis finds a `trlv_conf.h` (see [Configuration](#configuration)) on its
-include path, which includes your LVGL target's public include
-directories. LVGL's own CMake keeps the directory of `lv_conf.h` to itself,
-so if you configure TreLVis, add that directory to TreLVis too:
+With LVGL from `FetchContent`, call `add_subdirectory(external/trelvis)`
+after `FetchContent_MakeAvailable(lvgl)` instead of the first line.
+
+**`trlv_conf.h` is optional.** If TreLVis's defaults fit (see
+[Configuration](#configuration)), skip the rest of this paragraph. To
+configure it, TreLVis finds a `trlv_conf.h` on its include path, which
+includes your LVGL target's public include directories. LVGL's own CMake
+keeps the directory of `lv_conf.h` to itself, so add that directory to
+TreLVis too:
 
 ```cmake
 target_include_directories(trelvis PUBLIC config)   # holds lv_conf.h and trlv_conf.h
@@ -346,10 +357,12 @@ In `tokens.c`, change `#include "trlv_tokens_template.h"` to
 the include guard in `tokens.h`, use a project name such as `TOKENS_H`, not
 a `TRLV_` one: `TRLV_TOKENS_H` is the guard of TreLVis's own
 `trlv_tokens.h`, and the two headers would hide each other. The template
-works unedited: the MD3 baseline colours in light and dark, and the Regular
-and Compact layouts. Later you replace the colours with your product's
-(from Material Theme Builder), give the text roles real fonts, and delete
-what you don't use; see [Design tokens](docs/concepts.md#4-design-tokens).
+works unedited: the MD3 baseline colours in light and dark, four example
+status colours, and the Regular and Compact layouts. Later you replace the
+colours with your product's (from Material Theme Builder, or chosen
+yourself), give the text roles real fonts, and delete what you don't use.
+[Building a token set](docs/building-a-token-set.md) says what each token
+is used for, what TreLVis assumes about it, and how to check a set.
 
 ### 4. Call `trlv_init`
 
@@ -362,8 +375,12 @@ Once, after creating the display and before building screens:
 trlv_init(disp, &tokens_light, &tokens_regular);
 ```
 
-This installs the MD3 theme. The screen is now `surface` with `on_surface`
-text, and every LVGL widget you create gets its MD3 look.
+`disp` is the display TreLVis styles; never pass `NULL`. If your
+`ui_init()` has no display parameter (as in projects laid out like LVGL
+Pro's), pass `lv_display_get_default()`.
+
+This installs the theme. The screen is now `surface` with `on_surface`
+text, and every LVGL widget you create gets its look (MD3's, by default).
 
 ### 5. Build a screen
 
@@ -393,7 +410,9 @@ Switch to dark at any time with `trlv_theme_set_color_mode(&tokens_dark)`.
 Every function is described in
 [The API by kind](docs/concepts.md#7-the-api-by-kind); the
 [demo](examples/demo) shows every one of them and builds in your project
-the same way.
+the same way. Before your own screens, read
+[Designing a screen](docs/designing-a-screen.md) (or, with a Figma
+design, the [Figma hand-off](docs/figma-handoff.md)).
 
 ## Configuration
 
@@ -419,7 +438,7 @@ target_compile_definitions(trelvis PUBLIC
 | Option | Default | Meaning |
 |---|---|---|
 | `TRLV_LVGL_INCLUDE` | `<lvgl/lvgl.h>` | How TreLVis includes LVGL. |
-| `TRLV_USE_THEME` | `1` | Install the MD3 theme. `0` = tokens and layout helpers only (bring your own theme). |
+| `TRLV_USE_THEME` | `1` | Install the theme (MD3's look). `0` = tokens and layout helpers only (bring your own theme). |
 | `TRLV_THEME_PARENT` | `TRLV_THEME_PARENT_DEFAULT` | Theme for widgets TreLVis doesn't cover: LVGL's default theme seeded with MD3 colours, or `TRLV_THEME_PARENT_NONE`. |
 | `TRLV_CUSTOM_COLOR_MAX` | `4` | How many of the project's custom colours `trlv_apply_surface_custom` can apply (two small shared styles each). |
 | `TRLV_USE_DEBUG_OUTLINE` | `0` | Draw a 1 px outline on every TreLVis container. |
@@ -463,6 +482,11 @@ Like LVGL itself, every TreLVis function must be called from the LVGL thread
 - API reference: run `doxygen` in the repository and open
   `build-doxygen/html/index.html`; its *Topics* page lists the functions
   by kind.
+- [Designing a screen](docs/designing-a-screen.md): rules for writing a
+  screen, which role to use for what, and composing what TreLVis has no
+  primitive for. Start here when there is no designer.
+- [Building a token set](docs/building-a-token-set.md): what each token is
+  used for, what TreLVis assumes about it, and how to check a set.
 - [Figma hand-off](docs/figma-handoff.md): conventions that make a Figma design
   translate directly into TreLVis code.
 - [Roadmap](ROADMAP.md): milestones, scope and what is deliberately left out.
@@ -479,6 +503,12 @@ issues as described in [SECURITY.md](SECURITY.md).
 TreLVis is released under the [MIT licence](LICENSE). Third-party material is
 listed in [NOTICE](NOTICE).
 
+TreLVis's design tokens are based on
+[Material Design 3](https://m3.material.io), a design system by Google:
+the colour role names and their pairings, the type scale's role names and
+sizes, the shape, elevation and state-layer scales, and the baseline colour
+scheme in the token template. TreLVis includes no Material Design code,
+fonts, icons or images.
+
 TreLVis is an independent project. It is not affiliated with or endorsed by
-LVGL, Google (Material Design) or Figma. Material Design is a design system
-by Google; TreLVis implements its publicly documented token structure.
+LVGL, Google or Figma.

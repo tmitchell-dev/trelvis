@@ -3,8 +3,9 @@
 
 /**
  * @file trlv_tokens.h
- * MD3 design-token types: the Color and Layout collections and the scales
- * that index them.
+ * Design-token types: the Color and Layout collections and the scales that
+ * index them. Role and scale names are Material Design 3's, so a Material
+ * design maps onto them one-to-one.
  *
  * TreLVis defines only the types. A project supplies the values by copying
  * the token template (templates/trlv_tokens_template.c and .h) and passes

@@ -52,20 +52,30 @@ extern "C" {
  *-------------------------------------------------------------------------*/
 
 /**
- * An MD3 surface or container colour role, with the content role that goes
- * on it. Named after the container role.
+ * A surface or container colour role (MD3's names), with the content role
+ * that goes on it. Named after the container role. Nesting goes one step
+ * up the container ladder per level; docs/designing-a-screen.md says which
+ * role to use for what.
  */
 typedef enum {
-    TRLV_SURFACE_SURFACE,             /**< surface / on_surface: the screen background */
-    TRLV_SURFACE_CONTAINER_LOWEST,    /**< surface_container_lowest / on_surface */
-    TRLV_SURFACE_CONTAINER_LOW,       /**< surface_container_low / on_surface */
-    TRLV_SURFACE_CONTAINER,           /**< surface_container / on_surface */
-    TRLV_SURFACE_CONTAINER_HIGH,      /**< surface_container_high / on_surface */
-    TRLV_SURFACE_CONTAINER_HIGHEST,   /**< surface_container_highest / on_surface */
-    TRLV_SURFACE_PRIMARY_CONTAINER,   /**< primary_container / on_primary_container */
-    TRLV_SURFACE_SECONDARY_CONTAINER, /**< secondary_container / on_secondary_container */
-    TRLV_SURFACE_TERTIARY_CONTAINER,  /**< tertiary_container / on_tertiary_container */
-    TRLV_SURFACE_ERROR_CONTAINER,     /**< error_container / on_error_container */
+    TRLV_SURFACE_SURFACE,             /**< surface / on_surface: the page or screen background */
+    TRLV_SURFACE_CONTAINER_LOWEST,    /**< surface_container_lowest / on_surface: a panel
+                                           lighter than the page */
+    TRLV_SURFACE_CONTAINER_LOW,       /**< surface_container_low / on_surface: a panel on the page */
+    TRLV_SURFACE_CONTAINER,           /**< surface_container / on_surface: a menu or popup, a
+                                           nested panel */
+    TRLV_SURFACE_CONTAINER_HIGH,      /**< surface_container_high / on_surface: a header or
+                                           footer bar, a dialog */
+    TRLV_SURFACE_CONTAINER_HIGHEST,   /**< surface_container_highest / on_surface: the highest
+                                           step; a recessed track or well */
+    TRLV_SURFACE_PRIMARY_CONTAINER,   /**< primary_container / on_primary_container: an
+                                           emphasised area */
+    TRLV_SURFACE_SECONDARY_CONTAINER, /**< secondary_container / on_secondary_container: a
+                                           selected item, a chip */
+    TRLV_SURFACE_TERTIARY_CONTAINER,  /**< tertiary_container / on_tertiary_container: a
+                                           contrasting accent */
+    TRLV_SURFACE_ERROR_CONTAINER,     /**< error_container / on_error_container: an input or
+                                           action error (not a process alarm) */
     TRLV_SURFACE_INVERSE,            /**< inverse_surface / inverse_on_surface: snackbars, tooltips */
     TRLV_SURFACE_DIM,                 /**< surface_dim / on_surface: the dimmest surface. In MD3's
                                            dark schemes it equals `surface`, so it is not darker
@@ -79,10 +89,10 @@ typedef enum {
  * Which pair of a custom colour (trlv_custom_color_t) fills a surface.
  */
 typedef enum {
-    TRLV_CUSTOM_SURFACE_COLOR,      /**< color / on_color: a strong fill, such as an
-                                         alarm banner */
-    TRLV_CUSTOM_SURFACE_CONTAINER,  /**< color_container / on_color_container: lower
-                                         emphasis, as the MD3 container roles */
+    TRLV_CUSTOM_SURFACE_COLOR,      /**< color / on_color: the strong fill, such as an
+                                         active alarm banner */
+    TRLV_CUSTOM_SURFACE_CONTAINER,  /**< color_container / on_color_container: the calm
+                                         fill, such as an acknowledged alarm */
     TRLV_CUSTOM_SURFACE_COUNT       /**< Number of pairs; not a pair */
 } trlv_custom_surface_t;
 

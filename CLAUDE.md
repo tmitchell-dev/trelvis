@@ -8,8 +8,10 @@ imported here:
 ## Project in one paragraph
 
 TreLVis (`trelvis`, C prefix `trlv_` / `TRLV_`) is a small C99 utility layer
-on LVGL 9.6. It provides Figma/CSS-style layout primitives, Material Design 3
-(MD3) token types, and an MD3 theme built on LVGL's theme and style engine.
+on LVGL 9.6. It provides CSS-style layout primitives, design token types
+with Material Design 3 (MD3) role names, and a theme (MD3's look by default)
+built on LVGL's theme and style engine. Its design language is inspired by
+and compatible with MD3, and usable with or without Figma.
 It is a utility layer, not a framework: everything takes or returns plain
 `lv_obj_t *`, every modifier works on any object, and LVGL widgets are styled,
 never wrapped. MIT licensed, used as a git submodule from C and C++ products
@@ -22,7 +24,11 @@ never wrapped. MIT licensed, used as a git submodule from C and C++ products
   theme/style engine, primitives and modifiers, mapping tables. Read the
   relevant section before changing an area. Once the public headers exist,
   they are the source of truth for signatures.
-- [docs/figma-handoff.md](docs/figma-handoff.md): designer conventions.
+- [docs/designing-a-screen.md](docs/designing-a-screen.md): tool-neutral
+  design rules and which role to use for what.
+- [docs/building-a-token-set.md](docs/building-a-token-set.md): what each
+  token is used for and what TreLVis assumes about it.
+- [docs/figma-handoff.md](docs/figma-handoff.md): Figma conventions.
 
 If an implementation decision changes the design, update the doc in the same PR.
 

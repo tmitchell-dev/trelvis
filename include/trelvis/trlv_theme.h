@@ -3,8 +3,8 @@
 
 /**
  * @file trlv_theme.h
- * Initialisation, the MD3 theme for LVGL's built-in widgets, and run-time
- * colour-mode switching.
+ * Initialisation, the theme for LVGL's built-in widgets (MD3's look), and
+ * run-time colour-mode switching.
  *
  * TreLVis styles LVGL's widgets through LVGL's own theme engine; it never
  * wraps them. After trlv_init, lv_button_create() gives an MD3 filled

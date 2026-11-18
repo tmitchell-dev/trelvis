@@ -5,10 +5,14 @@ and one button per section, and the selected section below it. It is plain
 C, `trlv_demo_create(parent, light, dark)`, so any host project can show it
 in its own simulator or on its target. TreLVis ships no simulator.
 
+Each section's source starts with its object tree, as a frame tree to read
+next to the code. To design your own screens, see
+[Designing a screen](../../docs/designing-a-screen.md).
+
 | Section  | File                   | Shows |
 |----------|------------------------|-------|
 | Readouts | `trlv_demo_readouts.c` | A screen built from boxes, rows, columns and text: fill and fit, wrapping text, a wrapping row of buttons |
-| Surfaces | `trlv_demo_surfaces.c` | Every MD3 surface and container role and the custom colours, with text taking the `on_` colour by inheritance |
+| Surfaces | `trlv_demo_surfaces.c` | Every surface and container role and the custom colours, with text taking the `on_` colour by inheritance |
 | Cards    | `trlv_demo_cards.c`    | Filled, elevated and outlined cards with a title, wrapping body text and actions packed at the end |
 | Controls | `trlv_demo_controls.c` | The four button types and every widget the theme covers (switch, checkbox, slider, bar, arc, spinner, dropdown, textarea), default, checked and disabled |
 | List     | `trlv_demo_list.c`     | A settings list built from rows and dividers, the replacement for `lv_list`: icons, supporting text, trailing switches, values and chevrons |

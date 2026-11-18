@@ -16,8 +16,9 @@
 /**
  * @mainpage TreLVis API reference
  *
- * TreLVis is a small utility layer on LVGL 9.6: Figma and CSS style layout,
- * Material Design 3 tokens and an MD3 theme for LVGL's own widgets.
+ * TreLVis is a small utility layer on LVGL 9.6: CSS-style layout, design
+ * tokens with Material Design 3's role names, and a theme for LVGL's own
+ * widgets (MD3's look by default).
  * Everything takes or returns a plain lv_obj_t *, and raw LVGL calls stay
  * valid on every object.
  *
@@ -27,10 +28,10 @@
  *
  * | Kind                | Name                                    | What it does                                                                   |
  * |---------------------|-----------------------------------------|--------------------------------------------------------------------------------|
- * | @ref trlv_setup     | trlv_init, trlv_theme_set_color_mode    | Install the MD3 theme with the project's tokens; switch the colour mode.        |
+ * | @ref trlv_setup     | trlv_init, trlv_theme_set_color_mode    | Install the theme with the project's tokens; switch the colour mode.            |
  * | @ref trlv_create    | `trlv_<thing>_create(parent, ...)`      | Make a primitive and return it. Containers start with no gap or padding, fit content. |
- * | @ref trlv_set       | `trlv_set_<property>(obj, ...)`         | One row of Figma's auto layout panel. Never changes colour.                    |
- * | @ref trlv_apply     | `trlv_apply_<look>(obj, ...)`           | Figma's "apply a style": colour, shape, type. Never changes layout.            |
+ * | @ref trlv_set       | `trlv_set_<property>(obj, ...)`         | One layout property: size, spacing or flow. Never changes colour.              |
+ * | @ref trlv_apply     | `trlv_apply_<look>(obj, ...)`           | Apply a look, like a CSS class or a Figma style. Never changes layout.        |
  * | @ref trlv_get       | `trlv_get_<what>()`                     | The current tokens or one token value, for raw LVGL calls.                     |
  *
  * Setters and applies (the modifiers) work on any object, including LVGL
@@ -70,22 +71,22 @@
  * `trlv_<thing>_create(parent, ...)`: create a primitive and return a plain
  * lv_obj_t *. They take the parent plus only arguments whose type makes
  * them clear at the call site, never spacing. Box, row and column start
- * like a fresh Figma frame: no gap, no padding, fit content. LVGL widgets
- * need no TreLVis constructor: the theme styles them.
+ * like a CSS `div` or a fresh Figma frame: no gap, no padding, fit
+ * content. LVGL widgets need no TreLVis constructor: the theme styles them.
  */
 
 /**
  * @defgroup trlv_set Layout setters
- * `trlv_set_<property>(obj, ...)`: the properties of Figma's auto layout
- * panel, one call each. They work on any object, replace the previous value
+ * `trlv_set_<property>(obj, ...)`: one layout property each, a size,
+ * spacing or flow (a row of Figma's auto layout panel). They work on any object, replace the previous value
  * of their group, use shared styles, and never change colour.
  */
 
 /**
  * @defgroup trlv_apply Appearance
- * `trlv_apply_<look>(obj, ...)`: Figma's "apply a style", for colour, shape
- * and type. They work on any object, replace the previous look of their
- * group, recolour on a colour-mode switch, and never change layout. On an
+ * `trlv_apply_<look>(obj, ...)`: a look applied like a CSS class or a Figma
+ * style, for colour, shape and type. They work on any object, replace the
+ * previous look of their group, recolour on a colour-mode switch, and never change layout. On an
  * object a look makes no sense on, they log a warning and apply it anyway.
  */
 
