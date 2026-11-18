@@ -1,36 +1,65 @@
 # SPDX-License-Identifier: MIT
 # On a version tag (vX.Y.Z): run CI, check the tag matches trlv_version.h
 # (CMake reads its version from there too), and publish a GitHub Release
-# with that version's CHANGELOG section. The only workflow with write access.
+# with that version's CHANGELOG section. If the release already exists
+# (made on GitHub's website, which creates the tag and starts this run),
+# its title and notes are replaced with the changelog's instead.
+#
+# Run by hand (Actions > Release > Run workflow) with a tag that already
+# has a release, it refreshes that release's notes from the changelog at
+# the tag. It never creates a release, so nothing is published without CI.
+# The only workflow with write access.
 name: Release
 
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing release tag whose notes to refresh, e.g. v0.3.0"
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 jobs:
   ci:
+    if: github.event_name == 'push'
     uses: ./.github/workflows/ci.yml
 
   release:
     needs: ci
+    # A manual run skips CI: it only rewrites the notes of a release that
+    # already passed it.
+    if: >-
+      !cancelled() && (needs.ci.result == 'success' ||
+      (github.event_name == 'workflow_dispatch' && needs.ci.result == 'skipped'))
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       contents: write
+    env:
+      TAG: ${{ inputs.tag || github.ref_name }}
     steps:
-      - uses: actions/checkout@v7
+      - name: Check the tag name
+        run: |
+          if ! printf '%s\n' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::'$TAG' is not a version tag (vX.Y.Z)"; exit 1
+          fi
 
-      - name: Create GitHub Release
+      - uses: actions/checkout@v7
+        with:
+          ref: refs/tags/${{ env.TAG }}
+
+      - name: Create or update the GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           version=$(sed -n 's/^#define TRLV_VERSION_STRING *"\(.*\)"/\1/p' include/trelvis/trlv_version.h)
-          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
-            echo "::error::Tag $GITHUB_REF_NAME does not match trlv_version.h ($version)"; exit 1
+          if [ "v$version" != "$TAG" ]; then
+            echo "::error::Tag $TAG does not match trlv_version.h ($version)"; exit 1
           fi
 
           # The "## [X.Y.Z]" section of CHANGELOG.md, up to the next heading
@@ -43,4 +72,11 @@ jobs:
             echo "::error::CHANGELOG.md has no '## [$version]' section"; exit 1
           fi
 
-          gh release create "$GITHUB_REF_NAME" --verify-tag --title "TreLVis $version" --notes-file notes.md
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "A release for $TAG exists: replacing its title and notes with the changelog's"
+            gh release edit "$TAG" --title "TreLVis $version" --notes-file notes.md
+          elif [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "::error::No release for $TAG. Push the tag to release it (CONTRIBUTING.md)"; exit 1
+          else
+            gh release create "$TAG" --verify-tag --title "TreLVis $version" --notes-file notes.md
+          fi
