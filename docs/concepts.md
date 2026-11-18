@@ -613,7 +613,7 @@ group's previous style:
 
 | Styles (internal) | Kind | Modifier |
 |---|---|---|
-| Gap, pad: one per space step | token | `trlv_set_gap`, `trlv_set_pad` |
+| Gap: one per space step; padding: one per space step per axis (horizontal, vertical) | token | `trlv_set_gap`, `trlv_set_pad` |
 | Justify, align items: one per value | constant | `trlv_set_justify`, `trlv_set_align_items` |
 | Fit, fill (100 %), grow: per axis | constant | `trlv_set_*_fit`, `trlv_set_*_fill` |
 | Text: one per role | token | `trlv_text_create`, `trlv_apply_text_role` |
