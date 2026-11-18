@@ -84,6 +84,9 @@ promise (README "What a version number promises"), CI build coverage, a
 theme coverage audit and a product trial, then a 0.2.0 release for a
 second trial on the 1.0 API, a 0.3.0 release with the trial-2 review's
 changes, a third product trial on 0.3.0, the API freeze (#123) and 1.0.0.
+The third trial found nothing breaking (ROADMAP "Settled in the trial-3
+review"). Its additive outcomes (the per-axis padding setters and the
+getting-started page) go in before the freeze, so the next step is #123.
 The 1.0 review moved the API to LVGL's grammar: `trlv_*_create`
 constructors that take no spacing, `trlv_set_*` layout setters,
 `trlv_apply_*` appearance functions (which warn on an object they make no

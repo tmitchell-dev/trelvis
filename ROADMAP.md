@@ -32,8 +32,9 @@ LVGL's natural behaviour stands. Every deliberate difference (such as
 `trlv_box_create` not scrolling) is documented on the function.
 
 The v1 budget is about 20 layout and styling functions, plus a few for
-initialisation and token access. After the trial-2 review the API has 20
-plus seven: `trlv_apply_text_emphasis`, and three token value getters.
+initialisation and token access. After the trial-3 review the API has 20
+plus nine: `trlv_apply_text_emphasis`, three token value getters, and the
+two per-axis padding setters.
 
 ## Milestones
 
@@ -217,7 +218,8 @@ anything that might break goes in before the API freeze. From 1.0.0 the
   ideally on a kind of screen the first two didn't cover, and checks that
   a screen can be designed from the docs alone. Its findings are filed
   the same way. Breaking ones need another 0.x release; additive ones go
-  to v1.x.
+  to v1.x. Done: it found nothing breaking, so no 0.4.0 is needed
+  ("Settled in the trial-3 review").
 - The API freeze review records its decisions here.
 
 ### Settled in the 1.0 review
@@ -356,13 +358,58 @@ the easy path. These decisions came out of the review (#155–#163, #144,
   small test-only contrast check (#159) is an aid a project can build with
   its own tokens. External theme tools (#86, #147) may be supported more
   officially later.
-- **Per-axis padding stays "Not planned"** for now, with the trial's
-  count (5 of 7 padded objects) kept as evidence in #162. With
+- **Per-axis padding stays "Not planned"** for now (built in the trial-3
+  review), with the trial's count (5 of 7 padded objects) kept as
+  evidence in #162. With
   `trlv_get_space` the raw call reads cleanly.
 - **Left to projects:** components outside MD3's set (alarm indicators,
   range bars, state markers, chips, badges, dialogs) are compositions of
   primitives, as Designing a screen shows. Ready-made ones would belong in
   `trelvis-starter`, not the library.
+
+### Settled in the trial-3 review
+
+The third product trial (0.3.0) built a controller screen with a list and
+a detail view, at 800 × 480 and at 320 × 240 with the Compact tokens, in
+light and dark, with a fault state, a confirmation dialog and keypad
+focus. An AI agent designed it from the docs alone. The digest it wrote
+before any code held up (10 of 10 rules, 6 of 6 plan items), and no
+TreLVis source was needed to build the screen. Every wrong screenshot came
+from LVGL, the host build or the application. The cost was in learning:
+about 8.5k lines read before the first correct screenshot, roughly half
+of them LVGL, where in hindsight about 3.3k would have done. These
+decisions came out of the review (#162, #171, #172).
+
+- **Nothing breaking, so no 0.4.0 and no fourth trial.** The next step is
+  the API freeze review (#123).
+- **Per-axis padding is built before the freeze** (#162). Trial 2 asked
+  for it (5 of 7 padded objects), trial 3 needed it for its status chips,
+  and the chip recipe in Designing a screen taught the raw call:
+  `trlv_set_pad_horizontal(obj, space)` and
+  `trlv_set_pad_vertical(obj, space)`. It earns a place because it takes a
+  token and uses a shared style where the raw call adds a local one to
+  every chip. Padding is now two style groups, one per axis, and
+  `trlv_set_pad` sets both, so the last call wins on each axis in any
+  order, as CSS `padding` and `padding-inline` do. A separate horizontal
+  group beside a four-sided one was rejected: `trlv_set_pad` called
+  after it would silently undo it. One-side padding and a different row
+  and column gap stay raw LVGL.
+- **A first-use path** (#171). [Getting started](docs/getting-started.md)
+  gives the reading order, the kinds of call, how fit and fill depend on
+  the parent, one complete keypad-ready screen (pinned by a test), and
+  the LVGL pitfalls the trial hit. The README stays the overview, and its
+  Documentation section is a map of the docs in reading order. The LVGL
+  half of the reading cost is accepted: TreLVis doesn't teach LVGL, and
+  projects can use LVGL's own docs or its MCP server. Doxygen
+  presentation and a docs site come later, and are meant more for people
+  than for agents.
+- **The two recipes now agree** (#172). A screen's snapshot leaves out
+  `lv_layer_top()`, where the modal recipe puts its scrim. Both recipes
+  say so.
+- **Left to projects and LVGL:** host integration (SDL drivers, SDL2main
+  on Windows, CMake target scope), event wiring, timers, scrolling and
+  dialog state. TreLVis ships no simulator; a project skeleton belongs in
+  `trelvis-starter`.
 
 ## v1.x (on demand)
 
@@ -382,8 +429,6 @@ Additive items, each built only when a product needs it, before or after
   to MD3 ([docs/concepts.md §6.4](docs/concepts.md#64-widget-coverage-v1)):
   roller, button matrix and keyboard, message box, spinbox, table, chart,
   calendar, and the tabview and tileview content. One issue each.
-- Per-axis padding as token setters (`trlv_set_pad_horizontal` /
-  `_vertical`, shared styles), if a second product needs them (#162).
 - `trlv_apply_text_custom(obj, index)`: a custom colour as text colour,
   following colour-mode switches, when a product needs it (#163).
 
@@ -424,8 +469,10 @@ These are deliberately excluded:
   horizontal and vertical gaps or padding (`_xy` variants), absolute
   position, corner radius, control height. The mapping table names the
   LVGL call for each, with a token getter (`trlv_get_space`, …) where it
-  takes a token. Per-axis padding as token setters is reconsidered if a
-  second product needs it (v1.x).
+  takes a token. Per-axis padding has token setters
+  (`trlv_set_pad_horizontal` / `_vertical`, from the trial-3 review); the
+  `_xy` variants, which joined gap or padding on both axes in one call,
+  stay cut.
 - `trlv_page` (header / body / footer) and `trlv_grid`. Not every project
   uses them; a page is a project component, and grids use LVGL's grid API.
 - Token values compiled into the library. Tokens come from a template the
