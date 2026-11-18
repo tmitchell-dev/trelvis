@@ -199,7 +199,12 @@ anything that might break goes in before the API freeze. From 1.0.0 the
   way products use TreLVis, and checks that every public symbol is
   documented.
 - An audit of every LVGL 9.6 widget decides which ones the theme covers;
-  gaps it finds become v1.x items.
+  gaps it finds become v1.x items. The bugs it finds in covered widgets
+  are fixed before the freeze.
+- 0.2.0 is released with the 1.0 review's breaking changes and the
+  audit's fixes, and a second product trial runs on it, so the API is
+  frozen as it was used, not as it was designed. Its findings are filed
+  the same way.
 - The API freeze review records its decisions here.
 
 ### Settled in the 1.0 review

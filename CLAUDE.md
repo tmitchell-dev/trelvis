@@ -68,7 +68,8 @@ and checked the v1 acceptance criteria (evidence on issue #75).
 
 **Now: M8, 1.0** (ROADMAP "1.0", tracking issue #124): the compatibility
 promise (README "What a version number promises"), CI build coverage, a
-theme coverage audit and a product trial, then the API freeze and 1.0.0.
+theme coverage audit and a product trial, then a 0.2.0 release for a
+second trial on the 1.0 API, the API freeze and 1.0.0.
 The 1.0 review moved the API to LVGL's grammar: `trlv_*_create`
 constructors that take no spacing, `trlv_set_*` layout setters,
 `trlv_apply_*` appearance functions (which warn on an object they make no
