@@ -131,6 +131,8 @@ typedef enum {
  * @param obj      any object
  * @param surface  the surface or container role; any other value logs a
  *                 warning and changes nothing
+ *
+ * @ingroup trlv_apply
  */
 void trlv_apply_surface(lv_obj_t * obj, trlv_surface_t surface);
 
@@ -161,6 +163,8 @@ void trlv_apply_surface(lv_obj_t * obj, trlv_surface_t surface);
  *                 of the project's own enum
  * @param surface  which pair of the custom colour to use; any other value
  *                 logs a warning and changes nothing
+ *
+ * @ingroup trlv_apply
  */
 void trlv_apply_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t surface);
 
@@ -203,6 +207,8 @@ void trlv_apply_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surfa
  * @param obj   a row, column, box or plain lv_obj
  * @param card  the card type; any other value logs a warning and changes
  *              nothing
+ *
+ * @ingroup trlv_apply
  */
 void trlv_apply_card(lv_obj_t * obj, trlv_card_t card);
 
@@ -249,6 +255,8 @@ void trlv_apply_card(lv_obj_t * obj, trlv_card_t card);
  * @param btn   an lv_button, or another clickable object
  * @param type  the button type; any other value logs a warning and changes
  *              nothing
+ *
+ * @ingroup trlv_apply
  */
 void trlv_apply_button_type(lv_obj_t * btn, trlv_button_t type);
 
