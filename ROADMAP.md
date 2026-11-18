@@ -46,7 +46,7 @@ plus seven: `trlv_apply_text_emphasis`, and three token value getters.
 | 5 | **Surfaces, cards and remaining primitives**: `trlv_apply_surface`, `trlv_apply_surface_custom`, `trlv_apply_card`, `trlv_apply_button_type`, `trlv_apply_text_role`, `trlv_spacer_create`, `trlv_divider_create`, `trlv_set_justify`, `trlv_set_align_items`, the `TRLV_USE_DEBUG_OUTLINE` option. Layout tests for every primitive and modifier. | done |
 | 6 | **Demo and docs**: `examples/demo` grows from the slice screen to exercise every primitive: surface container ladder; filled / elevated / outlined cards; all button types and covered widgets in each state; light/dark toggle; an example Compact token set next to the template values; visible keypad/encoder focus; a list built from rows (no `lv_list`). README quick start, `docs/concepts.md` and `docs/figma-handoff.md` brought up to date with the implementation. | done |
 | 7 | **v1.x (on demand)**: additive items, each built only when a product needs it, before or after 1.0 (see below). A backlog, not a milestone with an end. | ongoing |
-| 8 | **1.0**: the [compatibility promise](README.md#what-a-version-number-promises); CI that builds TreLVis the ways products do (a minimal `lv_conf.h`, a Cortex-M cross build with a footprint report, a consumer project, a check that every public symbol is documented); an audit of theme coverage for every LVGL 9.6 widget; a product trial, with findings filed as `product-trial` issues; then the API freeze review and the 1.0.0 release. | in progress |
+| 8 | **1.0**: the [compatibility promise](README.md#what-a-version-number-promises); CI that builds TreLVis the ways products do (a minimal `lv_conf.h`, a Cortex-M cross build with a footprint report, a consumer project, a check that every public symbol is documented); an audit of theme coverage for every LVGL 9.6 widget; product trials on 0.1.0, 0.2.0 and 0.3.0, with findings filed as `product-trial` issues; then the API freeze review and the 1.0.0 release. | in progress |
 
 ## Settled in the slice
 
@@ -207,6 +207,17 @@ anything that might break goes in before the API freeze. From 1.0.0 the
   audit's fixes, and a second product trial runs on it, so the API is
   frozen as it was used, not as it was designed. Its findings are filed
   the same way.
+- 0.3.0 is released with the trial-2 review's changes, and a third
+  product trial runs on it before the freeze. Trial 2 changed the design
+  side as well as the API (`fit`, lower-emphasis text, dim and bright
+  surfaces, the token getters, and the tool-neutral
+  [Designing a screen](docs/designing-a-screen.md) and
+  [Building a token set](docs/building-a-token-set.md)), and none of that
+  has been used in a product yet. The third trial uses 0.3.0 as released,
+  ideally on a kind of screen the first two didn't cover, and checks that
+  a screen can be designed from the docs alone. Its findings are filed
+  the same way. Breaking ones need another 0.x release; additive ones go
+  to v1.x.
 - The API freeze review records its decisions here.
 
 ### Settled in the 1.0 review
@@ -321,7 +332,8 @@ the easy path. These decisions came out of the review (#155–#163, #144,
   spacing, flow), not "a row of Figma's auto layout panel".
 - **`hug` is renamed `fit`** (#156): `trlv_set_width_fit`,
   `trlv_set_height_fit`, after CSS `fit-content`. This is the review's one
-  breaking change, so it needs a 0.3.0 before the freeze.
+  breaking change, so it needs a 0.3.0 before the freeze, and a third
+  product trial runs on 0.3.0 (see above).
 - **No radius or height setters** (#145, #146). They would rename single,
   clear LVGL calls. What the trials objected to was the token expression,
   so raw calls take tokens through `trlv_get_space`, `trlv_get_radius` and

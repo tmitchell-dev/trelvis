@@ -42,6 +42,6 @@ body:
     id: versions
     attributes:
       label: TreLVis and LVGL versions
-      placeholder: "TreLVis 0.2.0, LVGL 9.6.0"
+      placeholder: "TreLVis 0.3.0, LVGL 9.6.0"
     validations:
       required: true

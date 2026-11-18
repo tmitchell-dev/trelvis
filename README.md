@@ -296,7 +296,7 @@ project that follows these steps with CMake and with a Makefile.
 
 ```sh
 git submodule add https://github.com/tmitchell-dev/trelvis.git external/trelvis
-git -C external/trelvis checkout v0.2.0   # pin a release
+git -C external/trelvis checkout v0.3.0   # pin a release
 ```
 
 ### 2. Build it with your project
@@ -453,11 +453,11 @@ don't call, so they are an upper bound.
 
 | Configuration | Flash | Static RAM |
 |---|---:|---:|
-| Minimal `lv_conf.h` (no widgets but the label), theme on | 5.4 KB | 2.5 KB |
-| Minimal `lv_conf.h`, theme off (`TRLV_USE_THEME 0`) | 4.8 KB | 2.5 KB |
-| LVGL's default `lv_conf.h` (every widget), theme on | 11.1 KB | 4.0 KB |
-| LVGL's default `lv_conf.h`, theme off | 5.2 KB | 2.7 KB |
-| Each custom colour allowed by `TRLV_CUSTOM_COLOR_MAX` | 108 B | 64 B |
+| Minimal `lv_conf.h` (no widgets but the label), theme on | 5.5 KB | 2.6 KB |
+| Minimal `lv_conf.h`, theme off (`TRLV_USE_THEME 0`) | 5.0 KB | 2.5 KB |
+| LVGL's default `lv_conf.h` (every widget), theme on | 11.2 KB | 4.0 KB |
+| LVGL's default `lv_conf.h`, theme off | 5.4 KB | 2.7 KB |
+| Each custom colour allowed by `TRLV_CUSTOM_COLOR_MAX` | 107 B | 64 B |
 
 The static RAM is the token styles' property arrays, which `trlv_init` and
 colour-mode switches fill in. Constant styles live in flash. The theme's
@@ -509,6 +509,10 @@ the colour role names and their pairings, the type scale's role names and
 sizes, the shape, elevation and state-layer scales, and the baseline colour
 scheme in the token template. TreLVis includes no Material Design code,
 fonts, icons or images.
+Google makes Material 3's content available under the Apache License 2.0
+or [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); TreLVis uses
+it under CC BY 4.0, adapted into C token types and a token template, with
+the attribution in [NOTICE](NOTICE).
 
 TreLVis is an independent project. It is not affiliated with or endorsed by
 LVGL, Google or Figma.
