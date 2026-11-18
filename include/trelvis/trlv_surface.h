@@ -3,24 +3,37 @@
 
 /**
  * @file trlv_surface.h
- * MD3 surfaces, cards and button variants: modifiers that give any object
- * an MD3 container colour, with its matching `on_` content colour inherited
- * by everything inside.
+ * MD3 surfaces, cards and button types: appearance functions that give an
+ * object an MD3 container colour, with its matching `on_` content colour
+ * inherited by everything inside.
+ *
+ * Appearance functions are named `trlv_apply_*`, as in Figma, where you
+ * apply a colour or text style; layout properties are `trlv_set_*`, as
+ * in Figma's auto layout panel. An apply never changes layout and a set
+ * never changes colour, so a card's padding is a separate trlv_set_pad:
+ *
+ *     lv_obj_t * card = trlv_column_create(parent);
+ *     trlv_apply_card(card, TRLV_CARD_FILLED);
+ *     trlv_set_pad(card, TRLV_SPACE_LG);
+ *
+ * Each function works on any object, as LVGL styles do, and logs a
+ * warning (LV_LOG_WARN, which changes nothing) for an object it makes no
+ * sense on; see each function.
  *
  * Mapping: Figma / MD3 → CSS → TreLVis → LVGL mechanism
  *
- * | Figma / MD3                         | CSS                          | TreLVis            | LVGL mechanism                                          |
- * |-------------------------------------|------------------------------|--------------------|---------------------------------------------------------|
- * | Fill with a surface / container role | `background` + `color`      | trlv_apply_surface       | shared style: `bg_color`, `bg_opa`, inherited `text_color` |
- * | Fill with a custom colour or its container | `background` + `color` | trlv_apply_surface_custom | shared styles per custom colour: `bg_color`, `bg_opa`, inherited `text_color` |
- * | MD3 card (filled, elevated, outlined) | `background`, `border-radius`, `border` / `box-shadow` | trlv_apply_card | shared style: `bg_*`, `radius`, `border_*` / `shadow_*`, inherited `text_color` |
- * | MD3 button type (filled, tonal, outlined, text) | button classes with `:active`, `:focus-visible`, `:disabled` | trlv_apply_button_type | shared styles with LV_STATE_PRESSED / FOCUS_KEY / DISABLED selectors |
+ * | Figma / MD3                                     | CSS                                                          | TreLVis                   | LVGL mechanism                                                                  |
+ * |-------------------------------------------------|--------------------------------------------------------------|---------------------------|---------------------------------------------------------------------------------|
+ * | Fill with a surface / container role            | `background` + `color`                                       | trlv_apply_surface        | shared style: `bg_color`, `bg_opa`, inherited `text_color`                      |
+ * | Fill with a custom colour or its container      | `background` + `color`                                       | trlv_apply_surface_custom | shared styles per custom colour: `bg_color`, `bg_opa`, inherited `text_color`   |
+ * | MD3 card (filled, elevated, outlined)           | `background`, `border-radius`, `border` / `box-shadow`       | trlv_apply_card           | shared style: `bg_*`, `radius`, `border_*` / `shadow_*`, inherited `text_color` |
+ * | MD3 button type (filled, tonal, outlined, text) | button classes with `:active`, `:focus-visible`, `:disabled` | trlv_apply_button_type    | shared styles with LV_STATE_PRESSED / FOCUS_KEY / DISABLED selectors            |
  *
  * All are shared token styles, one per value, so they cost no RAM per
- * object and recolour on trlv_theme_set_color_mode. trlv_apply_surface and
- * trlv_apply_card form one style group and replace each other; button variants
- * are a group of their own. Calling a modifier again replaces its previous
- * value.
+ * object and recolour on trlv_theme_set_color_mode. trlv_apply_surface,
+ * trlv_apply_surface_custom and trlv_apply_card form one style group and
+ * replace each other; button types are a group of their own. Applying
+ * again replaces the previous value.
  *
  * All functions must be called from the LVGL thread.
  */
@@ -86,7 +99,8 @@ typedef enum {
 } trlv_button_t;
 
 /*---------------------------------------------------------------------------
- * Modifiers
+ * Appearance. Each applies a shared look to any object, replaces the look
+ * its group had, and never changes layout (size, padding, gap).
  *-------------------------------------------------------------------------*/
 
 /**
@@ -100,12 +114,19 @@ typedef enum {
  * style, or a project style) keeps it.
  *
  * Tone only: no radius, border, shadow or padding. Add a radius with
- * lv_obj_set_style_radius(obj, trlv_get_layout_tokens()->radius[TRLV_RADIUS_MD], 0),
+ *
+ *     lv_obj_set_style_radius(obj, trlv_get_layout_tokens()->radius[TRLV_RADIUS_MD], 0);
+ *
  * or use trlv_apply_card.
  *
- * trlv_apply_surface and trlv_apply_card form one group, so this replaces an earlier
- * trlv_apply_card or trlv_apply_surface on the object. Works on any object; meant for
- * boxes, rows and columns. LVGL widgets have their colours from the theme.
+ * trlv_apply_surface, trlv_apply_surface_custom and trlv_apply_card form
+ * one group, so this replaces whichever of them the object had.
+ *
+ * Meant for containers (boxes, rows, columns) and labels, such as a status
+ * badge. LVGL widgets have their colours from the theme. On an lv_button
+ * it changes only the colour at rest: pressed and focus keep the button
+ * type's colours, so it logs an LV_LOG_WARN, then applies the surface
+ * anyway. Use trlv_apply_button_type for a button.
  *
  * @param obj      any object
  * @param surface  the surface or container role; any other value logs a
@@ -119,11 +140,14 @@ void trlv_apply_surface(lv_obj_t * obj, trlv_surface_t surface);
  * custom colour variable; CSS `background` plus `color`.
  *
  * Works as trlv_apply_surface does, with a pair from
- * `trlv_get_color_tokens()->custom[index]`: tone only, the content colour inherited,
- * and recoloured on trlv_theme_set_color_mode. `surface` chooses the pair:
- * the colour itself with `on_color` (a strong fill: an alarm banner, a
- * status badge) or its container with `on_color_container`. It is in the
- * same group as trlv_apply_surface and trlv_apply_card, so they replace each other.
+ * `trlv_get_color_tokens()->custom[index]`: tone only, the content colour
+ * inherited, and recoloured on trlv_theme_set_color_mode. `surface` chooses the
+ * pair: the colour itself with `on_color` (a strong fill: an alarm banner, a
+ * status badge) or its container with `on_color_container`. It is in the same
+ * group as trlv_apply_surface and trlv_apply_card, so they replace each other.
+ * Like trlv_apply_surface, it logs a warning on an lv_button, where pressed
+ * and focus keep the button type's colours: a custom-coloured button (a red
+ * Stop button) is not part of v1.
  *
  * TreLVis only colours the object. What a custom colour means, and alarm
  * behaviour such as flashing or acknowledgement, belong to the project.
@@ -154,28 +178,38 @@ void trlv_apply_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surfa
  *   the card's size and insets the content by its width, on top of the
  *   padding.
  *
- * Padding stays explicit, as in Figma: use trlv_set_pad, typically
- * TRLV_SPACE_LG. Children are not clipped to the rounded corners; if a
- * child's background reaches a corner, add
- * lv_obj_set_style_clip_corner(card, true, 0) (it costs draw time).
+ * Padding is layout, so it is set separately with trlv_set_pad: MD3 cards
+ * use TRLV_SPACE_LG. A card's header, media and actions are children,
+ * all optional as in MD3; a card with fixed content is a project
+ * component (`stat_card_create(parent, …)`).
  *
- * MD3 cards use surface tones only. trlv_apply_surface and trlv_apply_card form one
- * group, so a later trlv_apply_surface replaces the card. A card has no pressed
- * or focus state: clickable MD3 cards, with state layers, are not part of
- * v1.
+ * Children are not clipped to the rounded corners; if a child's background
+ * reaches a corner, add lv_obj_set_style_clip_corner(card, true, 0) (it
+ * costs draw time).
+ *
+ * MD3 cards use surface tones only. trlv_apply_surface and
+ * trlv_apply_card form one group, so a later trlv_apply_surface replaces
+ * the card. A card has no pressed or focus state: clickable MD3 cards,
+ * with state layers, are not part of v1.
  *
  * Every card type sets the border and shadow properties (to none where the
  * type has none), so on a plain lv_obj it also replaces the theme's border.
  *
- * @param obj   any object, usually a column
+ * Meant for a plain container: a row, column, box or lv_obj. On an LVGL
+ * widget (a button, a label, a slider) the card's look is mixed with the
+ * widget's own parts and states, so it logs an LV_LOG_WARN, then applies
+ * the card anyway.
+ *
+ * @param obj   a row, column, box or plain lv_obj
  * @param card  the card type; any other value logs a warning and changes
  *              nothing
  */
 void trlv_apply_card(lv_obj_t * obj, trlv_card_t card);
 
 /**
- * Restyle an lv_button as another MD3 button type. Figma: the MD3 button
- * component's "Style" property; CSS a button class.
+ * Restyle an lv_button as another MD3 button type: filled, tonal,
+ * outlined or text. Figma: the MD3 button component's "Style" property;
+ * CSS a button class.
  *
  * With the TreLVis theme, every lv_button is already an MD3 filled button:
  * radius FULL, height control_height[TRLV_SIZE_MD], Label Large text, and
@@ -194,24 +228,29 @@ void trlv_apply_card(lv_obj_t * obj, trlv_card_t card);
  * - disabled: content in on_surface at `state.disabled_content`, container
  *   (or the outlined border) in on_surface at `state.disabled_container`.
  *
- * TRLV_BUTTON_FILLED returns the button to the theme's default. Shape,
- * height and text role stay the theme's; change the height with
- * lv_obj_set_height(btn, trlv_get_layout_tokens()->control_height[TRLV_SIZE_LG]).
- * Calling it again replaces the previous variant.
+ * TRLV_BUTTON_FILLED returns the button to the theme's default. Shape, height
+ * and text role stay the theme's; change the height with lv_obj_set_height(btn,
+ * trlv_get_layout_tokens()->control_height[TRLV_SIZE_LG]). Calling it again
+ * replaces the previous type.
  *
- * With TRLV_USE_THEME 0 the variant still sets its colours and states, but
+ * With TRLV_USE_THEME 0 the type still sets its colours and states, but
  * the shape, height and text role come from whatever theme is installed,
  * and there is no focus ring.
  *
- * The variant adds four shared styles (default, pressed, focus and
+ * The type adds four shared styles (default, pressed, focus and
  * disabled), each one group, so a second call replaces all four in place.
  *
- * @param btn      an lv_button (it works on any object, but the states are
- *                 only meaningful on a clickable one)
- * @param variant  the button type; any other value logs a warning and
- *                 changes nothing
+ * It works on any clickable object, for example a clickable row used as a
+ * list item: the colours and states apply, but the shape, height and
+ * text role are the theme's for lv_button only. On an object that is not
+ * clickable the states never show, so it logs an LV_LOG_WARN, then
+ * applies the type anyway.
+ *
+ * @param btn   an lv_button, or another clickable object
+ * @param type  the button type; any other value logs a warning and changes
+ *              nothing
  */
-void trlv_apply_button_type(lv_obj_t * btn, trlv_button_t variant);
+void trlv_apply_button_type(lv_obj_t * btn, trlv_button_t type);
 
 #ifdef __cplusplus
 } /* extern "C" */

@@ -90,7 +90,7 @@ lv_obj_t * trlv_demo_surfaces_create(lv_obj_t * parent);
 lv_obj_t * trlv_demo_cards_create(lv_obj_t * parent);
 
 /**
- * Controls: every button variant and every widget the theme covers, in
+ * Controls: every button type and every widget the theme covers, in
  * their default, checked and disabled states where they apply.
  */
 lv_obj_t * trlv_demo_controls_create(lv_obj_t * parent);

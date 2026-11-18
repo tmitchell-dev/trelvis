@@ -46,7 +46,9 @@ static_assert(std::is_same<decltype(tokens_regular), const trlv_layout_tokens_t>
               "template regular layout");
 
 /*
- * The v1 API as approved in the milestone 3 review. Each check pins one
+ * The v1 API as approved in the milestone 3 review and renamed in the 1.0
+ * review (LVGL grammar: `_create` constructors, `trlv_set_*` layout
+ * setters, `trlv_apply_*` appearance, trlv_get_*_tokens getters). Each check pins one
  * public function's exact signature, so a change to the API fails here and
  * has to be made on purpose (with the docs and the changelog).
  */
@@ -66,7 +68,7 @@ TRLV_CHECK_SIGNATURE(trlv_column_create, lv_obj_t * (*)(lv_obj_t *));
 TRLV_CHECK_SIGNATURE(trlv_spacer_create, lv_obj_t * (*)(lv_obj_t *));
 TRLV_CHECK_SIGNATURE(trlv_divider_create, lv_obj_t * (*)(lv_obj_t *));
 
-/* trlv_layout.h: modifiers */
+/* trlv_layout.h: setters */
 TRLV_CHECK_SIGNATURE(trlv_set_gap, void (*)(lv_obj_t *, trlv_space_t));
 TRLV_CHECK_SIGNATURE(trlv_set_pad, void (*)(lv_obj_t *, trlv_space_t));
 TRLV_CHECK_SIGNATURE(trlv_set_justify, void (*)(lv_obj_t *, trlv_justify_t));

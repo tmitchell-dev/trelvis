@@ -2,8 +2,9 @@
 /* Copyright (c) 2026 Timothy Mitchell */
 
 /*
- * Fill modifiers: trlv_apply_surface and trlv_apply_card (custom colours have their own
- * file). Colours come from the token template's light and dark schemes.
+ * Fill modifiers: trlv_apply_surface and trlv_apply_card (custom colours have
+ * their own file). Colours come from the token template's light and dark
+ * schemes.
  */
 
 #include "trlv_test.h"
@@ -241,8 +242,8 @@ static void card_outlined(lv_obj_t * screen)
     assert_no_shadow(card);
 }
 
-/* Padding stays explicit: a filled card adds none. */
-static void card_adds_no_padding(lv_obj_t * screen)
+/* Padding is layout, set with trlv_set_pad: a card adds none. */
+static void apply_card_adds_no_padding(lv_obj_t * screen)
 {
     lv_obj_t * card = trlv_column_create(setup(screen));
     lv_obj_t * child = trlv_box_create(card);
@@ -344,7 +345,7 @@ int main(void)
     TRLV_TEST_RUN(card_filled);
     TRLV_TEST_RUN(card_elevated);
     TRLV_TEST_RUN(card_outlined);
-    TRLV_TEST_RUN(card_adds_no_padding);
+    TRLV_TEST_RUN(apply_card_adds_no_padding);
     TRLV_TEST_RUN(card_border_insets_the_content);
     TRLV_TEST_RUN(cards_recolour);
     TRLV_TEST_RUN(cards_share_the_fill_group);

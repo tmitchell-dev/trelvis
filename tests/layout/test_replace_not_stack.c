@@ -164,8 +164,8 @@ static void fill(lv_obj_t * screen)
 }
 
 /* trlv_apply_button_type: four groups, one per state selector. The project
- * style sets the pressed colour; a later variant must not take it over. */
-static void button_variant(lv_obj_t * screen)
+ * style sets the pressed colour; a later type must not take it over. */
+static void button_type(lv_obj_t * screen)
 {
     lv_obj_t * btn = lv_button_create(setup(screen));
     trlv_apply_button_type(btn, TRLV_BUTTON_TONAL);
@@ -193,6 +193,6 @@ int main(void)
     TRLV_TEST_RUN(align_items);
     TRLV_TEST_RUN(text_role);
     TRLV_TEST_RUN(fill);
-    TRLV_TEST_RUN(button_variant);
+    TRLV_TEST_RUN(button_type);
     return trlv_test_finish();
 }

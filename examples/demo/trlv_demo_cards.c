@@ -4,8 +4,8 @@
 /**
  * @file trlv_demo_cards.c
  * The Cards section: the three MD3 card types with realistic content. Each
- * card is a column styled with trlv_apply_card; its padding is set with trlv_set_pad,
- * as in Figma, and its text takes on_surface by inheritance.
+ * card is a column with trlv_apply_card applied and its padding set with
+ * trlv_set_pad, as in Figma, and its text takes on_surface by inheritance.
  *
  * The layout, as a Figma designer would draw it:
  *
@@ -58,19 +58,19 @@ static const demo_card_t cards[] = {
 
 #define COUNT(array) (sizeof(array) / sizeof((array)[0]))
 
-static void button(lv_obj_t * parent, const char * text, trlv_button_t variant)
+static void button(lv_obj_t * parent, const char * text, trlv_button_t type)
 {
     lv_obj_t * btn = lv_button_create(parent);
-    trlv_apply_button_type(btn, variant);
+    trlv_apply_button_type(btn, type);
     trlv_text_create(btn, text, TRLV_TEXT_LABEL_LARGE);
 }
 
 static void card(lv_obj_t * section, const demo_card_t * content)
 {
     lv_obj_t * obj = trlv_column_create(section);
-    trlv_set_gap(obj, TRLV_SPACE_SM);
     trlv_apply_card(obj, content->card);
     trlv_set_pad(obj, TRLV_SPACE_LG);
+    trlv_set_gap(obj, TRLV_SPACE_SM);
     trlv_set_width_fill(obj);
 
     trlv_text_create(obj, content->type, TRLV_TEXT_LABEL_MEDIUM);

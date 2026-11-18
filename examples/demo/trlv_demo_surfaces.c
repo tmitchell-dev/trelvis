@@ -3,11 +3,10 @@
 
 /**
  * @file trlv_demo_surfaces.c
- * The Surfaces section: every MD3 surface and container role, and the
- * project's custom colours, as swatches with their name on them. Each
- * swatch sets only its fill with trlv_apply_surface or trlv_apply_surface_custom; the
- * text on it gets the matching `on_` colour by inheritance, with no colour
- * of its own.
+ * The Surfaces section: every MD3 surface and container role, and the project's
+ * custom colours, as swatches with their name on them. Each swatch sets only
+ * its fill with trlv_apply_surface or trlv_apply_surface_custom; the text on it
+ * gets the matching `on_` colour by inheritance, with no colour of its own.
  *
  * The layout, as a Figma designer would draw it:
  *

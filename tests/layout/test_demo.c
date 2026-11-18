@@ -786,7 +786,7 @@ static lv_obj_t * controls_row(lv_obj_t * demo, int32_t group, int32_t row)
 }
 
 /* Two rows of the four button types, the second disabled. */
-static void controls_show_every_button_variant(lv_obj_t * screen)
+static void controls_show_every_button_type(lv_obj_t * screen)
 {
     lv_obj_t * demo = build(screen);
     const trlv_color_tokens_t * c = trlv_get_color_tokens();
@@ -1243,7 +1243,7 @@ static void run_all(const char * mode, const trlv_color_tokens_t * light, const 
     TRLV_TEST_RUN(cards_lay_out_their_content);
     TRLV_TEST_RUN(cards_put_actions_at_the_end);
 
-    TRLV_TEST_RUN(controls_show_every_button_variant);
+    TRLV_TEST_RUN(controls_show_every_button_type);
     TRLV_TEST_RUN(controls_show_switch_and_checkbox_states);
     TRLV_TEST_RUN(controls_cover_every_themed_widget);
     TRLV_TEST_RUN(controls_line_up_with_their_headings);

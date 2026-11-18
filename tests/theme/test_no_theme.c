@@ -48,7 +48,7 @@ static void shared_styles_still_work(lv_obj_t * screen)
     TRLV_ASSERT_INT(lv_obj_get_style_pad_left(box, LV_PART_MAIN), tokens_regular.space[TRLV_SPACE_LG]);
 }
 
-/* Surfaces and button variants set their colours without the theme. */
+/* Surfaces and button types set their colours without the theme. */
 static void colour_modifiers_still_work(lv_obj_t * screen)
 {
     trlv_init(lv_obj_get_display(screen), &tokens_light, &tokens_regular);

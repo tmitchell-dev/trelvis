@@ -35,7 +35,7 @@
 #define ARC_SIZE 96
 
 static const struct {
-    trlv_button_t variant;
+    trlv_button_t type;
     const char * name;
 } buttons[] = {
     { TRLV_BUTTON_FILLED,   "Filled" },
@@ -89,7 +89,7 @@ static void button_group(lv_obj_t * section)
         lv_obj_t * row = widget_row(obj, TRLV_SPACE_SM);
         for(uint32_t i = 0; i < COUNT(buttons); i++) {
             lv_obj_t * btn = lv_button_create(row);
-            trlv_apply_button_type(btn, buttons[i].variant);
+            trlv_apply_button_type(btn, buttons[i].type);
             trlv_text_create(btn, buttons[i].name, TRLV_TEXT_LABEL_LARGE);
             if(disabled) lv_obj_add_state(btn, LV_STATE_DISABLED);
         }
