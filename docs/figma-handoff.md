@@ -185,8 +185,8 @@ template:
   slightly higher. The spacing between lines matches. Expect this when
   comparing screenshots; see [concepts §4.2](concepts.md#42-token-template-and-reference-values).
 - **Lower-emphasis text** (On Surface Variant, for labels and supporting
-  text) has no TreLVis call yet; in code it is a local text colour (see
-  [Reading a Figma frame](#reading-a-figma-frame-and-writing-the-screen)).
+  text) is `trlv_apply_text_emphasis(obj, TRLV_TEXT_EMPHASIS_LOW)`, on the
+  text layer or on the frame around several.
 - The type scale belongs to the layout mode: a Compact design may use
   smaller sizes and tighter lines for the same roles. Keep one set of text
   styles per layout mode, or bind font size and line height to `Layout`
@@ -349,7 +349,7 @@ turning a frame into a screen function.
 5. **Where raw LVGL is needed:** fixed sizes (`lv_obj_set_size`, with
    `trlv_get_layout_tokens()->control_height[TRLV_SIZE_MD]` for a field bound to
    `size/md`), a corner radius on a non-card, different horizontal and
-   vertical spacing, lower-emphasis text colour, wrap, absolute
+   vertical spacing, wrap, absolute
    positions, and widget behaviour (options, one-line mode, accepted
    characters). Raw LVGL colours taken from `trlv_get_color_tokens()` don't follow a
    colour-mode switch; see [concepts §7.5](concepts.md#75-getters-trlv_get_).
@@ -396,6 +396,7 @@ agree a workaround with the developers:
 | Divider | `hr` | `trlv_divider_create` | box + `bg_color` |
 | Button type | button class | `trlv_apply_button_type` | shared styles with state selectors |
 | Type style | `font` / `line-height` | `trlv_text_create` / `trlv_apply_text_role` | `text_font` / `text_line_space` |
+| Text fill *On Surface Variant* | lower-emphasis `color` | `trlv_apply_text_emphasis(obj, TRLV_TEXT_EMPHASIS_LOW)` | inherited `text_color` |
 | Corner radius | `border-radius` | `TRLV_RADIUS_*` | `radius` |
 | Inside stroke | `border` | cards, fields | `border_*` |
 | Focus ring | `outline` | theme | `outline_*` |

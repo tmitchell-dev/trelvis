@@ -69,6 +69,20 @@ void trlv_text_styles_build(const trlv_layout_tokens_t * layout)
     }
 }
 
+/* Lower emphasis: text_color (inherited), end marker. Written by
+ * trlv_text_color_styles_build on trlv_init and on each colour-mode switch.
+ * One group with one member: TRLV_TEXT_EMPHASIS_NORMAL removes it. */
+static lv_style_const_prop_t emphasis_low_props[2];
+static LV_STYLE_CONST_INIT(emphasis_low, emphasis_low_props);
+static const lv_style_t * const emphasis_styles[] = { &emphasis_low };
+static const trlv_style_group_t emphasis_group = TRLV_STYLE_GROUP_LIST(emphasis_styles);
+
+void trlv_text_color_styles_build(const trlv_color_tokens_t * color)
+{
+    trlv_prop_set_color(&emphasis_low_props[0], LV_STYLE_TEXT_COLOR, color->on_surface_variant);
+    trlv_prop_set_end(&emphasis_low_props[1]);
+}
+
 const lv_style_t * trlv_text_role_style(trlv_text_role_t role)
 {
     return (uint32_t)role < TRLV_TEXT_COUNT ? text_styles[role] : NULL;
@@ -105,4 +119,21 @@ void trlv_apply_text_role(lv_obj_t * obj, trlv_text_role_t role)
         return;
     }
     trlv_style_group_apply(obj, &text_group, text_styles[role], LV_PART_MAIN);
+}
+
+void trlv_apply_text_emphasis(lv_obj_t * obj, trlv_text_emphasis_t emphasis)
+{
+    LV_ASSERT_NULL(obj);
+
+    switch(emphasis) {
+        case TRLV_TEXT_EMPHASIS_NORMAL:
+            trlv_style_group_remove(obj, &emphasis_group, LV_PART_MAIN);
+            break;
+        case TRLV_TEXT_EMPHASIS_LOW:
+            trlv_style_group_apply(obj, &emphasis_group, &emphasis_low, LV_PART_MAIN);
+            break;
+        default:
+            LV_LOG_WARN("trlv_apply_text_emphasis: %d is not a trlv_text_emphasis_t", (int)emphasis);
+            break;
+    }
 }

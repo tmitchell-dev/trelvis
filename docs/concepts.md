@@ -110,7 +110,8 @@ primitives inside.
     `trlv_set_width_fill`). A setter never changes colour.
   - **Appearance functions** are `trlv_apply_<look>`: Figma's "apply a
     style", for colour, shape and type (`trlv_apply_surface`,
-    `trlv_apply_card`, `trlv_apply_text_role`, `trlv_apply_button_type`).
+    `trlv_apply_card`, `trlv_apply_text_role`, `trlv_apply_text_emphasis`,
+    `trlv_apply_button_type`).
     An apply never changes layout, so a card's padding is a separate
     `trlv_set_pad`.
   - **Getters** use `_get_`: `trlv_get_color_tokens()`.
@@ -582,6 +583,7 @@ group's previous style:
 | Justify, align items: one per value | constant | `trlv_set_justify`, `trlv_set_align_items` |
 | Fit, fill (100 %), grow: per axis | constant | `trlv_set_*_fit`, `trlv_set_*_fill` |
 | Text: one per role | token | `trlv_text_create`, `trlv_apply_text_role` |
+| Text emphasis: lower emphasis | token | `trlv_apply_text_emphasis` |
 | Surfaces: one per `TRLV_SURFACE_*`; cards: filled, elevated, outlined | token | `trlv_apply_surface`, `trlv_apply_card` |
 | Buttons: tonal, outlined, text, each with state styles | token | `trlv_apply_button_type` |
 | Divider: horizontal, vertical | token | `trlv_divider_create` |
@@ -762,6 +764,7 @@ looks are token styles, so they recolour on `trlv_theme_set_color_mode`.
 | Cards | `trlv_apply_card(obj, TRLV_CARD_FILLED / ELEVATED / OUTLINED)` | MD3 cards: tone + radius MD + border/shadow, on a row or column. No padding: set it with `trlv_set_pad`, `LG` for MD3 cards. A header, media and actions are children. Not interactive in v1. |
 | Buttons | `trlv_apply_button_type(btn, TRLV_BUTTON_FILLED / TONAL / OUTLINED / TEXT)` | Restyles an `lv_button`, or any clickable object (the theme default is FILLED): container colour, border and content colour, with pressed / focus / disabled states. Shape, height and text role stay the theme's. |
 | Text | `trlv_apply_text_role(obj, role)` | On a label it changes the role; on a container it sets the role for every label inside that has none of its own (inheritance). |
+| Text emphasis | `trlv_apply_text_emphasis(obj, TRLV_TEXT_EMPHASIS_LOW / NORMAL)` | LOW sets the inherited text colour to `on_surface_variant` (tags, units, captions, supporting text), on a label or on a container for every label inside; NORMAL removes it. Shared, so it follows colour-mode switches. Independent of the text role. |
 
 **Odd targets warn.** Like LVGL styles, each look applies to any object.
 Where the object makes no sense for it, the function logs an
@@ -889,6 +892,7 @@ lay out the same.
 | MD3 card | — | `trlv_apply_card` | shared style: `bg_color`, `radius`, `border_*` / `shadow_*` |
 | MD3 button type (filled, tonal, outlined, text) | button classes | `trlv_apply_button_type` | shared styles with `LV_STATE_PRESSED` / `FOCUS_KEY` / `DISABLED` selectors |
 | Text style (type scale) | `font`, `line-height`, `letter-spacing` | `trlv_text_create`, `trlv_apply_text_role` | `text_font`, `text_line_space`, `text_letter_space` |
+| Lower-emphasis text (*On Surface Variant*) | lower-emphasis `color` | `trlv_apply_text_emphasis` | inherited `text_color` |
 | List (MD3 list items) | `ul` / `li` | `trlv_column_create` of `trlv_row_create` items with `trlv_divider_create` | flex; `lv_list` is deprecated in LVGL 9.6 |
 | Truncate text | `text-overflow: ellipsis` | *raw LVGL* | `lv_label_set_long_mode(label, LV_LABEL_LONG_MODE_DOTS)` |
 | Corner radius (shape scale) | `border-radius` | `TRLV_RADIUS_*` | `radius` |

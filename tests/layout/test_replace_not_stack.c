@@ -138,6 +138,19 @@ static void text_role(lv_obj_t * screen)
     ASSERT_TRUE(lv_obj_get_style_text_font(text, LV_PART_MAIN) == LV_FONT_DEFAULT);
 }
 
+/* trlv_apply_text_emphasis: one group with one member. Applying LOW again
+ * keeps its place, so the project style added after it still wins. */
+static void text_emphasis(lv_obj_t * screen)
+{
+    lv_obj_t * text = trlv_text_create(setup(screen), "Text", TRLV_TEXT_LABEL_MEDIUM);
+    trlv_apply_text_emphasis(text, TRLV_TEXT_EMPHASIS_LOW);
+    lv_style_set_text_color(&project, project_color());
+    add_project(text, LV_PART_MAIN);
+    trlv_apply_text_emphasis(text, TRLV_TEXT_EMPHASIS_LOW);
+
+    ASSERT_COLOR(lv_obj_get_style_text_color(text, LV_PART_MAIN), project_color());
+}
+
 /* trlv_apply_surface, trlv_apply_surface_custom and trlv_apply_card: one group. */
 static void fill(lv_obj_t * screen)
 {
@@ -192,6 +205,7 @@ int main(void)
     TRLV_TEST_RUN(justify);
     TRLV_TEST_RUN(align_items);
     TRLV_TEST_RUN(text_role);
+    TRLV_TEST_RUN(text_emphasis);
     TRLV_TEST_RUN(fill);
     TRLV_TEST_RUN(button_type);
     return trlv_test_finish();

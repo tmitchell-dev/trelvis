@@ -143,6 +143,8 @@ trlv_add_test(theme_init theme/test_init.c)
 target_link_libraries(theme_init PRIVATE trlv_tokens_template)
 trlv_add_test(theme_surface theme/test_surface.c)
 target_link_libraries(theme_surface PRIVATE trlv_tokens_template)
+trlv_add_test(theme_text_emphasis theme/test_text_emphasis.c)
+target_link_libraries(theme_text_emphasis PRIVATE trlv_tokens_template)
 
 if(TRLV_TEST_FULL)
     trlv_add_test(layout_sizing layout/test_sizing.c)

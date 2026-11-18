@@ -84,6 +84,10 @@ void trlv_layout_styles_build(const trlv_layout_tokens_t * layout);
 /** Build the text role styles (trlv_text.c). */
 void trlv_text_styles_build(const trlv_layout_tokens_t * layout);
 
+/** Build the text emphasis style (trlv_text.c). Called by trlv_init and on
+ *  each colour-mode switch. */
+void trlv_text_color_styles_build(const trlv_color_tokens_t * color);
+
 /** Build the surface, custom colour, card, button type and divider styles
  *  (trlv_surface.c). Called by trlv_init and on each colour-mode switch. */
 void trlv_surface_styles_build(const trlv_color_tokens_t * color, const trlv_layout_tokens_t * layout);

@@ -8,6 +8,17 @@ While the version is 0.x, minor releases may contain breaking changes.
 
 ## [Unreleased]
 
+### Added
+
+- `trlv_apply_text_emphasis(obj, TRLV_TEXT_EMPHASIS_LOW)`: lower-emphasis
+  text in MD3 *On Surface Variant*, for tags, units, captions and
+  supporting text. A shared style sets the inherited text colour, so it
+  works on a label or on a container for every label inside, follows
+  colour-mode switches (a local `on_surface_variant` text colour kept the
+  old colour), and combines with the text role.
+  `TRLV_TEXT_EMPHASIS_NORMAL` removes it. The demo's list uses it for
+  supporting text.
+
 ### Changed
 
 - **Breaking: `hug` is renamed `fit`.** "Hug" is Figma's word and means

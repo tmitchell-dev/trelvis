@@ -16,6 +16,7 @@ static_assert(TRLV_VERSION_MAJOR >= 0, "TreLVis headers must be usable from C++"
 static_assert(sizeof(trlv_layout_tokens_t) > 0, "layout tokens");
 static_assert(sizeof(trlv_color_tokens_t) > 0, "color tokens");
 static_assert(TRLV_TEXT_COUNT == 15, "MD3 type scale has 15 roles");
+static_assert(TRLV_TEXT_EMPHASIS_COUNT == 2, "text emphasis levels");
 
 /* Custom colours: a project-defined table, the same struct shape whatever
  * the configuration. */
@@ -81,6 +82,7 @@ TRLV_CHECK_SIGNATURE(trlv_set_height_fill, void (*)(lv_obj_t *));
 /* trlv_text.h */
 TRLV_CHECK_SIGNATURE(trlv_text_create, lv_obj_t * (*)(lv_obj_t *, const char *, trlv_text_role_t));
 TRLV_CHECK_SIGNATURE(trlv_apply_text_role, void (*)(lv_obj_t *, trlv_text_role_t));
+TRLV_CHECK_SIGNATURE(trlv_apply_text_emphasis, void (*)(lv_obj_t *, trlv_text_emphasis_t));
 
 /* trlv_surface.h */
 TRLV_CHECK_SIGNATURE(trlv_apply_surface, void (*)(lv_obj_t *, trlv_surface_t));
