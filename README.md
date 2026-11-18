@@ -63,21 +63,19 @@ lay out the same and get the same fonts and colours, in light and dark.
 
 ```c
 lv_obj_t * card = trlv_column_create(parent);
+
+
+
 trlv_set_gap(card, TRLV_SPACE_SM);
-
-
-
-
 trlv_apply_card(card, TRLV_CARD_FILLED);
 trlv_set_pad(card, TRLV_SPACE_LG);
 trlv_set_width_fill(card);
 
 lv_obj_t * header = trlv_row_create(card);
+
+
+
 trlv_set_gap(header, TRLV_SPACE_SM);
-
-
-
-
 trlv_set_width_fill(header);
 trlv_set_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);
 trlv_set_align_items(header, TRLV_ALIGN_ITEMS_CENTER);
@@ -146,11 +144,11 @@ lv_obj_center(label);
 </tr>
 </table>
 
-**13 lines instead of 32.** TreLVis also handles what the plain version
+**15 lines instead of 32.** TreLVis also handles what the plain version
 repeats on every screen: choosing a percentage or flex grow for fill and
 `pad_row` or `pad_column` for the gap (both depend on the parent's
 direction), and a style with its states for every other card, surface,
-text role and button variant. `trlv_theme_set_color_mode(&tokens_dark)`
+text role and button type. `trlv_theme_set_color_mode(&tokens_dark)`
 recolours everything, and Compact density is just another token set for
 `trlv_init`.
 
@@ -163,8 +161,10 @@ recolours everything, and Compact density is just another token set for
   a single clear LVGL call is left to LVGL.
 - **No new surprises for LVGL users.** Where TreLVis has no reason to differ,
   LVGL's natural behaviour stands. Deliberate differences are documented.
-- **Familiar vocabulary.** Names come from Figma / MD3 first, then CSS, then
-  LVGL. No fourth vocabulary.
+- **Familiar vocabulary, LVGL's grammar.** Names come from Figma / MD3 first,
+  then CSS, then LVGL. No fourth vocabulary. The verbs say what a call
+  does: constructors end in `_create`, layout properties are `trlv_set_*`
+  and appearance is `trlv_apply_*`, as you apply a style in Figma.
 - **LVGL's engine, not a parallel one.** Layout, colour, type and states are
   all LVGL style properties on shared styles, with LVGL's part/state selectors
   and inheritance.
@@ -356,9 +356,9 @@ trlv_set_height_fill(page);
 trlv_text_create(page, "Hello, TreLVis", TRLV_TEXT_HEADLINE_SMALL);
 
 lv_obj_t * card = trlv_column_create(page);
-trlv_set_gap(card, TRLV_SPACE_SM);
 trlv_apply_card(card, TRLV_CARD_OUTLINED);
 trlv_set_pad(card, TRLV_SPACE_LG);
+trlv_set_gap(card, TRLV_SPACE_SM);
 trlv_set_width_fill(card);
 trlv_text_create(card, "Status", TRLV_TEXT_TITLE_MEDIUM);
 lv_obj_t * body = trlv_text_create(card, "All systems normal.", TRLV_TEXT_BODY_MEDIUM);

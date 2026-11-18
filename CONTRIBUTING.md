@@ -209,9 +209,25 @@ See [docs/concepts.md](docs/concepts.md) for the full design.
 - Avoid words that clash with LVGL or CSS: `frame`, `float`, `stack`, `layer`,
   `canvas`, `screen`. Don't use `align` for flex distribution
   (`lv_obj_align` means positioning).
-- Constructors are **nouns** that create objects (`trlv_row_create(parent, …)`).
-  Modifiers are **verbs or properties** that work on any object
-  (`trlv_set_justify(obj, …)`).
+- **Words from Figma / CSS / MD3, grammar from LVGL.** Four kinds of
+  function:
+  - constructors end in `_create` and return the new object
+    (`trlv_row_create(parent)`). They take the parent plus only arguments
+    whose type makes them clear at the call site
+    (`trlv_text_create(parent, "Start", TRLV_TEXT_LABEL_LARGE)`), never a
+    bare `TRLV_SPACE_*`;
+  - layout setters, `trlv_set_<property>`, are the properties of Figma's
+    auto layout panel (`trlv_set_gap`, `trlv_set_width_fill`);
+  - appearance functions, `trlv_apply_<look>`, are Figma's "apply a style"
+    (`trlv_apply_surface`, `trlv_apply_card`);
+  - getters use `_get_` (`trlv_get_color_tokens()`).
+
+  Setters and applies work on any object and replace their previous
+  value. A set never changes colour and an apply never changes layout.
+  Where an apply makes no sense on an object, it logs a warning and
+  applies anyway.
+- Layout containers start with no gap or padding. LVGL widgets get their
+  MD3 padding from the theme.
 - No abbreviations in the public API except LVGL's `pad`: `trlv_column_create`,
   `trlv_set_width_fill`, `trlv_set_align_items`.
 - Enum values are fully qualified: `TRLV_JUSTIFY_SPACE_BETWEEN`,

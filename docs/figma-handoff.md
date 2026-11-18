@@ -129,7 +129,8 @@ template:
 
 - **Use auto layout everywhere.** Horizontal and vertical auto layout map to
   `trlv_row_create` / `trlv_column_create`, and "hug" / "fill" / "fixed" map to
-  `trlv_set_*_hug` / `trlv_set_*_fill` / `lv_obj_set_size`. Grid auto layout maps to
+  `trlv_set_width_hug` / `trlv_set_width_fill` / `lv_obj_set_size` (and
+  the `_height_` setters). Grid auto layout maps to
   LVGL's own grid API, so prefer rows and columns where they do the job.
 - **Spacing sits on the 4 px grid** and is bound to `space/*` variables only.
   Gap and padding are one value on all sides in TreLVis; different
@@ -206,7 +207,11 @@ template:
   Surface, Container Lowest … Container Highest. Compact layouts usually have
   no shadows at all.
 - Cards are **Filled, Elevated or Outlined** only (MD3 card types), with
-  corner radius Medium. Their padding is explicit: usually `space/lg`.
+  corner radius Medium, and padded `space/lg` as in the kit. In the code a
+  card is a look applied to an auto layout frame (`trlv_apply_card`), and
+  its padding is set like any frame's. Headers, media and actions are
+  children; a card used with the same content in many places is a project
+  component ([Components](#components)).
   Cards are not clickable in v1; put an action in them as a button.
 - **A rounded tonal area is a card.** A surface container role on its own
   has no corner radius in TreLVis. For a rounded panel, use one of the
@@ -237,7 +242,7 @@ template:
   |---|---|
   | Buttons: Filled, Tonal, Outlined, Text | `lv_button` + `trlv_apply_button_type` |
   | Buttons: Elevated, FAB, icon buttons, segmented | Not in v1 (an icon button is an `lv_button` holding an icon) |
-  | Cards: Filled, Elevated, Outlined | `trlv_apply_card` |
+  | Cards: Filled, Elevated, Outlined | a row or column + `trlv_apply_card` + `trlv_set_pad` |
   | Text field: Outlined | `lv_textarea` (one line or more). The floating label in the border has no LVGL equivalent: put the label above the field as text. |
   | Text field: Filled | Not in v1; use Outlined |
   | Menu (with a field) | `lv_dropdown` |
@@ -305,13 +310,26 @@ turning a frame into a screen function.
    /* page        column, gap lg, pad lg, fill × fill
     *   header    row, gap sm, fill width, space between
     *   readouts  row, gap md, fill width
-    *     card ×3 Filled card, column, gap xs, pad lg, fill width
+    *     card ×3 column, Filled card, pad lg, gap xs, fill width
     *   ...
     */
    ```
 
-   Then write the code top-down, one block per frame. A reviewer, or a
-   tool, can then check the code against the design frame by frame.
+   Then write the code top-down, one block per frame: the constructor,
+   then one setter per auto layout property. A reviewer, or a tool, can
+   then check the code against the design frame by frame:
+
+   ```c
+   lv_obj_t * page = trlv_column_create(screen);
+   trlv_set_gap(page, TRLV_SPACE_LG);
+   trlv_set_pad(page, TRLV_SPACE_LG);
+   trlv_set_width_fill(page);
+   trlv_set_height_fill(page);
+   ```
+
+   A new row or column has no gap or padding, like a fresh frame set to 0.
+   Appearance is applied, not set: `trlv_apply_card`, `trlv_apply_surface`
+   and `trlv_apply_text_role` correspond to applying a style in Figma.
 4. **Translate each property with the [mapping table](#mapping-table).**
    Each auto layout property is one call. Set a container's direction (its
    constructor) before filling its children, as the fill modifiers depend
@@ -323,7 +341,7 @@ turning a frame into a screen function.
    vertical spacing, lower-emphasis text colour, wrap, absolute
    positions, and widget behaviour (options, one-line mode, accepted
    characters). Raw LVGL colours taken from `trlv_get_color_tokens()` don't follow a
-   colour-mode switch; see [concepts §7.2](concepts.md#72-modifiers-verbs--properties).
+   colour-mode switch; see [concepts §7.2](concepts.md#72-layout-setters-trlv_set_).
 6. **Compare.** Build with `TRLV_USE_DEBUG_OUTLINE 1` in `trlv_conf.h` to
    outline every container, and compare a screenshot with the frame
    exported at 1×. Expect text boxes to be a little shorter than Figma's
@@ -356,7 +374,7 @@ agree a workaround with the developers:
 | Padding | `padding` | `trlv_set_pad` | `pad_*` |
 | Space between / packed | `justify-content` | `trlv_set_justify` | `flex_main_place` |
 | Cross-axis alignment | `align-items` | `trlv_set_align_items` | `flex_cross_place` + `flex_track_place` |
-| Hug / Fill / Fixed | `fit-content` / `flex: 1` / `width` | `trlv_set_*_hug` / `trlv_set_*_fill` / `lv_obj_set_size` | `LV_SIZE_CONTENT` / `flex_grow` or `LV_PCT(100)` / `width` |
+| Hug / Fill / Fixed | `fit-content` / `flex: 1` / `width` | `trlv_set_width_hug` / `trlv_set_width_fill` / `lv_obj_set_size` (and `_height_`) | `LV_SIZE_CONTENT` / `flex_grow` or `LV_PCT(100)` / `width` |
 | Empty frame, fill | `flex: 1` | `trlv_spacer_create` | box + `flex_grow` |
 | Wrap | `flex-wrap` | *raw LVGL* | `lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)` |
 | Absolute position | `position: absolute` | *raw LVGL* | `lv_obj_set_floating` + `lv_obj_align` |

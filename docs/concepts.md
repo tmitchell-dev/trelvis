@@ -49,8 +49,9 @@ calls that every project repeats into one standard call. A public function
 exists only if it does at least one of these:
 
 - **Replaces a block of LVGL calls that projects repeat**, so it is written
-  once and the same way everywhere (`trlv_row_create(parent, gap)`: create the
-  object, reset it, set the flow, set the gap).
+  once and the same way everywhere (`trlv_row_create(parent)`: create the
+  object, reset its theme look, padding and size, turn off scrolling and
+  clicks, set the flow).
 - **Takes a design token**, so screens hold no magic numbers
   (`trlv_set_pad(obj, TRLV_SPACE_LG)`).
 - **Fixes an LVGL default that surprises** people coming from Figma or CSS
@@ -96,11 +97,47 @@ primitives inside.
   | `screen` | LVGL screens |
   | `align` for flex distribution | `lv_obj_align()` means positioning |
 
-- **Grammar:** constructors are **nouns** that create an object
-  (`trlv_row_create(parent, …)`). Modifiers are **verbs or properties** that work on
-  any object (`trlv_set_justify(obj, …)`).
-- **No abbreviations** except LVGL's `pad`: `trlv_column_create`, `trlv_set_width_fill`,
-  `trlv_set_align_items`.
+- **Words from Figma / CSS / MD3, grammar from LVGL.** The verb at the call
+  site says what a call does, as in LVGL:
+  - **Constructors** end in `_create`, like `lv_button_create`, and return
+    the new object: `trlv_row_create(parent)`. They take the parent, plus
+    only arguments whose type makes them clear at the call site
+    (`trlv_text_create(parent, "Start", TRLV_TEXT_LABEL_LARGE)`). A bare
+    `TRLV_SPACE_*` doesn't pass that test, so gap and padding are never
+    constructor arguments.
+  - **Layout setters** are `trlv_set_<property>`: the properties of
+    Figma's auto layout panel (`trlv_set_gap`, `trlv_set_justify`,
+    `trlv_set_width_fill`). A setter never changes colour.
+  - **Appearance functions** are `trlv_apply_<look>`: Figma's "apply a
+    style", for colour, shape and type (`trlv_apply_surface`,
+    `trlv_apply_card`, `trlv_apply_text_role`, `trlv_apply_button_type`).
+    An apply never changes layout, so a card's padding is a separate
+    `trlv_set_pad`.
+  - **Getters** use `_get_`: `trlv_get_color_tokens()`.
+
+  Setters and applies (together, the *modifiers*) work on any object and
+  replace their previous value, which is what `set` means in LVGL
+  (`lv_obj_add_style` stacks, `lv_obj_set_*` replaces); an apply replaces
+  too. There is no `obj` in the names, unlike LVGL's `lv_obj_set_*`: they
+  work on any object, so there is no class to name.
+
+  The same grammar is what §2 asks projects to use for their
+  components (`readout_create(parent, …)`), so library and project calls
+  read alike. Names that state their action also help code generators and
+  LLMs porting from a Figma file, which otherwise mistake a constructor for
+  a modifier.
+- **One property per line.** Create, then set: each setter line is one row
+  of Figma's auto layout panel, for every construct, with no per-construct
+  exceptions to learn:
+
+  ```c
+  lv_obj_t * page = trlv_column_create(screen);
+  trlv_set_gap(page, TRLV_SPACE_LG);
+  trlv_set_pad(page, TRLV_SPACE_LG);
+  trlv_set_width_fill(page);
+  ```
+- **No abbreviations** except LVGL's `pad`: `trlv_column_create`,
+  `trlv_set_width_fill`, `trlv_set_align_items`.
 - **Fully qualified enums:** `TRLV_JUSTIFY_SPACE_BETWEEN`, `TRLV_ALIGN_ITEMS_CENTER`,
   `TRLV_SPACE_MD`, `TRLV_TEXT_BODY_MEDIUM`, `TRLV_SURFACE_CONTAINER_HIGH`.
 - **Prefixes:** functions `trlv_*`, types `trlv_*_t`, macros and enums
@@ -320,7 +357,7 @@ container 12%. These are the MD3 values; projects may tune them.
 - **Constant styles** (box reset / transparent, row and column flow, justify
   and align values, grow, fill width/height, hug) use `LV_STYLE_CONST_INIT`.
   They live in flash and need no RAM and no allocation. **Token-dependent
-  styles** (gap, pad, text roles, surfaces, cards, button variants, the
+  styles** (gap, pad, text roles, surfaces, cards, button types, the
   divider and the theme's own styles) use the same
   `LV_STYLE_CONST_INIT` mechanism, but their property array is a static,
   writable array in RAM: `trlv_init` and colour-mode switches write the token
@@ -563,9 +600,9 @@ switch rewrite them in place.
 
 ```c
 lv_obj_t * card = trlv_column_create(parent);
-trlv_set_gap(card, TRLV_SPACE_SM);
 trlv_apply_card(card, TRLV_CARD_FILLED);
 trlv_set_pad(card, TRLV_SPACE_LG);
+trlv_set_gap(card, TRLV_SPACE_SM);
 trlv_set_width_fill(card);
 
 lv_obj_t * header = trlv_row_create(card);
@@ -584,39 +621,56 @@ trlv_text_create(btn, "Calibrate", TRLV_TEXT_LABEL_LARGE);
 The [demo](../examples/demo) uses every primitive and modifier on real
 screens, and each of its sections is a worked example.
 
-### 7.1 Constructors (nouns)
+### 7.1 Constructors (`_create`)
 
 | Function | Figma | CSS | Behaviour |
 |---|---|---|---|
 | `trlv_box_create(parent)` | Frame (no auto layout) | `div` | `lv_obj` with theme styles removed + `trlv_style_box`: transparent, no padding, **not scrollable, not clickable**, hug size. Place children freely with `lv_obj_align`; with `lv_obj_set_floating` this also covers overlays. |
-| `trlv_row_create(parent, gap)` | Auto layout → | `flex-direction: row` | box + row style + gap style. |
-| `trlv_column_create(parent, gap)` | Auto layout ↓ | `flex-direction: column` | box + column style + gap style. |
+| `trlv_row_create(parent)` | Auto layout → | `flex-direction: row` | box + row style. No gap until `trlv_set_gap`. |
+| `trlv_column_create(parent)` | Auto layout ↓ | `flex-direction: column` | box + column style. No gap until `trlv_set_gap`. |
 | `trlv_spacer_create(parent)` | Empty frame, fill container | `flex: 1` | box + `trlv_set_*_fill` along the parent's main axis, chosen at call time. Pushes the items after it to the far end. |
 | `trlv_text_create(parent, text, role)` | Text layer + MD3 text style | `p`, `h1`… | Label + role style. Hugs its content like any LVGL label (Figma "auto width"); `trlv_set_width_fill` gives it a width, so it wraps (Figma "auto height"). Colour is inherited from the enclosing surface. |
 | `trlv_divider_create(parent)` | MD3 divider, 1 px line | `hr` | `border_width` line in `outline_variant`. Horizontal in a column (or no flex), vertical in a row, chosen at call time. Insets: LVGL margins. |
+
+**Defaults.** Layout containers (box, row, column) start like a fresh
+Figma frame or a CSS `div`: no gap, no padding, hug size. LVGL widgets
+come with their MD3 spec padding from the theme, as Figma kit components
+do: every `lv_button` is padded. A setter not called means the default, as
+in LVGL and CSS; `trlv_set_pad(obj, TRLV_SPACE_NONE)` says "no padding" on
+purpose.
+
+**No card constructor.** A card is a look applied to a row or column, as
+a surface is: `trlv_apply_card`, then `trlv_set_pad` (MD3 cards use `LG`).
+Every part of an MD3 card (headline, subhead, media, supporting text,
+actions) is optional, so a card's content is children, and a card with
+fixed content is a project component (§2), such as
+`stat_card_create(parent, label, value)`.
 
 There is no grid or page constructor. Grids use LVGL's own grid API on a
 `trlv_box_create`, and a page skeleton (header / body / footer) is a project
 component.
 
-### 7.2 Modifiers (verbs / properties)
+### 7.2 Layout setters (`trlv_set_*`)
 
-All modifiers work on **any** `lv_obj_t`, not only objects TreLVis created,
-and each group replaces its previous style.
+All setters work on **any** `lv_obj_t`, not only objects TreLVis created,
+and each group replaces its previous style. They never change colour.
+
+**Shared, not local.** In LVGL, `lv_obj_set_style_*` adds a *local* style
+to the one object, which costs RAM per object. A TreLVis setter (or
+apply, §7.3) uses a *shared* style (one per value) instead, so
+`trlv_set_pad` on a thousand objects costs no more RAM than on one. As
+shared styles, they sit below project styles and local styles in
+precedence (§6.2).
 
 | Group | Functions | Notes |
 |---|---|---|
 | Spacing | `trlv_set_gap(obj, space)`, `trlv_set_pad(obj, space)` | Different horizontal / vertical values, or one side: use raw LVGL with a token value (below). |
 | Distribution | `trlv_set_justify(obj, TRLV_JUSTIFY_START / CENTER / END / SPACE_BETWEEN / SPACE_AROUND / SPACE_EVENLY)`, `trlv_set_align_items(obj, TRLV_ALIGN_ITEMS_START / CENTER / END)` | Two named calls in place of `lv_obj_set_flex_align`'s three positional arguments, with shared styles instead of a local one. `ALIGN_ITEMS`, not `ALIGN`, so the values aren't mistaken for `lv_align_t`. The enum values equal LVGL's `LV_FLEX_ALIGN_*`. LVGL flex has no cross-axis stretch; use `trlv_set_*_fill` on each child, as in Figma (in CSS a column's children stretch by default). Expect `trlv_set_width_fill` to be one of the most frequent calls in a screen. |
-| Sizing | `trlv_set_width_hug/height`, `trlv_set_width_fill/height` | Fixed size: `lv_obj_set_size`. Hug and fill are one group, so `trlv_set_*_hug` also clears an earlier fill. |
-| Surfaces | `trlv_apply_surface(obj, TRLV_SURFACE_SURFACE / CONTAINER_LOWEST / CONTAINER_LOW / CONTAINER / CONTAINER_HIGH / CONTAINER_HIGHEST / PRIMARY_CONTAINER / SECONDARY_CONTAINER / TERTIARY_CONTAINER / ERROR_CONTAINER / INVERSE)`, `trlv_apply_surface_custom(obj, index, TRLV_CUSTOM_SURFACE_COLOR / CONTAINER)` | Sets container colour + matching `on_` text colour (inherited). Tone only: no radius or border. `trlv_apply_surface_custom` does the same with a project custom colour or its container. One group with cards: `trlv_apply_surface` and `trlv_apply_card` replace each other. |
-| Cards | `trlv_apply_card(obj, TRLV_CARD_FILLED / ELEVATED / OUTLINED)` | MD3 cards: tone + radius MD + border/shadow. Padding stays explicit (`trlv_set_pad`, typically `LG`). Not interactive in v1. |
-| Buttons | `trlv_apply_button_type(btn, TRLV_BUTTON_FILLED / TONAL / OUTLINED / TEXT)` | Restyles an `lv_button` (the theme default is FILLED): container colour, border and content colour, with pressed / focus / disabled states. Shape, height and text role stay the theme's. |
-| Text | `trlv_apply_text_role(obj, role)` | On a label it changes the role; on a container it sets the role for every label inside that has none of its own (inheritance). |
+| Sizing | `trlv_set_width_hug`, `trlv_set_height_hug`, `trlv_set_width_fill`, `trlv_set_height_fill` | Fixed size: `lv_obj_set_size`. Hug and fill are one group per axis, so `trlv_set_width_hug` also clears an earlier `trlv_set_width_fill`. |
 
 **Axis-aware fill.** Figma's "fill container" means *grow* along the parent's
-main axis and *stretch* along its cross axis. `trlv_set_width_fill/height` checks
-the parent's flex flow and applies the grow style or the 100 % style
+main axis and *stretch* along its cross axis. `trlv_set_width_fill` and
+`trlv_set_height_fill` check the parent's flex flow and apply the grow style or the 100 % style
 (100 % when the parent has no flex layout). **Set the parent's direction
 first**: the decision is made when the modifier is called, and it stays as
 set, like any LVGL style. If the parent's direction changes later, call the
@@ -672,7 +726,36 @@ colours are affected. If the product switches colour mode, either:
 
 A product with a single colour mode can ignore this.
 
-### 7.3 Debug aids
+### 7.3 Appearance (`trlv_apply_*`)
+
+Each applies a shared look to any object, replaces the look its group had
+and never changes layout. Surfaces, custom surfaces and cards are one
+group and replace each other; a button type is a group of its own. The
+looks are token styles, so they recolour on `trlv_theme_set_color_mode`.
+
+| Group | Functions | Notes |
+|---|---|---|
+| Surfaces | `trlv_apply_surface(obj, TRLV_SURFACE_SURFACE / CONTAINER_LOWEST / CONTAINER_LOW / CONTAINER / CONTAINER_HIGH / CONTAINER_HIGHEST / PRIMARY_CONTAINER / SECONDARY_CONTAINER / TERTIARY_CONTAINER / ERROR_CONTAINER / INVERSE)`, `trlv_apply_surface_custom(obj, index, TRLV_CUSTOM_SURFACE_COLOR / CONTAINER)` | Sets container colour + matching `on_` text colour (inherited). Tone only: no radius, border or padding. `trlv_apply_surface_custom` does the same with a project custom colour or its container. One group with cards: `trlv_apply_surface` and `trlv_apply_card` replace each other. |
+| Cards | `trlv_apply_card(obj, TRLV_CARD_FILLED / ELEVATED / OUTLINED)` | MD3 cards: tone + radius MD + border/shadow, on a row or column. No padding: set it with `trlv_set_pad`, `LG` for MD3 cards. A header, media and actions are children. Not interactive in v1. |
+| Buttons | `trlv_apply_button_type(btn, TRLV_BUTTON_FILLED / TONAL / OUTLINED / TEXT)` | Restyles an `lv_button`, or any clickable object (the theme default is FILLED): container colour, border and content colour, with pressed / focus / disabled states. Shape, height and text role stay the theme's. |
+| Text | `trlv_apply_text_role(obj, role)` | On a label it changes the role; on a container it sets the role for every label inside that has none of its own (inheritance). |
+
+**Odd targets warn.** Like LVGL styles, each look applies to any object.
+Where the object makes no sense for it, the function logs an
+`LV_LOG_WARN` naming the object, then applies the look anyway (the warning
+compiles out with LVGL logging):
+
+- `trlv_apply_card` on anything but a plain container (box, row, column,
+  `lv_obj`): on a widget the card mixes with the widget's own parts and
+  states;
+- `trlv_apply_surface` or `trlv_apply_surface_custom` on an `lv_button`:
+  only the colour at rest changes, while pressed and focus keep the
+  button's colours. A custom-coloured button (a red Stop button) is not
+  part of v1;
+- `trlv_apply_button_type` on an object that isn't clickable: its pressed
+  and focus states never show.
+
+### 7.4 Debug aids
 
 - `TRLV_USE_DEBUG_OUTLINE` draws a 1 px outline around every box, row,
   column and spacer. It is drawn outside the object, in magenta,
@@ -741,8 +824,8 @@ lay out the same.
 | Alignment (main axis) / space between | `justify-content` | `trlv_set_justify` | `flex_main_place` |
 | Alignment (cross axis) | `align-items` | `trlv_set_align_items` | `flex_cross_place` + `flex_track_place` |
 | Wrap | `flex-wrap` | *raw LVGL* | `lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)` |
-| Hug contents | `width: fit-content` | `trlv_set_width_hug/height` | `LV_SIZE_CONTENT` |
-| Fill container | `flex: 1` / `align-self: stretch` | `trlv_set_width_fill/height` | `flex_grow` or `LV_PCT(100)` |
+| Hug contents | `width: fit-content` | `trlv_set_width_hug/height_hug` | `LV_SIZE_CONTENT` |
+| Fill container | `flex: 1` / `align-self: stretch` | `trlv_set_width_fill/height_fill` | `flex_grow` or `LV_PCT(100)` |
 | Fixed size | `width`, `height` | *raw LVGL* | `lv_obj_set_size` |
 | Min / max size | `min-width`, `max-width`, … | *raw LVGL* | `lv_obj_set_style_min_width`, `…max_width`, … |
 | Absolute position, constraints | `position: absolute` | *raw LVGL* | `lv_obj_set_floating` + `lv_obj_align` |
