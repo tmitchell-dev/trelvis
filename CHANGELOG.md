@@ -8,6 +8,8 @@ While the version is 0.x, minor releases may contain breaking changes.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-18
+
 ### Added
 
 - The appearance functions log an `LV_LOG_WARN` (and still apply) on an
@@ -228,5 +230,6 @@ real product.
   include test, non-CMake build, allocation and SPDX checks; weekly build
   against LVGL master; tag-driven release workflow.
 
-[Unreleased]: https://github.com/tmitchell-dev/trelvis/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/tmitchell-dev/trelvis/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/tmitchell-dev/trelvis/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/tmitchell-dev/trelvis/releases/tag/v0.1.0

@@ -30,7 +30,9 @@ If an implementation decision changes the design, update the doc in the same PR.
 
 Milestones 1 (scaffold), 2 (vertical slice), 3 (API review), 4 (tokens
 and theme), 5 (surfaces, cards and remaining primitives) and 6 (demo and
-docs) are done, and 0.1.0 is the v1 feature-complete release.
+docs) are done, and 0.1.0 is the v1 feature-complete release. 0.2.0
+carries the 1.0 review's breaking changes and the theme audit's fixes,
+for the second product trial.
 The slice implemented the token template, `trlv_init`, box, row, column,
 gap, pad, fill/hug and text, the demo screen `trlv_demo_create(parent)` in
 `examples/demo`, and headless layout tests. TreLVis ships no simulator; host
