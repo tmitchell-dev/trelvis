@@ -8,8 +8,8 @@
  *
  * TreLVis defines only the types. A project supplies the values by copying
  * the token template (templates/trlv_tokens_template.c and .h) and passes
- * them to trlv_init. Read the values in use with trlv_color() and
- * trlv_layout().
+ * them to trlv_init. Read the values in use with trlv_get_color_tokens() and
+ * trlv_get_layout_tokens().
  *
  * The collections mirror Figma variable collections:
  *
@@ -22,16 +22,16 @@
  *
  * | Figma / MD3                          | CSS                          | TreLVis                               | Used by (v1)                                |
  * |--------------------------------------|------------------------------|---------------------------------------|---------------------------------------------|
- * | `space/md`                           | `--space-md`                 | TRLV_SPACE_MD, `space[]`              | trlv_gap, trlv_pad, row/column gap          |
+ * | `space/md`                           | `--space-md`                 | TRLV_SPACE_MD, `space[]`              | trlv_set_gap, trlv_set_pad, row/column gap          |
  * | `md.sys.shape.corner.medium`         | `border-radius`              | TRLV_RADIUS_MD, `radius[]`            | cards (MD), buttons (FULL), fields, checkbox and menu (XS) |
  * | Stroke width                         | `border-width`               | `border_width`                        | outlined card, outlined button, fields      |
  * | Focus indicator thickness            | `outline-width`              | `focus_width`                         | theme focus ring                            |
  * | Control height                       | `height`                     | TRLV_SIZE_MD, `control_height[]`      | theme button (MD), switch track (SM)        |
  * | `md.sys.elevation.level1`            | `box-shadow`                 | TRLV_ELEVATION_1, `elevation[]`       | elevated card (level 1)                     |
- * | `md.sys.typescale.body-medium`       | `font`, `line-height`, ...   | TRLV_TEXT_BODY_MEDIUM, `text[]`       | trlv_text, trlv_text_role, theme            |
+ * | `md.sys.typescale.body-medium`       | `font`, `line-height`, ...   | TRLV_TEXT_BODY_MEDIUM, `text[]`       | trlv_text_create, trlv_apply_text_role, theme            |
  * | `md.sys.color.surface-container-high`| `--md-sys-color-*`           | `surface_container_high`              | theme, surfaces, cards                      |
  * | `md.sys.state.pressed.state-layer-opacity` | `opacity`              | `state.pressed`                       | theme state styles                          |
- * | Material Theme Builder custom colour | `--md-extended-color-*`      | trlv_custom_color_t, `custom[]`       | trlv_surface_custom                         |
+ * | Material Theme Builder custom colour | `--md-extended-color-*`      | trlv_custom_color_t, `custom[]`       | trlv_apply_surface_custom                         |
  *
  * Tokens that no TreLVis function reads (for example TRLV_SIZE_LG,
  * TRLV_ELEVATION_3 or `surface_dim`) are there for a project's own
@@ -224,7 +224,7 @@ typedef struct {
  * surface-container-high`) is `surface_container_high`.
  *
  * Every container role has an `on_` role for content drawn on it. Use them
- * in pairs; the theme, trlv_surface and trlv_card do so through text-colour
+ * in pairs; the theme, trlv_apply_surface and trlv_apply_card do so through text-colour
  * inheritance.
  */
 typedef struct {
@@ -282,8 +282,8 @@ typedef struct {
                                              entries in the same order. */
     uint32_t custom_count;              /**< Number of entries in custom. Entries
                                              beyond TRLV_CUSTOM_COLOR_MAX can be
-                                             read with trlv_color() but not used
-                                             with trlv_surface_custom. */
+                                             read with trlv_get_color_tokens() but not used
+                                             with trlv_apply_surface_custom. */
 } trlv_color_tokens_t;
 
 /**

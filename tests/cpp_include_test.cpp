@@ -35,7 +35,7 @@ static_assert(TRLV_CUSTOM_COLOR_MAX >= 0, "custom colour style count");
  * tests/config/minimal) the colours stay in the tokens, unused. */
 #if TRLV_CUSTOM_COLOR_MAX > 0
 static_assert(TOKEN_CUSTOM_COUNT <= TRLV_CUSTOM_COLOR_MAX,
-              "the template's custom colours all work with trlv_surface_custom");
+              "the template's custom colours all work with trlv_apply_surface_custom");
 #endif
 
 static_assert(std::is_same<decltype(tokens_light), const trlv_color_tokens_t>::value,
@@ -56,35 +56,35 @@ static_assert(std::is_same<decltype(tokens_regular), const trlv_layout_tokens_t>
 /* trlv_theme.h: initialisation and token access */
 TRLV_CHECK_SIGNATURE(trlv_init, void (*)(lv_display_t *, const trlv_color_tokens_t *, const trlv_layout_tokens_t *));
 TRLV_CHECK_SIGNATURE(trlv_theme_set_color_mode, void (*)(const trlv_color_tokens_t *));
-TRLV_CHECK_SIGNATURE(trlv_color, const trlv_color_tokens_t * (*)(void));
-TRLV_CHECK_SIGNATURE(trlv_layout, const trlv_layout_tokens_t * (*)(void));
+TRLV_CHECK_SIGNATURE(trlv_get_color_tokens, const trlv_color_tokens_t * (*)(void));
+TRLV_CHECK_SIGNATURE(trlv_get_layout_tokens, const trlv_layout_tokens_t * (*)(void));
 
 /* trlv_layout.h: constructors */
-TRLV_CHECK_SIGNATURE(trlv_box, lv_obj_t * (*)(lv_obj_t *));
-TRLV_CHECK_SIGNATURE(trlv_row, lv_obj_t * (*)(lv_obj_t *, trlv_space_t));
-TRLV_CHECK_SIGNATURE(trlv_column, lv_obj_t * (*)(lv_obj_t *, trlv_space_t));
-TRLV_CHECK_SIGNATURE(trlv_spacer, lv_obj_t * (*)(lv_obj_t *));
-TRLV_CHECK_SIGNATURE(trlv_divider, lv_obj_t * (*)(lv_obj_t *));
+TRLV_CHECK_SIGNATURE(trlv_box_create, lv_obj_t * (*)(lv_obj_t *));
+TRLV_CHECK_SIGNATURE(trlv_row_create, lv_obj_t * (*)(lv_obj_t *, trlv_space_t));
+TRLV_CHECK_SIGNATURE(trlv_column_create, lv_obj_t * (*)(lv_obj_t *, trlv_space_t));
+TRLV_CHECK_SIGNATURE(trlv_spacer_create, lv_obj_t * (*)(lv_obj_t *));
+TRLV_CHECK_SIGNATURE(trlv_divider_create, lv_obj_t * (*)(lv_obj_t *));
 
 /* trlv_layout.h: modifiers */
-TRLV_CHECK_SIGNATURE(trlv_gap, void (*)(lv_obj_t *, trlv_space_t));
-TRLV_CHECK_SIGNATURE(trlv_pad, void (*)(lv_obj_t *, trlv_space_t));
-TRLV_CHECK_SIGNATURE(trlv_justify, void (*)(lv_obj_t *, trlv_justify_t));
-TRLV_CHECK_SIGNATURE(trlv_align_items, void (*)(lv_obj_t *, trlv_align_items_t));
-TRLV_CHECK_SIGNATURE(trlv_hug_width, void (*)(lv_obj_t *));
-TRLV_CHECK_SIGNATURE(trlv_hug_height, void (*)(lv_obj_t *));
-TRLV_CHECK_SIGNATURE(trlv_fill_width, void (*)(lv_obj_t *));
-TRLV_CHECK_SIGNATURE(trlv_fill_height, void (*)(lv_obj_t *));
+TRLV_CHECK_SIGNATURE(trlv_set_gap, void (*)(lv_obj_t *, trlv_space_t));
+TRLV_CHECK_SIGNATURE(trlv_set_pad, void (*)(lv_obj_t *, trlv_space_t));
+TRLV_CHECK_SIGNATURE(trlv_set_justify, void (*)(lv_obj_t *, trlv_justify_t));
+TRLV_CHECK_SIGNATURE(trlv_set_align_items, void (*)(lv_obj_t *, trlv_align_items_t));
+TRLV_CHECK_SIGNATURE(trlv_set_width_hug, void (*)(lv_obj_t *));
+TRLV_CHECK_SIGNATURE(trlv_set_height_hug, void (*)(lv_obj_t *));
+TRLV_CHECK_SIGNATURE(trlv_set_width_fill, void (*)(lv_obj_t *));
+TRLV_CHECK_SIGNATURE(trlv_set_height_fill, void (*)(lv_obj_t *));
 
 /* trlv_text.h */
-TRLV_CHECK_SIGNATURE(trlv_text, lv_obj_t * (*)(lv_obj_t *, const char *, trlv_text_role_t));
-TRLV_CHECK_SIGNATURE(trlv_text_role, void (*)(lv_obj_t *, trlv_text_role_t));
+TRLV_CHECK_SIGNATURE(trlv_text_create, lv_obj_t * (*)(lv_obj_t *, const char *, trlv_text_role_t));
+TRLV_CHECK_SIGNATURE(trlv_apply_text_role, void (*)(lv_obj_t *, trlv_text_role_t));
 
 /* trlv_surface.h */
-TRLV_CHECK_SIGNATURE(trlv_surface, void (*)(lv_obj_t *, trlv_surface_t));
-TRLV_CHECK_SIGNATURE(trlv_surface_custom, void (*)(lv_obj_t *, uint32_t, trlv_custom_surface_t));
-TRLV_CHECK_SIGNATURE(trlv_card, void (*)(lv_obj_t *, trlv_card_t));
-TRLV_CHECK_SIGNATURE(trlv_button_variant, void (*)(lv_obj_t *, trlv_button_t));
+TRLV_CHECK_SIGNATURE(trlv_apply_surface, void (*)(lv_obj_t *, trlv_surface_t));
+TRLV_CHECK_SIGNATURE(trlv_apply_surface_custom, void (*)(lv_obj_t *, uint32_t, trlv_custom_surface_t));
+TRLV_CHECK_SIGNATURE(trlv_apply_card, void (*)(lv_obj_t *, trlv_card_t));
+TRLV_CHECK_SIGNATURE(trlv_apply_button_type, void (*)(lv_obj_t *, trlv_button_t));
 
 /* trlv_styles.h */
 static_assert(std::is_same<decltype(trlv_style_box), const lv_style_t>::value, "trlv_style_box");

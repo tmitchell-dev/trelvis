@@ -2,7 +2,7 @@
 /* Copyright (c) 2026 Timothy Mitchell */
 
 /*
- * trlv_row and trlv_column: Figma auto layout → and ↓, with the token
+ * trlv_row_create and trlv_column_create: Figma auto layout → and ↓, with the token
  * template's Regular values (SM = 8, MD = 12, LG = 16).
  */
 
@@ -17,7 +17,7 @@ static lv_obj_t * setup(lv_obj_t * screen)
 
 static lv_obj_t * child(lv_obj_t * parent, int32_t w, int32_t h)
 {
-    lv_obj_t * obj = trlv_box(parent);
+    lv_obj_t * obj = trlv_box_create(parent);
     lv_obj_set_size(obj, w, h);
     return obj;
 }
@@ -26,7 +26,7 @@ static lv_obj_t * child(lv_obj_t * parent, int32_t w, int32_t h)
  * the tallest child. */
 static void row_places_children_left_to_right(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_SM);
     lv_obj_t * a = child(row, 40, 20);
     lv_obj_t * b = child(row, 30, 10);
     lv_obj_t * c = child(row, 20, 30);
@@ -41,7 +41,7 @@ static void row_places_children_left_to_right(lv_obj_t * screen)
  * the widest child. */
 static void column_places_children_top_to_bottom(lv_obj_t * screen)
 {
-    lv_obj_t * column = trlv_column(setup(screen), TRLV_SPACE_MD);
+    lv_obj_t * column = trlv_column_create(setup(screen), TRLV_SPACE_MD);
     lv_obj_t * a = child(column, 40, 20);
     lv_obj_t * b = child(column, 60, 10);
 
@@ -53,12 +53,12 @@ static void column_places_children_top_to_bottom(lv_obj_t * screen)
 /* Rows nest in columns with padding, as in a Figma auto-layout frame. */
 static void rows_nest_in_a_padded_column(lv_obj_t * screen)
 {
-    lv_obj_t * column = trlv_column(setup(screen), TRLV_SPACE_SM);
-    trlv_pad(column, TRLV_SPACE_LG);
-    lv_obj_t * row1 = trlv_row(column, TRLV_SPACE_SM);
+    lv_obj_t * column = trlv_column_create(setup(screen), TRLV_SPACE_SM);
+    trlv_set_pad(column, TRLV_SPACE_LG);
+    lv_obj_t * row1 = trlv_row_create(column, TRLV_SPACE_SM);
     child(row1, 10, 10);
     child(row1, 10, 10);
-    lv_obj_t * row2 = trlv_row(column, TRLV_SPACE_SM);
+    lv_obj_t * row2 = trlv_row_create(column, TRLV_SPACE_SM);
     child(row2, 50, 20);
 
     TRLV_ASSERT_RECT(row1, 16, 16, 10 + 8 + 10, 10);
@@ -69,8 +69,8 @@ static void rows_nest_in_a_padded_column(lv_obj_t * screen)
 /* Rows and columns are boxes: not scrollable or clickable, no theme background. */
 static void row_and_column_are_boxes(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row(setup(screen), TRLV_SPACE_SM);
-    lv_obj_t * column = trlv_column(screen, TRLV_SPACE_SM);
+    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * column = trlv_column_create(screen, TRLV_SPACE_SM);
 
     TRLV_ASSERT_INT(lv_obj_is_scrollable(row), false);
     TRLV_ASSERT_INT(lv_obj_is_clickable(row), false);
@@ -79,13 +79,13 @@ static void row_and_column_are_boxes(lv_obj_t * screen)
     TRLV_ASSERT_INT(lv_obj_is_clickable(column), false);
 }
 
-/* trlv_gap on a row replaces the gap it was created with. */
+/* trlv_set_gap on a row replaces the gap it was created with. */
 static void gap_changes_after_creation(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_SM);
     child(row, 10, 10);
     lv_obj_t * b = child(row, 10, 10);
-    trlv_gap(row, TRLV_SPACE_LG);
+    trlv_set_gap(row, TRLV_SPACE_LG);
 
     TRLV_ASSERT_X(b, 10 + 16);
 }
@@ -93,7 +93,7 @@ static void gap_changes_after_creation(lv_obj_t * screen)
 /* Raw LVGL wrap works on a row, as the mapping table says. */
 static void row_wraps_with_lvgl(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_SM);
     lv_obj_set_width(row, 50);
     lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW_WRAP);
     child(row, 20, 10);

@@ -4,7 +4,7 @@
 /**
  * @file trlv_demo_cards.c
  * The Cards section: the three MD3 card types with realistic content. Each
- * card is a column styled with trlv_card; its padding is set with trlv_pad,
+ * card is a column styled with trlv_apply_card; its padding is set with trlv_set_pad,
  * as in Figma, and its text takes on_surface by inheritance.
  *
  * The layout, as a Figma designer would draw it:
@@ -61,30 +61,30 @@ static const demo_card_t cards[] = {
 static void button(lv_obj_t * parent, const char * text, trlv_button_t variant)
 {
     lv_obj_t * btn = lv_button_create(parent);
-    trlv_button_variant(btn, variant);
-    trlv_text(btn, text, TRLV_TEXT_LABEL_LARGE);
+    trlv_apply_button_type(btn, variant);
+    trlv_text_create(btn, text, TRLV_TEXT_LABEL_LARGE);
 }
 
 static void card(lv_obj_t * section, const demo_card_t * content)
 {
-    lv_obj_t * obj = trlv_column(section, TRLV_SPACE_SM);
-    trlv_card(obj, content->card);
-    trlv_pad(obj, TRLV_SPACE_LG);
-    trlv_fill_width(obj);
+    lv_obj_t * obj = trlv_column_create(section, TRLV_SPACE_SM);
+    trlv_apply_card(obj, content->card);
+    trlv_set_pad(obj, TRLV_SPACE_LG);
+    trlv_set_width_fill(obj);
 
-    trlv_text(obj, content->type, TRLV_TEXT_LABEL_MEDIUM);
-    trlv_text(obj, content->title, TRLV_TEXT_TITLE_MEDIUM);
-    lv_obj_t * body = trlv_text(obj, content->body, TRLV_TEXT_BODY_MEDIUM);
-    trlv_fill_width(body);
+    trlv_text_create(obj, content->type, TRLV_TEXT_LABEL_MEDIUM);
+    trlv_text_create(obj, content->title, TRLV_TEXT_TITLE_MEDIUM);
+    lv_obj_t * body = trlv_text_create(obj, content->body, TRLV_TEXT_BODY_MEDIUM);
+    trlv_set_width_fill(body);
 
     /* Actions at the end of the card (Figma: auto layout packed right);
      * on a narrow display they wrap rather than overflow. The padding is
      * room for the keypad focus ring (docs/concepts.md, "Focus rings need
      * clearance"). */
-    lv_obj_t * actions = trlv_row(obj, TRLV_SPACE_SM);
-    trlv_pad(actions, TRLV_SPACE_SM);
-    trlv_fill_width(actions);
-    trlv_justify(actions, TRLV_JUSTIFY_END);
+    lv_obj_t * actions = trlv_row_create(obj, TRLV_SPACE_SM);
+    trlv_set_pad(actions, TRLV_SPACE_SM);
+    trlv_set_width_fill(actions);
+    trlv_set_justify(actions, TRLV_JUSTIFY_END);
     lv_obj_set_flex_flow(actions, LV_FLEX_FLOW_ROW_WRAP);
     button(actions, content->secondary, TRLV_BUTTON_TEXT);
     button(actions, content->main, TRLV_BUTTON_FILLED);
@@ -92,8 +92,8 @@ static void card(lv_obj_t * section, const demo_card_t * content)
 
 lv_obj_t * trlv_demo_cards_create(lv_obj_t * parent)
 {
-    lv_obj_t * section = trlv_column(parent, TRLV_SPACE_LG);
-    trlv_fill_width(section);
+    lv_obj_t * section = trlv_column_create(parent, TRLV_SPACE_LG);
+    trlv_set_width_fill(section);
 
     for(uint32_t i = 0; i < COUNT(cards); i++) card(section, &cards[i]);
 

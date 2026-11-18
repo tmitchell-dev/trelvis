@@ -209,11 +209,11 @@ See [docs/concepts.md](docs/concepts.md) for the full design.
 - Avoid words that clash with LVGL or CSS: `frame`, `float`, `stack`, `layer`,
   `canvas`, `screen`. Don't use `align` for flex distribution
   (`lv_obj_align` means positioning).
-- Constructors are **nouns** that create objects (`trlv_row(parent, …)`).
+- Constructors are **nouns** that create objects (`trlv_row_create(parent, …)`).
   Modifiers are **verbs or properties** that work on any object
-  (`trlv_justify(obj, …)`).
-- No abbreviations in the public API except LVGL's `pad`: `trlv_column`,
-  `trlv_fill_width`, `trlv_align_items`.
+  (`trlv_set_justify(obj, …)`).
+- No abbreviations in the public API except LVGL's `pad`: `trlv_column_create`,
+  `trlv_set_width_fill`, `trlv_set_align_items`.
 - Enum values are fully qualified: `TRLV_JUSTIFY_SPACE_BETWEEN`,
   `TRLV_TEXT_BODY_MEDIUM`.
 - Token names are MD3 role names in snake_case: *Surface Container High* →

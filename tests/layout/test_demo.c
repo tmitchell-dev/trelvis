@@ -31,7 +31,7 @@ static const trlv_layout_tokens_t * layout_tokens;
  * trlv_init). */
 static int32_t space(trlv_space_t step)
 {
-    return trlv_layout()->space[step];
+    return trlv_get_layout_tokens()->space[step];
 }
 
 #define FRAME_PAD    space(TRLV_SPACE_LG)   /* content padding */
@@ -259,9 +259,9 @@ static void bar_is_a_surface_container(lv_obj_t * screen)
     lv_obj_t * title = lv_obj_get_child(top(demo), TOP_TITLE);
 
     TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(bar(demo), LV_PART_MAIN),
-                               trlv_color()->surface_container), true);
+                               trlv_get_color_tokens()->surface_container), true);
     TRLV_ASSERT_INT(same_color(lv_obj_get_style_text_color(title, LV_PART_MAIN),
-                               trlv_color()->on_surface), true);
+                               trlv_get_color_tokens()->on_surface), true);
 }
 
 /* One nav button per section, named after it and side by side; the
@@ -292,7 +292,7 @@ static void assert_selected(lv_obj_t * demo, int32_t selected)
         if(i == selected) {
             TRLV_ASSERT_INT(lv_obj_get_style_bg_opa(btn, LV_PART_MAIN), LV_OPA_COVER);
             TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(btn, LV_PART_MAIN),
-                                       trlv_color()->secondary_container), true);
+                                       trlv_get_color_tokens()->secondary_container), true);
         }
         else {
             TRLV_ASSERT_INT(lv_obj_get_style_bg_opa(btn, LV_PART_MAIN), LV_OPA_TRANSP);
@@ -601,7 +601,7 @@ static void assert_swatches(lv_obj_t * demo, int32_t group, const color_pair_t *
 static void surfaces_show_the_ladder(lv_obj_t * screen)
 {
     lv_obj_t * demo = build(screen);
-    const trlv_color_tokens_t * c = trlv_color();
+    const trlv_color_tokens_t * c = trlv_get_color_tokens();
     const color_pair_t ladder[] = {
         { c->surface, c->on_surface },
         { c->surface_container_lowest, c->on_surface },
@@ -620,7 +620,7 @@ static void surfaces_show_the_ladder(lv_obj_t * screen)
 static void surfaces_show_the_containers(lv_obj_t * screen)
 {
     lv_obj_t * demo = build(screen);
-    const trlv_color_tokens_t * c = trlv_color();
+    const trlv_color_tokens_t * c = trlv_get_color_tokens();
     const color_pair_t containers[] = {
         { c->primary_container, c->on_primary_container },
         { c->secondary_container, c->on_secondary_container },
@@ -639,7 +639,7 @@ static void surfaces_show_the_containers(lv_obj_t * screen)
 static void surfaces_show_the_custom_colors(lv_obj_t * screen)
 {
     lv_obj_t * demo = build(screen);
-    const trlv_color_tokens_t * c = trlv_color();
+    const trlv_color_tokens_t * c = trlv_get_color_tokens();
     int32_t count = (int32_t)LV_MIN(c->custom_count, (uint32_t)TRLV_CUSTOM_COLOR_MAX);
     color_pair_t pairs[2 * TRLV_CUSTOM_COLOR_MAX];
 
@@ -693,9 +693,9 @@ enum { CARD_TYPE, CARD_TITLE, CARD_BODY, CARD_ACTIONS };
 static void cards_show_each_type(lv_obj_t * screen)
 {
     lv_obj_t * demo = build(screen);
-    const trlv_color_tokens_t * c = trlv_color();
+    const trlv_color_tokens_t * c = trlv_get_color_tokens();
     const lv_color_t fills[] = { c->surface_container_highest, c->surface_container_low, c->surface };
-    const int32_t borders[] = { 0, 0, trlv_layout()->border_width };
+    const int32_t borders[] = { 0, 0, trlv_get_layout_tokens()->border_width };
     int32_t y = 0;
 
     select_section(demo, SECTION_CARDS);
@@ -707,7 +707,7 @@ static void cards_show_each_type(lv_obj_t * screen)
         TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(card, LV_PART_MAIN), fills[i]), true);
         TRLV_ASSERT_INT(lv_obj_get_style_border_width(card, LV_PART_MAIN), borders[i]);
         TRLV_ASSERT_INT(lv_obj_get_style_shadow_width(card, LV_PART_MAIN),
-                        i == 1 ? trlv_layout()->elevation[TRLV_ELEVATION_1].blur : 0);
+                        i == 1 ? trlv_get_layout_tokens()->elevation[TRLV_ELEVATION_1].blur : 0);
         y += trlv_test_height(card) + SECTION_GAP;
     }
     TRLV_ASSERT_INT(same_color(lv_obj_get_style_border_color(lv_obj_get_child(section(demo), 2), LV_PART_MAIN),
@@ -738,7 +738,7 @@ static void cards_lay_out_their_content(lv_obj_t * screen)
             y += trlv_test_height(child) + CARD_GAP;
             if(part != CARD_ACTIONS) {
                 TRLV_ASSERT_INT(same_color(lv_obj_get_style_text_color(child, LV_PART_MAIN),
-                                           trlv_color()->on_surface), true);
+                                           trlv_get_color_tokens()->on_surface), true);
                 TRLV_ASSERT_INT(lv_obj_get_local_style_prop(child, LV_STYLE_TEXT_COLOR, &local, LV_PART_MAIN),
                                 LV_STYLE_RES_NOT_FOUND);
             }
@@ -768,7 +768,7 @@ static void cards_put_actions_at_the_end(lv_obj_t * screen)
         TRLV_ASSERT_X(secondary, trlv_test_x(main_action) - CARD_GAP - trlv_test_width(secondary));
         TRLV_ASSERT_INT(lv_obj_get_style_bg_opa(secondary, LV_PART_MAIN), LV_OPA_TRANSP);
         TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(main_action, LV_PART_MAIN),
-                                   trlv_color()->primary), true);
+                                   trlv_get_color_tokens()->primary), true);
     }
 }
 
@@ -789,7 +789,7 @@ static lv_obj_t * controls_row(lv_obj_t * demo, int32_t group, int32_t row)
 static void controls_show_every_button_variant(lv_obj_t * screen)
 {
     lv_obj_t * demo = build(screen);
-    const trlv_color_tokens_t * c = trlv_color();
+    const trlv_color_tokens_t * c = trlv_get_color_tokens();
 
     select_section(demo, SECTION_CONTROLS);
     for(int32_t row = 0; row < 2; row++) {
@@ -807,7 +807,7 @@ static void controls_show_every_button_variant(lv_obj_t * screen)
             TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(filled, LV_PART_MAIN), c->primary), true);
             TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(tonal, LV_PART_MAIN), c->secondary_container), true);
             TRLV_ASSERT_INT(lv_obj_get_style_bg_opa(outlined, LV_PART_MAIN), LV_OPA_TRANSP);
-            TRLV_ASSERT_INT(lv_obj_get_style_border_width(outlined, LV_PART_MAIN), trlv_layout()->border_width);
+            TRLV_ASSERT_INT(lv_obj_get_style_border_width(outlined, LV_PART_MAIN), trlv_get_layout_tokens()->border_width);
             TRLV_ASSERT_INT(lv_obj_get_style_bg_opa(text, LV_PART_MAIN), LV_OPA_TRANSP);
             TRLV_ASSERT_INT(lv_obj_get_style_border_width(text, LV_PART_MAIN), 0);
         }
@@ -922,8 +922,8 @@ static void list_alternates_items_and_dividers(lv_obj_t * screen)
     for(int32_t i = 0; i < 2 * LIST_ITEMS - 1; i++) {
         lv_obj_t * child = lv_obj_get_child(list, i);
         if(i % 2 == 1) {   /* a divider */
-            TRLV_ASSERT_RECT(child, 0, y, width, trlv_layout()->border_width);
-            ASSERT_COLOR(lv_obj_get_style_bg_color(child, LV_PART_MAIN), trlv_color()->outline_variant);
+            TRLV_ASSERT_RECT(child, 0, y, width, trlv_get_layout_tokens()->border_width);
+            ASSERT_COLOR(lv_obj_get_style_bg_color(child, LV_PART_MAIN), trlv_get_color_tokens()->outline_variant);
         }
         else {
             TRLV_ASSERT_RECT(child, 0, y, width, trlv_test_height(child));
@@ -1049,11 +1049,11 @@ static void switch_recolors_every_section(lv_obj_t * screen)
         assert_section_colors(demo, i, color_light);
 
         set_dark(demo, true);
-        TRLV_ASSERT_INT(trlv_color() == color_dark, true);
+        TRLV_ASSERT_INT(trlv_get_color_tokens() == color_dark, true);
         assert_section_colors(demo, i, color_dark);
 
         set_dark(demo, false);
-        TRLV_ASSERT_INT(trlv_color() == color_light, true);
+        TRLV_ASSERT_INT(trlv_get_color_tokens() == color_light, true);
         assert_section_colors(demo, i, color_light);
     }
 }
@@ -1113,11 +1113,11 @@ static void assert_focus_style(lv_obj_t * obj, const trlv_color_tokens_t * c)
 {
     TRLV_ASSERT_INT(lv_obj_has_state(obj, LV_STATE_FOCUS_KEY), true);
     if(lv_obj_check_type(obj, &lv_dropdown_class) || lv_obj_check_type(obj, &lv_textarea_class)) {
-        TRLV_ASSERT_INT(lv_obj_get_style_border_width(obj, LV_PART_MAIN), trlv_layout()->focus_width);
+        TRLV_ASSERT_INT(lv_obj_get_style_border_width(obj, LV_PART_MAIN), trlv_get_layout_tokens()->focus_width);
         ASSERT_COLOR(lv_obj_get_style_border_color(obj, LV_PART_MAIN), c->primary);
     }
     else {
-        TRLV_ASSERT_INT(lv_obj_get_style_outline_width(obj, LV_PART_MAIN), trlv_layout()->focus_width);
+        TRLV_ASSERT_INT(lv_obj_get_style_outline_width(obj, LV_PART_MAIN), trlv_get_layout_tokens()->focus_width);
         TRLV_ASSERT_INT(lv_obj_get_style_outline_opa(obj, LV_PART_MAIN), LV_OPA_COVER);
         ASSERT_COLOR(lv_obj_get_style_outline_color(obj, LV_PART_MAIN), c->focus);
     }
@@ -1173,7 +1173,7 @@ static void every_focus_ring_has_room(lv_obj_t * screen)
 {
     lv_group_t * group;
     lv_obj_t * demo = build_with_keypad(screen, &group);
-    int32_t ring = trlv_layout()->focus_width + trlv_layout()->space[TRLV_SPACE_2XS];
+    int32_t ring = trlv_get_layout_tokens()->focus_width + trlv_get_layout_tokens()->space[TRLV_SPACE_2XS];
 
     for(int32_t i = 0; i < SECTION_COUNT; i++) {
         select_section(demo, i);

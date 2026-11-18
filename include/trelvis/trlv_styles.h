@@ -6,16 +6,16 @@
  * The shared LVGL styles a project can add to an object directly.
  *
  * TreLVis exposes a style only when no modifier can apply it to an object
- * that already exists. trlv_box, trlv_row and trlv_column create new
+ * that already exists. trlv_box_create, trlv_row_create and trlv_column_create create new
  * objects, so their styles are here: with them, a project can turn an
  * existing object, such as a plain lv_obj used as a list item, into a row
  * or column while it keeps its theme look, or reset its theme look:
  *
  *     lv_obj_t * item = lv_obj_create(list);
  *     lv_obj_add_style(item, &trlv_style_row, 0);
- *     trlv_gap(item, TRLV_SPACE_SM);
+ *     trlv_set_gap(item, TRLV_SPACE_SM);
  *     lv_image_set_src(lv_image_create(item), &icon_play);
- *     trlv_text(item, "Start", TRLV_TEXT_BODY_LARGE);
+ *     trlv_text_create(item, "Start", TRLV_TEXT_BODY_LARGE);
  *
  * (An lv_button needs none of this: the theme already lays it out as a
  * centred row.)
@@ -61,20 +61,20 @@ extern "C" {
 /**
  * Box reset (constant): transparent background, no border, no padding, and
  * hug (LV_SIZE_CONTENT) width and height. Figma: a frame with no fill,
- * stroke or padding; CSS: a `div` with no styles. Applied by trlv_box.
+ * stroke or padding; CSS: a `div` with no styles. Applied by trlv_box_create.
  *
  * Added to an existing widget, it overrides the theme's background, border,
  * padding and size, but not its other styles or the widget's flags: an
- * lv_obj stays scrollable and clickable (trlv_box turns those off).
+ * lv_obj stays scrollable and clickable (trlv_box_create turns those off).
  */
 extern const lv_style_t trlv_style_box;
 
 /**
  * Horizontal flex flow (constant): Figma auto layout →, CSS
- * `display: flex; flex-direction: row`. Applied by trlv_row.
+ * `display: flex; flex-direction: row`. Applied by trlv_row_create.
  *
  * Sets only the layout and flow: the object keeps its size, padding and
- * look. Add a gap with trlv_gap. trlv_style_row and trlv_style_column are
+ * look. Add a gap with trlv_set_gap. trlv_style_row and trlv_style_column are
  * not a group: to change the direction later, remove one with
  * lv_obj_remove_style before adding the other, or use
  * lv_obj_set_flex_flow, which adds a local style and wins.
@@ -83,7 +83,7 @@ extern const lv_style_t trlv_style_row;
 
 /**
  * Vertical flex flow (constant): Figma auto layout ↓, CSS
- * `display: flex; flex-direction: column`. Applied by trlv_column.
+ * `display: flex; flex-direction: column`. Applied by trlv_column_create.
  *
  * Like trlv_style_row, with children placed top to bottom.
  */

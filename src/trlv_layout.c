@@ -184,7 +184,7 @@ static bool space_is_valid(trlv_space_t space, const char * func)
  * Constructors
  *-------------------------------------------------------------------------*/
 
-lv_obj_t * trlv_box(lv_obj_t * parent)
+lv_obj_t * trlv_box_create(lv_obj_t * parent)
 {
     lv_obj_t * obj = lv_obj_create(parent);
     lv_obj_remove_style_all(obj);
@@ -194,19 +194,19 @@ lv_obj_t * trlv_box(lv_obj_t * parent)
     return obj;
 }
 
-lv_obj_t * trlv_row(lv_obj_t * parent, trlv_space_t gap)
+lv_obj_t * trlv_row_create(lv_obj_t * parent, trlv_space_t gap)
 {
-    lv_obj_t * obj = trlv_box(parent);
+    lv_obj_t * obj = trlv_box_create(parent);
     lv_obj_add_style(obj, &trlv_style_row, LV_PART_MAIN);
-    trlv_gap(obj, gap);
+    trlv_set_gap(obj, gap);
     return obj;
 }
 
-lv_obj_t * trlv_column(lv_obj_t * parent, trlv_space_t gap)
+lv_obj_t * trlv_column_create(lv_obj_t * parent, trlv_space_t gap)
 {
-    lv_obj_t * obj = trlv_box(parent);
+    lv_obj_t * obj = trlv_box_create(parent);
     lv_obj_add_style(obj, &trlv_style_column, LV_PART_MAIN);
-    trlv_gap(obj, gap);
+    trlv_set_gap(obj, gap);
     return obj;
 }
 
@@ -214,26 +214,26 @@ lv_obj_t * trlv_column(lv_obj_t * parent, trlv_space_t gap)
 static bool parent_main_axis_is(lv_obj_t * obj, bool horizontal);
 static void fill(lv_obj_t * obj, bool horizontal, const char * func);
 
-lv_obj_t * trlv_spacer(lv_obj_t * parent)
+lv_obj_t * trlv_spacer_create(lv_obj_t * parent)
 {
-    lv_obj_t * obj = trlv_box(parent);
+    lv_obj_t * obj = trlv_box_create(parent);
 
     /* An empty box hugs to 0 x 0. Fill only along the main axis, so it takes
      * no room across it; with no flex parent it stays 0 x 0. */
-    if(parent_main_axis_is(obj, true)) fill(obj, true, "trlv_spacer");
-    else if(parent_main_axis_is(obj, false)) fill(obj, false, "trlv_spacer");
+    if(parent_main_axis_is(obj, true)) fill(obj, true, "trlv_spacer_create");
+    else if(parent_main_axis_is(obj, false)) fill(obj, false, "trlv_spacer_create");
     return obj;
 }
 
-lv_obj_t * trlv_divider(lv_obj_t * parent)
+lv_obj_t * trlv_divider_create(lv_obj_t * parent)
 {
-    lv_obj_t * obj = trlv_box(parent);
+    lv_obj_t * obj = trlv_box_create(parent);
 
     /* Vertical in a row, horizontal otherwise. The line fills across the
      * parent's main axis (100 %), so it never grows along it. */
     bool vertical = parent_main_axis_is(obj, true);
     lv_obj_add_style(obj, trlv_divider_style(vertical), LV_PART_MAIN);
-    fill(obj, !vertical, "trlv_divider");
+    fill(obj, !vertical, "trlv_divider_create");
     return obj;
 }
 
@@ -241,29 +241,29 @@ lv_obj_t * trlv_divider(lv_obj_t * parent)
  * Modifiers
  *-------------------------------------------------------------------------*/
 
-void trlv_gap(lv_obj_t * obj, trlv_space_t space)
+void trlv_set_gap(lv_obj_t * obj, trlv_space_t space)
 {
     LV_ASSERT_NULL(obj);
-    if(!space_is_valid(space, "trlv_gap")) return;
+    if(!space_is_valid(space, "trlv_set_gap")) return;
 
     trlv_style_group_apply(obj, &gap_group, gap_styles[space], LV_PART_MAIN);
 }
 
-void trlv_pad(lv_obj_t * obj, trlv_space_t space)
+void trlv_set_pad(lv_obj_t * obj, trlv_space_t space)
 {
     LV_ASSERT_NULL(obj);
-    if(!space_is_valid(space, "trlv_pad")) return;
+    if(!space_is_valid(space, "trlv_set_pad")) return;
 
     trlv_style_group_apply(obj, &pad_group, pad_styles[space], LV_PART_MAIN);
 }
 
-void trlv_hug_width(lv_obj_t * obj)
+void trlv_set_width_hug(lv_obj_t * obj)
 {
     LV_ASSERT_NULL(obj);
     trlv_style_group_apply(obj, &width_group, &hug_width, LV_PART_MAIN);
 }
 
-void trlv_hug_height(lv_obj_t * obj)
+void trlv_set_height_hug(lv_obj_t * obj)
 {
     LV_ASSERT_NULL(obj);
     trlv_style_group_apply(obj, &height_group, &hug_height, LV_PART_MAIN);
@@ -302,7 +302,7 @@ static void warn_if_growing_in_hug(lv_obj_t * obj, bool horizontal, const char *
         const char * axis = horizontal ? "width" : "height";
         LV_LOG_WARN("%s(%p): the parent hugs its %s, so there is no space to grow into "
                     "and the object collapses. Give the parent a %s (lv_obj_set_%s or "
-                    "trlv_fill_%s) first.",
+                    "trlv_set_%s_fill) first.",
                     func, (void *)obj, axis, axis, axis, axis);
     }
 #else
@@ -326,19 +326,19 @@ static void fill(lv_obj_t * obj, bool horizontal, const char * func)
     }
 }
 
-void trlv_fill_width(lv_obj_t * obj)
+void trlv_set_width_fill(lv_obj_t * obj)
 {
     LV_ASSERT_NULL(obj);
-    fill(obj, true, "trlv_fill_width");
+    fill(obj, true, "trlv_set_width_fill");
 }
 
-void trlv_fill_height(lv_obj_t * obj)
+void trlv_set_height_fill(lv_obj_t * obj)
 {
     LV_ASSERT_NULL(obj);
-    fill(obj, false, "trlv_fill_height");
+    fill(obj, false, "trlv_set_height_fill");
 }
 
-void trlv_justify(lv_obj_t * obj, trlv_justify_t justify)
+void trlv_set_justify(lv_obj_t * obj, trlv_justify_t justify)
 {
     LV_ASSERT_NULL(obj);
 
@@ -351,13 +351,13 @@ void trlv_justify(lv_obj_t * obj, trlv_justify_t justify)
         case TRLV_JUSTIFY_SPACE_AROUND:  style = &justify_space_around; break;
         case TRLV_JUSTIFY_SPACE_EVENLY:  style = &justify_space_evenly; break;
         default:
-            LV_LOG_WARN("trlv_justify: %d is not a trlv_justify_t value", (int)justify);
+            LV_LOG_WARN("trlv_set_justify: %d is not a trlv_justify_t value", (int)justify);
             return;
     }
     trlv_style_group_apply(obj, &justify_group, style, LV_PART_MAIN);
 }
 
-void trlv_align_items(lv_obj_t * obj, trlv_align_items_t align)
+void trlv_set_align_items(lv_obj_t * obj, trlv_align_items_t align)
 {
     LV_ASSERT_NULL(obj);
 
@@ -367,7 +367,7 @@ void trlv_align_items(lv_obj_t * obj, trlv_align_items_t align)
         case TRLV_ALIGN_ITEMS_CENTER: style = &align_items_center; break;
         case TRLV_ALIGN_ITEMS_END:    style = &align_items_end; break;
         default:
-            LV_LOG_WARN("trlv_align_items: %d is not a trlv_align_items_t value", (int)align);
+            LV_LOG_WARN("trlv_set_align_items: %d is not a trlv_align_items_t value", (int)align);
             return;
     }
     trlv_style_group_apply(obj, &align_items_group, style, LV_PART_MAIN);

@@ -12,13 +12,13 @@ calls that every project repeats into one standard call. A public function is
 added only if it does at least one of these:
 
 - **Replaces a block of LVGL calls that projects repeat**, so it is written
-  once and the same way everywhere (`trlv_row(parent, gap)`: create the
+  once and the same way everywhere (`trlv_row_create(parent, gap)`: create the
   object, reset it, set the flow, set the gap).
 - **Takes a design token**, so screens hold no magic numbers
-  (`trlv_pad(obj, TRLV_SPACE_LG)`).
+  (`trlv_set_pad(obj, TRLV_SPACE_LG)`).
 - **Fixes an LVGL default that surprises** people coming from Figma or CSS
-  (`trlv_box`: not scrollable, not clickable, no theme padding).
-- **Makes a decision LVGL leaves to the caller** (`trlv_fill_width`: grow or
+  (`trlv_box_create`: not scrollable, not clickable, no theme padding).
+- **Makes a decision LVGL leaves to the caller** (`trlv_set_width_fill`: grow or
   100 %, depending on the parent's direction).
 
 A function that only renames a single clear LVGL call does not qualify. For
@@ -27,7 +27,7 @@ names the LVGL call to use.
 
 **No new surprises for LVGL users.** Where TreLVis has no reason to differ,
 LVGL's natural behaviour stands. Every deliberate difference (such as
-`trlv_box` not scrolling) is documented on the function.
+`trlv_box_create` not scrolling) is documented on the function.
 
 The v1 budget is about 20 layout and styling functions, plus four for
 initialisation and token access. The reviewed API has 19 plus four.
@@ -37,10 +37,10 @@ initialisation and token access. The reviewed API has 19 plus four.
 | # | Milestone | Status |
 |---|---|---|
 | 1 | **Scaffold**: repository structure, CMake target, `trelvis.mk`, configuration mechanism, version header and LVGL version check, changelog, NOTICE, SPDX headers, CI (ci / weekly / release workflows, Dependabot), C++ include test. Placeholder headers that compile. | done |
-| 2 | **Vertical slice**: a first working slice of the library: the token template (`templates/`, copied into a project at setup and compiled in CI), a minimal `trlv_init` (no theme yet), `trlv_box`, `trlv_row`, `trlv_column`, `trlv_gap`, `trlv_pad`, `trlv_fill_*` / `trlv_hug_*` and `trlv_text`. One realistic screen is built with it as `examples/demo`: a plain `trlv_demo_create(parent)` function that any host project's simulator or target can call. A headless layout test harness (build a tree, update the layout, assert coordinates) starts running in CI. The slice is provisional: its job is to prove the approach and settle defaults before the API is fixed. | done |
+| 2 | **Vertical slice**: a first working slice of the library: the token template (`templates/`, copied into a project at setup and compiled in CI), a minimal `trlv_init` (no theme yet), `trlv_box_create`, `trlv_row_create`, `trlv_column_create`, `trlv_set_gap`, `trlv_set_pad`, `trlv_set_*_fill` / `trlv_set_*_hug` and `trlv_text_create`. One realistic screen is built with it as `examples/demo`: a plain `trlv_demo_create(parent)` function that any host project's simulator or target can call. A headless layout test harness (build a tree, update the layout, assert coordinates) starts running in CI. The slice is provisional: its job is to prove the approach and settle defaults before the API is fixed. | done |
 | 3 | **API review**: full public headers for the v1 API, with doc comments and mapping tables, informed by the slice. The API is reviewed before further implementation. | done |
 | 4 | **Tokens and theme**: full token types, the complete token template, the MD3 theme over the default parent theme, state layers, focus ring, colour-mode switching, line-height conversion. Widgets are covered in order: screen, label and button first, then one widget at a time. | done |
-| 5 | **Surfaces, cards and remaining primitives**: `trlv_surface`, `trlv_surface_custom`, `trlv_card`, `trlv_button_variant`, `trlv_text_role`, `trlv_spacer`, `trlv_divider`, `trlv_justify`, `trlv_align_items`, the `TRLV_USE_DEBUG_OUTLINE` option. Layout tests for every primitive and modifier. | done |
+| 5 | **Surfaces, cards and remaining primitives**: `trlv_apply_surface`, `trlv_apply_surface_custom`, `trlv_apply_card`, `trlv_apply_button_type`, `trlv_apply_text_role`, `trlv_spacer_create`, `trlv_divider_create`, `trlv_set_justify`, `trlv_set_align_items`, the `TRLV_USE_DEBUG_OUTLINE` option. Layout tests for every primitive and modifier. | done |
 | 6 | **Demo and docs**: `examples/demo` grows from the slice screen to exercise every primitive: surface container ladder; filled / elevated / outlined cards; all button variants and covered widgets in each state; light/dark toggle; an example Compact token set next to the template values; visible keypad/encoder focus; a list built from rows (no `lv_list`). README quick start, `docs/concepts.md` and `docs/figma-handoff.md` brought up to date with the implementation. | done |
 | 7 | **v1.x (on demand)**: additive items, each built only when a product needs it, before or after 1.0 (see below). A backlog, not a milestone with an end. | ongoing |
 | 8 | **1.0**: the [compatibility promise](README.md#what-a-version-number-promises); CI that builds TreLVis the ways products do (a minimal `lv_conf.h`, a Cortex-M cross build with a footprint report, a consumer project, a check that every public symbol is documented); an audit of theme coverage for every LVGL 9.6 widget; a product trial, with findings filed as `product-trial` issues; then the API freeze review and the 1.0.0 release. | in progress |
@@ -52,12 +52,12 @@ Milestone 2 checked two behaviours on a real screen (`examples/demo`):
 - **Fill inside a parent that hugs.** LVGL's result stands. Across the axis
   it works: the child stretches to the widest sibling (CSS
   `align-self: stretch`). Along the main axis the child always collapses to
-  0. `trlv_fill_*` therefore warns only in the main-axis case; warning on
+  0. `trlv_set_*_fill` therefore warns only in the main-axis case; warning on
   the cross-axis case would flag a working pattern. See
   [docs/concepts.md §7.2](docs/concepts.md#72-modifiers-verbs--properties).
-- **`trlv_text` hugging by default.** Kept. On the demo screen every name,
+- **`trlv_text_create` hugging by default.** Kept. On the demo screen every name,
   value, heading and button label wanted to hug; only the paragraph needed
-  `trlv_fill_width`, and forgetting it shows at once as one clipped line.
+  `trlv_set_width_fill`, and forgetting it shows at once as one clipped line.
 
 Inputs for the API review (milestone 3):
 
@@ -66,25 +66,25 @@ Inputs for the API review (milestone 3):
   milestone 3: the template uses the Montserrat sizes LVGL ships when they
   are enabled.
 - Texts of different sizes side by side in a row are top-aligned until
-  `trlv_align_items` lands (milestone 5). LVGL flex has no baseline
+  `trlv_set_align_items` lands (milestone 5). LVGL flex has no baseline
   alignment; centring is the closest match. Resolved in milestone 5:
-  `trlv_align_items(row, TRLV_ALIGN_ITEMS_CENTER)`.
-- A `trlv_box` with children placed by `lv_obj_align` (left and right, at
+  `trlv_set_align_items(row, TRLV_ALIGN_ITEMS_CENTER)`.
+- A `trlv_box_create` with children placed by `lv_obj_align` (left and right, at
   `*_MID`) hugs its height correctly, which covers a title-and-status header
-  before `trlv_justify` exists.
-- No naming changes came up. Filling both axes takes `trlv_fill_width` and
-  `trlv_fill_height`; a combined call would only join two clear calls, so
+  before `trlv_set_justify` exists.
+- No naming changes came up. Filling both axes takes `trlv_set_width_fill` and
+  `trlv_set_height_fill`; a combined call would only join two clear calls, so
   none is proposed.
 
 ## Settled in milestone 5
 
 - **Align items places the line too.** LVGL's `flex_cross_place` places
   items within their line, which is only as deep as the deepest item and
-  sits at the start of the container. `trlv_align_items` also sets
+  sits at the start of the container. `trlv_set_align_items` also sets
   `flex_track_place`, so items are placed in the container as in Figma and
   CSS. A project wanting CSS `align-content` sets the track placement
   afterwards as a local style.
-- **Spacer** warns under its own name (`trlv_spacer`) in a parent that
+- **Spacer** warns under its own name (`trlv_spacer_create`) in a parent that
   hugs its main axis, and has no size in a parent without flex.
 - **Debug outline** is part of `trlv_style_box`: magenta, 1 px, outside
   the object. It costs nothing when off and no RAM when on.
@@ -110,7 +110,7 @@ Inputs for the API review (milestone 3):
 
 - **Custom colours** replace the fixed success and warning roles: a
   project-defined table in the colour tokens, applied with
-  `trlv_surface_custom`. The token structs have one shape for every
+  `trlv_apply_surface_custom`. The token structs have one shape for every
   configuration.
 - **Theme install:** the TreLVis theme sits over LVGL's default theme and
   is found again by a marker in its user data, so `trlv_init` and colour
@@ -146,7 +146,7 @@ milestones 4 and 5:
 - **Theme:** `trlv_init` comes before any objects are created. LVGL's default
   theme gets its dark flag from the luminance of `surface`. The theme never
   sets a text role on plain labels (the screen carries Body Medium, a button
-  Label Large), so `trlv_text_role` on a container reaches its labels.
+  Label Large), so `trlv_apply_text_role` on a container reaches its labels.
 - **Surfaces and cards** are one style group and replace each other; cards
   are not interactive in v1.
 - **Naming:** cross-axis values are `TRLV_ALIGN_ITEMS_*`, so they can't be
@@ -159,7 +159,7 @@ Changed at the start of milestone 4, in a review of the token schema:
 - **Custom colours replace the fixed success and warning roles.** Colours
   beyond the MD3 roles differ per product (ISA-101 alarm priorities,
   IEC 60601-1-8 alarm levels, brand accents), so they are a project-defined
-  table in the colour tokens, applied with `trlv_surface_custom`. The token
+  table in the colour tokens, applied with `trlv_apply_surface_custom`. The token
   structs keep one shape: no configuration option adds or removes fields.
   `TRLV_CUSTOM_COLOR_MAX` only sizes the shared styles.
 
@@ -274,7 +274,7 @@ These are deliberately excluded:
 - Gradient tokens, blend modes, inner shadows, background blur.
 - Aspect-ratio locking; Figma "scale" constraints.
 - Breakpoints / media queries (layout modes are used instead).
-- Separate `overlay` / `center` / `fixed` helpers (`trlv_box` with
+- Separate `overlay` / `center` / `fixed` helpers (`trlv_box_create` with
   `lv_obj_set_floating` + `lv_obj_align`, and `lv_obj_center`, cover these).
 - LVGL colour filters for state layers.
 - Wrapping LVGL widgets, macro DSLs, varargs builders.

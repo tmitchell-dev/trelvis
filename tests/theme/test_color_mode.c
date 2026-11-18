@@ -36,7 +36,7 @@ static void switch_before_init_is_rejected(lv_obj_t * screen)
     (void)screen;
     trlv_theme_set_color_mode(&tokens_dark);
 
-    ASSERT_TRUE(trlv_color() == NULL);
+    ASSERT_TRUE(trlv_get_color_tokens() == NULL);
 }
 
 /* The screen, a label on it, a plain container and a button made in light
@@ -52,7 +52,7 @@ static void existing_objects_recolour(lv_obj_t * screen)
     trlv_theme_set_color_mode(&tokens_dark);
     settle();
 
-    ASSERT_TRUE(trlv_color() == &tokens_dark);
+    ASSERT_TRUE(trlv_get_color_tokens() == &tokens_dark);
     ASSERT_COLOR(lv_obj_get_style_bg_color(screen, LV_PART_MAIN), tokens_dark.surface);
     ASSERT_COLOR(lv_obj_get_style_text_color(text, LV_PART_MAIN), tokens_dark.on_surface);
     ASSERT_COLOR(lv_obj_get_style_border_color(obj, LV_PART_MAIN), tokens_dark.outline_variant);
@@ -136,7 +136,7 @@ static void null_is_rejected(lv_obj_t * screen)
     init_light(screen);
     trlv_theme_set_color_mode(NULL);
 
-    ASSERT_TRUE(trlv_color() == &tokens_light);
+    ASSERT_TRUE(trlv_get_color_tokens() == &tokens_light);
 }
 
 /* The "Following a subject" recipe in docs/concepts.md section 6.3, as
@@ -164,20 +164,20 @@ static void subject_recipe_follows_the_subject(lv_obj_t * screen)
     lv_obj_bind_checked(sw, color_mode);
 
     /* Adding the observer applies the subject's current mode (0, light). */
-    ASSERT_TRUE(trlv_color() == &tokens_light);
+    ASSERT_TRUE(trlv_get_color_tokens() == &tokens_light);
 
     lv_subject_set_int(color_mode, 1);
-    ASSERT_TRUE(trlv_color() == &tokens_dark);
+    ASSERT_TRUE(trlv_get_color_tokens() == &tokens_dark);
     ASSERT_TRUE(lv_obj_has_state(sw, LV_STATE_CHECKED));
 
     /* Turning the switch off brings light back. */
     lv_obj_remove_state(sw, LV_STATE_CHECKED);
     lv_obj_send_event(sw, LV_EVENT_VALUE_CHANGED, NULL);
-    ASSERT_TRUE(trlv_color() == &tokens_light);
+    ASSERT_TRUE(trlv_get_color_tokens() == &tokens_light);
 
     /* A value with no mode is ignored. */
     lv_subject_set_int(color_mode, 7);
-    ASSERT_TRUE(trlv_color() == &tokens_light);
+    ASSERT_TRUE(trlv_get_color_tokens() == &tokens_light);
 
     lv_obj_delete(sw);
     lv_subject_delete(color_mode);

@@ -787,12 +787,12 @@ void trlv_theme_set_color_mode(const trlv_color_tokens_t * color)
     lv_obj_report_style_change(NULL);
 }
 
-const trlv_color_tokens_t * trlv_color(void)
+const trlv_color_tokens_t * trlv_get_color_tokens(void)
 {
     return current_color;
 }
 
-const trlv_layout_tokens_t * trlv_layout(void)
+const trlv_layout_tokens_t * trlv_get_layout_tokens(void)
 {
     return current_layout;
 }

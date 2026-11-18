@@ -2,7 +2,7 @@
 /* Copyright (c) 2026 Timothy Mitchell */
 
 /*
- * trlv_text and the text role styles. Sizes are computed from the font with
+ * trlv_text_create and the text role styles. Sizes are computed from the font with
  * lv_text_get_size, so the tests don't depend on LV_FONT_DEFAULT's metrics.
  */
 
@@ -50,20 +50,20 @@ static lv_point_t text_size(const char * text, int32_t letter_space, int32_t lin
 /* Hugs its text by default, like any LVGL label (Figma "auto width"). */
 static void hugs_its_text(lv_obj_t * screen)
 {
-    lv_obj_t * text = trlv_text(setup(screen), LONG_TEXT, TRLV_TEXT_BODY_MEDIUM);
+    lv_obj_t * text = trlv_text_create(setup(screen), LONG_TEXT, TRLV_TEXT_BODY_MEDIUM);
     lv_point_t size = text_size(LONG_TEXT, 0, 0, LV_COORD_MAX);
 
     TRLV_ASSERT_WIDTH(text, size.x);
     TRLV_ASSERT_HEIGHT(text, font_line_height());
 }
 
-/* A width from trlv_fill_width makes it wrap (Figma "auto height"). */
+/* A width from trlv_set_width_fill makes it wrap (Figma "auto height"). */
 static void wraps_after_fill_width(lv_obj_t * screen)
 {
-    lv_obj_t * column = trlv_column(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * column = trlv_column_create(setup(screen), TRLV_SPACE_SM);
     lv_obj_set_width(column, 120);
-    lv_obj_t * text = trlv_text(column, LONG_TEXT, TRLV_TEXT_BODY_MEDIUM);
-    trlv_fill_width(text);
+    lv_obj_t * text = trlv_text_create(column, LONG_TEXT, TRLV_TEXT_BODY_MEDIUM);
+    trlv_set_width_fill(text);
     lv_point_t size = text_size(LONG_TEXT, 0, 0, 120);
 
     TRLV_ASSERT_WIDTH(text, 120);
@@ -74,12 +74,12 @@ static void wraps_after_fill_width(lv_obj_t * screen)
 /* In a row, fill grows the text into the free space, and it wraps there. */
 static void wraps_when_growing_in_a_row(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_SM);
     lv_obj_set_width(row, 200);
-    lv_obj_t * icon = trlv_box(row);
+    lv_obj_t * icon = trlv_box_create(row);
     lv_obj_set_size(icon, 40, 40);
-    lv_obj_t * text = trlv_text(row, LONG_TEXT, TRLV_TEXT_BODY_MEDIUM);
-    trlv_fill_width(text);
+    lv_obj_t * text = trlv_text_create(row, LONG_TEXT, TRLV_TEXT_BODY_MEDIUM);
+    trlv_set_width_fill(text);
     lv_point_t size = text_size(LONG_TEXT, 0, 0, 200 - 40 - 8);
 
     TRLV_ASSERT_RECT(text, 40 + 8, 0, 200 - 40 - 8, size.y);
@@ -89,7 +89,7 @@ static void wraps_when_growing_in_a_row(lv_obj_t * screen)
 static void line_height_is_converted(lv_obj_t * screen)
 {
     int32_t line_height = font_line_height() + 6;
-    lv_obj_t * text = trlv_text(setup_with(screen, line_height, 0), "one\ntwo", TRLV_TEXT_BODY_MEDIUM);
+    lv_obj_t * text = trlv_text_create(setup_with(screen, line_height, 0), "one\ntwo", TRLV_TEXT_BODY_MEDIUM);
 
     TRLV_ASSERT_INT(lv_obj_get_style_text_line_space(text, LV_PART_MAIN), 6);
     TRLV_ASSERT_HEIGHT(text, 2 * font_line_height() + 6);
@@ -99,7 +99,7 @@ static void line_height_is_converted(lv_obj_t * screen)
 static void tighter_line_height(lv_obj_t * screen)
 {
     int32_t line_height = font_line_height() - 2;
-    lv_obj_t * text = trlv_text(setup_with(screen, line_height, 0), "one\ntwo", TRLV_TEXT_BODY_MEDIUM);
+    lv_obj_t * text = trlv_text_create(setup_with(screen, line_height, 0), "one\ntwo", TRLV_TEXT_BODY_MEDIUM);
 
     TRLV_ASSERT_INT(lv_obj_get_style_text_line_space(text, LV_PART_MAIN), -2);
 }
@@ -107,7 +107,7 @@ static void tighter_line_height(lv_obj_t * screen)
 /* A line height of 0 keeps the font's own line height. */
 static void zero_line_height_keeps_the_font(lv_obj_t * screen)
 {
-    lv_obj_t * text = trlv_text(setup(screen), "one\ntwo", TRLV_TEXT_BODY_MEDIUM);
+    lv_obj_t * text = trlv_text_create(setup(screen), "one\ntwo", TRLV_TEXT_BODY_MEDIUM);
 
     TRLV_ASSERT_INT(lv_obj_get_style_text_line_space(text, LV_PART_MAIN), 0);
     TRLV_ASSERT_HEIGHT(text, 2 * font_line_height());
@@ -116,7 +116,7 @@ static void zero_line_height_keeps_the_font(lv_obj_t * screen)
 /* Letter spacing comes from the token and widens the hugged text. */
 static void letter_spacing_is_applied(lv_obj_t * screen)
 {
-    lv_obj_t * text = trlv_text(setup_with(screen, 0, 2), "Spacing", TRLV_TEXT_BODY_MEDIUM);
+    lv_obj_t * text = trlv_text_create(setup_with(screen, 0, 2), "Spacing", TRLV_TEXT_BODY_MEDIUM);
     lv_point_t size = text_size("Spacing", 2, 0, LV_COORD_MAX);
 
     TRLV_ASSERT_INT(lv_obj_get_style_text_letter_space(text, LV_PART_MAIN), 2);
@@ -134,9 +134,9 @@ static void role_sets_the_font(lv_obj_t * screen)
     layout.text[TRLV_TEXT_TITLE_LARGE].font = &role_font;
     trlv_init(lv_obj_get_display(screen), &tokens_light, &layout);
 
-    lv_obj_t * box = trlv_box(screen);
+    lv_obj_t * box = trlv_box_create(screen);
     lv_obj_set_style_text_font(box, LV_FONT_DEFAULT, 0);
-    lv_obj_t * text = trlv_text(box, "Font", TRLV_TEXT_TITLE_LARGE);
+    lv_obj_t * text = trlv_text_create(box, "Font", TRLV_TEXT_TITLE_LARGE);
 
     TRLV_ASSERT_INT(lv_obj_get_style_text_font(text, LV_PART_MAIN) == &role_font, true);
 }
@@ -144,10 +144,10 @@ static void role_sets_the_font(lv_obj_t * screen)
 /* Colour is inherited from the parent, not set by the role. */
 static void colour_is_inherited(lv_obj_t * screen)
 {
-    lv_obj_t * box = trlv_box(setup(screen));
+    lv_obj_t * box = trlv_box_create(setup(screen));
     lv_color_t red = lv_color_hex(0xff0000);
     lv_obj_set_style_text_color(box, red, 0);
-    lv_obj_t * text = trlv_text(box, "Red", TRLV_TEXT_BODY_MEDIUM);
+    lv_obj_t * text = trlv_text_create(box, "Red", TRLV_TEXT_BODY_MEDIUM);
 
     TRLV_ASSERT_INT(lv_color_to_u32(lv_obj_get_style_text_color(text, LV_PART_MAIN)), lv_color_to_u32(red));
 }
@@ -155,7 +155,7 @@ static void colour_is_inherited(lv_obj_t * screen)
 /* trlv_init again with new tokens updates existing text. */
 static void reinit_updates_existing_text(lv_obj_t * screen)
 {
-    lv_obj_t * text = trlv_text(setup(screen), "one\ntwo", TRLV_TEXT_BODY_MEDIUM);
+    lv_obj_t * text = trlv_text_create(setup(screen), "one\ntwo", TRLV_TEXT_BODY_MEDIUM);
     TRLV_ASSERT_HEIGHT(text, 2 * font_line_height());
 
     setup_with(screen, font_line_height() + 4, 0);
@@ -171,7 +171,7 @@ static void every_role_has_its_style(lv_obj_t * screen)
 
     for(int32_t i = 0; i < TRLV_TEXT_COUNT; i++) {
         const trlv_text_style_t * token = &tokens_regular.text[i];
-        lv_obj_t * text = trlv_text(screen, "Role", (trlv_text_role_t)i);
+        lv_obj_t * text = trlv_text_create(screen, "Role", (trlv_text_role_t)i);
         int32_t line_space = token->line_height == 0 ? 0
                              : token->line_height - lv_font_get_line_height(token->font);
 
@@ -192,7 +192,7 @@ static void line_height_with_a_real_font(lv_obj_t * screen)
     layout.text[TRLV_TEXT_BODY_LARGE].line_height = 24;
     trlv_init(lv_obj_get_display(screen), &tokens_light, &layout);
 
-    lv_obj_t * text = trlv_text(screen, "one\ntwo", TRLV_TEXT_BODY_LARGE);
+    lv_obj_t * text = trlv_text_create(screen, "one\ntwo", TRLV_TEXT_BODY_LARGE);
 
     TRLV_ASSERT_INT(font != LV_FONT_DEFAULT, true);
     TRLV_ASSERT_INT(lv_obj_get_style_text_line_space(text, LV_PART_MAIN), 24 - font_height);
@@ -208,7 +208,7 @@ static void zero_line_height_with_a_real_font(lv_obj_t * screen)
     layout.text[TRLV_TEXT_BODY_LARGE].line_height = 0;
     trlv_init(lv_obj_get_display(screen), &tokens_light, &layout);
 
-    lv_obj_t * text = trlv_text(screen, "one\ntwo", TRLV_TEXT_BODY_LARGE);
+    lv_obj_t * text = trlv_text_create(screen, "one\ntwo", TRLV_TEXT_BODY_LARGE);
 
     TRLV_ASSERT_INT(lv_obj_get_style_text_line_space(text, LV_PART_MAIN), 0);
     TRLV_ASSERT_HEIGHT(text, 2 * lv_font_get_line_height(font));
@@ -217,7 +217,7 @@ static void zero_line_height_with_a_real_font(lv_obj_t * screen)
 /* An invalid role still gives a plain label, with a warning. */
 static void invalid_role_gives_a_plain_label(lv_obj_t * screen)
 {
-    lv_obj_t * text = trlv_text(setup(screen), "Plain", TRLV_TEXT_COUNT);
+    lv_obj_t * text = trlv_text_create(setup(screen), "Plain", TRLV_TEXT_COUNT);
     lv_point_t size = text_size("Plain", 0, 0, LV_COORD_MAX);
 
     TRLV_ASSERT_WIDTH(text, size.x);

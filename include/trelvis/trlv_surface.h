@@ -11,14 +11,14 @@
  *
  * | Figma / MD3                         | CSS                          | TreLVis            | LVGL mechanism                                          |
  * |-------------------------------------|------------------------------|--------------------|---------------------------------------------------------|
- * | Fill with a surface / container role | `background` + `color`      | trlv_surface       | shared style: `bg_color`, `bg_opa`, inherited `text_color` |
- * | Fill with a custom colour or its container | `background` + `color` | trlv_surface_custom | shared styles per custom colour: `bg_color`, `bg_opa`, inherited `text_color` |
- * | MD3 card (filled, elevated, outlined) | `background`, `border-radius`, `border` / `box-shadow` | trlv_card | shared style: `bg_*`, `radius`, `border_*` / `shadow_*`, inherited `text_color` |
- * | MD3 button type (filled, tonal, outlined, text) | button classes with `:active`, `:focus-visible`, `:disabled` | trlv_button_variant | shared styles with LV_STATE_PRESSED / FOCUS_KEY / DISABLED selectors |
+ * | Fill with a surface / container role | `background` + `color`      | trlv_apply_surface       | shared style: `bg_color`, `bg_opa`, inherited `text_color` |
+ * | Fill with a custom colour or its container | `background` + `color` | trlv_apply_surface_custom | shared styles per custom colour: `bg_color`, `bg_opa`, inherited `text_color` |
+ * | MD3 card (filled, elevated, outlined) | `background`, `border-radius`, `border` / `box-shadow` | trlv_apply_card | shared style: `bg_*`, `radius`, `border_*` / `shadow_*`, inherited `text_color` |
+ * | MD3 button type (filled, tonal, outlined, text) | button classes with `:active`, `:focus-visible`, `:disabled` | trlv_apply_button_type | shared styles with LV_STATE_PRESSED / FOCUS_KEY / DISABLED selectors |
  *
  * All are shared token styles, one per value, so they cost no RAM per
- * object and recolour on trlv_theme_set_color_mode. trlv_surface and
- * trlv_card form one style group and replace each other; button variants
+ * object and recolour on trlv_theme_set_color_mode. trlv_apply_surface and
+ * trlv_apply_card form one style group and replace each other; button variants
  * are a group of their own. Calling a modifier again replaces its previous
  * value.
  *
@@ -100,30 +100,30 @@ typedef enum {
  * style, or a project style) keeps it.
  *
  * Tone only: no radius, border, shadow or padding. Add a radius with
- * lv_obj_set_style_radius(obj, trlv_layout()->radius[TRLV_RADIUS_MD], 0),
- * or use trlv_card.
+ * lv_obj_set_style_radius(obj, trlv_get_layout_tokens()->radius[TRLV_RADIUS_MD], 0),
+ * or use trlv_apply_card.
  *
- * trlv_surface and trlv_card form one group, so this replaces an earlier
- * trlv_card or trlv_surface on the object. Works on any object; meant for
+ * trlv_apply_surface and trlv_apply_card form one group, so this replaces an earlier
+ * trlv_apply_card or trlv_apply_surface on the object. Works on any object; meant for
  * boxes, rows and columns. LVGL widgets have their colours from the theme.
  *
  * @param obj      any object
  * @param surface  the surface or container role; any other value logs a
  *                 warning and changes nothing
  */
-void trlv_surface(lv_obj_t * obj, trlv_surface_t surface);
+void trlv_apply_surface(lv_obj_t * obj, trlv_surface_t surface);
 
 /**
  * Fill an object with one of the project's custom colours, and set the
  * matching content colour. Figma: a fill bound to a Material Theme Builder
  * custom colour variable; CSS `background` plus `color`.
  *
- * Works as trlv_surface does, with a pair from
- * `trlv_color()->custom[index]`: tone only, the content colour inherited,
+ * Works as trlv_apply_surface does, with a pair from
+ * `trlv_get_color_tokens()->custom[index]`: tone only, the content colour inherited,
  * and recoloured on trlv_theme_set_color_mode. `surface` chooses the pair:
  * the colour itself with `on_color` (a strong fill: an alarm banner, a
  * status badge) or its container with `on_color_container`. It is in the
- * same group as trlv_surface and trlv_card, so they replace each other.
+ * same group as trlv_apply_surface and trlv_apply_card, so they replace each other.
  *
  * TreLVis only colours the object. What a custom colour means, and alarm
  * behaviour such as flashing or acknowledgement, belong to the project.
@@ -138,14 +138,14 @@ void trlv_surface(lv_obj_t * obj, trlv_surface_t surface);
  * @param surface  which pair of the custom colour to use; any other value
  *                 logs a warning and changes nothing
  */
-void trlv_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t surface);
+void trlv_apply_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t surface);
 
 /**
  * Style an object as an MD3 card. Figma: an MD3 card component; CSS a
  * `background`, `border-radius` and `border` or `box-shadow`.
  *
  * Sets the card's container colour and inherited `on_surface` content
- * colour (as trlv_surface does), the TRLV_RADIUS_MD corner radius, and:
+ * colour (as trlv_apply_surface does), the TRLV_RADIUS_MD corner radius, and:
  *
  * - TRLV_CARD_FILLED: nothing more;
  * - TRLV_CARD_ELEVATED: the TRLV_ELEVATION_1 shadow in the `shadow` colour;
@@ -154,13 +154,13 @@ void trlv_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t s
  *   the card's size and insets the content by its width, on top of the
  *   padding.
  *
- * Padding stays explicit, as in Figma: use trlv_pad, typically
+ * Padding stays explicit, as in Figma: use trlv_set_pad, typically
  * TRLV_SPACE_LG. Children are not clipped to the rounded corners; if a
  * child's background reaches a corner, add
  * lv_obj_set_style_clip_corner(card, true, 0) (it costs draw time).
  *
- * MD3 cards use surface tones only. trlv_surface and trlv_card form one
- * group, so a later trlv_surface replaces the card. A card has no pressed
+ * MD3 cards use surface tones only. trlv_apply_surface and trlv_apply_card form one
+ * group, so a later trlv_apply_surface replaces the card. A card has no pressed
  * or focus state: clickable MD3 cards, with state layers, are not part of
  * v1.
  *
@@ -171,7 +171,7 @@ void trlv_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t s
  * @param card  the card type; any other value logs a warning and changes
  *              nothing
  */
-void trlv_card(lv_obj_t * obj, trlv_card_t card);
+void trlv_apply_card(lv_obj_t * obj, trlv_card_t card);
 
 /**
  * Restyle an lv_button as another MD3 button type. Figma: the MD3 button
@@ -196,7 +196,7 @@ void trlv_card(lv_obj_t * obj, trlv_card_t card);
  *
  * TRLV_BUTTON_FILLED returns the button to the theme's default. Shape,
  * height and text role stay the theme's; change the height with
- * lv_obj_set_height(btn, trlv_layout()->control_height[TRLV_SIZE_LG]).
+ * lv_obj_set_height(btn, trlv_get_layout_tokens()->control_height[TRLV_SIZE_LG]).
  * Calling it again replaces the previous variant.
  *
  * With TRLV_USE_THEME 0 the variant still sets its colours and states, but
@@ -211,7 +211,7 @@ void trlv_card(lv_obj_t * obj, trlv_card_t card);
  * @param variant  the button type; any other value logs a warning and
  *                 changes nothing
  */
-void trlv_button_variant(lv_obj_t * btn, trlv_button_t variant);
+void trlv_apply_button_type(lv_obj_t * btn, trlv_button_t variant);
 
 #ifdef __cplusplus
 } /* extern "C" */

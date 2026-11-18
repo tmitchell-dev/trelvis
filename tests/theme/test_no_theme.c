@@ -26,7 +26,7 @@ static void display_keeps_its_theme(lv_obj_t * screen)
     trlv_init(disp, &tokens_light, &tokens_regular);
 
     ASSERT_TRUE(lv_display_get_theme(disp) == before);
-    ASSERT_TRUE(trlv_color() == &tokens_light);
+    ASSERT_TRUE(trlv_get_color_tokens() == &tokens_light);
 }
 
 /* Widgets are not given MD3 styles... */
@@ -42,8 +42,8 @@ static void buttons_are_not_md3(lv_obj_t * screen)
 static void shared_styles_still_work(lv_obj_t * screen)
 {
     trlv_init(lv_obj_get_display(screen), &tokens_light, &tokens_regular);
-    lv_obj_t * box = trlv_box(screen);
-    trlv_pad(box, TRLV_SPACE_LG);
+    lv_obj_t * box = trlv_box_create(screen);
+    trlv_set_pad(box, TRLV_SPACE_LG);
 
     TRLV_ASSERT_INT(lv_obj_get_style_pad_left(box, LV_PART_MAIN), tokens_regular.space[TRLV_SPACE_LG]);
 }
@@ -52,10 +52,10 @@ static void shared_styles_still_work(lv_obj_t * screen)
 static void colour_modifiers_still_work(lv_obj_t * screen)
 {
     trlv_init(lv_obj_get_display(screen), &tokens_light, &tokens_regular);
-    lv_obj_t * box = trlv_box(screen);
-    trlv_surface(box, TRLV_SURFACE_CONTAINER_HIGH);
+    lv_obj_t * box = trlv_box_create(screen);
+    trlv_apply_surface(box, TRLV_SURFACE_CONTAINER_HIGH);
     lv_obj_t * btn = lv_button_create(screen);
-    trlv_button_variant(btn, TRLV_BUTTON_TONAL);
+    trlv_apply_button_type(btn, TRLV_BUTTON_TONAL);
 
     ASSERT_TRUE(lv_color_eq(lv_obj_get_style_bg_color(box, LV_PART_MAIN),
                             tokens_light.surface_container_high));

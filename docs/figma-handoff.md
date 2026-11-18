@@ -76,8 +76,8 @@ needs them.
 
   | Figma variable | TreLVis |
   |---|---|
-  | `Surface Container High` | `trlv_color()->surface_container_high` |
-  | `On Primary Container` | `trlv_color()->on_primary_container` |
+  | `Surface Container High` | `trlv_get_color_tokens()->surface_container_high` |
+  | `On Primary Container` | `trlv_get_color_tokens()->on_primary_container` |
   | `space/md` | `TRLV_SPACE_MD` |
   | `radius/md` (shape corner Medium) | `TRLV_RADIUS_MD` |
   | `size/md` (control height) | `TRLV_SIZE_MD` |
@@ -128,8 +128,8 @@ template:
 ## Layout
 
 - **Use auto layout everywhere.** Horizontal and vertical auto layout map to
-  `trlv_row` / `trlv_column`, and "hug" / "fill" / "fixed" map to
-  `trlv_hug_*` / `trlv_fill_*` / `lv_obj_set_size`. Grid auto layout maps to
+  `trlv_row_create` / `trlv_column_create`, and "hug" / "fill" / "fixed" map to
+  `trlv_set_*_hug` / `trlv_set_*_fill` / `lv_obj_set_size`. Grid auto layout maps to
   LVGL's own grid API, so prefer rows and columns where they do the job.
 - **Spacing sits on the 4 px grid** and is bound to `space/*` variables only.
   Gap and padding are one value on all sides in TreLVis; different
@@ -137,7 +137,7 @@ template:
   Figma starts new auto layout with a 10 px gap and padding, which is off
   the grid: bind both to a `space/*` variable (or 0) every time.
 - **An empty frame set to fill** pushes what follows to the far end (a
-  spacer, `trlv_spacer`).
+  spacer, `trlv_spacer_create`).
 - **Fill needs a parent with a size.** A child set to fill along the
   direction of a parent that hugs has nowhere to grow, as in Figma, which
   doesn't allow it.
@@ -235,22 +235,22 @@ template:
 
   | Material 3 kit | TreLVis / LVGL |
   |---|---|
-  | Buttons: Filled, Tonal, Outlined, Text | `lv_button` + `trlv_button_variant` |
+  | Buttons: Filled, Tonal, Outlined, Text | `lv_button` + `trlv_apply_button_type` |
   | Buttons: Elevated, FAB, icon buttons, segmented | Not in v1 (an icon button is an `lv_button` holding an icon) |
-  | Cards: Filled, Elevated, Outlined | `trlv_card` |
+  | Cards: Filled, Elevated, Outlined | `trlv_apply_card` |
   | Text field: Outlined | `lv_textarea` (one line or more). The floating label in the border has no LVGL equivalent: put the label above the field as text. |
   | Text field: Filled | Not in v1; use Outlined |
   | Menu (with a field) | `lv_dropdown` |
   | Switch, Checkbox, Slider | `lv_switch`, `lv_checkbox`, `lv_slider` |
   | Progress indicators: linear, circular | `lv_bar`, `lv_arc` / `lv_spinner` |
-  | Divider | `trlv_divider` |
+  | Divider | `trlv_divider_create` |
   | Lists | Rows and dividers (see above) |
   | Chips, badges, navigation, dialogs, sheets, snackbars, tabs, date and time pickers | No MD3 style in v1: a project design, or an LVGL widget the theme doesn't cover ([concepts §6.4](concepts.md#64-md3-widget-coverage-v1)) |
 
 - **Field heights.** The kit draws fields at a fixed 56 px; LVGL sizes a
   textarea or dropdown from its font and padding. If the design fixes
   the height, bind it to `size/*` and set it in code (`lv_obj_set_height`
-  with `trlv_layout()->control_height[…]`).
+  with `trlv_get_layout_tokens()->control_height[…]`).
 
 ## Strokes, corners and effects
 
@@ -318,11 +318,11 @@ turning a frame into a screen function.
    on it. A component the designer made becomes a project `_create()`
    function ([Components](#components)).
 5. **Where raw LVGL is needed:** fixed sizes (`lv_obj_set_size`, with
-   `trlv_layout()->control_height[TRLV_SIZE_MD]` for a field bound to
+   `trlv_get_layout_tokens()->control_height[TRLV_SIZE_MD]` for a field bound to
    `size/md`), a corner radius on a non-card, different horizontal and
    vertical spacing, lower-emphasis text colour, wrap, absolute
    positions, and widget behaviour (options, one-line mode, accepted
-   characters). Raw LVGL colours taken from `trlv_color()` don't follow a
+   characters). Raw LVGL colours taken from `trlv_get_color_tokens()` don't follow a
    colour-mode switch; see [concepts §7.2](concepts.md#72-modifiers-verbs--properties).
 6. **Compare.** Build with `TRLV_USE_DEBUG_OUTLINE 1` in `trlv_conf.h` to
    outline every container, and compare a screenshot with the frame
@@ -350,23 +350,23 @@ agree a workaround with the developers:
 
 | Figma / MD3 | CSS | TreLVis | LVGL |
 |---|---|---|---|
-| Frame (no auto layout) | `div` | `trlv_box` | `lv_obj`, reset style |
-| Auto layout → / ↓ | `flex-direction: row / column` | `trlv_row` / `trlv_column` | flex layout |
-| Gap | `gap` | `trlv_gap` | `pad_row` / `pad_column` |
-| Padding | `padding` | `trlv_pad` | `pad_*` |
-| Space between / packed | `justify-content` | `trlv_justify` | `flex_main_place` |
-| Cross-axis alignment | `align-items` | `trlv_align_items` | `flex_cross_place` + `flex_track_place` |
-| Hug / Fill / Fixed | `fit-content` / `flex: 1` / `width` | `trlv_hug_*` / `trlv_fill_*` / `lv_obj_set_size` | `LV_SIZE_CONTENT` / `flex_grow` or `LV_PCT(100)` / `width` |
-| Empty frame, fill | `flex: 1` | `trlv_spacer` | box + `flex_grow` |
+| Frame (no auto layout) | `div` | `trlv_box_create` | `lv_obj`, reset style |
+| Auto layout → / ↓ | `flex-direction: row / column` | `trlv_row_create` / `trlv_column_create` | flex layout |
+| Gap | `gap` | `trlv_set_gap` | `pad_row` / `pad_column` |
+| Padding | `padding` | `trlv_set_pad` | `pad_*` |
+| Space between / packed | `justify-content` | `trlv_set_justify` | `flex_main_place` |
+| Cross-axis alignment | `align-items` | `trlv_set_align_items` | `flex_cross_place` + `flex_track_place` |
+| Hug / Fill / Fixed | `fit-content` / `flex: 1` / `width` | `trlv_set_*_hug` / `trlv_set_*_fill` / `lv_obj_set_size` | `LV_SIZE_CONTENT` / `flex_grow` or `LV_PCT(100)` / `width` |
+| Empty frame, fill | `flex: 1` | `trlv_spacer_create` | box + `flex_grow` |
 | Wrap | `flex-wrap` | *raw LVGL* | `lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)` |
 | Absolute position | `position: absolute` | *raw LVGL* | `lv_obj_set_floating` + `lv_obj_align` |
-| Colour role | `--md-sys-color-*` | `trlv_color()->…` | `lv_color_t` |
-| Surface container | `background` + `color` | `trlv_surface` | `bg_color` + inherited `text_color` |
-| Custom colour | `--md-extended-color-*` | `trlv_surface_custom` | `bg_color` + inherited `text_color` |
-| Card | — | `trlv_card` | shared card style |
-| Divider | `hr` | `trlv_divider` | box + `bg_color` |
-| Button type | button class | `trlv_button_variant` | shared styles with state selectors |
-| Type style | `font` / `line-height` | `trlv_text` / `trlv_text_role` | `text_font` / `text_line_space` |
+| Colour role | `--md-sys-color-*` | `trlv_get_color_tokens()->…` | `lv_color_t` |
+| Surface container | `background` + `color` | `trlv_apply_surface` | `bg_color` + inherited `text_color` |
+| Custom colour | `--md-extended-color-*` | `trlv_apply_surface_custom` | `bg_color` + inherited `text_color` |
+| Card | — | `trlv_apply_card` | shared card style |
+| Divider | `hr` | `trlv_divider_create` | box + `bg_color` |
+| Button type | button class | `trlv_apply_button_type` | shared styles with state selectors |
+| Type style | `font` / `line-height` | `trlv_text_create` / `trlv_apply_text_role` | `text_font` / `text_line_space` |
 | Corner radius | `border-radius` | `TRLV_RADIUS_*` | `radius` |
 | Inside stroke | `border` | cards, fields | `border_*` |
 | Focus ring | `outline` | theme | `outline_*` |

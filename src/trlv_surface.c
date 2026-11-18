@@ -110,7 +110,7 @@ static const trlv_style_group_t button_pressed_group = TRLV_STYLE_GROUP_LIST(but
 static const trlv_style_group_t button_focus_group = TRLV_STYLE_GROUP_LIST(button_focus_styles);
 static const trlv_style_group_t button_disabled_group = TRLV_STYLE_GROUP_LIST(button_disabled_styles);
 
-/* Divider (trlv_divider in trlv_layout.c): bg_color, bg_opa, the line's
+/* Divider (trlv_divider_create in trlv_layout.c): bg_color, bg_opa, the line's
  * thickness (height when horizontal, width when vertical), outline_width 0
  * so the debug outline doesn't hide the line, end marker. */
 #define DIVIDER_PROPS 5
@@ -191,7 +191,7 @@ TRLV_STATIC_ASSERT(sizeof(custom_styles) / sizeof(custom_styles[0])
 #endif
 
 /* The fill group: every style that sets an object's container colour.
- * trlv_surface, trlv_surface_custom and trlv_card replace each other. */
+ * trlv_apply_surface, trlv_apply_surface_custom and trlv_apply_card replace each other. */
 static const lv_style_t * const fill_styles[] = {
     &surface_surface, &surface_container_lowest, &surface_container_low,
     &surface_container, &surface_container_high, &surface_container_highest,
@@ -361,34 +361,34 @@ void trlv_surface_styles_build(const trlv_color_tokens_t * color, const trlv_lay
  * Modifiers
  *-------------------------------------------------------------------------*/
 
-void trlv_surface(lv_obj_t * obj, trlv_surface_t surface)
+void trlv_apply_surface(lv_obj_t * obj, trlv_surface_t surface)
 {
     LV_ASSERT_NULL(obj);
 
     if((uint32_t)surface >= TRLV_SURFACE_COUNT) {
-        LV_LOG_WARN("trlv_surface: %d is not a trlv_surface_t", (int)surface);
+        LV_LOG_WARN("trlv_apply_surface: %d is not a trlv_surface_t", (int)surface);
         return;
     }
     trlv_style_group_apply(obj, &fill_group, surface_styles[surface], LV_PART_MAIN);
 }
 
-void trlv_card(lv_obj_t * obj, trlv_card_t card)
+void trlv_apply_card(lv_obj_t * obj, trlv_card_t card)
 {
     LV_ASSERT_NULL(obj);
 
     if((uint32_t)card >= TRLV_CARD_COUNT) {
-        LV_LOG_WARN("trlv_card: %d is not a trlv_card_t", (int)card);
+        LV_LOG_WARN("trlv_apply_card: %d is not a trlv_card_t", (int)card);
         return;
     }
     trlv_style_group_apply(obj, &fill_group, card_styles[card], LV_PART_MAIN);
 }
 
-void trlv_button_variant(lv_obj_t * btn, trlv_button_t variant)
+void trlv_apply_button_type(lv_obj_t * btn, trlv_button_t variant)
 {
     LV_ASSERT_NULL(btn);
 
     if((uint32_t)variant >= TRLV_BUTTON_COUNT) {
-        LV_LOG_WARN("trlv_button_variant: %d is not a trlv_button_t", (int)variant);
+        LV_LOG_WARN("trlv_apply_button_type: %d is not a trlv_button_t", (int)variant);
         return;
     }
     trlv_style_group_apply(btn, &button_group, button_styles[variant], LV_PART_MAIN);
@@ -400,26 +400,26 @@ void trlv_button_variant(lv_obj_t * btn, trlv_button_t variant)
                            LV_PART_MAIN | LV_STATE_DISABLED);
 }
 
-void trlv_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t surface)
+void trlv_apply_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t surface)
 {
     LV_ASSERT_NULL(obj);
 
     if((uint32_t)surface >= TRLV_CUSTOM_SURFACE_COUNT) {
-        LV_LOG_WARN("trlv_surface_custom: %d is not a trlv_custom_surface_t", (int)surface);
+        LV_LOG_WARN("trlv_apply_surface_custom: %d is not a trlv_custom_surface_t", (int)surface);
         return;
     }
 
 #if TRLV_CUSTOM_COLOR_MAX > 0
     if(index >= TRLV_CUSTOM_COLOR_MAX) {
-        LV_LOG_WARN("trlv_surface_custom: index %d is at or beyond TRLV_CUSTOM_COLOR_MAX (%d)",
+        LV_LOG_WARN("trlv_apply_surface_custom: index %d is at or beyond TRLV_CUSTOM_COLOR_MAX (%d)",
                     (int)index, (int)TRLV_CUSTOM_COLOR_MAX);
         return;
     }
 
     /* Before trlv_init the count is unknown; the style is empty until then. */
-    const trlv_color_tokens_t * color = trlv_color();
+    const trlv_color_tokens_t * color = trlv_get_color_tokens();
     if(color != NULL && index >= color->custom_count) {
-        LV_LOG_WARN("trlv_surface_custom: index %d is beyond the tokens' custom_count (%d)",
+        LV_LOG_WARN("trlv_apply_surface_custom: index %d is beyond the tokens' custom_count (%d)",
                     (int)index, (int)color->custom_count);
         return;
     }
@@ -429,7 +429,7 @@ void trlv_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t s
                            LV_PART_MAIN);
 #else
     LV_UNUSED(obj);
-    LV_LOG_WARN("trlv_surface_custom: index %d is at or beyond TRLV_CUSTOM_COLOR_MAX (0)", (int)index);
+    LV_LOG_WARN("trlv_apply_surface_custom: index %d is at or beyond TRLV_CUSTOM_COLOR_MAX (0)", (int)index);
     LV_UNUSED(index);
 #endif
 }

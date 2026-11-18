@@ -63,23 +63,23 @@ static const struct {
 
 static void item(lv_obj_t * list, uint32_t index)
 {
-    lv_obj_t * row = trlv_row(list, TRLV_SPACE_LG);
-    trlv_pad(row, TRLV_SPACE_SM);
-    trlv_fill_width(row);
-    trlv_align_items(row, TRLV_ALIGN_ITEMS_CENTER);
+    lv_obj_t * row = trlv_row_create(list, TRLV_SPACE_LG);
+    trlv_set_pad(row, TRLV_SPACE_SM);
+    trlv_set_width_fill(row);
+    trlv_set_align_items(row, TRLV_ALIGN_ITEMS_CENTER);
 
     /* Symbols differ in width; as in MD3, each icon sits in a square (here
      * as wide as its line is tall), so the text lines up from item to item.
      * Width and centring are raw LVGL. */
-    lv_obj_t * icon = trlv_text(row, items[index].icon, TRLV_TEXT_TITLE_LARGE);
+    lv_obj_t * icon = trlv_text_create(row, items[index].icon, TRLV_TEXT_TITLE_LARGE);
     lv_obj_set_width(icon, lv_font_get_line_height(lv_obj_get_style_text_font(icon, LV_PART_MAIN)));
     lv_obj_set_style_text_align(icon, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
 
-    lv_obj_t * text = trlv_column(row, TRLV_SPACE_NONE);
-    trlv_fill_width(text);
-    trlv_text(text, items[index].headline, TRLV_TEXT_BODY_LARGE);
-    lv_obj_t * supporting = trlv_text(text, items[index].supporting, TRLV_TEXT_BODY_MEDIUM);
-    trlv_fill_width(supporting);
+    lv_obj_t * text = trlv_column_create(row, TRLV_SPACE_NONE);
+    trlv_set_width_fill(text);
+    trlv_text_create(text, items[index].headline, TRLV_TEXT_BODY_LARGE);
+    lv_obj_t * supporting = trlv_text_create(text, items[index].supporting, TRLV_TEXT_BODY_MEDIUM);
+    trlv_set_width_fill(supporting);
 
     switch(items[index].trailing) {
         case TRAILING_SWITCH_ON:
@@ -89,25 +89,25 @@ static void item(lv_obj_t * list, uint32_t index)
             lv_switch_create(row);
             break;
         case TRAILING_VALUE:
-            trlv_text(row, items[index].value, TRLV_TEXT_LABEL_LARGE);
+            trlv_text_create(row, items[index].value, TRLV_TEXT_LABEL_LARGE);
             break;
         case TRAILING_CHEVRON:
-            trlv_text(row, LV_SYMBOL_RIGHT, TRLV_TEXT_LABEL_LARGE);
+            trlv_text_create(row, LV_SYMBOL_RIGHT, TRLV_TEXT_LABEL_LARGE);
             break;
     }
 }
 
 lv_obj_t * trlv_demo_list_create(lv_obj_t * parent)
 {
-    lv_obj_t * section = trlv_column(parent, TRLV_SPACE_NONE);
-    trlv_fill_width(section);
-    lv_obj_t * heading = trlv_text(section, "Settings", TRLV_TEXT_TITLE_MEDIUM);
-    trlv_pad(heading, TRLV_SPACE_SM);   /* in line with the items' icons */
+    lv_obj_t * section = trlv_column_create(parent, TRLV_SPACE_NONE);
+    trlv_set_width_fill(section);
+    lv_obj_t * heading = trlv_text_create(section, "Settings", TRLV_TEXT_TITLE_MEDIUM);
+    trlv_set_pad(heading, TRLV_SPACE_SM);   /* in line with the items' icons */
 
-    lv_obj_t * list = trlv_column(section, TRLV_SPACE_NONE);
-    trlv_fill_width(list);
+    lv_obj_t * list = trlv_column_create(section, TRLV_SPACE_NONE);
+    trlv_set_width_fill(list);
     for(uint32_t i = 0; i < COUNT(items); i++) {
-        if(i > 0) trlv_divider(list);
+        if(i > 0) trlv_divider_create(list);
         item(list, i);
     }
 

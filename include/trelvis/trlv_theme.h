@@ -18,8 +18,8 @@
  * |------------------------------------------|--------------------------------------|-----------------------------|--------------------------------------------------------|
  * | Variable collections, starting modes     | custom properties on `:root`         | trlv_init                   | shared styles + lv_theme_t on the display              |
  * | Switch the Color collection's mode       | swap `--md-sys-color-*` values       | trlv_theme_set_color_mode   | re-set shared styles, lv_obj_report_style_change(NULL) |
- * | Read a colour variable                   | `var(--md-sys-color-primary)`        | trlv_color()->primary       | lv_color_t                                             |
- * | Read a layout variable                   | `var(--space-md)`                    | trlv_layout()->space[...]   | int32_t                                                |
+ * | Read a colour variable                   | `var(--md-sys-color-primary)`        | trlv_get_color_tokens()->primary       | lv_color_t                                             |
+ * | Read a layout variable                   | `var(--space-md)`                    | trlv_get_layout_tokens()->space[...]   | int32_t                                                |
  * | Component default styles                 | user-agent / component stylesheet    | the TreLVis theme           | theme apply callback, LV_PART_* / LV_STATE_* selectors |
  * | Interactive states                       | `:active`, `:focus-visible`, ...     | the TreLVis theme           | LV_STATE_PRESSED, LV_STATE_FOCUS_KEY, ...              |
  *
@@ -153,7 +153,7 @@ void trlv_init(lv_display_t * disp, const trlv_color_tokens_t * color,
  * Nothing is allocated except by the parent theme's re-initialisation,
  * which reuses LVGL's existing theme object. Colours that a project set
  * with lv_obj_set_style_* (local styles) are not touched: read the new
- * values from trlv_color() and set them again, or better, use the
+ * values from trlv_get_color_tokens() and set them again, or better, use the
  * surfaces and the theme.
  *
  * The struct is not copied: it must stay valid while it is in use.
@@ -169,25 +169,25 @@ void trlv_theme_set_color_mode(const trlv_color_tokens_t * color);
  * `var(--md-sys-color-*)`.
  *
  * For a project's own styles, for example
- * `lv_style_set_bg_color(&style, trlv_color()->tertiary_container)`. Values
+ * `lv_style_set_bg_color(&style, trlv_get_color_tokens()->tertiary_container)`. Values
  * read this way are copies: after trlv_theme_set_color_mode, read them
  * again.
  *
  * @return the tokens passed to trlv_init or trlv_theme_set_color_mode,
  *         or NULL before trlv_init
  */
-const trlv_color_tokens_t * trlv_color(void);
+const trlv_color_tokens_t * trlv_get_color_tokens(void);
 
 /**
  * The layout tokens in use: the Layout collection's mode. CSS
  * `var(--space-md)` and so on.
  *
  * For values TreLVis has no modifier for, such as padding on one side:
- * `lv_obj_set_style_pad_left(obj, trlv_layout()->space[TRLV_SPACE_LG], 0)`.
+ * `lv_obj_set_style_pad_left(obj, trlv_get_layout_tokens()->space[TRLV_SPACE_LG], 0)`.
  *
  * @return the tokens passed to trlv_init, or NULL before trlv_init
  */
-const trlv_layout_tokens_t * trlv_layout(void);
+const trlv_layout_tokens_t * trlv_get_layout_tokens(void);
 
 #ifdef __cplusplus
 } /* extern "C" */

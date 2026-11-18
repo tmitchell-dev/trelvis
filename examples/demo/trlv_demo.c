@@ -68,7 +68,7 @@ static void show_section(lv_obj_t * demo, uint32_t index)
     lv_obj_t * content = lv_obj_get_child(demo, DEMO_CONTENT);
 
     for(uint32_t i = 0; i < SECTION_COUNT; i++) {
-        trlv_button_variant(lv_obj_get_child(nav, (int32_t)i),
+        trlv_apply_button_type(lv_obj_get_child(nav, (int32_t)i),
                             i == index ? TRLV_BUTTON_TONAL : TRLV_BUTTON_TEXT);
     }
     /* On a narrow display the nav row scrolls: bring the choice into view. */
@@ -106,25 +106,25 @@ static void switched_to_light(lv_event_t * e)
 lv_obj_t * trlv_demo_create(lv_obj_t * parent, const trlv_color_tokens_t * light,
                             const trlv_color_tokens_t * dark)
 {
-    lv_obj_t * demo = trlv_column(parent, TRLV_SPACE_NONE);
-    trlv_fill_width(demo);
-    trlv_fill_height(demo);
+    lv_obj_t * demo = trlv_column_create(parent, TRLV_SPACE_NONE);
+    trlv_set_width_fill(demo);
+    trlv_set_height_fill(demo);
 
-    lv_obj_t * bar = trlv_column(demo, TRLV_SPACE_NONE);
-    trlv_pad(bar, TRLV_SPACE_SM);
-    trlv_fill_width(bar);
-    trlv_surface(bar, TRLV_SURFACE_CONTAINER);
+    lv_obj_t * bar = trlv_column_create(demo, TRLV_SPACE_NONE);
+    trlv_set_pad(bar, TRLV_SPACE_SM);
+    trlv_set_width_fill(bar);
+    trlv_apply_surface(bar, TRLV_SURFACE_CONTAINER);
 
-    lv_obj_t * top = trlv_row(bar, TRLV_SPACE_SM);
-    trlv_pad(top, TRLV_SPACE_SM);
-    trlv_fill_width(top);
-    trlv_align_items(top, TRLV_ALIGN_ITEMS_CENTER);
-    lv_obj_t * title = trlv_text(top, "TreLVis", TRLV_TEXT_TITLE_LARGE);
-    trlv_fill_width(title);
+    lv_obj_t * top = trlv_row_create(bar, TRLV_SPACE_SM);
+    trlv_set_pad(top, TRLV_SPACE_SM);
+    trlv_set_width_fill(top);
+    trlv_set_align_items(top, TRLV_ALIGN_ITEMS_CENTER);
+    lv_obj_t * title = trlv_text_create(top, "TreLVis", TRLV_TEXT_TITLE_LARGE);
+    trlv_set_width_fill(title);
     if(light != NULL && dark != NULL) {
-        trlv_text(top, "Dark", TRLV_TEXT_LABEL_LARGE);
+        trlv_text_create(top, "Dark", TRLV_TEXT_LABEL_LARGE);
         lv_obj_t * sw = lv_switch_create(top);
-        lv_obj_set_state(sw, LV_STATE_CHECKED, trlv_color() == dark);
+        lv_obj_set_state(sw, LV_STATE_CHECKED, trlv_get_color_tokens() == dark);
         /* LVGL's event user data is not const; the handlers cast it back. */
         lv_obj_add_event_cb(sw, switched_to_dark, LV_EVENT_VALUE_CHANGED, (void *)dark);
         lv_obj_add_event_cb(sw, switched_to_light, LV_EVENT_VALUE_CHANGED, (void *)light);
@@ -132,23 +132,23 @@ lv_obj_t * trlv_demo_create(lv_obj_t * parent, const trlv_color_tokens_t * light
 
     /* The nav row scrolls sideways when the buttons don't fit (a narrow
      * display). Scrolling is raw LVGL; a row turns it off by default. */
-    lv_obj_t * nav = trlv_row(bar, TRLV_SPACE_XS);
-    trlv_pad(nav, TRLV_SPACE_SM);
-    trlv_fill_width(nav);
+    lv_obj_t * nav = trlv_row_create(bar, TRLV_SPACE_XS);
+    trlv_set_pad(nav, TRLV_SPACE_SM);
+    trlv_set_width_fill(nav);
     lv_obj_set_scrollable(nav, true);
     lv_obj_set_scroll_dir(nav, LV_DIR_HOR);
     for(uint32_t i = 0; i < SECTION_COUNT; i++) {
         lv_obj_t * btn = lv_button_create(nav);
-        trlv_text(btn, sections[i].name, TRLV_TEXT_LABEL_LARGE);
+        trlv_text_create(btn, sections[i].name, TRLV_TEXT_LABEL_LARGE);
         lv_obj_add_event_cb(btn, nav_clicked, LV_EVENT_CLICKED, demo);
     }
 
     /* The content takes the rest of the height (fill in a column grows) and
      * scrolls when the section is taller. */
-    lv_obj_t * content = trlv_column(demo, TRLV_SPACE_NONE);
-    trlv_pad(content, TRLV_SPACE_LG);
-    trlv_fill_width(content);
-    trlv_fill_height(content);
+    lv_obj_t * content = trlv_column_create(demo, TRLV_SPACE_NONE);
+    trlv_set_pad(content, TRLV_SPACE_LG);
+    trlv_set_width_fill(content);
+    trlv_set_height_fill(content);
     lv_obj_set_scrollable(content, true);
     lv_obj_set_scroll_dir(content, LV_DIR_VER);
 

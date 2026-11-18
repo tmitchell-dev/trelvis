@@ -62,38 +62,38 @@ lay out the same and get the same fonts and colours, in light and dark.
 <td valign="top">
 
 ```c
-lv_obj_t * card = trlv_column(parent, TRLV_SPACE_SM);
+lv_obj_t * card = trlv_column_create(parent, TRLV_SPACE_SM);
 
 
 
 
-trlv_card(card, TRLV_CARD_FILLED);
-trlv_pad(card, TRLV_SPACE_LG);
-trlv_fill_width(card);
+trlv_apply_card(card, TRLV_CARD_FILLED);
+trlv_set_pad(card, TRLV_SPACE_LG);
+trlv_set_width_fill(card);
 
-lv_obj_t * header = trlv_row(card, TRLV_SPACE_SM);
-
-
+lv_obj_t * header = trlv_row_create(card, TRLV_SPACE_SM);
 
 
-trlv_fill_width(header);
-trlv_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);
-trlv_align_items(header, TRLV_ALIGN_ITEMS_CENTER);
-
-trlv_text(header, "Temperature", TRLV_TEXT_TITLE_MEDIUM);
 
 
-trlv_text(header, "37.2 °C", TRLV_TEXT_HEADLINE_SMALL);
+trlv_set_width_fill(header);
+trlv_set_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);
+trlv_set_align_items(header, TRLV_ALIGN_ITEMS_CENTER);
+
+trlv_text_create(header, "Temperature", TRLV_TEXT_TITLE_MEDIUM);
+
+
+trlv_text_create(header, "37.2 °C", TRLV_TEXT_HEADLINE_SMALL);
 
 
 
 lv_obj_t * btn = lv_button_create(card);
-trlv_button_variant(btn, TRLV_BUTTON_TONAL);
+trlv_apply_button_type(btn, TRLV_BUTTON_TONAL);
 
 
 
 
-trlv_text(btn, "Calibrate", TRLV_TEXT_LABEL_LARGE);
+trlv_text_create(btn, "Calibrate", TRLV_TEXT_LABEL_LARGE);
 
 
 
@@ -345,23 +345,23 @@ text, and every LVGL widget you create gets its MD3 look.
 ### 5. Build a screen
 
 ```c
-lv_obj_t * page = trlv_column(lv_display_get_screen_active(disp), TRLV_SPACE_LG);
-trlv_pad(page, TRLV_SPACE_XL);
-trlv_fill_width(page);
-trlv_fill_height(page);
+lv_obj_t * page = trlv_column_create(lv_display_get_screen_active(disp), TRLV_SPACE_LG);
+trlv_set_pad(page, TRLV_SPACE_XL);
+trlv_set_width_fill(page);
+trlv_set_height_fill(page);
 
-trlv_text(page, "Hello, TreLVis", TRLV_TEXT_HEADLINE_SMALL);
+trlv_text_create(page, "Hello, TreLVis", TRLV_TEXT_HEADLINE_SMALL);
 
-lv_obj_t * card = trlv_column(page, TRLV_SPACE_SM);
-trlv_card(card, TRLV_CARD_OUTLINED);
-trlv_pad(card, TRLV_SPACE_LG);
-trlv_fill_width(card);
-trlv_text(card, "Status", TRLV_TEXT_TITLE_MEDIUM);
-lv_obj_t * body = trlv_text(card, "All systems normal.", TRLV_TEXT_BODY_MEDIUM);
-trlv_fill_width(body);                                  /* a width makes text wrap */
+lv_obj_t * card = trlv_column_create(page, TRLV_SPACE_SM);
+trlv_apply_card(card, TRLV_CARD_OUTLINED);
+trlv_set_pad(card, TRLV_SPACE_LG);
+trlv_set_width_fill(card);
+trlv_text_create(card, "Status", TRLV_TEXT_TITLE_MEDIUM);
+lv_obj_t * body = trlv_text_create(card, "All systems normal.", TRLV_TEXT_BODY_MEDIUM);
+trlv_set_width_fill(body);                                  /* a width makes text wrap */
 
 lv_obj_t * btn = lv_button_create(page);
-trlv_text(btn, "Continue", TRLV_TEXT_LABEL_LARGE);
+trlv_text_create(btn, "Continue", TRLV_TEXT_LABEL_LARGE);
 ```
 
 Switch to dark at any time with `trlv_theme_set_color_mode(&tokens_dark)`.
@@ -395,7 +395,7 @@ target_compile_definitions(trelvis PUBLIC
 | `TRLV_LVGL_INCLUDE` | `<lvgl/lvgl.h>` | How TreLVis includes LVGL. |
 | `TRLV_USE_THEME` | `1` | Install the MD3 theme. `0` = tokens and layout helpers only (bring your own theme). |
 | `TRLV_THEME_PARENT` | `TRLV_THEME_PARENT_DEFAULT` | Theme for widgets TreLVis doesn't cover: LVGL's default theme seeded with MD3 colours, or `TRLV_THEME_PARENT_NONE`. |
-| `TRLV_CUSTOM_COLOR_MAX` | `4` | How many of the project's custom colours `trlv_surface_custom` can apply (two small shared styles each). |
+| `TRLV_CUSTOM_COLOR_MAX` | `4` | How many of the project's custom colours `trlv_apply_surface_custom` can apply (two small shared styles each). |
 | `TRLV_USE_DEBUG_OUTLINE` | `0` | Draw a 1 px outline on every TreLVis container. |
 | `TRLV_IGNORE_LVGL_VERSION` | `0` | Skip the LVGL version check (unsupported; for trying LVGL master). |
 

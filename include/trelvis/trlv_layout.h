@@ -16,33 +16,33 @@
  *
  * | Figma / MD3                    | CSS                                   | TreLVis                         | LVGL mechanism                               |
  * |--------------------------------|---------------------------------------|---------------------------------|----------------------------------------------|
- * | Frame, no auto layout          | `div`                                 | trlv_box                        | lv_obj + reset style, scroll and click off   |
- * | Auto layout → / ↓              | `display: flex; flex-direction: ...`  | trlv_row / trlv_column          | `layout = LV_LAYOUT_FLEX`, `flex_flow`       |
- * | Empty frame, fill container    | `flex: 1`                             | trlv_spacer                     | `flex_grow = 1`                              |
- * | Divider (MD3)                  | `hr`                                  | trlv_divider                    | box + `bg_color = outline_variant`           |
- * | Gap between items              | `gap`                                 | trlv_gap                        | `pad_row`, `pad_column`                      |
- * | Padding                        | `padding`                             | trlv_pad                        | `pad_top/bottom/left/right`                  |
- * | Alignment, space between       | `justify-content`                     | trlv_justify                    | `flex_main_place`                            |
- * | Alignment (cross axis)         | `align-items`                         | trlv_align_items                | `flex_cross_place` + `flex_track_place`      |
- * | Hug contents                   | `width: fit-content`                  | trlv_hug_width / _height        | LV_SIZE_CONTENT                              |
- * | Fill container                 | `flex: 1` / `align-self: stretch`     | trlv_fill_width / _height       | `flex_grow = 1` or LV_PCT(100)               |
+ * | Frame, no auto layout          | `div`                                 | trlv_box_create                        | lv_obj + reset style, scroll and click off   |
+ * | Auto layout → / ↓              | `display: flex; flex-direction: ...`  | trlv_row_create / trlv_column_create          | `layout = LV_LAYOUT_FLEX`, `flex_flow`       |
+ * | Empty frame, fill container    | `flex: 1`                             | trlv_spacer_create                     | `flex_grow = 1`                              |
+ * | Divider (MD3)                  | `hr`                                  | trlv_divider_create                    | box + `bg_color = outline_variant`           |
+ * | Gap between items              | `gap`                                 | trlv_set_gap                        | `pad_row`, `pad_column`                      |
+ * | Padding                        | `padding`                             | trlv_set_pad                        | `pad_top/bottom/left/right`                  |
+ * | Alignment, space between       | `justify-content`                     | trlv_set_justify                    | `flex_main_place`                            |
+ * | Alignment (cross axis)         | `align-items`                         | trlv_set_align_items                | `flex_cross_place` + `flex_track_place`      |
+ * | Hug contents                   | `width: fit-content`                  | trlv_set_width_hug / _height        | LV_SIZE_CONTENT                              |
+ * | Fill container                 | `flex: 1` / `align-self: stretch`     | trlv_set_width_fill / _height       | `flex_grow = 1` or LV_PCT(100)               |
  *
  * Left to LVGL: these are already one clear call, so TreLVis adds no
  * function. Setters named lv_obj_set_style_* add a local style to the
- * object; read token values with trlv_layout().
+ * object; read token values with trlv_get_layout_tokens().
  *
  * | Figma / MD3                    | CSS                                   | LVGL                                                                  |
  * |--------------------------------|---------------------------------------|-----------------------------------------------------------------------|
- * | Horizontal / vertical gap      | `column-gap`, `row-gap`               | lv_obj_set_style_pad_column(obj, trlv_layout()->space[...], 0), `..._pad_row` |
- * | Horizontal / vertical padding  | `padding: y x`                        | lv_obj_set_style_pad_hor(obj, trlv_layout()->space[...], 0), `..._pad_ver`    |
- * | Padding on one side            | `padding-left`, ...                   | lv_obj_set_style_pad_left(obj, trlv_layout()->space[...], 0), ...    |
+ * | Horizontal / vertical gap      | `column-gap`, `row-gap`               | lv_obj_set_style_pad_column(obj, trlv_get_layout_tokens()->space[...], 0), `..._pad_row` |
+ * | Horizontal / vertical padding  | `padding: y x`                        | lv_obj_set_style_pad_hor(obj, trlv_get_layout_tokens()->space[...], 0), `..._pad_ver`    |
+ * | Padding on one side            | `padding-left`, ...                   | lv_obj_set_style_pad_left(obj, trlv_get_layout_tokens()->space[...], 0), ...    |
  * | Wrap                           | `flex-wrap: wrap`                     | lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)                      |
  * | Line placement when wrapping   | `align-content`                       | lv_obj_set_style_flex_track_place(obj, LV_FLEX_ALIGN_..., 0)          |
  * | Fixed size                     | `width`, `height`                     | lv_obj_set_size, lv_obj_set_width, lv_obj_set_height                 |
  * | Min / max size                 | `min-width`, `max-width`, ...         | lv_obj_set_style_min_width(obj, px, 0), ...                           |
  * | Absolute position              | `position: absolute`                  | lv_obj_set_floating(obj, true), then lv_obj_align(obj, LV_ALIGN_..., x, y) |
  * | Centre in the parent           | `place-self: center`                  | lv_obj_center                                                         |
- * | Grid auto layout               | `display: grid`                       | lv_obj_set_grid_dsc_array on a trlv_box, lv_obj_set_grid_cell         |
+ * | Grid auto layout               | `display: grid`                       | lv_obj_set_grid_dsc_array on a trlv_box_create, lv_obj_set_grid_cell         |
  * | Clip content                   | `overflow: hidden`                    | LVGL default; lv_obj_set_style_clip_corner for rounded corners       |
  * | Scroll                         | `overflow: auto`                      | lv_obj_set_scrollable(obj, true), lv_obj_set_scroll_dir               |
  * | Hidden                         | `display: none`                       | lv_obj_set_hidden(obj, true); hidden objects leave the layout         |
@@ -90,8 +90,8 @@ typedef enum {
  *
  * Named ALIGN_ITEMS, not ALIGN, so they can't be mistaken for LVGL's
  * lv_align_t (LV_ALIGN_CENTER and so on), which positions an object.
- * There is no STRETCH (LVGL flex has none): use trlv_fill_width or
- * trlv_fill_height on the children. There is no BASELINE either; CENTER is
+ * There is no STRETCH (LVGL flex has none): use trlv_set_width_fill or
+ * trlv_set_height_fill on the children. There is no BASELINE either; CENTER is
  * the closest for texts of different sizes.
  */
 typedef enum {
@@ -118,13 +118,13 @@ typedef enum {
  * @param parent  the parent object
  * @return        the new box
  */
-lv_obj_t * trlv_box(lv_obj_t * parent);
+lv_obj_t * trlv_box_create(lv_obj_t * parent);
 
 /**
  * Create a row: Figma horizontal auto layout (→), CSS
  * `display: flex; flex-direction: row; gap: ...`.
  *
- * A box (see trlv_box: not scrollable, not clickable, no theme styles, hugs
+ * A box (see trlv_box_create: not scrollable, not clickable, no theme styles, hugs
  * its children) with trlv_style_row and the gap style. It replaces:
  *
  *     lv_obj_t * row = lv_obj_create(parent);
@@ -140,22 +140,22 @@ lv_obj_t * trlv_box(lv_obj_t * parent);
  * lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW_WRAP).
  *
  * @param parent  the parent object
- * @param gap     the gap between children; change it later with trlv_gap
+ * @param gap     the gap between children; change it later with trlv_set_gap
  * @return        the new row
  */
-lv_obj_t * trlv_row(lv_obj_t * parent, trlv_space_t gap);
+lv_obj_t * trlv_row_create(lv_obj_t * parent, trlv_space_t gap);
 
 /**
  * Create a column: Figma vertical auto layout (↓), CSS
  * `display: flex; flex-direction: column; gap: ...`.
  *
- * Like trlv_row, with children placed top to bottom.
+ * Like trlv_row_create, with children placed top to bottom.
  *
  * @param parent  the parent object
- * @param gap     the gap between children; change it later with trlv_gap
+ * @param gap     the gap between children; change it later with trlv_set_gap
  * @return        the new column
  */
-lv_obj_t * trlv_column(lv_obj_t * parent, trlv_space_t gap);
+lv_obj_t * trlv_column_create(lv_obj_t * parent, trlv_space_t gap);
 
 /**
  * Create a spacer: an empty box that takes the free space along its
@@ -164,22 +164,22 @@ lv_obj_t * trlv_column(lv_obj_t * parent, trlv_space_t gap);
  *
  * Use it to push the items after it to the far end, for example a title
  * left and a group of buttons right. To spread every item evenly, use
- * trlv_justify on the parent instead.
+ * trlv_set_justify on the parent instead.
  *
- * It is a trlv_box with trlv_fill_width (in a row) or trlv_fill_height (in
+ * It is a trlv_box_create with trlv_set_width_fill (in a row) or trlv_set_height_fill (in
  * a column) applied, and follows the same rules: the axis is chosen from the
  * parent's flex flow **at the time of the call**, so set the parent's
  * direction first. Across the axis it is 0 px and takes no room. Several
  * spacers in one parent share the free space equally.
  *
  * In a parent that hugs its main axis there is no free space, so the spacer
- * is 0 px; it logs an LV_LOG_WARN naming trlv_spacer, like trlv_fill_*.
+ * is 0 px; it logs an LV_LOG_WARN naming trlv_spacer_create, like trlv_set_*_fill.
  * In a parent with no flex layout it has no size.
  *
  * @param parent  the parent object, normally a row or column
  * @return        the new spacer
  */
-lv_obj_t * trlv_spacer(lv_obj_t * parent);
+lv_obj_t * trlv_spacer_create(lv_obj_t * parent);
 
 /**
  * Create a divider: an MD3 divider, a thin line in `outline_variant` that
@@ -195,7 +195,7 @@ lv_obj_t * trlv_spacer(lv_obj_t * parent);
  *
  * The colour is a shared token style, so it follows colour-mode switches.
  * For an MD3 inset divider, add a margin, which LVGL's flex layout honours:
- * lv_obj_set_style_margin_left(divider, trlv_layout()->space[TRLV_SPACE_LG], 0).
+ * lv_obj_set_style_margin_left(divider, trlv_get_layout_tokens()->space[TRLV_SPACE_LG], 0).
  *
  * The thickness is a shared token style too, so it follows trlv_init. A
  * divider is a box, so lv_obj_set_size and the modifiers work on it as on
@@ -204,7 +204,7 @@ lv_obj_t * trlv_spacer(lv_obj_t * parent);
  * @param parent  the parent object, normally a row or column
  * @return        the new divider
  */
-lv_obj_t * trlv_divider(lv_obj_t * parent);
+lv_obj_t * trlv_divider_create(lv_obj_t * parent);
 
 /*---------------------------------------------------------------------------
  * Modifiers. Each works on any object, including ones TreLVis did not
@@ -222,7 +222,7 @@ lv_obj_t * trlv_divider(lv_obj_t * parent);
  * @param obj    any object; the gap applies to its flex or grid children
  * @param space  a step of the spacing scale
  */
-void trlv_gap(lv_obj_t * obj, trlv_space_t space);
+void trlv_set_gap(lv_obj_t * obj, trlv_space_t space);
 
 /**
  * Set the padding on all four sides: Figma auto layout padding, CSS
@@ -241,7 +241,7 @@ void trlv_gap(lv_obj_t * obj, trlv_space_t space);
  * @param obj    any object
  * @param space  a step of the spacing scale
  */
-void trlv_pad(lv_obj_t * obj, trlv_space_t space);
+void trlv_set_pad(lv_obj_t * obj, trlv_space_t space);
 
 /**
  * Distribute the children along the main axis: Figma auto layout alignment
@@ -249,7 +249,7 @@ void trlv_pad(lv_obj_t * obj, trlv_space_t space);
  *
  * LVGL's lv_obj_set_flex_align sets the main, cross and track placement in
  * one call, so changing one means repeating the other two, and it adds a
- * local style. trlv_justify and trlv_align_items set one each, by the CSS
+ * local style. trlv_set_justify and trlv_set_align_items set one each, by the CSS
  * name, with a shared constant style (one per value) that costs no RAM per
  * object. Calling it again replaces the previous value.
  *
@@ -262,7 +262,7 @@ void trlv_pad(lv_obj_t * obj, trlv_space_t space);
  * @param justify  how to distribute the children; any other value logs a
  *                 warning and changes nothing
  */
-void trlv_justify(lv_obj_t * obj, trlv_justify_t justify);
+void trlv_set_justify(lv_obj_t * obj, trlv_justify_t justify);
 
 /**
  * Place the children across the main axis: Figma auto layout alignment,
@@ -281,33 +281,33 @@ void trlv_justify(lv_obj_t * obj, trlv_justify_t justify);
  * lv_obj_set_style_flex_track_place, a local style, which takes precedence.
  *
  * Applies a shared constant style (one per value), so it costs no RAM per
- * object. Calling it again replaces the previous value. See trlv_justify
+ * object. Calling it again replaces the previous value. See trlv_set_justify
  * for why these are separate calls.
  *
  * @param obj    any object with a flex layout, such as a row or column
  * @param align  where to place the children across the axis; any other
  *               value logs a warning and changes nothing
  */
-void trlv_align_items(lv_obj_t * obj, trlv_align_items_t align);
+void trlv_set_align_items(lv_obj_t * obj, trlv_align_items_t align);
 
 /**
  * Hug the content's width: Figma "hug contents", CSS `width: fit-content`.
  * Sets LVGL `width` to LV_SIZE_CONTENT.
  *
  * Hug and fill on one axis replace each other: this clears an earlier
- * trlv_fill_width. A fixed size is set with lv_obj_set_width, which is a
+ * trlv_set_width_fill. A fixed size is set with lv_obj_set_width, which is a
  * local style and so takes precedence over hug and fill.
  *
  * @param obj  any object
  */
-void trlv_hug_width(lv_obj_t * obj);
+void trlv_set_width_hug(lv_obj_t * obj);
 
 /**
- * Hug the content's height. Like trlv_hug_width, for the height.
+ * Hug the content's height. Like trlv_set_width_hug, for the height.
  *
  * @param obj  any object
  */
-void trlv_hug_height(lv_obj_t * obj);
+void trlv_set_height_hug(lv_obj_t * obj);
 
 /**
  * Fill the parent's width: Figma "fill container", CSS `flex: 1` in a row or
@@ -335,21 +335,21 @@ void trlv_hug_height(lv_obj_t * obj);
  *   compiled out when LVGL logging is off.
  *
  * Hug and fill on one axis replace each other: this clears an earlier
- * trlv_hug_width. A width set with lv_obj_set_width is a local style and
+ * trlv_set_width_hug. A width set with lv_obj_set_width is a local style and
  * takes precedence. On an lv_label, a width makes the text wrap (Figma
  * "auto height").
  *
  * @param obj  any object
  */
-void trlv_fill_width(lv_obj_t * obj);
+void trlv_set_width_fill(lv_obj_t * obj);
 
 /**
- * Fill the parent's height. Like trlv_fill_width, for the height: grows in
+ * Fill the parent's height. Like trlv_set_width_fill, for the height: grows in
  * a column (main axis), 100 % in a row (cross axis) or without flex layout.
  *
  * @param obj  any object
  */
-void trlv_fill_height(lv_obj_t * obj);
+void trlv_set_height_fill(lv_obj_t * obj);
 
 #ifdef __cplusplus
 } /* extern "C" */

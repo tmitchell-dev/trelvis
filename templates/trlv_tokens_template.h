@@ -45,9 +45,9 @@ extern "C" {
 
 /**
  * The project's custom colours: the index into trlv_color_tokens_t::custom
- * and the argument of trlv_surface_custom. Success and warning are examples.
+ * and the argument of trlv_apply_surface_custom. Success and warning are examples.
  * If you need more than TRLV_CUSTOM_COLOR_MAX (default 4) with
- * trlv_surface_custom, raise it in trlv_conf.h.
+ * trlv_apply_surface_custom, raise it in trlv_conf.h.
  */
 typedef enum {
     TOKEN_CUSTOM_SUCCESS,   /**< Example: success */

@@ -9,7 +9,7 @@
  * with a keypad or encoder.
  *
  * The widgets are plain LVGL widgets: the theme styles them as they are
- * created. TreLVis only places them, and trlv_button_variant picks the
+ * created. TreLVis only places them, and trlv_apply_button_type picks the
  * button type.
  *
  * The layout, as a Figma designer would draw it:
@@ -60,10 +60,10 @@ static const struct {
 /* A group: a heading and the column that holds its rows. */
 static lv_obj_t * group(lv_obj_t * section, const char * heading)
 {
-    lv_obj_t * obj = trlv_column(section, TRLV_SPACE_NONE);
-    trlv_fill_width(obj);
-    lv_obj_t * text = trlv_text(obj, heading, TRLV_TEXT_TITLE_MEDIUM);
-    trlv_pad(text, TRLV_SPACE_SM);
+    lv_obj_t * obj = trlv_column_create(section, TRLV_SPACE_NONE);
+    trlv_set_width_fill(obj);
+    lv_obj_t * text = trlv_text_create(obj, heading, TRLV_TEXT_TITLE_MEDIUM);
+    trlv_set_pad(text, TRLV_SPACE_SM);
     return obj;
 }
 
@@ -71,11 +71,11 @@ static lv_obj_t * group(lv_obj_t * section, const char * heading)
  * focus ring around them. */
 static lv_obj_t * widget_row(lv_obj_t * group_obj, trlv_space_t gap)
 {
-    lv_obj_t * row = trlv_row(group_obj, gap);
-    trlv_pad(row, TRLV_SPACE_SM);
-    trlv_fill_width(row);
+    lv_obj_t * row = trlv_row_create(group_obj, gap);
+    trlv_set_pad(row, TRLV_SPACE_SM);
+    trlv_set_width_fill(row);
     lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW_WRAP);
-    trlv_align_items(row, TRLV_ALIGN_ITEMS_CENTER);
+    trlv_set_align_items(row, TRLV_ALIGN_ITEMS_CENTER);
     return row;
 }
 
@@ -88,8 +88,8 @@ static void button_group(lv_obj_t * section)
         lv_obj_t * row = widget_row(obj, TRLV_SPACE_SM);
         for(uint32_t i = 0; i < COUNT(buttons); i++) {
             lv_obj_t * btn = lv_button_create(row);
-            trlv_button_variant(btn, buttons[i].variant);
-            trlv_text(btn, buttons[i].name, TRLV_TEXT_LABEL_LARGE);
+            trlv_apply_button_type(btn, buttons[i].variant);
+            trlv_text_create(btn, buttons[i].name, TRLV_TEXT_LABEL_LARGE);
             if(disabled) lv_obj_add_state(btn, LV_STATE_DISABLED);
         }
     }
@@ -119,18 +119,18 @@ static void range_group(lv_obj_t * section)
     /* Sliders and the bar fill the width, one per row. */
     lv_obj_t * row = widget_row(obj, TRLV_SPACE_SM);
     lv_obj_t * slider = lv_slider_create(row);
-    trlv_fill_width(slider);
+    trlv_set_width_fill(slider);
     lv_slider_set_value(slider, 60, LV_ANIM_OFF);
 
     row = widget_row(obj, TRLV_SPACE_SM);
     slider = lv_slider_create(row);
-    trlv_fill_width(slider);
+    trlv_set_width_fill(slider);
     lv_slider_set_value(slider, 30, LV_ANIM_OFF);
     lv_obj_add_state(slider, LV_STATE_DISABLED);
 
     row = widget_row(obj, TRLV_SPACE_SM);
     lv_obj_t * bar = lv_bar_create(row);
-    trlv_fill_width(bar);
+    trlv_set_width_fill(bar);
     lv_bar_set_value(bar, 70, LV_ANIM_OFF);
 
     row = widget_row(obj, TRLV_SPACE_LG);
@@ -142,7 +142,7 @@ static void range_group(lv_obj_t * section)
     lv_arc_set_value(arc, 40);
     lv_obj_add_state(arc, LV_STATE_DISABLED);
     lv_obj_t * spinner = lv_spinner_create(row);
-    int32_t spinner_size = trlv_layout()->control_height[TRLV_SIZE_MD];
+    int32_t spinner_size = trlv_get_layout_tokens()->control_height[TRLV_SIZE_MD];
     lv_obj_set_size(spinner, spinner_size, spinner_size);
 }
 
@@ -153,17 +153,17 @@ static void field_group(lv_obj_t * section)
     /* Two fields per row, each filling half (fill in a row grows). Filling
      * items don't wrap in LVGL, so these rows don't wrap. */
     for(uint32_t disabled = 0; disabled < 2; disabled++) {
-        lv_obj_t * row = trlv_row(obj, TRLV_SPACE_SM);
-        trlv_pad(row, TRLV_SPACE_SM);
-        trlv_fill_width(row);
+        lv_obj_t * row = trlv_row_create(obj, TRLV_SPACE_SM);
+        trlv_set_pad(row, TRLV_SPACE_SM);
+        trlv_set_width_fill(row);
 
         lv_obj_t * dropdown = lv_dropdown_create(row);
         lv_dropdown_set_options_static(dropdown, "Metric\nImperial");
-        trlv_fill_width(dropdown);
+        trlv_set_width_fill(dropdown);
 
         lv_obj_t * field = lv_textarea_create(row);
         lv_textarea_set_one_line(field, true);
-        trlv_fill_width(field);
+        trlv_set_width_fill(field);
         if(disabled) {
             lv_textarea_set_text(field, "Read only");
             lv_obj_add_state(dropdown, LV_STATE_DISABLED);
@@ -177,8 +177,8 @@ static void field_group(lv_obj_t * section)
 
 lv_obj_t * trlv_demo_controls_create(lv_obj_t * parent)
 {
-    lv_obj_t * section = trlv_column(parent, TRLV_SPACE_SM);
-    trlv_fill_width(section);
+    lv_obj_t * section = trlv_column_create(parent, TRLV_SPACE_SM);
+    trlv_set_width_fill(section);
 
     button_group(section);
     selection_group(section);

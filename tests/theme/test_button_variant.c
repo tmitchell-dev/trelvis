@@ -2,7 +2,7 @@
 /* Copyright (c) 2026 Timothy Mitchell */
 
 /*
- * trlv_button_variant: the four MD3 button types in their default, pressed,
+ * trlv_apply_button_type: the four MD3 button types in their default, pressed,
  * focused and disabled states, over the theme's filled button.
  */
 
@@ -105,7 +105,7 @@ static void every_variant_default(lv_obj_t * screen)
     variant_cases(&tokens_light, cases);
     for(int i = 0; i < TRLV_BUTTON_COUNT; i++) {
         lv_obj_t * btn = button(screen, &tokens_light);
-        trlv_button_variant(btn, cases[i].variant);
+        trlv_apply_button_type(btn, cases[i].variant);
         assert_default(btn, &cases[i], &tokens_light);
     }
 }
@@ -116,7 +116,7 @@ static void every_variant_pressed(lv_obj_t * screen)
     variant_cases(&tokens_light, cases);
     for(int i = 0; i < TRLV_BUTTON_COUNT; i++) {
         lv_obj_t * btn = button(screen, &tokens_light);
-        trlv_button_variant(btn, cases[i].variant);
+        trlv_apply_button_type(btn, cases[i].variant);
         set_state(btn, LV_STATE_PRESSED);
         assert_layer(btn, &cases[i], tokens_light.state.pressed);
     }
@@ -129,7 +129,7 @@ static void every_variant_focused(lv_obj_t * screen)
     variant_cases(&tokens_light, cases);
     for(int i = 0; i < TRLV_BUTTON_COUNT; i++) {
         lv_obj_t * btn = button(screen, &tokens_light);
-        trlv_button_variant(btn, cases[i].variant);
+        trlv_apply_button_type(btn, cases[i].variant);
         set_state(btn, LV_STATE_FOCUSED | LV_STATE_FOCUS_KEY);
         assert_layer(btn, &cases[i], tokens_light.state.focus);
         TRLV_ASSERT_INT(lv_obj_get_style_outline_width(btn, LV_PART_MAIN), tokens_regular.focus_width);
@@ -146,7 +146,7 @@ static void every_variant_disabled(lv_obj_t * screen)
     variant_cases(&tokens_light, cases);
     for(int i = 0; i < TRLV_BUTTON_COUNT; i++) {
         lv_obj_t * btn = button(screen, &tokens_light);
-        trlv_button_variant(btn, cases[i].variant);
+        trlv_apply_button_type(btn, cases[i].variant);
         set_state(btn, LV_STATE_DISABLED);
 
         ASSERT_COLOR(lv_obj_get_style_text_color(label, LV_PART_MAIN), tokens_light.on_surface);
@@ -168,7 +168,7 @@ static void every_variant_disabled(lv_obj_t * screen)
 static void keeps_the_theme_shape(lv_obj_t * screen)
 {
     lv_obj_t * btn = button(screen, &tokens_light);
-    trlv_button_variant(btn, TRLV_BUTTON_OUTLINED);
+    trlv_apply_button_type(btn, TRLV_BUTTON_OUTLINED);
     settle();
 
     TRLV_ASSERT_INT(lv_obj_get_style_radius(btn, LV_PART_MAIN), tokens_regular.radius[TRLV_RADIUS_FULL]);
@@ -184,8 +184,8 @@ static void a_second_call_replaces_the_first(lv_obj_t * screen)
     variant_case_t cases[TRLV_BUTTON_COUNT];
     variant_cases(&tokens_light, cases);
     lv_obj_t * btn = button(screen, &tokens_light);
-    trlv_button_variant(btn, TRLV_BUTTON_TEXT);
-    trlv_button_variant(btn, TRLV_BUTTON_FILLED);
+    trlv_apply_button_type(btn, TRLV_BUTTON_TEXT);
+    trlv_apply_button_type(btn, TRLV_BUTTON_FILLED);
     assert_default(btn, &cases[TRLV_BUTTON_FILLED], &tokens_light);
 
     set_state(btn, LV_STATE_PRESSED);
@@ -198,7 +198,7 @@ static void variants_recolour(lv_obj_t * screen)
     variant_case_t cases[TRLV_BUTTON_COUNT];
     variant_cases(&tokens_dark, cases);
     lv_obj_t * btn = button(screen, &tokens_light);
-    trlv_button_variant(btn, TRLV_BUTTON_TONAL);
+    trlv_apply_button_type(btn, TRLV_BUTTON_TONAL);
 
     trlv_theme_set_color_mode(&tokens_dark);
     settle();
@@ -214,8 +214,8 @@ static void invalid_variant_changes_nothing(lv_obj_t * screen)
     variant_case_t cases[TRLV_BUTTON_COUNT];
     variant_cases(&tokens_light, cases);
     lv_obj_t * btn = button(screen, &tokens_light);
-    trlv_button_variant(btn, TRLV_BUTTON_TONAL);
-    trlv_button_variant(btn, TRLV_BUTTON_COUNT);
+    trlv_apply_button_type(btn, TRLV_BUTTON_TONAL);
+    trlv_apply_button_type(btn, TRLV_BUTTON_COUNT);
 
     assert_default(btn, &cases[TRLV_BUTTON_TONAL], &tokens_light);
 }

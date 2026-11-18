@@ -28,11 +28,11 @@ static void assert_outline(lv_obj_t * obj)
 /* Box, row, column and spacer each carry the outline when it is on. */
 static void containers_have_the_outline(lv_obj_t * screen)
 {
-    lv_obj_t * column = trlv_column(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * column = trlv_column_create(setup(screen), TRLV_SPACE_SM);
     lv_obj_set_height(column, 100);
-    lv_obj_t * row = trlv_row(column, TRLV_SPACE_SM);
-    lv_obj_t * box = trlv_box(row);
-    lv_obj_t * spacer = trlv_spacer(column);
+    lv_obj_t * row = trlv_row_create(column, TRLV_SPACE_SM);
+    lv_obj_t * box = trlv_box_create(row);
+    lv_obj_t * spacer = trlv_spacer_create(column);
 
     assert_outline(column);
     assert_outline(row);
@@ -43,11 +43,11 @@ static void containers_have_the_outline(lv_obj_t * screen)
 /* The outline takes no space: positions and sizes are unchanged. */
 static void layout_is_unchanged(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row(setup(screen), TRLV_SPACE_SM);
-    trlv_pad(row, TRLV_SPACE_LG);
-    lv_obj_t * a = trlv_box(row);
+    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_SM);
+    trlv_set_pad(row, TRLV_SPACE_LG);
+    lv_obj_t * a = trlv_box_create(row);
     lv_obj_set_size(a, 30, 20);
-    lv_obj_t * b = trlv_box(row);
+    lv_obj_t * b = trlv_box_create(row);
     lv_obj_set_size(b, 40, 10);
 
     TRLV_ASSERT_RECT(row, 0, 0, 16 + 30 + 8 + 40 + 16, 16 + 20 + 16);
@@ -62,8 +62,8 @@ static void widgets_and_dividers_are_not_outlined(lv_obj_t * screen)
     lv_obj_t * label = lv_label_create(setup(screen));
     TRLV_ASSERT_INT(lv_obj_get_style_outline_width(label, LV_PART_MAIN), 0);
 
-    lv_obj_t * column = trlv_column(screen, TRLV_SPACE_NONE);
-    lv_obj_t * divider = trlv_divider(column);
+    lv_obj_t * column = trlv_column_create(screen, TRLV_SPACE_NONE);
+    lv_obj_t * divider = trlv_divider_create(column);
     TRLV_ASSERT_INT(lv_obj_get_style_outline_width(divider, LV_PART_MAIN), 0);
 }
 

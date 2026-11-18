@@ -19,8 +19,8 @@
 static void accessors_are_null_before_init(lv_obj_t * screen)
 {
     (void)screen;
-    ASSERT_PTR(trlv_color(), NULL);
-    ASSERT_PTR(trlv_layout(), NULL);
+    ASSERT_PTR(trlv_get_color_tokens(), NULL);
+    ASSERT_PTR(trlv_get_layout_tokens(), NULL);
 }
 
 /* The accessors return exactly the tokens passed in (not copies). */
@@ -28,8 +28,8 @@ static void init_stores_the_tokens(lv_obj_t * screen)
 {
     trlv_init(lv_obj_get_display(screen), &tokens_light, &tokens_regular);
 
-    ASSERT_PTR(trlv_color(), &tokens_light);
-    ASSERT_PTR(trlv_layout(), &tokens_regular);
+    ASSERT_PTR(trlv_get_color_tokens(), &tokens_light);
+    ASSERT_PTR(trlv_get_layout_tokens(), &tokens_regular);
 }
 
 /* Calling it again switches to the new tokens. Starts from: light. */
@@ -37,8 +37,8 @@ static void init_again_uses_the_new_tokens(lv_obj_t * screen)
 {
     trlv_init(lv_obj_get_display(screen), &tokens_dark, &tokens_regular);
 
-    ASSERT_PTR(trlv_color(), &tokens_dark);
-    ASSERT_PTR(trlv_layout(), &tokens_regular);
+    ASSERT_PTR(trlv_get_color_tokens(), &tokens_dark);
+    ASSERT_PTR(trlv_get_layout_tokens(), &tokens_regular);
 }
 
 /* A NULL display or token pointer is rejected and nothing changes.
@@ -51,8 +51,8 @@ static void null_arguments_are_rejected(lv_obj_t * screen)
     trlv_init(disp, NULL, &tokens_regular);
     trlv_init(disp, &tokens_light, NULL);
 
-    ASSERT_PTR(trlv_color(), &tokens_dark);
-    ASSERT_PTR(trlv_layout(), &tokens_regular);
+    ASSERT_PTR(trlv_get_color_tokens(), &tokens_dark);
+    ASSERT_PTR(trlv_get_layout_tokens(), &tokens_regular);
 }
 
 /* The token template is complete: every text role has a font, the shape
