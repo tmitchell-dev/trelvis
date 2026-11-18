@@ -152,6 +152,26 @@ text role and button type. `trlv_theme_set_color_mode(&tokens_dark)`
 recolours everything, and Compact density is just another token set for
 `trlv_init`.
 
+## The API at a glance
+
+Five kinds of function, and the verb in the name says which:
+
+| Kind | Functions | What it does |
+|---|---|---|
+| Setup | `trlv_init`, `trlv_theme_set_color_mode` | Install the MD3 theme with your tokens, once; switch light and dark at any time. |
+| Constructors, `_create` | `trlv_box_create`, `trlv_row_create`, `trlv_column_create`, `trlv_spacer_create`, `trlv_divider_create`, `trlv_text_create` | Make a primitive and return a plain `lv_obj_t *`. Containers start like a fresh Figma frame: no gap, no padding, hug. |
+| Layout setters, `trlv_set_*` | `trlv_set_gap`, `trlv_set_pad`, `trlv_set_width_fill` / `_hug`, `trlv_set_height_fill` / `_hug`, `trlv_set_justify`, `trlv_set_align_items` | One row of Figma's auto layout panel each. Never change colour. |
+| Appearance, `trlv_apply_*` | `trlv_apply_surface`, `trlv_apply_surface_custom`, `trlv_apply_card`, `trlv_apply_button_type`, `trlv_apply_text_role` | Figma's "apply a style": colour, shape and type. Never change layout. |
+| Getters, `trlv_get_*` | `trlv_get_color_tokens`, `trlv_get_layout_tokens` | Token values for raw LVGL calls. |
+
+Setters and applies work on any object, LVGL widgets included, and
+replace their previous value rather than stacking. A screen reads as one
+block per Figma frame: create, set its layout, apply its look. LVGL
+widgets (`lv_button_create`, `lv_slider_create`, …) need no TreLVis
+constructor: the theme styles them. See
+[The API by kind](docs/concepts.md#7-the-api-by-kind) for the rules of
+each kind.
+
 ## Design principles
 
 - **Small on purpose.** The main job is to turn the blocks of LVGL calls that
@@ -164,7 +184,8 @@ recolours everything, and Compact density is just another token set for
 - **Familiar vocabulary, LVGL's grammar.** Names come from Figma / MD3 first,
   then CSS, then LVGL. No fourth vocabulary. The verbs say what a call
   does: constructors end in `_create`, layout properties are `trlv_set_*`
-  and appearance is `trlv_apply_*`, as you apply a style in Figma.
+  and appearance is `trlv_apply_*`, as you apply a style in Figma
+  ([The API at a glance](#the-api-at-a-glance)).
 - **LVGL's engine, not a parallel one.** Layout, colour, type and states are
   all LVGL style properties on shared styles, with LVGL's part/state selectors
   and inheritance.
@@ -369,9 +390,10 @@ trlv_text_create(btn, "Continue", TRLV_TEXT_LABEL_LARGE);
 ```
 
 Switch to dark at any time with `trlv_theme_set_color_mode(&tokens_dark)`.
-Rows, columns and the other primitives are described in
-[Concepts](docs/concepts.md); the [demo](examples/demo) shows every one of
-them and builds in your project the same way.
+Every function is described in
+[The API by kind](docs/concepts.md#7-the-api-by-kind); the
+[demo](examples/demo) shows every one of them and builds in your project
+the same way.
 
 ## Configuration
 
@@ -436,8 +458,11 @@ Like LVGL itself, every TreLVis function must be called from the LVGL thread
 ## Documentation
 
 - [Concepts](docs/concepts.md): vocabulary, design tokens, fonts, the theme and
-  style engine, primitives and modifiers, and the Figma / MD3 / CSS / LVGL
-  mapping.
+  style engine, the API by kind of function, and the Figma / MD3 / CSS /
+  LVGL mapping.
+- API reference: run `doxygen` in the repository and open
+  `build-doxygen/html/index.html`; its *Topics* page lists the functions
+  by kind.
 - [Figma hand-off](docs/figma-handoff.md): conventions that make a Figma design
   translate directly into TreLVis code.
 - [Roadmap](ROADMAP.md): milestones, scope and what is deliberately left out.

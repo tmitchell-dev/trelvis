@@ -55,7 +55,7 @@ Milestone 2 checked two behaviours on a real screen (`examples/demo`):
   `align-self: stretch`). Along the main axis the child always collapses to
   0. `trlv_set_*_fill` therefore warns only in the main-axis case; warning on
   the cross-axis case would flag a working pattern. See
-  [docs/concepts.md §7.2](docs/concepts.md#72-layout-setters-trlv_set_).
+  [docs/concepts.md §7.3](docs/concepts.md#73-layout-setters-trlv_set_).
 - **`trlv_text_create` hugging by default.** Kept. On the demo screen every name,
   value, heading and button label wanted to hug; only the paragraph needed
   `trlv_set_width_fill`, and forgetting it shows at once as one clipped line.
