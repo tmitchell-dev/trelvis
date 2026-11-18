@@ -114,13 +114,15 @@ compatibility table. Change both together.
   fetched tree under `build/_deps/lvgl-src`) rather than guessing. In
   particular, use the per-flag setters, not `lv_obj_add_flag`.
 - Never silence warnings (including LVGL deprecations) to get a build through.
-- Work on a branch, never on `main`. Don't commit, push or open PRs unless asked.
+- Work on a branch, never on `main`. Commit and push to the working branch
+  freely, following "Commits and pull requests" below; never commit or push
+  to `main`. Open a pull request only when asked.
 - Nothing company- or product-specific, and no secrets, anywhere, including
   commit messages and PR text.
 
 ## Commits and pull requests
 
-When asked to commit and open a PR:
+When committing and opening a PR:
 
 - **One PR for the block of work, made of several meaningful commits.**
   Split by issue or by step (for example a mechanical rename, then a
