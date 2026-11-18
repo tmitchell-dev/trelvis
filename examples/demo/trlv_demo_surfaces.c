@@ -56,11 +56,12 @@ static const surface_swatch_t containers[] = {
 /* A heading and an empty column for the swatches; returns the column. */
 static lv_obj_t * group(lv_obj_t * section, const char * heading)
 {
-    lv_obj_t * obj = trlv_column_create(section, TRLV_SPACE_SM);
+    lv_obj_t * obj = trlv_column_create(section);
+    trlv_set_gap(obj, TRLV_SPACE_SM);
     trlv_set_width_fill(obj);
     trlv_text_create(obj, heading, TRLV_TEXT_TITLE_MEDIUM);
 
-    lv_obj_t * swatches = trlv_column_create(obj, TRLV_SPACE_NONE);
+    lv_obj_t * swatches = trlv_column_create(obj);
     trlv_set_width_fill(swatches);
     return swatches;
 }
@@ -68,7 +69,7 @@ static lv_obj_t * group(lv_obj_t * section, const char * heading)
 /* A swatch with its name; the caller gives it its fill. */
 static lv_obj_t * swatch(lv_obj_t * swatches, const char * name)
 {
-    lv_obj_t * row = trlv_row_create(swatches, TRLV_SPACE_NONE);
+    lv_obj_t * row = trlv_row_create(swatches);
     trlv_set_pad(row, TRLV_SPACE_MD);
     trlv_set_width_fill(row);
 
@@ -88,7 +89,8 @@ static void surface_group(lv_obj_t * section, const char * heading,
 
 lv_obj_t * trlv_demo_surfaces_create(lv_obj_t * parent)
 {
-    lv_obj_t * section = trlv_column_create(parent, TRLV_SPACE_LG);
+    lv_obj_t * section = trlv_column_create(parent);
+    trlv_set_gap(section, TRLV_SPACE_LG);
     trlv_set_width_fill(section);
 
     surface_group(section, "Surface ladder", ladder, COUNT(ladder));

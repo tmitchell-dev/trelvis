@@ -30,7 +30,8 @@
 
 static void readout(lv_obj_t * parent, const char * name, const char * value)
 {
-    lv_obj_t * row = trlv_row_create(parent, TRLV_SPACE_MD);
+    lv_obj_t * row = trlv_row_create(parent);
+    trlv_set_gap(row, TRLV_SPACE_MD);
     trlv_set_width_fill(row);
 
     lv_obj_t * name_text = trlv_text_create(row, name, TRLV_TEXT_BODY_LARGE);
@@ -46,7 +47,8 @@ static void button(lv_obj_t * parent, const char * text)
 
 lv_obj_t * trlv_demo_readouts_create(lv_obj_t * parent)
 {
-    lv_obj_t * section = trlv_column_create(parent, TRLV_SPACE_LG);
+    lv_obj_t * section = trlv_column_create(parent);
+    trlv_set_gap(section, TRLV_SPACE_LG);
     trlv_set_width_fill(section);
 
     /* Header: a box with its children placed by alignment (Figma
@@ -58,13 +60,15 @@ lv_obj_t * trlv_demo_readouts_create(lv_obj_t * parent)
     lv_obj_t * status = trlv_text_create(header, "Running", TRLV_TEXT_LABEL_LARGE);
     lv_obj_align(status, LV_ALIGN_RIGHT_MID, 0, 0);
 
-    lv_obj_t * readouts = trlv_column_create(section, TRLV_SPACE_SM);
+    lv_obj_t * readouts = trlv_column_create(section);
+    trlv_set_gap(readouts, TRLV_SPACE_SM);
     trlv_set_width_fill(readouts);
     readout(readouts, "Temperature", "21.4 \xC2\xB0" "C");
     readout(readouts, "Pressure", "1013 hPa");
     readout(readouts, "Flow", "2.30 L/min");
 
-    lv_obj_t * about = trlv_column_create(section, TRLV_SPACE_XS);
+    lv_obj_t * about = trlv_column_create(section);
+    trlv_set_gap(about, TRLV_SPACE_XS);
     trlv_set_width_fill(about);
     trlv_text_create(about, "About", TRLV_TEXT_TITLE_MEDIUM);
     lv_obj_t * body = trlv_text_create(about,
@@ -78,7 +82,8 @@ lv_obj_t * trlv_demo_readouts_create(lv_obj_t * parent)
      * layout "wrap"); wrapping is raw LVGL and needs a width. The padding
      * keeps the keypad focus ring, drawn outside a button, from being
      * clipped by the row (docs/concepts.md, "Focus rings need clearance"). */
-    lv_obj_t * actions = trlv_row_create(section, TRLV_SPACE_SM);
+    lv_obj_t * actions = trlv_row_create(section);
+    trlv_set_gap(actions, TRLV_SPACE_SM);
     trlv_set_pad(actions, TRLV_SPACE_SM);
     trlv_set_width_fill(actions);
     lv_obj_set_flex_flow(actions, LV_FLEX_FLOW_ROW_WRAP);

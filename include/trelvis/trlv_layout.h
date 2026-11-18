@@ -122,10 +122,11 @@ lv_obj_t * trlv_box_create(lv_obj_t * parent);
 
 /**
  * Create a row: Figma horizontal auto layout (→), CSS
- * `display: flex; flex-direction: row; gap: ...`.
+ * `display: flex; flex-direction: row`.
  *
- * A box (see trlv_box_create: not scrollable, not clickable, no theme styles, hugs
- * its children) with trlv_style_row and the gap style. It replaces:
+ * A box (see trlv_box_create: not scrollable, not clickable, no theme
+ * styles, no gap or padding, hugs its children) with trlv_style_row. Set
+ * the gap with trlv_set_gap. With it, it replaces:
  *
  *     lv_obj_t * row = lv_obj_create(parent);
  *     lv_obj_remove_style_all(row);
@@ -140,22 +141,20 @@ lv_obj_t * trlv_box_create(lv_obj_t * parent);
  * lv_obj_set_flex_flow(row, LV_FLEX_FLOW_ROW_WRAP).
  *
  * @param parent  the parent object
- * @param gap     the gap between children; change it later with trlv_set_gap
  * @return        the new row
  */
-lv_obj_t * trlv_row_create(lv_obj_t * parent, trlv_space_t gap);
+lv_obj_t * trlv_row_create(lv_obj_t * parent);
 
 /**
  * Create a column: Figma vertical auto layout (↓), CSS
- * `display: flex; flex-direction: column; gap: ...`.
+ * `display: flex; flex-direction: column`.
  *
  * Like trlv_row_create, with children placed top to bottom.
  *
  * @param parent  the parent object
- * @param gap     the gap between children; change it later with trlv_set_gap
  * @return        the new column
  */
-lv_obj_t * trlv_column_create(lv_obj_t * parent, trlv_space_t gap);
+lv_obj_t * trlv_column_create(lv_obj_t * parent);
 
 /**
  * Create a spacer: an empty box that takes the free space along its

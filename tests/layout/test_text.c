@@ -60,7 +60,8 @@ static void hugs_its_text(lv_obj_t * screen)
 /* A width from trlv_set_width_fill makes it wrap (Figma "auto height"). */
 static void wraps_after_fill_width(lv_obj_t * screen)
 {
-    lv_obj_t * column = trlv_column_create(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * column = trlv_column_create(setup(screen));
+    trlv_set_gap(column, TRLV_SPACE_SM);
     lv_obj_set_width(column, 120);
     lv_obj_t * text = trlv_text_create(column, LONG_TEXT, TRLV_TEXT_BODY_MEDIUM);
     trlv_set_width_fill(text);
@@ -74,7 +75,8 @@ static void wraps_after_fill_width(lv_obj_t * screen)
 /* In a row, fill grows the text into the free space, and it wraps there. */
 static void wraps_when_growing_in_a_row(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * row = trlv_row_create(setup(screen));
+    trlv_set_gap(row, TRLV_SPACE_SM);
     lv_obj_set_width(row, 200);
     lv_obj_t * icon = trlv_box_create(row);
     lv_obj_set_size(icon, 40, 40);

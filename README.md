@@ -62,7 +62,8 @@ lay out the same and get the same fonts and colours, in light and dark.
 <td valign="top">
 
 ```c
-lv_obj_t * card = trlv_column_create(parent, TRLV_SPACE_SM);
+lv_obj_t * card = trlv_column_create(parent);
+trlv_set_gap(card, TRLV_SPACE_SM);
 
 
 
@@ -71,7 +72,8 @@ trlv_apply_card(card, TRLV_CARD_FILLED);
 trlv_set_pad(card, TRLV_SPACE_LG);
 trlv_set_width_fill(card);
 
-lv_obj_t * header = trlv_row_create(card, TRLV_SPACE_SM);
+lv_obj_t * header = trlv_row_create(card);
+trlv_set_gap(header, TRLV_SPACE_SM);
 
 
 
@@ -345,14 +347,16 @@ text, and every LVGL widget you create gets its MD3 look.
 ### 5. Build a screen
 
 ```c
-lv_obj_t * page = trlv_column_create(lv_display_get_screen_active(disp), TRLV_SPACE_LG);
+lv_obj_t * page = trlv_column_create(lv_display_get_screen_active(disp));
+trlv_set_gap(page, TRLV_SPACE_LG);
 trlv_set_pad(page, TRLV_SPACE_XL);
 trlv_set_width_fill(page);
 trlv_set_height_fill(page);
 
 trlv_text_create(page, "Hello, TreLVis", TRLV_TEXT_HEADLINE_SMALL);
 
-lv_obj_t * card = trlv_column_create(page, TRLV_SPACE_SM);
+lv_obj_t * card = trlv_column_create(page);
+trlv_set_gap(card, TRLV_SPACE_SM);
 trlv_apply_card(card, TRLV_CARD_OUTLINED);
 trlv_set_pad(card, TRLV_SPACE_LG);
 trlv_set_width_fill(card);

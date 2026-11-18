@@ -106,16 +106,17 @@ static void switched_to_light(lv_event_t * e)
 lv_obj_t * trlv_demo_create(lv_obj_t * parent, const trlv_color_tokens_t * light,
                             const trlv_color_tokens_t * dark)
 {
-    lv_obj_t * demo = trlv_column_create(parent, TRLV_SPACE_NONE);
+    lv_obj_t * demo = trlv_column_create(parent);
     trlv_set_width_fill(demo);
     trlv_set_height_fill(demo);
 
-    lv_obj_t * bar = trlv_column_create(demo, TRLV_SPACE_NONE);
+    lv_obj_t * bar = trlv_column_create(demo);
     trlv_set_pad(bar, TRLV_SPACE_SM);
     trlv_set_width_fill(bar);
     trlv_apply_surface(bar, TRLV_SURFACE_CONTAINER);
 
-    lv_obj_t * top = trlv_row_create(bar, TRLV_SPACE_SM);
+    lv_obj_t * top = trlv_row_create(bar);
+    trlv_set_gap(top, TRLV_SPACE_SM);
     trlv_set_pad(top, TRLV_SPACE_SM);
     trlv_set_width_fill(top);
     trlv_set_align_items(top, TRLV_ALIGN_ITEMS_CENTER);
@@ -132,7 +133,8 @@ lv_obj_t * trlv_demo_create(lv_obj_t * parent, const trlv_color_tokens_t * light
 
     /* The nav row scrolls sideways when the buttons don't fit (a narrow
      * display). Scrolling is raw LVGL; a row turns it off by default. */
-    lv_obj_t * nav = trlv_row_create(bar, TRLV_SPACE_XS);
+    lv_obj_t * nav = trlv_row_create(bar);
+    trlv_set_gap(nav, TRLV_SPACE_XS);
     trlv_set_pad(nav, TRLV_SPACE_SM);
     trlv_set_width_fill(nav);
     lv_obj_set_scrollable(nav, true);
@@ -145,7 +147,7 @@ lv_obj_t * trlv_demo_create(lv_obj_t * parent, const trlv_color_tokens_t * light
 
     /* The content takes the rest of the height (fill in a column grows) and
      * scrolls when the section is taller. */
-    lv_obj_t * content = trlv_column_create(demo, TRLV_SPACE_NONE);
+    lv_obj_t * content = trlv_column_create(demo);
     trlv_set_pad(content, TRLV_SPACE_LG);
     trlv_set_width_fill(content);
     trlv_set_height_fill(content);

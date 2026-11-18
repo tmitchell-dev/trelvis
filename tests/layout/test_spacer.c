@@ -37,7 +37,7 @@ static lv_obj_t * child(lv_obj_t * parent, int32_t w, int32_t h)
 /* In a row: pushes the next child to the right edge; 0 tall. */
 static void pushes_apart_in_a_row(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_NONE);
+    lv_obj_t * row = trlv_row_create(setup(screen));
     lv_obj_set_size(row, 200, 40);
     child(row, 30, 20);
     lv_obj_t * spacer = trlv_spacer_create(row);
@@ -51,7 +51,7 @@ static void pushes_apart_in_a_row(lv_obj_t * screen)
 /* In a column: pushes the next child to the bottom; 0 wide. */
 static void pushes_apart_in_a_column(lv_obj_t * screen)
 {
-    lv_obj_t * column = trlv_column_create(setup(screen), TRLV_SPACE_NONE);
+    lv_obj_t * column = trlv_column_create(setup(screen));
     lv_obj_set_size(column, 40, 200);
     child(column, 20, 30);
     lv_obj_t * spacer = trlv_spacer_create(column);
@@ -64,7 +64,8 @@ static void pushes_apart_in_a_column(lv_obj_t * screen)
 /* The gap still applies on both sides of the spacer. */
 static void respects_the_gap(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * row = trlv_row_create(setup(screen));
+    trlv_set_gap(row, TRLV_SPACE_SM);
     lv_obj_set_size(row, 200, 40);
     child(row, 30, 20);
     lv_obj_t * spacer = trlv_spacer_create(row);
@@ -77,7 +78,7 @@ static void respects_the_gap(lv_obj_t * screen)
 /* Several spacers share the free space equally. */
 static void spacers_share_the_space(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_NONE);
+    lv_obj_t * row = trlv_row_create(setup(screen));
     lv_obj_set_size(row, 200, 40);
     child(row, 20, 20);
     trlv_spacer_create(row);
@@ -93,7 +94,7 @@ static void spacers_share_the_space(lv_obj_t * screen)
  * warning naming trlv_spacer_create. */
 static void warns_in_a_hugging_row(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_NONE);
+    lv_obj_t * row = trlv_row_create(setup(screen));
     child(row, 30, 20);
     lv_obj_t * spacer = trlv_spacer_create(row);
 

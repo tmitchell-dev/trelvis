@@ -55,7 +55,8 @@ static lv_color_t text_of(lv_obj_t * obj)
 
 static lv_obj_t * column_with_label(lv_obj_t * parent, lv_obj_t ** label)
 {
-    lv_obj_t * column = trlv_column_create(parent, TRLV_SPACE_SM);
+    lv_obj_t * column = trlv_column_create(parent);
+    trlv_set_gap(column, TRLV_SPACE_SM);
     *label = lv_label_create(column);
     return column;
 }

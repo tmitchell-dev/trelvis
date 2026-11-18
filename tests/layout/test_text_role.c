@@ -37,8 +37,10 @@ static const lv_font_t * role_font(trlv_text_role_t role)
 /* A plain label inside a container takes the container's role, at any depth. */
 static void container_role_reaches_labels(lv_obj_t * screen)
 {
-    lv_obj_t * column = trlv_column_create(setup(screen), TRLV_SPACE_SM);
-    lv_obj_t * row = trlv_row_create(column, TRLV_SPACE_SM);
+    lv_obj_t * column = trlv_column_create(setup(screen));
+    trlv_set_gap(column, TRLV_SPACE_SM);
+    lv_obj_t * row = trlv_row_create(column);
+    trlv_set_gap(row, TRLV_SPACE_SM);
     lv_obj_t * near = lv_label_create(column);
     lv_obj_t * deep = lv_label_create(row);
     trlv_apply_text_role(column, ROLE_A);
@@ -50,7 +52,8 @@ static void container_role_reaches_labels(lv_obj_t * screen)
 /* Line and letter spacing inherit with the font. */
 static void spacing_is_inherited(lv_obj_t * screen)
 {
-    lv_obj_t * column = trlv_column_create(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * column = trlv_column_create(setup(screen));
+    trlv_set_gap(column, TRLV_SPACE_SM);
     lv_obj_t * label = lv_label_create(column);
     trlv_apply_text_role(column, ROLE_A);
 
@@ -64,7 +67,8 @@ static void spacing_is_inherited(lv_obj_t * screen)
 /* A label with a role of its own keeps it inside a container with another. */
 static void own_role_wins_over_the_container(lv_obj_t * screen)
 {
-    lv_obj_t * column = trlv_column_create(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * column = trlv_column_create(setup(screen));
+    trlv_set_gap(column, TRLV_SPACE_SM);
     lv_obj_t * text = trlv_text_create(column, "Own", ROLE_B);
     trlv_apply_text_role(column, ROLE_A);
 
@@ -74,7 +78,8 @@ static void own_role_wins_over_the_container(lv_obj_t * screen)
 /* A second call replaces the first, on a container and on a trlv_text_create. */
 static void a_second_call_replaces_the_first(lv_obj_t * screen)
 {
-    lv_obj_t * column = trlv_column_create(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * column = trlv_column_create(setup(screen));
+    trlv_set_gap(column, TRLV_SPACE_SM);
     lv_obj_t * label = lv_label_create(column);
     trlv_apply_text_role(column, ROLE_A);
     trlv_apply_text_role(column, ROLE_B);
@@ -117,7 +122,8 @@ static void replaces_the_button_role(lv_obj_t * screen)
 /* The label's size follows the role's font. */
 static void label_size_follows_the_role(lv_obj_t * screen)
 {
-    lv_obj_t * column = trlv_column_create(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * column = trlv_column_create(setup(screen));
+    trlv_set_gap(column, TRLV_SPACE_SM);
     lv_obj_t * label = lv_label_create(column);
     lv_label_set_text(label, "Ag");
     trlv_apply_text_role(column, ROLE_A);
@@ -128,7 +134,8 @@ static void label_size_follows_the_role(lv_obj_t * screen)
 /* A value outside the enum changes nothing. */
 static void invalid_role_changes_nothing(lv_obj_t * screen)
 {
-    lv_obj_t * column = trlv_column_create(setup(screen), TRLV_SPACE_SM);
+    lv_obj_t * column = trlv_column_create(setup(screen));
+    trlv_set_gap(column, TRLV_SPACE_SM);
     lv_obj_t * label = lv_label_create(column);
     trlv_apply_text_role(column, ROLE_A);
     trlv_apply_text_role(column, (trlv_text_role_t)99);

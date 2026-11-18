@@ -26,12 +26,14 @@
 
 static lv_obj_t * card_trelvis(lv_obj_t * parent)
 {
-    lv_obj_t * card = trlv_column_create(parent, TRLV_SPACE_SM);
+    lv_obj_t * card = trlv_column_create(parent);
+    trlv_set_gap(card, TRLV_SPACE_SM);
     trlv_apply_card(card, TRLV_CARD_FILLED);
     trlv_set_pad(card, TRLV_SPACE_LG);
     trlv_set_width_fill(card);
 
-    lv_obj_t * header = trlv_row_create(card, TRLV_SPACE_SM);
+    lv_obj_t * header = trlv_row_create(card);
+    trlv_set_gap(header, TRLV_SPACE_SM);
     trlv_set_width_fill(header);
     trlv_set_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);
     trlv_set_align_items(header, TRLV_ALIGN_ITEMS_CENTER);

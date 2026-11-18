@@ -61,8 +61,8 @@ TRLV_CHECK_SIGNATURE(trlv_get_layout_tokens, const trlv_layout_tokens_t * (*)(vo
 
 /* trlv_layout.h: constructors */
 TRLV_CHECK_SIGNATURE(trlv_box_create, lv_obj_t * (*)(lv_obj_t *));
-TRLV_CHECK_SIGNATURE(trlv_row_create, lv_obj_t * (*)(lv_obj_t *, trlv_space_t));
-TRLV_CHECK_SIGNATURE(trlv_column_create, lv_obj_t * (*)(lv_obj_t *, trlv_space_t));
+TRLV_CHECK_SIGNATURE(trlv_row_create, lv_obj_t * (*)(lv_obj_t *));
+TRLV_CHECK_SIGNATURE(trlv_column_create, lv_obj_t * (*)(lv_obj_t *));
 TRLV_CHECK_SIGNATURE(trlv_spacer_create, lv_obj_t * (*)(lv_obj_t *));
 TRLV_CHECK_SIGNATURE(trlv_divider_create, lv_obj_t * (*)(lv_obj_t *));
 

@@ -63,7 +63,8 @@ static const struct {
 
 static void item(lv_obj_t * list, uint32_t index)
 {
-    lv_obj_t * row = trlv_row_create(list, TRLV_SPACE_LG);
+    lv_obj_t * row = trlv_row_create(list);
+    trlv_set_gap(row, TRLV_SPACE_LG);
     trlv_set_pad(row, TRLV_SPACE_SM);
     trlv_set_width_fill(row);
     trlv_set_align_items(row, TRLV_ALIGN_ITEMS_CENTER);
@@ -75,7 +76,7 @@ static void item(lv_obj_t * list, uint32_t index)
     lv_obj_set_width(icon, lv_font_get_line_height(lv_obj_get_style_text_font(icon, LV_PART_MAIN)));
     lv_obj_set_style_text_align(icon, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
 
-    lv_obj_t * text = trlv_column_create(row, TRLV_SPACE_NONE);
+    lv_obj_t * text = trlv_column_create(row);
     trlv_set_width_fill(text);
     trlv_text_create(text, items[index].headline, TRLV_TEXT_BODY_LARGE);
     lv_obj_t * supporting = trlv_text_create(text, items[index].supporting, TRLV_TEXT_BODY_MEDIUM);
@@ -99,12 +100,12 @@ static void item(lv_obj_t * list, uint32_t index)
 
 lv_obj_t * trlv_demo_list_create(lv_obj_t * parent)
 {
-    lv_obj_t * section = trlv_column_create(parent, TRLV_SPACE_NONE);
+    lv_obj_t * section = trlv_column_create(parent);
     trlv_set_width_fill(section);
     lv_obj_t * heading = trlv_text_create(section, "Settings", TRLV_TEXT_TITLE_MEDIUM);
     trlv_set_pad(heading, TRLV_SPACE_SM);   /* in line with the items' icons */
 
-    lv_obj_t * list = trlv_column_create(section, TRLV_SPACE_NONE);
+    lv_obj_t * list = trlv_column_create(section);
     trlv_set_width_fill(list);
     for(uint32_t i = 0; i < COUNT(items); i++) {
         if(i > 0) trlv_divider_create(list);

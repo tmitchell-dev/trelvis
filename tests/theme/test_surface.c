@@ -41,8 +41,10 @@ static lv_color_t text_of(lv_obj_t * obj)
 /* A column with a label two levels down, to check inheritance. */
 static lv_obj_t * column_with_label(lv_obj_t * parent, lv_obj_t ** label)
 {
-    lv_obj_t * column = trlv_column_create(parent, TRLV_SPACE_SM);
-    lv_obj_t * row = trlv_row_create(column, TRLV_SPACE_SM);
+    lv_obj_t * column = trlv_column_create(parent);
+    trlv_set_gap(column, TRLV_SPACE_SM);
+    lv_obj_t * row = trlv_row_create(column);
+    trlv_set_gap(row, TRLV_SPACE_SM);
     *label = lv_label_create(row);
     return column;
 }
@@ -242,7 +244,7 @@ static void card_outlined(lv_obj_t * screen)
 /* Padding stays explicit: a filled card adds none. */
 static void card_adds_no_padding(lv_obj_t * screen)
 {
-    lv_obj_t * card = trlv_column_create(setup(screen), TRLV_SPACE_NONE);
+    lv_obj_t * card = trlv_column_create(setup(screen));
     lv_obj_t * child = trlv_box_create(card);
     lv_obj_set_size(child, 30, 20);
     trlv_apply_card(card, TRLV_CARD_FILLED);
@@ -258,7 +260,7 @@ static void card_border_insets_the_content(lv_obj_t * screen)
 {
     int32_t b = tokens_regular.border_width;
     int32_t p = tokens_regular.space[TRLV_SPACE_LG];
-    lv_obj_t * card = trlv_column_create(setup(screen), TRLV_SPACE_NONE);
+    lv_obj_t * card = trlv_column_create(setup(screen));
     lv_obj_t * child = trlv_box_create(card);
     lv_obj_set_size(child, 30, 20);
     trlv_apply_card(card, TRLV_CARD_OUTLINED);
@@ -275,7 +277,8 @@ static void cards_recolour(lv_obj_t * screen)
     lv_obj_t * label;
     lv_obj_t * elevated = column_with_label(setup(screen), &label);
     trlv_apply_card(elevated, TRLV_CARD_ELEVATED);
-    lv_obj_t * outlined = trlv_column_create(screen, TRLV_SPACE_SM);
+    lv_obj_t * outlined = trlv_column_create(screen);
+    trlv_set_gap(outlined, TRLV_SPACE_SM);
     trlv_apply_card(outlined, TRLV_CARD_OUTLINED);
 
     trlv_theme_set_color_mode(&tokens_dark);

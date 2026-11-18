@@ -46,7 +46,8 @@ static lv_color_t project_color(void)
 /* trlv_set_gap: pad_row and pad_column. */
 static void gap(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_LG);
+    lv_obj_t * row = trlv_row_create(setup(screen));
+    trlv_set_gap(row, TRLV_SPACE_LG);
     lv_style_set_pad_column(&project, 40);
     add_project(row, LV_PART_MAIN);
     trlv_set_gap(row, TRLV_SPACE_SM);
@@ -104,7 +105,7 @@ static void height(lv_obj_t * screen)
 /* trlv_set_justify: flex_main_place. */
 static void justify(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_NONE);
+    lv_obj_t * row = trlv_row_create(setup(screen));
     trlv_set_justify(row, TRLV_JUSTIFY_END);
     lv_style_set_flex_main_place(&project, LV_FLEX_ALIGN_SPACE_AROUND);
     add_project(row, LV_PART_MAIN);
@@ -116,7 +117,7 @@ static void justify(lv_obj_t * screen)
 /* trlv_set_align_items: flex_cross_place and flex_track_place. */
 static void align_items(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_NONE);
+    lv_obj_t * row = trlv_row_create(setup(screen));
     trlv_set_align_items(row, TRLV_ALIGN_ITEMS_END);
     lv_style_set_flex_cross_place(&project, LV_FLEX_ALIGN_CENTER);
     add_project(row, LV_PART_MAIN);

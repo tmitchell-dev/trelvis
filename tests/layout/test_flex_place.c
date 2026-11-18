@@ -28,7 +28,7 @@ static lv_obj_t * child(lv_obj_t * parent, int32_t w, int32_t h)
 /* A 180 x 20 row with no gap and three 20 x 10 children. */
 static lv_obj_t * three_in_a_row(lv_obj_t * screen, lv_obj_t * out[3])
 {
-    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_NONE);
+    lv_obj_t * row = trlv_row_create(setup(screen));
     lv_obj_set_size(row, 180, 20);
     for(int i = 0; i < 3; i++) out[i] = child(row, 20, 10);
     return row;
@@ -109,7 +109,7 @@ static void justify_spacing_adds_to_the_gap(lv_obj_t * screen)
 /* In a column, justify works vertically. */
 static void justify_in_a_column(lv_obj_t * screen)
 {
-    lv_obj_t * column = trlv_column_create(setup(screen), TRLV_SPACE_NONE);
+    lv_obj_t * column = trlv_column_create(setup(screen));
     lv_obj_set_size(column, 20, 100);
     lv_obj_t * a = child(column, 10, 20);
     lv_obj_t * b = child(column, 10, 20);
@@ -171,7 +171,7 @@ static void justify_ignores_an_invalid_value(lv_obj_t * screen)
 /* A 100 x 50 row with a 20 x 10 and a 20 x 30 child. */
 static lv_obj_t * tall_row(lv_obj_t * screen, lv_obj_t ** small, lv_obj_t ** big)
 {
-    lv_obj_t * row = trlv_row_create(setup(screen), TRLV_SPACE_NONE);
+    lv_obj_t * row = trlv_row_create(setup(screen));
     lv_obj_set_size(row, 100, 50);
     *small = child(row, 20, 10);
     *big = child(row, 20, 30);
@@ -181,7 +181,7 @@ static lv_obj_t * tall_row(lv_obj_t * screen, lv_obj_t ** small, lv_obj_t ** big
 /* A 100 x 50 column with a 20 x 10 and a 40 x 10 child. */
 static lv_obj_t * wide_column(lv_obj_t * screen, lv_obj_t ** small, lv_obj_t ** big)
 {
-    lv_obj_t * column = trlv_column_create(setup(screen), TRLV_SPACE_NONE);
+    lv_obj_t * column = trlv_column_create(setup(screen));
     lv_obj_set_size(column, 100, 50);
     *small = child(column, 20, 10);
     *big = child(column, 40, 10);

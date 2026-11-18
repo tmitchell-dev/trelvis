@@ -67,7 +67,8 @@ static void button(lv_obj_t * parent, const char * text, trlv_button_t variant)
 
 static void card(lv_obj_t * section, const demo_card_t * content)
 {
-    lv_obj_t * obj = trlv_column_create(section, TRLV_SPACE_SM);
+    lv_obj_t * obj = trlv_column_create(section);
+    trlv_set_gap(obj, TRLV_SPACE_SM);
     trlv_apply_card(obj, content->card);
     trlv_set_pad(obj, TRLV_SPACE_LG);
     trlv_set_width_fill(obj);
@@ -81,7 +82,8 @@ static void card(lv_obj_t * section, const demo_card_t * content)
      * on a narrow display they wrap rather than overflow. The padding is
      * room for the keypad focus ring (docs/concepts.md, "Focus rings need
      * clearance"). */
-    lv_obj_t * actions = trlv_row_create(obj, TRLV_SPACE_SM);
+    lv_obj_t * actions = trlv_row_create(obj);
+    trlv_set_gap(actions, TRLV_SPACE_SM);
     trlv_set_pad(actions, TRLV_SPACE_SM);
     trlv_set_width_fill(actions);
     trlv_set_justify(actions, TRLV_JUSTIFY_END);
@@ -92,7 +94,8 @@ static void card(lv_obj_t * section, const demo_card_t * content)
 
 lv_obj_t * trlv_demo_cards_create(lv_obj_t * parent)
 {
-    lv_obj_t * section = trlv_column_create(parent, TRLV_SPACE_LG);
+    lv_obj_t * section = trlv_column_create(parent);
+    trlv_set_gap(section, TRLV_SPACE_LG);
     trlv_set_width_fill(section);
 
     for(uint32_t i = 0; i < COUNT(cards); i++) card(section, &cards[i]);

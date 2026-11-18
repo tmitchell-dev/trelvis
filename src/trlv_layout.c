@@ -194,19 +194,17 @@ lv_obj_t * trlv_box_create(lv_obj_t * parent)
     return obj;
 }
 
-lv_obj_t * trlv_row_create(lv_obj_t * parent, trlv_space_t gap)
+lv_obj_t * trlv_row_create(lv_obj_t * parent)
 {
     lv_obj_t * obj = trlv_box_create(parent);
     lv_obj_add_style(obj, &trlv_style_row, LV_PART_MAIN);
-    trlv_set_gap(obj, gap);
     return obj;
 }
 
-lv_obj_t * trlv_column_create(lv_obj_t * parent, trlv_space_t gap)
+lv_obj_t * trlv_column_create(lv_obj_t * parent)
 {
     lv_obj_t * obj = trlv_box_create(parent);
     lv_obj_add_style(obj, &trlv_style_column, LV_PART_MAIN);
-    trlv_set_gap(obj, gap);
     return obj;
 }
 
