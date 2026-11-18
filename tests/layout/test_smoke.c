@@ -50,7 +50,7 @@ static void flex_row_places_children(lv_obj_t * screen)
 
     TRLV_ASSERT_RECT(a, 16, 16, 40, 20);
     TRLV_ASSERT_RECT(b, 16 + 40 + 8, 16, 30, 10);
-    /* The row hugs its children: padding + a + gap + b + padding. */
+    /* The row fits its children: padding + a + gap + b + padding. */
     TRLV_ASSERT_RECT(row, 5, 5, 16 + 40 + 8 + 30 + 16, 16 + 20 + 16);
 }
 

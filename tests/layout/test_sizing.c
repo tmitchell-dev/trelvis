@@ -2,7 +2,7 @@
 /* Copyright (c) 2026 Timothy Mitchell */
 
 /*
- * Sizing modifiers: trlv_set_*_hug and axis-aware trlv_set_*_fill, with the
+ * Sizing modifiers: trlv_set_*_fit and axis-aware trlv_set_*_fill, with the
  * token template's Regular values (SM = 8).
  */
 
@@ -22,8 +22,8 @@ static lv_obj_t * child(lv_obj_t * parent, int32_t w, int32_t h)
     return obj;
 }
 
-/* A box that hugs a 30 x 20 child, so its hug size is known. */
-static lv_obj_t * hugging_box(lv_obj_t * parent)
+/* A box that fits a 30 x 20 child, so its content size is known. */
+static lv_obj_t * fit_content_box(lv_obj_t * parent)
 {
     lv_obj_t * obj = trlv_box_create(parent);
     child(obj, 30, 20);
@@ -37,7 +37,7 @@ static void fill_in_a_row(lv_obj_t * screen)
     trlv_set_gap(row, TRLV_SPACE_SM);
     lv_obj_set_size(row, 200, 50);
     child(row, 40, 10);
-    lv_obj_t * filled = hugging_box(row);
+    lv_obj_t * filled = fit_content_box(row);
     trlv_set_width_fill(filled);
     trlv_set_height_fill(filled);
 
@@ -51,7 +51,7 @@ static void fill_in_a_column(lv_obj_t * screen)
     trlv_set_gap(column, TRLV_SPACE_SM);
     lv_obj_set_size(column, 100, 300);
     child(column, 10, 40);
-    lv_obj_t * filled = hugging_box(column);
+    lv_obj_t * filled = fit_content_box(column);
     trlv_set_width_fill(filled);
     trlv_set_height_fill(filled);
 
@@ -63,7 +63,7 @@ static void fill_in_a_non_flex_parent(lv_obj_t * screen)
 {
     lv_obj_t * box = trlv_box_create(setup(screen));
     lv_obj_set_size(box, 200, 100);
-    lv_obj_t * filled = hugging_box(box);
+    lv_obj_t * filled = fit_content_box(box);
     trlv_set_width_fill(filled);
     trlv_set_height_fill(filled);
 
@@ -77,7 +77,7 @@ static void fill_respects_parent_padding(lv_obj_t * screen)
     trlv_set_gap(column, TRLV_SPACE_SM);
     lv_obj_set_size(column, 100, 100);
     trlv_set_pad(column, TRLV_SPACE_LG);
-    lv_obj_t * filled = hugging_box(column);
+    lv_obj_t * filled = fit_content_box(column);
     trlv_set_width_fill(filled);
 
     TRLV_ASSERT_RECT(filled, 16, 16, 100 - 2 * 16, 20);
@@ -89,8 +89,8 @@ static void filled_siblings_share_the_space(lv_obj_t * screen)
     lv_obj_t * row = trlv_row_create(setup(screen));
     trlv_set_gap(row, TRLV_SPACE_SM);
     lv_obj_set_size(row, 208, 20);
-    lv_obj_t * a = hugging_box(row);
-    lv_obj_t * b = hugging_box(row);
+    lv_obj_t * a = fit_content_box(row);
+    lv_obj_t * b = fit_content_box(row);
     trlv_set_width_fill(a);
     trlv_set_width_fill(b);
 
@@ -98,44 +98,44 @@ static void filled_siblings_share_the_space(lv_obj_t * screen)
     TRLV_ASSERT_RECT(b, 100 + 8, 0, 100, 20);
 }
 
-/* Hug clears an earlier fill on the same axis, in both cases (grow and 100 %). */
-static void hug_clears_an_earlier_fill(lv_obj_t * screen)
+/* Fit clears an earlier fill on the same axis, in both cases (grow and 100 %). */
+static void fit_clears_an_earlier_fill(lv_obj_t * screen)
 {
     lv_obj_t * row = trlv_row_create(setup(screen));
     trlv_set_gap(row, TRLV_SPACE_SM);
     lv_obj_set_size(row, 200, 50);
-    lv_obj_t * filled = hugging_box(row);
+    lv_obj_t * filled = fit_content_box(row);
     trlv_set_width_fill(filled);
     trlv_set_height_fill(filled);
-    trlv_set_width_hug(filled);
-    trlv_set_height_hug(filled);
+    trlv_set_width_fit(filled);
+    trlv_set_height_fit(filled);
 
     TRLV_ASSERT_RECT(filled, 0, 0, 30, 20);
 }
 
-/* Fill clears an earlier hug. */
-static void fill_clears_an_earlier_hug(lv_obj_t * screen)
+/* Fill clears an earlier fit. */
+static void fill_clears_an_earlier_fit(lv_obj_t * screen)
 {
     lv_obj_t * box = trlv_box_create(setup(screen));
     lv_obj_set_size(box, 200, 100);
-    lv_obj_t * filled = hugging_box(box);
-    trlv_set_width_hug(filled);
+    lv_obj_t * filled = fit_content_box(box);
+    trlv_set_width_fit(filled);
     trlv_set_width_fill(filled);
 
     TRLV_ASSERT_WIDTH(filled, 200);
 }
 
-/* Changing one axis keeps the other: hug height after fill width in a row
+/* Changing one axis keeps the other: fit height after fill width in a row
  * must not stop the width from growing. */
 static void axes_are_independent(lv_obj_t * screen)
 {
     lv_obj_t * row = trlv_row_create(setup(screen));
     trlv_set_gap(row, TRLV_SPACE_SM);
     lv_obj_set_size(row, 200, 50);
-    lv_obj_t * filled = hugging_box(row);
+    lv_obj_t * filled = fit_content_box(row);
     trlv_set_width_fill(filled);
     trlv_set_height_fill(filled);
-    trlv_set_height_hug(filled);
+    trlv_set_height_fit(filled);
 
     TRLV_ASSERT_RECT(filled, 0, 0, 200, 20);
 }
@@ -146,7 +146,7 @@ static void fill_again_after_direction_change(lv_obj_t * screen)
 {
     lv_obj_t * box = trlv_box_create(setup(screen));
     lv_obj_set_size(box, 200, 100);
-    lv_obj_t * filled = hugging_box(box);
+    lv_obj_t * filled = fit_content_box(box);
     trlv_set_width_fill(filled);                          /* no flex: 100 % */
     lv_obj_set_flex_flow(box, LV_FLEX_FLOW_ROW);
     child(box, 40, 10);
@@ -167,15 +167,15 @@ static void fill_on_a_widget(lv_obj_t * screen)
     TRLV_ASSERT_WIDTH(bar, 240);
 }
 
-/* Hug works on an lv_obj TreLVis did not create, replacing LVGL's default
+/* Fit works on an lv_obj TreLVis did not create, replacing LVGL's default
  * size. */
-static void hug_on_a_plain_object(lv_obj_t * screen)
+static void fit_on_a_plain_object(lv_obj_t * screen)
 {
     lv_obj_t * obj = lv_obj_create(setup(screen));
     lv_obj_remove_style_all(obj);
     child(obj, 30, 20);
-    trlv_set_width_hug(obj);
-    trlv_set_height_hug(obj);
+    trlv_set_width_fit(obj);
+    trlv_set_height_fit(obj);
 
     TRLV_ASSERT_RECT(obj, 0, 0, 30, 20);
 }
@@ -187,11 +187,11 @@ int main(void)
     TRLV_TEST_RUN(fill_in_a_non_flex_parent);
     TRLV_TEST_RUN(fill_respects_parent_padding);
     TRLV_TEST_RUN(filled_siblings_share_the_space);
-    TRLV_TEST_RUN(hug_clears_an_earlier_fill);
-    TRLV_TEST_RUN(fill_clears_an_earlier_hug);
+    TRLV_TEST_RUN(fit_clears_an_earlier_fill);
+    TRLV_TEST_RUN(fill_clears_an_earlier_fit);
     TRLV_TEST_RUN(axes_are_independent);
     TRLV_TEST_RUN(fill_again_after_direction_change);
     TRLV_TEST_RUN(fill_on_a_widget);
-    TRLV_TEST_RUN(hug_on_a_plain_object);
+    TRLV_TEST_RUN(fit_on_a_plain_object);
     return trlv_test_finish();
 }

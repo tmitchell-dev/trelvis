@@ -6,7 +6,7 @@
  * Internal: style groups, so that modifiers replace rather than stack.
  *
  * A group is a set of alternative shared styles for one modifier: the pad
- * styles (one per space step), the gap styles, the width styles (hug, fill),
+ * styles (one per space step), the gap styles, the width styles (fit, fill),
  * the text roles. An object carries at most one style of a group per
  * selector. Applying a member replaces whichever member the object already
  * has; see docs/concepts.md section 6.1.

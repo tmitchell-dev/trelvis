@@ -73,8 +73,8 @@ TRLV_CHECK_SIGNATURE(trlv_set_gap, void (*)(lv_obj_t *, trlv_space_t));
 TRLV_CHECK_SIGNATURE(trlv_set_pad, void (*)(lv_obj_t *, trlv_space_t));
 TRLV_CHECK_SIGNATURE(trlv_set_justify, void (*)(lv_obj_t *, trlv_justify_t));
 TRLV_CHECK_SIGNATURE(trlv_set_align_items, void (*)(lv_obj_t *, trlv_align_items_t));
-TRLV_CHECK_SIGNATURE(trlv_set_width_hug, void (*)(lv_obj_t *));
-TRLV_CHECK_SIGNATURE(trlv_set_height_hug, void (*)(lv_obj_t *));
+TRLV_CHECK_SIGNATURE(trlv_set_width_fit, void (*)(lv_obj_t *));
+TRLV_CHECK_SIGNATURE(trlv_set_height_fit, void (*)(lv_obj_t *));
 TRLV_CHECK_SIGNATURE(trlv_set_width_fill, void (*)(lv_obj_t *));
 TRLV_CHECK_SIGNATURE(trlv_set_height_fill, void (*)(lv_obj_t *));
 

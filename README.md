@@ -14,7 +14,7 @@ the Material 3 Figma kit and Material Theme Builder therefore maps straight
 onto code.
 
 - **Layout primitives**: box, row, column, spacer, text and divider, with
-  Figma auto-layout sizing (hug / fill / fixed) and CSS-style alignment.
+  fit-content, fill and fixed sizing (Figma's hug / fill / fixed) and CSS-style alignment.
 - **Material Design 3 tokens**: colour roles, surface containers, type scale,
   shape scale, state layers and elevation, plus a 4 px spacing grid. Defined
   once per project and named exactly like MD3 and the Figma variables. A
@@ -159,8 +159,8 @@ Five kinds of function, and the verb in the name says which:
 | Kind | Functions | What it does |
 |---|---|---|
 | Setup | `trlv_init`, `trlv_theme_set_color_mode` | Install the MD3 theme with your tokens, once; switch light and dark at any time. |
-| Constructors, `_create` | `trlv_box_create`, `trlv_row_create`, `trlv_column_create`, `trlv_spacer_create`, `trlv_divider_create`, `trlv_text_create` | Make a primitive and return a plain `lv_obj_t *`. Containers start like a fresh Figma frame: no gap, no padding, hug. |
-| Layout setters, `trlv_set_*` | `trlv_set_gap`, `trlv_set_pad`, `trlv_set_width_fill` / `_hug`, `trlv_set_height_fill` / `_hug`, `trlv_set_justify`, `trlv_set_align_items` | One row of Figma's auto layout panel each. Never change colour. |
+| Constructors, `_create` | `trlv_box_create`, `trlv_row_create`, `trlv_column_create`, `trlv_spacer_create`, `trlv_divider_create`, `trlv_text_create` | Make a primitive and return a plain `lv_obj_t *`. Containers start like a fresh Figma frame: no gap, no padding, fit content. |
+| Layout setters, `trlv_set_*` | `trlv_set_gap`, `trlv_set_pad`, `trlv_set_width_fill` / `_fit`, `trlv_set_height_fill` / `_fit`, `trlv_set_justify`, `trlv_set_align_items` | One row of Figma's auto layout panel each. Never change colour. |
 | Appearance, `trlv_apply_*` | `trlv_apply_surface`, `trlv_apply_surface_custom`, `trlv_apply_card`, `trlv_apply_button_type`, `trlv_apply_text_role` | Figma's "apply a style": colour, shape and type. Never change layout. |
 | Getters, `trlv_get_*` | `trlv_get_color_tokens`, `trlv_get_layout_tokens` | Token values for raw LVGL calls. |
 

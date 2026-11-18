@@ -256,7 +256,7 @@ static void apply_card_adds_no_padding(lv_obj_t * screen)
 
 /* An outlined card's border is a Figma inside stroke included in layout
  * (CSS border-box): it insets the content by its width, on top of the
- * padding, and a hugging card grows by it. */
+ * padding, and a fit-content card grows by it. */
 static void card_border_insets_the_content(lv_obj_t * screen)
 {
     int32_t b = tokens_regular.border_width;

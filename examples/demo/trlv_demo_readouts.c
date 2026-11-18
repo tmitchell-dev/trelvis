@@ -4,7 +4,7 @@
 /**
  * @file trlv_demo_readouts.c
  * The Readouts section: the milestone 2 screen, built with box, row,
- * column, gap, fill / hug and text. Raw LVGL is used where the mapping table
+ * column, gap, fill / fit and text. Raw LVGL is used where the mapping table
  * in docs/concepts.md says so (aligning inside a box, buttons).
  *
  * The layout, as a Figma designer would draw it:
@@ -16,9 +16,9 @@
  *     ├─ readouts   column, gap SM, fills the width
  *     │  └─ readout row, gap MD, fills the width   (× 3)
  *     │     ├─ name   Body Large, fills (pushes the value right)
- *     │     └─ value  Title Medium, hugs
+ *     │     └─ value  Title Medium, fits
  *     ├─ about      column, gap XS, fills the width
- *     │  ├─ heading Title Medium, hugs
+ *     │  ├─ heading Title Medium, fits
  *     │  └─ body    Body Medium, fills the width so it wraps
  *     └─ actions    row, gap SM, fills the width, wraps
  *        └─ button  lv_button with a Label Large text  (× 3)

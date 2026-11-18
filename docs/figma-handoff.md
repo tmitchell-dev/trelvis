@@ -129,7 +129,7 @@ template:
 
 - **Use auto layout everywhere.** Horizontal and vertical auto layout map to
   `trlv_row_create` / `trlv_column_create`, and "hug" / "fill" / "fixed" map to
-  `trlv_set_width_hug` / `trlv_set_width_fill` / `lv_obj_set_size` (and
+  `trlv_set_width_fit` / `trlv_set_width_fill` / `lv_obj_set_size` (and
   the `_height_` setters). Grid auto layout maps to
   LVGL's own grid API, so prefer rows and columns where they do the job.
 - **Spacing sits on the 4 px grid** and is bound to `space/*` variables only.
@@ -386,7 +386,7 @@ agree a workaround with the developers:
 | Padding | `padding` | `trlv_set_pad` | `pad_*` |
 | Space between / packed | `justify-content` | `trlv_set_justify` | `flex_main_place` |
 | Cross-axis alignment | `align-items` | `trlv_set_align_items` | `flex_cross_place` + `flex_track_place` |
-| Hug / Fill / Fixed | `fit-content` / `flex: 1` / `width` | `trlv_set_width_hug` / `trlv_set_width_fill` / `lv_obj_set_size` (and `_height_`) | `LV_SIZE_CONTENT` / `flex_grow` or `LV_PCT(100)` / `width` |
+| Hug / Fill / Fixed | `fit-content` / `flex: 1` / `width` | `trlv_set_width_fit` / `trlv_set_width_fill` / `lv_obj_set_size` (and `_height_`) | `LV_SIZE_CONTENT` / `flex_grow` or `LV_PCT(100)` / `width` |
 | Empty frame, fill | `flex: 1` | `trlv_spacer_create` | box + `flex_grow` |
 | Wrap | `flex-wrap` | *raw LVGL* | `lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)` |
 | Absolute position | `position: absolute` | *raw LVGL* | `lv_obj_set_floating` + `lv_obj_align` |

@@ -105,7 +105,7 @@ static void gap_out_of_range_is_ignored(lv_obj_t * screen)
  * trlv_set_pad
  *-------------------------------------------------------------------------*/
 
-/* The child is offset by the token value, and the box hugs child + padding. */
+/* The child is offset by the token value, and the box fits child + padding. */
 static void pad_offsets_the_child(lv_obj_t * screen)
 {
     lv_obj_t * box = trlv_box_create(setup(screen));

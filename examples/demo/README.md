@@ -7,7 +7,7 @@ in its own simulator or on its target. TreLVis ships no simulator.
 
 | Section  | File                   | Shows |
 |----------|------------------------|-------|
-| Readouts | `trlv_demo_readouts.c` | A screen built from boxes, rows, columns and text: fill and hug, wrapping text, a wrapping row of buttons |
+| Readouts | `trlv_demo_readouts.c` | A screen built from boxes, rows, columns and text: fill and fit, wrapping text, a wrapping row of buttons |
 | Surfaces | `trlv_demo_surfaces.c` | Every MD3 surface and container role and the custom colours, with text taking the `on_` colour by inheritance |
 | Cards    | `trlv_demo_cards.c`    | Filled, elevated and outlined cards with a title, wrapping body text and actions packed at the end |
 | Controls | `trlv_demo_controls.c` | The four button types and every widget the theme covers (switch, checkbox, slider, bar, arc, spinner, dropdown, textarea), default, checked and disabled |

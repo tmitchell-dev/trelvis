@@ -3,8 +3,8 @@
 
 /*
  * trlv_set_*_fill warns when it would grow along the main axis of a parent that
- * hugs that axis (the child always collapses), and only then. Filling
- * across a hugging parent (100 %) works, so it doesn't warn.
+ * fits that axis to its content (the child always collapses), and only then. Filling
+ * across a fit-content parent (100 %) works, so it doesn't warn.
  * The test build turns LVGL logging on; warnings are caught with a log
  * callback.
  */
@@ -42,9 +42,9 @@ static lv_obj_t * child(lv_obj_t * parent, int32_t w, int32_t h)
     return obj;
 }
 
-/* Fill width along a row that hugs its width (grow): warns once, naming the
+/* Fill width along a row that fits its width to its content (grow): warns once, naming the
  * function, the object and the axis. */
-static void warns_for_fill_along_a_hugging_row(lv_obj_t * screen)
+static void warns_for_fill_along_a_fit_content_row(lv_obj_t * screen)
 {
     char obj_text[32];
     lv_obj_t * row = trlv_row_create(setup(screen));
@@ -55,12 +55,12 @@ static void warns_for_fill_along_a_hugging_row(lv_obj_t * screen)
     TRLV_ASSERT_INT(fill_warnings, 1);
     lv_snprintf(obj_text, sizeof(obj_text), "trlv_set_width_fill(%p)", (void *)filled);
     TRLV_ASSERT_INT(strstr(last_warning, obj_text) != NULL, true);
-    TRLV_ASSERT_INT(strstr(last_warning, "hugs its width") != NULL, true);
+    TRLV_ASSERT_INT(strstr(last_warning, "fits its width") != NULL, true);
 }
 
-/* Fill width across a column that hugs its width (100 %): no warning. The
- * child stretches to the widest sibling (see lvgl_result_for_fill_in_hug). */
-static void quiet_for_fill_across_a_hugging_column(lv_obj_t * screen)
+/* Fill width across a column that fits its width to its content (100 %): no warning. The
+ * child stretches to the widest sibling (see lvgl_result_for_fill_in_fit). */
+static void quiet_for_fill_across_a_fit_content_column(lv_obj_t * screen)
 {
     lv_obj_t * column = trlv_column_create(setup(screen));
     trlv_set_gap(column, TRLV_SPACE_SM);
@@ -69,8 +69,8 @@ static void quiet_for_fill_across_a_hugging_column(lv_obj_t * screen)
     TRLV_ASSERT_INT(fill_warnings, 0);
 }
 
-/* The same in a hugging box without flex layout (100 %): no warning. */
-static void quiet_for_fill_in_a_hugging_box(lv_obj_t * screen)
+/* The same in a fit-content box without flex layout (100 %): no warning. */
+static void quiet_for_fill_in_a_fit_content_box(lv_obj_t * screen)
 {
     lv_obj_t * box = trlv_box_create(setup(screen));
     trlv_set_width_fill(child(box, 10, 10));
@@ -79,7 +79,7 @@ static void quiet_for_fill_in_a_hugging_box(lv_obj_t * screen)
     TRLV_ASSERT_INT(fill_warnings, 0);
 }
 
-/* Fill height in a column that hugs its height (grow): warns, naming the height. */
+/* Fill height in a column that fits its height to its content (grow): warns, naming the height. */
 static void warns_for_fill_height(lv_obj_t * screen)
 {
     lv_obj_t * column = trlv_column_create(setup(screen));
@@ -88,7 +88,7 @@ static void warns_for_fill_height(lv_obj_t * screen)
     trlv_set_height_fill(child(column, 10, 10));
 
     TRLV_ASSERT_INT(fill_warnings, 1);
-    TRLV_ASSERT_INT(strstr(last_warning, "hugs its height") != NULL, true);
+    TRLV_ASSERT_INT(strstr(last_warning, "fits its height") != NULL, true);
 }
 
 /* No warning in a sized parent, flex or not. */
@@ -107,9 +107,9 @@ static void quiet_in_a_sized_parent(lv_obj_t * screen)
     TRLV_ASSERT_INT(fill_warnings, 0);
 }
 
-/* No warning when the parent hugs only the other axis: a column with a
- * width that hugs its height, filled across. */
-static void quiet_when_parent_hugs_the_other_axis(lv_obj_t * screen)
+/* No warning when the parent fits only the other axis to its content: a column with a
+ * width that fits its height to its content, filled across. */
+static void quiet_when_parent_fits_the_other_axis(lv_obj_t * screen)
 {
     lv_obj_t * column = trlv_column_create(setup(screen));
     trlv_set_gap(column, TRLV_SPACE_SM);
@@ -133,16 +133,16 @@ static void quiet_when_parent_fills(lv_obj_t * screen)
     TRLV_ASSERT_INT(fill_warnings, 0);
 }
 
-/* What LVGL does with fill across a hugging parent: a 100 % child doesn't
- * count towards its parent's content size, so the column hugs its other
+/* What LVGL does with fill across a fit-content parent: a 100 % child doesn't
+ * count towards its parent's content size, so the column fits its other
  * children and the filled child takes that width: as wide as the widest
  * sibling (CSS align-self: stretch). With no sized sibling it would be 0. */
-static void lvgl_result_for_fill_in_hug(lv_obj_t * screen)
+static void lvgl_result_for_fill_in_fit(lv_obj_t * screen)
 {
     lv_obj_t * column = trlv_column_create(setup(screen));
     trlv_set_gap(column, TRLV_SPACE_SM);
     child(column, 80, 10);
-    lv_obj_t * filled = trlv_box_create(column);     /* hugs a 10 x 10 child */
+    lv_obj_t * filled = trlv_box_create(column);     /* fits a 10 x 10 child */
     child(filled, 10, 10);
     trlv_set_width_fill(filled);
 
@@ -151,14 +151,14 @@ static void lvgl_result_for_fill_in_hug(lv_obj_t * screen)
 }
 
 /* The same along the main axis is worse: a growing child doesn't count
- * towards a hugging row's width either, so there is no free space and it
+ * towards a fit-content row's width either, so there is no free space and it
  * collapses to zero width, its content hidden. Only the gap remains. */
-static void lvgl_result_for_grow_in_hug(lv_obj_t * screen)
+static void lvgl_result_for_grow_in_fit(lv_obj_t * screen)
 {
     lv_obj_t * row = trlv_row_create(setup(screen));
     trlv_set_gap(row, TRLV_SPACE_SM);
     child(row, 80, 10);
-    lv_obj_t * filled = trlv_box_create(row);        /* hugs a 10 x 10 child */
+    lv_obj_t * filled = trlv_box_create(row);        /* fits a 10 x 10 child */
     child(filled, 10, 10);
     trlv_set_width_fill(filled);
 
@@ -168,14 +168,14 @@ static void lvgl_result_for_grow_in_hug(lv_obj_t * screen)
 
 int main(void)
 {
-    TRLV_TEST_RUN(warns_for_fill_along_a_hugging_row);
-    TRLV_TEST_RUN(quiet_for_fill_across_a_hugging_column);
-    TRLV_TEST_RUN(quiet_for_fill_in_a_hugging_box);
+    TRLV_TEST_RUN(warns_for_fill_along_a_fit_content_row);
+    TRLV_TEST_RUN(quiet_for_fill_across_a_fit_content_column);
+    TRLV_TEST_RUN(quiet_for_fill_in_a_fit_content_box);
     TRLV_TEST_RUN(warns_for_fill_height);
     TRLV_TEST_RUN(quiet_in_a_sized_parent);
-    TRLV_TEST_RUN(quiet_when_parent_hugs_the_other_axis);
+    TRLV_TEST_RUN(quiet_when_parent_fits_the_other_axis);
     TRLV_TEST_RUN(quiet_when_parent_fills);
-    TRLV_TEST_RUN(lvgl_result_for_fill_in_hug);
-    TRLV_TEST_RUN(lvgl_result_for_grow_in_hug);
+    TRLV_TEST_RUN(lvgl_result_for_fill_in_fit);
+    TRLV_TEST_RUN(lvgl_result_for_grow_in_fit);
     return trlv_test_finish();
 }

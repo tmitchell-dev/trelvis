@@ -28,7 +28,7 @@
  * | Kind                | Name                                    | What it does                                                                   |
  * |---------------------|-----------------------------------------|--------------------------------------------------------------------------------|
  * | @ref trlv_setup     | trlv_init, trlv_theme_set_color_mode    | Install the MD3 theme with the project's tokens; switch the colour mode.        |
- * | @ref trlv_create    | `trlv_<thing>_create(parent, ...)`      | Make a primitive and return it. Containers start with no gap or padding, hug. |
+ * | @ref trlv_create    | `trlv_<thing>_create(parent, ...)`      | Make a primitive and return it. Containers start with no gap or padding, fit content. |
  * | @ref trlv_set       | `trlv_set_<property>(obj, ...)`         | One row of Figma's auto layout panel. Never changes colour.                    |
  * | @ref trlv_apply     | `trlv_apply_<look>(obj, ...)`           | Figma's "apply a style": colour, shape, type. Never changes layout.            |
  * | @ref trlv_get       | `trlv_get_<what>_tokens()`              | The current tokens, for raw LVGL calls that need a token value.                |
@@ -70,8 +70,8 @@
  * `trlv_<thing>_create(parent, ...)`: create a primitive and return a plain
  * lv_obj_t *. They take the parent plus only arguments whose type makes
  * them clear at the call site, never spacing. Box, row and column start
- * like a fresh Figma frame: no gap, no padding, hug. LVGL widgets need no
- * TreLVis constructor: the theme styles them.
+ * like a fresh Figma frame: no gap, no padding, fit content. LVGL widgets
+ * need no TreLVis constructor: the theme styles them.
  */
 
 /**

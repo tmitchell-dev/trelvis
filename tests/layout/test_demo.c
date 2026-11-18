@@ -197,7 +197,7 @@ static void assert_nothing_overflows(lv_obj_t * obj, const char * path)
  * The frame
  *-------------------------------------------------------------------------*/
 
-/* The demo fills the screen: the bar across the top hugs its two rows,
+/* The demo fills the screen: the bar across the top fits its two rows,
  * and the content takes the rest of the height. The bar's padding plus
  * each row's brings the title and the first nav button 16 px in, in line
  * with the content. */
@@ -426,7 +426,7 @@ static void readouts_stack_their_parts(lv_obj_t * screen)
     TRLV_ASSERT_WIDTH(readouts_part(demo, ABOUT), width);
 }
 
-/* The header box hugs the title's height; the title is on the left and the
+/* The header box fits the title's height; the title is on the left and the
  * status on the right. */
 static void readouts_header_places_title_and_status(lv_obj_t * screen)
 {
@@ -479,7 +479,7 @@ static void readouts_body_text_wraps(lv_obj_t * screen)
     TRLV_ASSERT_INT(trlv_test_height(body) > line_height(body), true);
 }
 
-/* The buttons hug their labels and sit side by side, the gap apart, in a
+/* The buttons fit their labels and sit side by side, the gap apart, in a
  * row that fills the width, inside its focus ring padding. */
 static void readouts_buttons_sit_in_a_row(lv_obj_t * screen)
 {

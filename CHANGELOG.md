@@ -8,6 +8,21 @@ While the version is 0.x, minor releases may contain breaking changes.
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking: `hug` is renamed `fit`.** "Hug" is Figma's word and means
+  nothing to a CSS or LVGL reader; CSS says `fit-content` and LVGL
+  `LV_SIZE_CONTENT`. The behaviour is unchanged, and Figma's "Hug
+  contents" still maps to these functions. Rename every call:
+
+  | 0.2.0 | Now |
+  |---|---|
+  | `trlv_set_width_hug` | `trlv_set_width_fit` |
+  | `trlv_set_height_hug` | `trlv_set_height_fit` |
+
+  The fill warning's text changes with it ("the parent fits its width to
+  its content").
+
 ## [0.2.0] - 2026-11-18
 
 ### Added

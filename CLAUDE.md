@@ -34,7 +34,7 @@ docs) are done, and 0.1.0 is the v1 feature-complete release. 0.2.0
 carries the 1.0 review's breaking changes and the theme audit's fixes,
 for the second product trial.
 The slice implemented the token template, `trlv_init`, box, row, column,
-gap, pad, fill/hug and text, the demo screen `trlv_demo_create(parent)` in
+gap, pad, fill/fit and text, the demo screen `trlv_demo_create(parent)` in
 `examples/demo`, and headless layout tests. TreLVis ships no simulator; host
 projects run the demo in their own.
 

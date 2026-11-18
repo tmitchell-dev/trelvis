@@ -66,8 +66,8 @@ lv_obj_t * trlv_demo_create(lv_obj_t * parent, const trlv_color_tokens_t * light
                             const trlv_color_tokens_t * dark);
 
 /*---------------------------------------------------------------------------
- * Sections. Each builds a column that fills the width of `parent` and hugs
- * its content's height, so `parent` needs a width. Put it in a scrolling
+ * Sections. Each builds a column that fills the width of `parent` and fits
+ * its height to its content, so `parent` needs a width. Put it in a scrolling
  * container if it may be taller than the display.
  *-------------------------------------------------------------------------*/
 

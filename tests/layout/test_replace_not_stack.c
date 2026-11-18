@@ -69,23 +69,23 @@ static void pad(lv_obj_t * screen)
     TRLV_ASSERT_INT(lv_obj_get_style_pad_top(box, LV_PART_MAIN), tokens_regular.space[TRLV_SPACE_SM]);
 }
 
-/* Hug and fill width, one group. */
+/* Fit and fill width, one group. */
 static void width(lv_obj_t * screen)
 {
     lv_obj_t * box = trlv_box_create(setup(screen));
     lv_obj_set_size(box, 200, 100);
     lv_obj_t * obj = trlv_box_create(box);
-    trlv_set_width_hug(obj);
+    trlv_set_width_fit(obj);
     lv_style_set_width(&project, 77);
     add_project(obj, LV_PART_MAIN);
     trlv_set_width_fill(obj);
     TRLV_ASSERT_WIDTH(obj, 77);
 
-    trlv_set_width_hug(obj);
+    trlv_set_width_fit(obj);
     TRLV_ASSERT_WIDTH(obj, 77);
 }
 
-/* Hug and fill height, one group. Without a flex parent, fill sets the
+/* Fit and fill height, one group. Without a flex parent, fill sets the
  * height (100 %), the property the project style sets. */
 static void height(lv_obj_t * screen)
 {
@@ -95,7 +95,7 @@ static void height(lv_obj_t * screen)
     trlv_set_height_fill(obj);
     lv_style_set_height(&project, 33);
     add_project(obj, LV_PART_MAIN);
-    trlv_set_height_hug(obj);
+    trlv_set_height_fit(obj);
     TRLV_ASSERT_HEIGHT(obj, 33);
 
     trlv_set_height_fill(obj);

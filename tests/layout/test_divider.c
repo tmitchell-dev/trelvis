@@ -49,8 +49,8 @@ static void horizontal_in_a_column(lv_obj_t * screen)
     TRLV_ASSERT_INT(lv_obj_get_style_bg_opa(divider, LV_PART_MAIN), LV_OPA_COVER);
 }
 
-/* In a column that hugs its width: as wide as the widest sibling. */
-static void horizontal_in_a_hugging_column(lv_obj_t * screen)
+/* In a column that fits its width to its content: as wide as the widest sibling. */
+static void horizontal_in_a_fit_content_column(lv_obj_t * screen)
 {
     lv_obj_t * column = trlv_column_create(setup(screen));
     child(column, 80, 20);
@@ -73,8 +73,8 @@ static void vertical_in_a_row(lv_obj_t * screen)
     TRLV_ASSERT_X(after, 30 + 8 + line() + 8);
 }
 
-/* In a row that hugs its height: as tall as the tallest sibling. */
-static void vertical_in_a_hugging_row(lv_obj_t * screen)
+/* In a row that fits its height to its content: as tall as the tallest sibling. */
+static void vertical_in_a_fit_content_row(lv_obj_t * screen)
 {
     lv_obj_t * row = trlv_row_create(setup(screen));
     child(row, 30, 20);
@@ -147,9 +147,9 @@ static void thickness_follows_the_tokens(lv_obj_t * screen)
 int main(void)
 {
     TRLV_TEST_RUN(horizontal_in_a_column);
-    TRLV_TEST_RUN(horizontal_in_a_hugging_column);
+    TRLV_TEST_RUN(horizontal_in_a_fit_content_column);
     TRLV_TEST_RUN(vertical_in_a_row);
-    TRLV_TEST_RUN(vertical_in_a_hugging_row);
+    TRLV_TEST_RUN(vertical_in_a_fit_content_row);
     TRLV_TEST_RUN(horizontal_without_flex);
     TRLV_TEST_RUN(vertical_in_a_plain_flex_row);
     TRLV_TEST_RUN(margin_insets_it);

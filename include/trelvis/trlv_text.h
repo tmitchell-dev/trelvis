@@ -52,7 +52,7 @@ extern "C" {
  *
  * Behaves like any LVGL label:
  *
- * - **Hugs its text** (Figma "auto width"): it is as wide as its longest
+ * - **Fits its text** (Figma "auto width"): it is as wide as its longest
  *   line and doesn't wrap. Give it a width, for example with
  *   trlv_set_width_fill or lv_obj_set_width, and it wraps onto more lines
  *   (Figma "auto height"). To cut the text off instead, use
