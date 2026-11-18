@@ -10,12 +10,20 @@ Third-party material
 
 None at present.
 
+Design specification followed
+-----------------------------
+
+- Material Design 3 (https://m3.material.io), a design system by Google.
+  TreLVis's design tokens follow its colour role names and their pairings,
+  its type scale (role names and sizes), and its shape, elevation and
+  state-layer scales. The token template's colour values are the MD3
+  baseline scheme (seed #6750A4). TreLVis includes no Material Design
+  code, fonts, icons or images. TreLVis is not affiliated with or endorsed
+  by Google.
+
 Not included, but referenced
 ----------------------------
 
 - LVGL (https://github.com/lvgl/lvgl), MIT License. TreLVis links against
   LVGL but does not include it; consuming projects provide it. The test and
   simulator builds fetch it at build time.
-- Material Design 3 (https://m3.material.io) is a design system by Google.
-  TreLVis implements its publicly documented token structure and baseline
-  values; it does not include Material Design assets.

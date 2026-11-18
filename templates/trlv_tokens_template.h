@@ -23,15 +23,17 @@
  *
  * The template works unedited. Then make it your product's:
  *
- *  - regenerate the colours from your seed colour (Material Theme Builder);
- *  - replace the example custom colours with your own (status colours,
- *    alarm priorities, extra brand accents), or delete them
- *    (trlv_tokens_hmi.h is an example scheme with alarm priorities);
+ *  - regenerate the colours from your seed colour (Material Theme Builder),
+ *    or choose them yourself;
+ *  - replace the example status colours with your own (alarm priorities,
+ *    status colours, extra brand accents), or delete them;
  *  - give each text role a real font and its Figma line height;
  *  - delete what you don't use: the second colour mode, or the layout
  *    mode you don't ship (Regular or Compact).
  *
- * See docs/concepts.md section 4 for the token types and reference values.
+ * docs/building-a-token-set.md says what each token is used for and what
+ * TreLVis assumes about it; docs/concepts.md section 4 has the token types
+ * and reference values.
  */
 
 #ifndef TOKENS_TEMPLATE_H
@@ -45,13 +47,20 @@ extern "C" {
 
 /**
  * The project's custom colours: the index into trlv_color_tokens_t::custom and
- * the argument of trlv_apply_surface_custom. Success and warning are examples.
- * If you need more than TRLV_CUSTOM_COLOR_MAX (default 4) with
+ * the argument of trlv_apply_surface_custom. The four entries are examples
+ * of status colours: rename them, replace them or delete them. If you need
+ * more than TRLV_CUSTOM_COLOR_MAX (default 4) with
  * trlv_apply_surface_custom, raise it in trlv_conf.h.
+ *
+ * There is no "error" entry on purpose: MD3's `error` role is for input
+ * and action errors (an invalid field, a failed save), and a process fault
+ * should never look like one.
  */
 typedef enum {
-    TOKEN_CUSTOM_SUCCESS,   /**< Example: success */
-    TOKEN_CUSTOM_WARNING,   /**< Example: warning */
+    TOKEN_CUSTOM_FAULT,     /**< Example: fault, or a high-priority alarm */
+    TOKEN_CUSTOM_WARNING,   /**< Example: warning, or a medium-priority alarm */
+    TOKEN_CUSTOM_ADVISORY,  /**< Example: advisory, or a low-priority alarm */
+    TOKEN_CUSTOM_BAD_DATA,  /**< Example: bad or uncertain data quality */
     TOKEN_CUSTOM_COUNT      /**< Number of custom colours; not a colour */
 } token_custom_color_t;
 

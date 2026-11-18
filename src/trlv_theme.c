@@ -844,6 +844,7 @@ void trlv_init(lv_display_t * disp, const trlv_color_tokens_t * color,
 
     trlv_layout_styles_build(layout);
     trlv_text_styles_build(layout);
+    trlv_text_color_styles_build(color);
     trlv_surface_styles_build(color, layout);
 
 #if TRLV_USE_THEME
@@ -867,6 +868,7 @@ void trlv_theme_set_color_mode(const trlv_color_tokens_t * color)
     }
 
     current_color = color;
+    trlv_text_color_styles_build(color);
     trlv_surface_styles_build(color, current_layout);
 
 #if TRLV_USE_THEME
@@ -887,4 +889,38 @@ const trlv_color_tokens_t * trlv_get_color_tokens(void)
 const trlv_layout_tokens_t * trlv_get_layout_tokens(void)
 {
     return current_layout;
+}
+
+/* One entry of a layout token array, checked: 0 and a warning for an
+ * index out of range or before trlv_init. */
+static int32_t layout_value(const char * func, const int32_t * values, uint32_t count, int32_t index)
+{
+    LV_UNUSED(func);   /* only used by the warnings, which compile out without logging */
+    if(current_layout == NULL) {
+        LV_LOG_WARN("%s: call trlv_init first", func);
+        return 0;
+    }
+    if(index < 0 || (uint32_t)index >= count) {
+        LV_LOG_WARN("%s: %d is not a step of the scale", func, (int)index);
+        return 0;
+    }
+    return values[index];
+}
+
+int32_t trlv_get_space(trlv_space_t space)
+{
+    return layout_value("trlv_get_space", current_layout ? current_layout->space : NULL,
+                        TRLV_SPACE_COUNT, (int32_t)space);
+}
+
+int32_t trlv_get_radius(trlv_radius_t radius)
+{
+    return layout_value("trlv_get_radius", current_layout ? current_layout->radius : NULL,
+                        TRLV_RADIUS_COUNT, (int32_t)radius);
+}
+
+int32_t trlv_get_control_height(trlv_size_t size)
+{
+    return layout_value("trlv_get_control_height", current_layout ? current_layout->control_height : NULL,
+                        TRLV_SIZE_COUNT, (int32_t)size);
 }

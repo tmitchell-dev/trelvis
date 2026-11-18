@@ -20,7 +20,7 @@
  * (An lv_button needs none of this: the theme already lays it out as a
  * centred row.)
  *
- * Every other TreLVis style (gap, pad, justify, align items, hug and fill,
+ * Every other TreLVis style (gap, pad, justify, align items, fit and fill,
  * text roles, surfaces, cards, button types, divider) stays internal:
  * its modifier works on any object, including inside a project's own theme
  * apply callback, and also replaces the group's previous style, which
@@ -60,7 +60,7 @@ extern "C" {
 
 /**
  * Box reset (constant): transparent background, no border, no padding, and
- * hug (LV_SIZE_CONTENT) width and height. Figma: a frame with no fill,
+ * fit-content (LV_SIZE_CONTENT) width and height. Figma: a frame with no fill,
  * stroke or padding; CSS: a `div` with no styles. Applied by trlv_box_create.
  *
  * Added to an existing widget, it overrides the theme's background, border,

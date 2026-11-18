@@ -14,6 +14,7 @@
  * | Line height (px)                  | `line-height`                     | role token                | `text_line_space = line_height - font line height`                                     |
  * | Letter spacing                    | `letter-spacing`                  | role token                | `text_letter_space`                                                                    |
  * | Text colour from a colour role    | `color` (inherited)               | trlv_apply_surface, theme | inherited `text_color`                                                                 |
+ * | On Surface Variant text           | `color` (lower emphasis)          | trlv_apply_text_emphasis  | shared style: inherited `text_color` = `on_surface_variant`                            |
  *
  * Left to LVGL:
  *
@@ -37,6 +38,16 @@
 extern "C" {
 #endif
 
+/** Text emphasis: the colour of text relative to the surface it sits on. */
+typedef enum {
+    TRLV_TEXT_EMPHASIS_NORMAL,  /**< The inherited content colour: the `on_`
+                                     colour of the surface the text sits on */
+    TRLV_TEXT_EMPHASIS_LOW,     /**< Lower emphasis: `on_surface_variant`,
+                                     for tags, units, captions and
+                                     supporting text */
+    TRLV_TEXT_EMPHASIS_COUNT    /**< Number of emphasis levels; not a level */
+} trlv_text_emphasis_t;
+
 /**
  * Create a text: a Figma text layer with an MD3 text style, CSS `p`, `h1`
  * and so on with `font`, `line-height` and `letter-spacing`.
@@ -52,7 +63,7 @@ extern "C" {
  *
  * Behaves like any LVGL label:
  *
- * - **Hugs its text** (Figma "auto width"): it is as wide as its longest
+ * - **Fits its text** (Figma "auto width"): it is as wide as its longest
  *   line and doesn't wrap. Give it a width, for example with
  *   trlv_set_width_fill or lv_obj_set_width, and it wraps onto more lines
  *   (Figma "auto height"). To cut the text off instead, use
@@ -105,6 +116,44 @@ lv_obj_t * trlv_text_create(lv_obj_t * parent, const char * text, trlv_text_role
  * @ingroup trlv_apply
  */
 void trlv_apply_text_role(lv_obj_t * obj, trlv_text_role_t role);
+
+/**
+ * Set the emphasis of text: MD3 *On Surface Variant* for lower-emphasis
+ * text (tags, units, captions, supporting text). Figma: a text fill bound
+ * to *On Surface Variant*; CSS a lower-emphasis `color`.
+ *
+ * TRLV_TEXT_EMPHASIS_LOW applies a shared style that sets the inherited
+ * `text_color` to `on_surface_variant`. It replaces:
+ *
+ *     lv_obj_set_style_text_color(label, trlv_get_color_tokens()->on_surface_variant, 0);
+ *
+ * which is a local style holding a snapshot of the colour, so it keeps the
+ * old colour after trlv_theme_set_color_mode. The shared style is re-set on
+ * every colour-mode switch, and costs no RAM per object.
+ * TRLV_TEXT_EMPHASIS_NORMAL removes it, so the text inherits the content
+ * colour of its surface again.
+ *
+ * On a label it sets that label's colour. On a container it sets the
+ * colour of every label inside, at any depth, because LVGL's text colour
+ * inherits like CSS `color`; a label with its own emphasis or text colour
+ * keeps it. It changes only the colour: the text role (font, line height)
+ * is separate, so the two combine.
+ *
+ * `on_surface_variant` is MD3's lower-emphasis colour for surfaces and
+ * surface containers. Use it on those; on a coloured container (primary,
+ * secondary, a custom colour) it may not have enough contrast.
+ *
+ * On an object that also has a surface (trlv_apply_surface), both set the
+ * text colour, and as in LVGL the style added last wins: apply the emphasis
+ * after the surface, or to the labels inside.
+ *
+ * @param obj       any object, usually a label or a container of labels
+ * @param emphasis  TRLV_TEXT_EMPHASIS_LOW or TRLV_TEXT_EMPHASIS_NORMAL; any
+ *                  other value logs a warning and changes nothing
+ *
+ * @ingroup trlv_apply
+ */
+void trlv_apply_text_emphasis(lv_obj_t * obj, trlv_text_emphasis_t emphasis);
 
 #ifdef __cplusplus
 } /* extern "C" */

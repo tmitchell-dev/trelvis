@@ -3,8 +3,9 @@
 
 /**
  * @file trlv_tokens.h
- * MD3 design-token types: the Color and Layout collections and the scales
- * that index them.
+ * Design-token types: the Color and Layout collections and the scales that
+ * index them. Role and scale names are Material Design 3's, so a Material
+ * design maps onto them one-to-one.
  *
  * TreLVis defines only the types. A project supplies the values by copying
  * the token template (templates/trlv_tokens_template.c and .h) and passes
@@ -34,7 +35,7 @@
  * | Material Theme Builder custom colour       | `--md-extended-color-*`    | trlv_custom_color_t, `custom[]`  | trlv_apply_surface_custom                                  |
  *
  * Tokens that no TreLVis function reads (for example TRLV_SIZE_LG,
- * TRLV_ELEVATION_3 or `surface_dim`) are there for a project's own
+ * TRLV_ELEVATION_3 or `scrim`) are there for a project's own
  * components, so screens hold no magic numbers.
  *
  * The structs hold the standard MD3 roles and scales, plus what v1 reads.

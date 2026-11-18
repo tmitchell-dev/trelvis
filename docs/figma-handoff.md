@@ -4,9 +4,17 @@ These conventions let a Figma design translate almost mechanically into
 TreLVis code. They follow the **Material 3 Figma kit** and **Material Theme
 Builder**, so designers work with familiar tools and names.
 
-Each rule exists because LVGL behaves a certain way. Breaking one usually
-means the design can't be built exactly, or needs hand-written exceptions.
-The [demo](../examples/demo) shows most of them on real screens.
+This page is about Figma: how the design rules show up in Figma's panels,
+the kit and the variables. The rules themselves are tool-neutral and live
+in [Designing a screen](designing-a-screen.md): the rules for writing a
+screen, which role to use for what, layout, type, and status and alarm
+colours. Read that first. The token values are covered in
+[Building a token set](building-a-token-set.md).
+
+Each convention exists because LVGL behaves a certain way. Breaking one
+usually means the design can't be built exactly, or needs hand-written
+exceptions. The [demo](../examples/demo) shows most of them on real
+screens.
 
 ## Setup
 
@@ -25,20 +33,15 @@ The [demo](../examples/demo) shows most of them on real screens.
   versions of each scheme. TreLVis doesn't use them. Ignore them, or ship
   one as an extra colour token set (another `trlv_color_tokens_t` for
   `trlv_theme_set_color_mode`).
-- **Custom colours are the product's own list**: success and warning, extra
-  brand accents, or alarm priorities. Agree the list and its order with the
+- **Custom colours are the product's own list**: status colours, alarm
+  priorities, or extra brand accents. Agree the list and its order with the
   developers; it becomes an enum in code. Each one has the four Material
   Theme Builder values (colour, on colour, container, on container) in every
   colour mode. Up to four are supported by default; more need a
   configuration change, so agree the count early.
-- **Alarm colours come from the standard, not the brand.** For a process HMI
-  (ISA-101, ISA-18.2) or a medical device (IEC 60601-1-8), take the alarm
-  colours from the site's alarm philosophy or the standard, turn off
-  *harmonize* for them in Material Theme Builder, keep them the same in
-  every colour mode, and use them for alarms only. Check that MD3 `error`
-  (invalid fields) is not the same colour as an alarm priority. Never show a
-  state by colour alone: pair it with text, an icon or a shape.
-  `templates/trlv_tokens_hmi.c` is a worked example of such a scheme.
+- **Alarm and status colours come from the standard, not the brand**
+  ([Designing a screen](designing-a-screen.md#status-and-alarm-colours)).
+  In Material Theme Builder, turn off *harmonize* for them.
 - **Draw frames at 1×, in real display pixels**, with one frame size per layout
   mode (e.g. 480×320 for compact, 800×480 for regular). There is no scaling
   step between Figma and the display.
@@ -129,7 +132,7 @@ template:
 
 - **Use auto layout everywhere.** Horizontal and vertical auto layout map to
   `trlv_row_create` / `trlv_column_create`, and "hug" / "fill" / "fixed" map to
-  `trlv_set_width_hug` / `trlv_set_width_fill` / `lv_obj_set_size` (and
+  `trlv_set_width_fit` / `trlv_set_width_fill` / `lv_obj_set_size` (and
   the `_height_` setters). Grid auto layout maps to
   LVGL's own grid API, so prefer rows and columns where they do the job.
 - **Spacing sits on the 4 px grid** and is bound to `space/*` variables only.
@@ -139,25 +142,20 @@ template:
   the grid: bind both to a `space/*` variable (or 0) every time.
 - **An empty frame set to fill** pushes what follows to the far end (a
   spacer, `trlv_spacer_create`).
-- **Fill needs a parent with a size.** A child set to fill along the
-  direction of a parent that hugs has nowhere to grow, as in Figma, which
-  doesn't allow it.
-- **"Space between" needs free space**: the frame must be fixed or fill,
-  not hug.
-- **Wrap**: auto layout wrap is supported, but children set to fill don't
-  wrap in LVGL. Wrapping items hug or have a fixed width.
+- **Fill, "space between" and wrap** follow the
+  [layout rules](designing-a-screen.md#layout): fill and "space between"
+  need a frame that is fixed or fill, not hug, and children set to fill
+  don't wrap.
 - **Text layers:** "auto width" text hugs and never wraps; "auto height"
   (fixed or fill width) wraps. Use auto height for anything that can be
   longer than its space, such as paragraphs and translated strings.
 - Use absolute positioning only where it's genuinely needed (overlays,
   badges). It maps to LVGL's `lv_obj_set_floating` plus `lv_obj_align`.
-- **Leave room for the focus ring.** On products with a keypad or encoder,
-  the focused widget gets a ring outside its bounds (3 px thick and 2 px
-  away in Regular, 2 px and 2 px in Compact). LVGL clips everything to its
-  parent's bounds, as if every Figma frame had "Clip content" on, so any
-  frame whose edge a focusable widget touches needs at least that much
-  padding: use `space/sm`, which the template sizes for it in both modes.
-  Siblings need no extra gap.
+- **Leave room for the focus ring.** LVGL clips everything to its parent's
+  bounds, as if every Figma frame had "Clip content" on. On products with
+  a keypad or encoder, a frame whose edge a focusable widget touches needs
+  `space/sm` padding, which the template sizes for the ring in both
+  modes.
 
 ## Type
 
@@ -186,26 +184,24 @@ template:
   slightly higher. The spacing between lines matches. Expect this when
   comparing screenshots; see [concepts §4.2](concepts.md#42-token-template-and-reference-values).
 - **Lower-emphasis text** (On Surface Variant, for labels and supporting
-  text) has no TreLVis call yet; in code it is a local text colour (see
-  [Reading a Figma frame](#reading-a-figma-frame-and-writing-the-screen)).
+  text) is `trlv_apply_text_emphasis(obj, TRLV_TEXT_EMPHASIS_LOW)`, on the
+  text layer or on the frame around several.
 - The type scale belongs to the layout mode: a Compact design may use
   smaller sizes and tighter lines for the same roles. Keep one set of text
   styles per layout mode, or bind font size and line height to `Layout`
   variables.
-- Text takes its colour from the surface it sits on (the `on_` role); don't
-  colour text by hand.
 - Use only the agreed fonts, as listed in the project's role → font map.
   Several roles usually share one compiled font.
-- Roles mapped to **restricted character sets** (typically Display: digits and
-  units only) may only show the agreed characters. The role → font map lists
-  them.
-- **Numeric readouts** use fonts with tabular (fixed-width) digits.
+- The rest of the type rules (text colour from its surface, restricted
+  character sets, fixed-width digits for live values) are in
+  [Designing a screen](designing-a-screen.md#type).
 
 ## Containers and surfaces
 
-- Show hierarchy with **surface container roles** (tone rather than shadow):
-  Surface, Container Lowest … Container Highest. Compact layouts usually have
-  no shadows at all.
+- Choose surface roles by purpose
+  ([Which role for what](designing-a-screen.md#which-role-for-what)), and
+  show hierarchy by tone rather than shadow. Compact layouts usually have no
+  shadows at all.
 - Cards are **Filled, Elevated or Outlined** only (MD3 card types), with
   corner radius Medium, and padded `space/lg` as in the kit. In the code a
   card is a look applied to an auto layout frame (`trlv_apply_card`), and
@@ -216,11 +212,8 @@ template:
 - **A rounded tonal area is a card.** A surface container role on its own
   has no corner radius in TreLVis. For a rounded panel, use one of the
   card types (Elevated is Surface Container Low, and has no shadow in a
-  layout mode without shadows). Any other tone-plus-radius combination is
-  raw LVGL.
-- Always pair a container colour with its `on_` content colour.
-- Custom colours fill a surface in two strengths: the colour itself (an
-  alarm banner, a status badge) or its container (a calmer background).
+  layout mode without shadows). Any other tone with a radius is a surface
+  plus `lv_obj_set_style_radius(obj, trlv_get_radius(TRLV_RADIUS_MD), 0)`.
 - **Dividers** are MD3 dividers: a stroke-width line in Outline Variant,
   the full width of their parent, or inset with a margin.
 - **Lists** are a vertical stack of rows separated by dividers: leading
@@ -250,13 +243,13 @@ template:
   | Progress indicators: linear, circular | `lv_bar`, `lv_arc` / `lv_spinner` |
   | Divider | `trlv_divider_create` |
   | Lists | Rows and dividers (see above) |
-  | Chips, badges, navigation, dialogs, sheets, snackbars, tabs, date and time pickers | No MD3 style in v1: a project design, or an LVGL widget the theme doesn't cover ([concepts §6.4](concepts.md#64-md3-widget-coverage-v1)) |
+  | Chips, badges, navigation, dialogs, sheets, snackbars, tabs, date and time pickers | No MD3 style in v1: a project design, or an LVGL widget the theme doesn't cover ([concepts §6.4](concepts.md#64-widget-coverage-v1)) |
 
 - **Field heights.** The kit draws fields at a fixed 56 px; LVGL sizes a
   textarea or dropdown from its font and padding (`space/sm` top and
   bottom, `space/lg` at the sides). If the design fixes the height, bind
   it to `size/*` and set it in code (`lv_obj_set_height` with
-  `trlv_get_layout_tokens()->control_height[…]`). A one-line field at
+  `trlv_get_control_height(…)`). A one-line field at
   `size/md` fits a line of body text; the text sits at the top of the
   field, under the padding, not centred.
 
@@ -348,9 +341,9 @@ turning a frame into a screen function.
    on it. A component the designer made becomes a project `_create()`
    function ([Components](#components)).
 5. **Where raw LVGL is needed:** fixed sizes (`lv_obj_set_size`, with
-   `trlv_get_layout_tokens()->control_height[TRLV_SIZE_MD]` for a field bound to
+   `trlv_get_control_height(TRLV_SIZE_MD)` for a field bound to
    `size/md`), a corner radius on a non-card, different horizontal and
-   vertical spacing, lower-emphasis text colour, wrap, absolute
+   vertical spacing, wrap, absolute
    positions, and widget behaviour (options, one-line mode, accepted
    characters). Raw LVGL colours taken from `trlv_get_color_tokens()` don't follow a
    colour-mode switch; see [concepts §7.5](concepts.md#75-getters-trlv_get_).
@@ -386,7 +379,7 @@ agree a workaround with the developers:
 | Padding | `padding` | `trlv_set_pad` | `pad_*` |
 | Space between / packed | `justify-content` | `trlv_set_justify` | `flex_main_place` |
 | Cross-axis alignment | `align-items` | `trlv_set_align_items` | `flex_cross_place` + `flex_track_place` |
-| Hug / Fill / Fixed | `fit-content` / `flex: 1` / `width` | `trlv_set_width_hug` / `trlv_set_width_fill` / `lv_obj_set_size` (and `_height_`) | `LV_SIZE_CONTENT` / `flex_grow` or `LV_PCT(100)` / `width` |
+| Hug / Fill / Fixed | `fit-content` / `flex: 1` / `width` | `trlv_set_width_fit` / `trlv_set_width_fill` / `lv_obj_set_size` (and `_height_`) | `LV_SIZE_CONTENT` / `flex_grow` or `LV_PCT(100)` / `width` |
 | Empty frame, fill | `flex: 1` | `trlv_spacer_create` | box + `flex_grow` |
 | Wrap | `flex-wrap` | *raw LVGL* | `lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)` |
 | Absolute position | `position: absolute` | *raw LVGL* | `lv_obj_set_floating` + `lv_obj_align` |
@@ -397,6 +390,7 @@ agree a workaround with the developers:
 | Divider | `hr` | `trlv_divider_create` | box + `bg_color` |
 | Button type | button class | `trlv_apply_button_type` | shared styles with state selectors |
 | Type style | `font` / `line-height` | `trlv_text_create` / `trlv_apply_text_role` | `text_font` / `text_line_space` |
+| Text fill *On Surface Variant* | lower-emphasis `color` | `trlv_apply_text_emphasis(obj, TRLV_TEXT_EMPHASIS_LOW)` | inherited `text_color` |
 | Corner radius | `border-radius` | `TRLV_RADIUS_*` | `radius` |
 | Inside stroke | `border` | cards, fields | `border_*` |
 | Focus ring | `outline` | theme | `outline_*` |

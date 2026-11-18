@@ -6,7 +6,7 @@
  * content), moving between sections, the light/dark switch, keypad focus,
  * each section's layout, nothing overflowing its parent, room for every
  * focus ring and no TreLVis warnings while it is built. Every test runs in
- * each layout mode (Regular and Compact) and colour scheme; expected
+ * each layout mode (Regular and Compact), with the template's colours; expected
  * spacing is read from the tokens in use. Text
  * sizes are computed from the font with lv_text_get_size, so the tests
  * don't depend on the fonts' metrics. The object trees are described at the
@@ -15,14 +15,13 @@
 
 #include "trlv_test.h"
 #include "trlv_tokens_template.h"
-#include "trlv_tokens_hmi.h"
 #include "trlv_demo.h"
 
 #include <stdio.h>
 #include <string.h>
 
-/* The tokens the tests run with. main() runs every test once per mode:
- * each layout collection, and each colour scheme. */
+/* The tokens the tests run with. main() runs every test once per layout
+ * mode, with the template's colours. */
 static const trlv_color_tokens_t * color_light;
 static const trlv_color_tokens_t * color_dark;
 static const trlv_layout_tokens_t * layout_tokens;
@@ -197,7 +196,7 @@ static void assert_nothing_overflows(lv_obj_t * obj, const char * path)
  * The frame
  *-------------------------------------------------------------------------*/
 
-/* The demo fills the screen: the bar across the top hugs its two rows,
+/* The demo fills the screen: the bar across the top fits its two rows,
  * and the content takes the rest of the height. The bar's padding plus
  * each row's brings the title and the first nav button 16 px in, in line
  * with the content. */
@@ -426,7 +425,7 @@ static void readouts_stack_their_parts(lv_obj_t * screen)
     TRLV_ASSERT_WIDTH(readouts_part(demo, ABOUT), width);
 }
 
-/* The header box hugs the title's height; the title is on the left and the
+/* The header box fits the title's height; the title is on the left and the
  * status on the right. */
 static void readouts_header_places_title_and_status(lv_obj_t * screen)
 {
@@ -479,7 +478,7 @@ static void readouts_body_text_wraps(lv_obj_t * screen)
     TRLV_ASSERT_INT(trlv_test_height(body) > line_height(body), true);
 }
 
-/* The buttons hug their labels and sit side by side, the gap apart, in a
+/* The buttons fit their labels and sit side by side, the gap apart, in a
  * row that fills the width, inside its focus ring padding. */
 static void readouts_buttons_sit_in_a_row(lv_obj_t * screen)
 {
@@ -596,14 +595,16 @@ static void assert_swatches(lv_obj_t * demo, int32_t group, const color_pair_t *
     TRLV_ASSERT_HEIGHT(column, y);
 }
 
-/* The ladder runs from Surface to Surface Container Highest, all with
- * on_surface text. */
+/* The ladder runs from Surface Dim, Surface and Surface Bright to Surface
+ * Container Highest, all with on_surface text. */
 static void surfaces_show_the_ladder(lv_obj_t * screen)
 {
     lv_obj_t * demo = build(screen);
     const trlv_color_tokens_t * c = trlv_get_color_tokens();
     const color_pair_t ladder[] = {
+        { c->surface_dim, c->on_surface },
         { c->surface, c->on_surface },
+        { c->surface_bright, c->on_surface },
         { c->surface_container_lowest, c->on_surface },
         { c->surface_container_low, c->on_surface },
         { c->surface_container, c->on_surface },
@@ -612,7 +613,7 @@ static void surfaces_show_the_ladder(lv_obj_t * screen)
     };
 
     select_section(demo, SECTION_SURFACES);
-    assert_swatches(demo, SURFACES_LADDER, ladder, 6);
+    assert_swatches(demo, SURFACES_LADDER, ladder, 8);
 }
 
 /* The accent containers and the inverse surface, each with its own
@@ -1007,7 +1008,7 @@ static void assert_section_colors(lv_obj_t * demo, int32_t index, const trlv_col
         ASSERT_COLOR(lv_obj_get_style_text_color(lv_obj_get_child(start, 0), LV_PART_MAIN), c->on_primary);
     }
     else if(index == SECTION_SURFACES) {
-        lv_obj_t * highest = lv_obj_get_child(swatches(demo, SURFACES_LADDER), 5);
+        lv_obj_t * highest = lv_obj_get_child(swatches(demo, SURFACES_LADDER), -1);
         lv_obj_t * primary = lv_obj_get_child(swatches(demo, SURFACES_CONTAINERS), 0);
         ASSERT_COLOR(lv_obj_get_style_bg_color(highest, LV_PART_MAIN), c->surface_container_highest);
         ASSERT_COLOR(lv_obj_get_style_bg_color(primary, LV_PART_MAIN), c->primary_container);
@@ -1269,7 +1270,5 @@ int main(void)
 {
     run_all("template colours, Regular layout", &tokens_light, &tokens_dark, &tokens_regular);
     run_all("template colours, Compact layout", &tokens_light, &tokens_dark, &tokens_compact);
-    run_all("HMI colours, Regular layout", &tokens_hmi_light, &tokens_hmi_dark, &tokens_regular);
-    run_all("HMI colours, Compact layout", &tokens_hmi_light, &tokens_hmi_dark, &tokens_compact);
     return trlv_test_finish();
 }

@@ -3,8 +3,8 @@
 
 /**
  * @file trlv_theme.h
- * Initialisation, the MD3 theme for LVGL's built-in widgets, and run-time
- * colour-mode switching.
+ * Initialisation, the theme for LVGL's built-in widgets (MD3's look), and
+ * run-time colour-mode switching.
  *
  * TreLVis styles LVGL's widgets through LVGL's own theme engine; it never
  * wraps them. After trlv_init, lv_button_create() gives an MD3 filled
@@ -19,7 +19,7 @@
  * | Variable collections, starting modes | custom properties on `:root`      | trlv_init                            | shared styles + lv_theme_t on the display              |
  * | Switch the Color collection's mode   | swap `--md-sys-color-*` values    | trlv_theme_set_color_mode            | re-set shared styles, lv_obj_report_style_change(NULL) |
  * | Read a colour variable               | `var(--md-sys-color-primary)`     | trlv_get_color_tokens()->primary     | lv_color_t                                             |
- * | Read a layout variable               | `var(--space-md)`                 | trlv_get_layout_tokens()->space[...] | int32_t                                                |
+ * | Read a layout variable               | `var(--space-md)`                 | trlv_get_space(TRLV_SPACE_MD)        | int32_t                                                |
  * | Component default styles             | user-agent / component stylesheet | the TreLVis theme                    | theme apply callback, LV_PART_* / LV_STATE_* selectors |
  * | Interactive states                   | `:active`, `:focus-visible`, ...  | the TreLVis theme                    | LV_STATE_PRESSED, LV_STATE_FOCUS_KEY, ...              |
  *
@@ -190,15 +190,76 @@ const trlv_color_tokens_t * trlv_get_color_tokens(void);
  * The layout tokens in use: the Layout collection's mode. CSS
  * `var(--space-md)` and so on.
  *
- * For values TreLVis has no setter for, such as padding on one side:
- *
- *     lv_obj_set_style_pad_left(obj, trlv_get_layout_tokens()->space[TRLV_SPACE_LG], 0);
+ * For a single value in a raw LVGL call, trlv_get_space, trlv_get_radius
+ * and trlv_get_control_height are shorter. Use the struct for the rest,
+ * such as a text role's font or an elevation's shadow.
  *
  * @return the tokens passed to trlv_init, or NULL before trlv_init
  *
  * @ingroup trlv_get
  */
 const trlv_layout_tokens_t * trlv_get_layout_tokens(void);
+
+/**
+ * A step of the spacing scale, in px, for a raw LVGL call. CSS
+ * `var(--space-lg)`; Figma a number bound to `space/lg`.
+ *
+ * TreLVis has setters for gap and padding on every side. For anything
+ * else that takes a spacing token, such as padding on one axis:
+ *
+ *     trlv_set_pad(bar, TRLV_SPACE_SM);
+ *     lv_obj_set_style_pad_hor(bar, trlv_get_space(TRLV_SPACE_LG), 0);
+ *
+ * Same as `trlv_get_layout_tokens()->space[space]`. The value is fixed at
+ * trlv_init, so a local style that holds it never goes stale.
+ *
+ * @param space  a step of the spacing scale, such as TRLV_SPACE_LG
+ * @return       the step in px; 0, with an LV_LOG_WARN, for a value that
+ *               isn't a step or before trlv_init
+ *
+ * @ingroup trlv_get
+ */
+int32_t trlv_get_space(trlv_space_t space);
+
+/**
+ * A step of the shape scale (corner radius), in px, for a raw LVGL call.
+ * CSS `border-radius`; Figma a corner radius bound to `radius/md`.
+ *
+ * Cards and the theme's controls have their radius already. For a rounded
+ * tonal area that isn't a card, a chip or a badge:
+ *
+ *     trlv_apply_surface(panel, TRLV_SURFACE_CONTAINER_LOW);
+ *     lv_obj_set_style_radius(panel, trlv_get_radius(TRLV_RADIUS_MD), 0);
+ *
+ * Same as `trlv_get_layout_tokens()->radius[radius]`. TRLV_RADIUS_FULL
+ * gives LV_RADIUS_CIRCLE in the template.
+ *
+ * @param radius  a step of the shape scale, such as TRLV_RADIUS_MD
+ * @return        the radius in px; 0, with an LV_LOG_WARN, for a value that
+ *                isn't a step or before trlv_init
+ *
+ * @ingroup trlv_get
+ */
+int32_t trlv_get_radius(trlv_radius_t radius);
+
+/**
+ * A control height, in px, for a raw LVGL call. CSS `height`; Figma a
+ * height bound to `size/md`.
+ *
+ * The theme gives buttons the MD height. For a field the design draws at a
+ * fixed height, such as a one-line text area:
+ *
+ *     lv_obj_set_height(field, trlv_get_control_height(TRLV_SIZE_MD));
+ *
+ * Same as `trlv_get_layout_tokens()->control_height[size]`.
+ *
+ * @param size  a control size, such as TRLV_SIZE_MD
+ * @return      the height in px; 0, with an LV_LOG_WARN, for a value that
+ *              isn't a size or before trlv_init
+ *
+ * @ingroup trlv_get
+ */
+int32_t trlv_get_control_height(trlv_size_t size);
 
 #ifdef __cplusplus
 } /* extern "C" */

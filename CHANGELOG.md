@@ -8,6 +8,68 @@ While the version is 0.x, minor releases may contain breaking changes.
 
 ## [Unreleased]
 
+### Added
+
+- `trlv_apply_text_emphasis(obj, TRLV_TEXT_EMPHASIS_LOW)`: lower-emphasis
+  text in MD3 *On Surface Variant*, for tags, units, captions and
+  supporting text. A shared style sets the inherited text colour, so it
+  works on a label or on a container for every label inside, follows
+  colour-mode switches (a local `on_surface_variant` text colour kept the
+  old colour), and combines with the text role.
+  `TRLV_TEXT_EMPHASIS_NORMAL` removes it. The demo's list uses it for
+  supporting text.
+- `TRLV_SURFACE_DIM` and `TRLV_SURFACE_BRIGHT`: the `surface_dim` and
+  `surface_bright` tokens as surfaces, with `on_surface` content. In
+  MD3's schemes `surface_dim` equals `surface` in dark mode (and
+  `surface_bright` equals `surface` in light mode), so neither is a
+  darker or lighter step in both modes. Existing values keep their
+  numbers; `TRLV_SURFACE_COUNT` is now 13. The demo's surface ladder
+  shows both.
+- `trlv_get_space`, `trlv_get_radius` and `trlv_get_control_height`: one
+  token value, in px, for a raw LVGL call, so it reads like the modifiers
+  (`lv_obj_set_style_radius(panel, trlv_get_radius(TRLV_RADIUS_MD), 0)`
+  rather than `trlv_get_layout_tokens()->radius[TRLV_RADIUS_MD]`). They
+  return 0, with a warning, for a value that isn't a step or before
+  `trlv_init`. There are deliberately no radius or height setters: those
+  are single, clear LVGL calls.
+- A small contrast check for colour tokens, as test code
+  (`tests/tokens/token_check.c`): each `on_` pair and lower-emphasis text
+  at 4.5:1, `outline` and `focus` at 3:1, custom colours kept apart from
+  `error`, `primary` and `focus`, and the same custom colour count in
+  every mode. CI runs it on the template; a project can build it with its
+  own tokens. It reports and enforces nothing; it is not part of the
+  library.
+
+### Changed
+
+- **Breaking: `hug` is renamed `fit`.** "Hug" is Figma's word and means
+  nothing to a CSS or LVGL reader; CSS says `fit-content` and LVGL
+  `LV_SIZE_CONTENT`. The behaviour is unchanged, and Figma's "Hug
+  contents" still maps to these functions. Rename every call:
+
+  | 0.2.0 | Now |
+  |---|---|
+  | `trlv_set_width_hug` | `trlv_set_width_fit` |
+  | `trlv_set_height_hug` | `trlv_set_height_fit` |
+
+  The fill warning's text changes with it ("the parent fits its width to
+  its content").
+- The token template's example custom colours are a generic status set:
+  `TOKEN_CUSTOM_FAULT`, `_WARNING`, `_ADVISORY` and `_BAD_DATA`, in place
+  of success and warning. Their strong colours are the same in both
+  colour modes and their containers follow the mode; none of them is
+  `error`, `primary` or `focus`. There is no "error" entry, so a process
+  fault never looks like MD3's input-error role.
+  **Migration:** none needed; a project owns its copy of the template. To
+  adopt the new examples, copy the enum and the two `custom_*` tables.
+
+### Removed
+
+- The example HMI colour scheme (`templates/trlv_tokens_hmi.c` and `.h`).
+  TreLVis now ships one token template. Building a scheme for a domain
+  (an HMI, a medical device, a brand) is the project's job, using the
+  token guide. A project that copied the HMI example keeps its copy.
+
 ## [0.2.0] - 2026-11-18
 
 ### Added

@@ -54,7 +54,8 @@ exists only if it does at least one of these:
   clicks, set the flow).
 - **Takes a design token**, so screens hold no magic numbers
   (`trlv_set_pad(obj, TRLV_SPACE_LG)`).
-- **Fixes an LVGL default that surprises** people coming from Figma or CSS
+- **Fixes an LVGL default that surprises** people coming from CSS, Figma
+  or other UI toolkits
   (`trlv_box_create`: not scrollable, not clickable, no theme padding).
 - **Makes a decision LVGL leaves to the caller** (`trlv_set_width_fill`: grow or
   100 %, depending on the parent's direction).
@@ -83,8 +84,15 @@ primitives inside.
 
 ## 3. Naming
 
-- **Vocabulary priority:** Figma / MD3 term → CSS term → LVGL term. TreLVis
-  never invents a fourth vocabulary.
+- **Vocabulary: the most intuitive existing word.** Each name is the word
+  someone who knows CSS or LVGL, but not Figma, would understand first.
+  Where CSS, Figma and MD3 agree (row, column, gap, padding, fill), it is
+  that word; where they differ, the clearer one wins (`fit`, CSS
+  `fit-content`, rather than Figma's "hug"). Colour, type and shape tokens
+  use MD3's role names, because they are a published, complete role set
+  and keep a Material design mapping one-to-one. TreLVis never invents a
+  fourth vocabulary, and every public symbol documents its CSS, Figma,
+  MD3 and LVGL equivalents.
 - **Avoided words**, because they already mean something else:
 
   | Word | Clashes with |
@@ -97,7 +105,7 @@ primitives inside.
   | `screen` | LVGL screens |
   | `align` for flex distribution | `lv_obj_align()` means positioning |
 
-- **Words from Figma / CSS / MD3, grammar from LVGL.** The verb at the call
+- **Familiar words, grammar from LVGL.** The verb at the call
   site says what a call does, as in LVGL:
   - **Constructors** end in `_create`, like `lv_button_create`, and return
     the new object: `trlv_row_create(parent)`. They take the parent, plus
@@ -105,15 +113,19 @@ primitives inside.
     (`trlv_text_create(parent, "Start", TRLV_TEXT_LABEL_LARGE)`). A bare
     `TRLV_SPACE_*` doesn't pass that test, so gap and padding are never
     constructor arguments.
-  - **Layout setters** are `trlv_set_<property>`: the properties of
-    Figma's auto layout panel (`trlv_set_gap`, `trlv_set_justify`,
-    `trlv_set_width_fill`). A setter never changes colour.
-  - **Appearance functions** are `trlv_apply_<look>`: Figma's "apply a
-    style", for colour, shape and type (`trlv_apply_surface`,
-    `trlv_apply_card`, `trlv_apply_text_role`, `trlv_apply_button_type`).
+  - **Layout setters** are `trlv_set_<property>`: one layout property
+    each, a size, spacing or flow (`trlv_set_gap`, `trlv_set_justify`,
+    `trlv_set_width_fill`), as in a row of Figma's auto layout panel. A
+    setter never changes colour.
+  - **Appearance functions** are `trlv_apply_<look>`: a look applied like
+    a CSS class or a Figma style, for colour, shape and type
+    (`trlv_apply_surface`,
+    `trlv_apply_card`, `trlv_apply_text_role`, `trlv_apply_text_emphasis`,
+    `trlv_apply_button_type`).
     An apply never changes layout, so a card's padding is a separate
     `trlv_set_pad`.
-  - **Getters** use `_get_`: `trlv_get_color_tokens()`.
+  - **Getters** use `_get_`: `trlv_get_color_tokens()`,
+    `trlv_get_space(TRLV_SPACE_LG)`.
   - **Setup** functions keep LVGL's module grammar: `trlv_init`, like
     `lv_init`, and `trlv_theme_set_color_mode`, like `lv_theme_*`.
 
@@ -156,9 +168,27 @@ primitives inside.
 
 ## 4. Design tokens
 
-TreLVis follows **Material Design 3 (MD3)**. The library defines the token
-**types**; each project supplies the **values**. Token collections mirror
-Figma variable collections:
+TreLVis's design language is inspired by, and compatible with,
+**Material Design 3 (MD3)**, Google's design system
+([m3.material.io](https://m3.material.io)). It uses MD3's colour roles and
+type scale, so Material Theme Builder and the Material 3 Figma kit map
+onto it one-to-one, but you don't need Figma or MD3 to use it:
+[Designing a screen](designing-a-screen.md) says which role to use for
+what. "Inspired by" means TreLVis may add what MD3 lacks (lower-emphasis
+text on any surface, dim and bright surfaces as fills) and doesn't follow
+every MD3 component spec; "compatible with" means every MD3 role and
+type-scale step TreLVis carries keeps its MD3 name and meaning. MD3's look
+is the theme's default.
+
+TreLVis takes from MD3 the colour role names and their pairings, the type
+scale's roles and sizes, the shape, elevation and state-layer scales, and
+the baseline colour scheme in the token template. It includes no Material
+Design code, fonts, icons or images.
+
+The library defines the token **types**; each project supplies the
+**values** ([Building a token set](building-a-token-set.md) says what each
+token is used for). Token collections mirror design-tool variable
+collections, such as Figma's:
 
 | Collection | Modes | Selected | Contents |
 |---|---|---|---|
@@ -199,6 +229,7 @@ colour. Typical tables:
 | Product | Entries |
 |---|---|
 | Consumer / brand | success, warning, an extra brand accent, or none |
+| Industrial (the template's example) | fault, warning, advisory, bad data quality |
 | Process HMI (ISA-101, ISA-18.2) | one per alarm priority in the site's alarm philosophy; optionally non-alarm status colours |
 | Medical device (IEC 60601-1-8) | high, medium and low priority alarms |
 
@@ -234,9 +265,12 @@ The template defines four `const` collections, `tokens_light`, `tokens_dark`,
 `tokens_regular` and `tokens_compact`, and works unedited:
 
 - **Colour:** the MD3 baseline light and dark schemes (seed `#6750A4`) as
-  published by Material Design. The custom colour table holds two examples,
-  success and warning, generated by Material Theme Builder; a project
-  replaces them with its own.
+  published by Material Design. The custom colour table holds four example
+  status colours: `TOKEN_CUSTOM_FAULT`, `_WARNING`, `_ADVISORY` and
+  `_BAD_DATA`. Their strong colours are the same in both modes and their
+  containers follow the mode, and none of them is `error`, `primary` or
+  `focus`. They are examples that claim compliance with no standard: a
+  project renames, replaces or deletes them.
 - **Layout:** the Regular and Compact values below. In Regular, each text
   role uses the Montserrat size LVGL ships nearest to its MD3 size, with the
   MD3 line height, when that size is enabled in `lv_conf.h`
@@ -249,20 +283,6 @@ The template defines four `const` collections, `tokens_light`, `tokens_dark`,
 
 The template is compiled in CI with the strict warning flags, so it stays in
 step with the token types.
-
-**An industrial example.** Next to the template,
-[`templates/trlv_tokens_hmi.c`](../templates/trlv_tokens_hmi.c) and `.h`
-hold an example colour scheme for a process or instrument HMI in the
-high-performance HMI style (ISA-101): neutral grey surfaces in light and
-dark, low-saturation accents, and a custom colour table of three alarm
-priorities (`tokens_hmi_light`, `tokens_hmi_dark`, indexed by
-`token_alarm_t`) in place of success and warning. The alarm colours are
-not harmonised with primary and are the same in both modes, and MD3
-`error` is a muted red kept apart from the high-priority alarm red. It
-uses the same token types as the MD3 baseline, with values only, and is
-compiled in CI and tested with the demo in both modes. The values are
-examples and claim compliance with no standard: a product's alarm colours
-come from its alarm philosophy (ISA-18.2) or the applicable standard.
 
 The project then owns the file: regenerate the colours from the product's
 seed colour, give each role a real font, and delete what it doesn't use,
@@ -346,7 +366,11 @@ container 12%. These are the MD3 values; projects may tune them.
 - **Fallback:** LVGL's font fallback can chain a text font to an icon font, so
   icons and text can mix in one label.
 - **Readouts:** use a font family with tabular (fixed-width) digits for roles
-  that show changing numbers, so values don't jitter.
+  that show changing numbers, so values don't jitter. The template's
+  Montserrat has proportional digits (at 24 px a "1" is 9 px wide and a "0"
+  16 px), and LVGL ships no font with tabular digits. Until the product has
+  one, give a live value a fixed width and right-aligned text
+  ([Designing a screen](designing-a-screen.md#type)).
 
 ## 6. Theme and style engine
 
@@ -356,7 +380,7 @@ container 12%. These are the MD3 values; projects may tune them.
   through shared styles with part/state selectors. TreLVis does no styling in
   event callbacks and uses no per-object local styles in library code.
 - **Constant styles** (box reset / transparent, row and column flow, justify
-  and align values, grow, fill width/height, hug) use `LV_STYLE_CONST_INIT`.
+  and align values, grow, fill width/height, fit) use `LV_STYLE_CONST_INIT`.
   They live in flash and need no RAM and no allocation. **Token-dependent
   styles** (gap, pad, text roles, surfaces, cards, button types, the
   divider and the theme's own styles) use the same
@@ -469,7 +493,7 @@ const trlv_layout_tokens_t * trlv_get_layout_tokens(void);
   config option) was planned for v1.1 and dropped: it would save only
   these lines.
 
-### 6.4 MD3 widget coverage (v1)
+### 6.4 Widget coverage (v1)
 
 The theme's apply callback checks each object's class with
 `lv_obj_check_type()` and styles its parts and states:
@@ -574,7 +598,7 @@ exposed in [`trlv_styles.h`](../include/trelvis/trlv_styles.h) only when no
 modifier can apply it to an object that already exists. That leaves three
 constant styles:
 
-- `trlv_style_box`: the box reset (transparent, no border or padding, hug);
+- `trlv_style_box`: the box reset (transparent, no border or padding, fit content);
 - `trlv_style_row` and `trlv_style_column`: the flex flow.
 
 `trlv_box_create`, `trlv_row_create` and `trlv_column_create` create new objects, so these styles
@@ -591,8 +615,9 @@ group's previous style:
 |---|---|---|
 | Gap, pad: one per space step | token | `trlv_set_gap`, `trlv_set_pad` |
 | Justify, align items: one per value | constant | `trlv_set_justify`, `trlv_set_align_items` |
-| Hug, fill (100 %), grow: per axis | constant | `trlv_set_*_hug`, `trlv_set_*_fill` |
+| Fit, fill (100 %), grow: per axis | constant | `trlv_set_*_fit`, `trlv_set_*_fill` |
 | Text: one per role | token | `trlv_text_create`, `trlv_apply_text_role` |
+| Text emphasis: lower emphasis | token | `trlv_apply_text_emphasis` |
 | Surfaces: one per `TRLV_SURFACE_*`; cards: filled, elevated, outlined | token | `trlv_apply_surface`, `trlv_apply_card` |
 | Buttons: tonal, outlined, text, each with state styles | token | `trlv_apply_button_type` |
 | Divider: horizontal, vertical | token | `trlv_divider_create` |
@@ -611,7 +636,7 @@ was written by hand, ported from Figma or generated:
 | Kind | Name | Takes | Returns | Rule |
 |---|---|---|---|---|
 | [Setup](#71-setup) | `trlv_init`, `trlv_theme_set_color_mode` | the display, token sets | nothing | Once at start-up; the colour mode at any time. |
-| [Constructors](#72-constructors-_create) | `trlv_<thing>_create` | the parent, plus only arguments whose type is clear at the call site | the new `lv_obj_t *` | Containers start empty: no gap, no padding, hug. |
+| [Constructors](#72-constructors-_create) | `trlv_<thing>_create` | the parent, plus only arguments whose type is clear at the call site | the new `lv_obj_t *` | Containers start empty: no gap, no padding, fit content. |
 | [Layout setters](#73-layout-setters-trlv_set_) | `trlv_set_<property>` | any object | nothing | One row of Figma's auto layout panel. Never changes colour. |
 | [Appearance](#74-appearance-trlv_apply_) | `trlv_apply_<look>` | any object | nothing | Figma's "apply a style": colour, shape, type. Never changes layout. |
 | [Getters](#75-getters-trlv_get_) | `trlv_get_<what>_tokens` | nothing | the current tokens | For raw LVGL calls that need a token value. |
@@ -682,15 +707,15 @@ subject, are in §6.3.
 
 | Function | Figma | CSS | Behaviour |
 |---|---|---|---|
-| `trlv_box_create(parent)` | Frame (no auto layout) | `div` | `lv_obj` with theme styles removed + `trlv_style_box`: transparent, no padding, **not scrollable, not clickable**, hug size. Place children freely with `lv_obj_align`; with `lv_obj_set_floating` this also covers overlays. |
+| `trlv_box_create(parent)` | Frame (no auto layout) | `div` | `lv_obj` with theme styles removed + `trlv_style_box`: transparent, no padding, **not scrollable, not clickable**, fit-content size. Place children freely with `lv_obj_align`; with `lv_obj_set_floating` this also covers overlays. |
 | `trlv_row_create(parent)` | Auto layout → | `flex-direction: row` | box + row style. No gap until `trlv_set_gap`. |
 | `trlv_column_create(parent)` | Auto layout ↓ | `flex-direction: column` | box + column style. No gap until `trlv_set_gap`. |
 | `trlv_spacer_create(parent)` | Empty frame, fill container | `flex: 1` | box + `trlv_set_*_fill` along the parent's main axis, chosen at call time. Pushes the items after it to the far end. |
-| `trlv_text_create(parent, text, role)` | Text layer + MD3 text style | `p`, `h1`… | Label + role style. Hugs its content like any LVGL label (Figma "auto width"); `trlv_set_width_fill` gives it a width, so it wraps (Figma "auto height"). Colour is inherited from the enclosing surface. |
+| `trlv_text_create(parent, text, role)` | Text layer + MD3 text style | `p`, `h1`… | Label + role style. Fits its content like any LVGL label (Figma "auto width"); `trlv_set_width_fill` gives it a width, so it wraps (Figma "auto height"). Colour is inherited from the enclosing surface. |
 | `trlv_divider_create(parent)` | MD3 divider, 1 px line | `hr` | `border_width` line in `outline_variant`. Horizontal in a column (or no flex), vertical in a row, chosen at call time. Insets: LVGL margins. |
 
 **Defaults.** Layout containers (box, row, column) start like a fresh
-Figma frame or a CSS `div`: no gap, no padding, hug size. LVGL widgets
+Figma frame or a CSS `div`: no gap, no padding, fit-content size. LVGL widgets
 come with their MD3 spec padding from the theme, as Figma kit components
 do: every `lv_button` is padded. A setter not called means the default, as
 in LVGL and CSS; `trlv_set_pad(obj, TRLV_SPACE_NONE)` says "no padding" on
@@ -716,7 +741,7 @@ previous style. They never change colour.
 |---|---|---|
 | Spacing | `trlv_set_gap(obj, space)`, `trlv_set_pad(obj, space)` | Different horizontal / vertical values, or one side: use raw LVGL with a token value (below). |
 | Distribution | `trlv_set_justify(obj, TRLV_JUSTIFY_START / CENTER / END / SPACE_BETWEEN / SPACE_AROUND / SPACE_EVENLY)`, `trlv_set_align_items(obj, TRLV_ALIGN_ITEMS_START / CENTER / END)` | Two named calls in place of `lv_obj_set_flex_align`'s three positional arguments, with shared styles instead of a local one. `ALIGN_ITEMS`, not `ALIGN`, so the values aren't mistaken for `lv_align_t`. The enum values equal LVGL's `LV_FLEX_ALIGN_*`. LVGL flex has no cross-axis stretch; use `trlv_set_*_fill` on each child, as in Figma (in CSS a column's children stretch by default). Expect `trlv_set_width_fill` to be one of the most frequent calls in a screen. |
-| Sizing | `trlv_set_width_hug`, `trlv_set_height_hug`, `trlv_set_width_fill`, `trlv_set_height_fill` | Fixed size: `lv_obj_set_size`. Hug and fill are one group per axis, so `trlv_set_width_hug` also clears an earlier `trlv_set_width_fill`. |
+| Sizing | `trlv_set_width_fit`, `trlv_set_height_fit`, `trlv_set_width_fill`, `trlv_set_height_fill` | Fixed size: `lv_obj_set_size`. Fit and fill are one group per axis, so `trlv_set_width_fit` also clears an earlier `trlv_set_width_fill`. |
 
 **Axis-aware fill.** Figma's "fill container" means *grow* along the parent's
 main axis and *stretch* along its cross axis. `trlv_set_width_fill` and
@@ -726,15 +751,15 @@ first**: the decision is made when the modifier is called, and it stays as
 set, like any LVGL style. If the parent's direction changes later, call the
 fill modifier again.
 
-**Fill inside a parent that hugs.** Figma doesn't allow it; TreLVis adds no
+**Fill inside a parent that fits its content.** Figma doesn't allow it; TreLVis adds no
 behaviour of its own, so LVGL's result stands
 (`tests/layout/test_fill_warning.c` pins it):
 
 - **Across the axis** (100 %), it works: LVGL leaves the filled child out of
-  the parent's content size, so the parent hugs its other children and the
+  the parent's content size, so the parent fits its other children and the
   filled child stretches to the widest of them, as with CSS
   `align-self: stretch`. This is a useful pattern, for example equal-width
-  items in a menu that hugs its content. With no sized sibling the child is
+  items in a menu that fits its content. With no sized sibling the child is
   0 wide (a text then wraps one character per line).
 - **Along the main axis** (grow), it always fails: the parent sizes itself
   without the growing child, so there is no free space and the child
@@ -749,9 +774,9 @@ LVGL, so TreLVis adds no function for them. Setters named
 
 | Need | LVGL |
 |---|---|
-| Horizontal / vertical gap | `lv_obj_set_style_pad_column(obj, trlv_get_layout_tokens()->space[TRLV_SPACE_MD], 0)`, `…pad_row` |
-| Horizontal / vertical padding, one side | `lv_obj_set_style_pad_hor(obj, trlv_get_layout_tokens()->space[TRLV_SPACE_LG], 0)`, `…pad_ver`, `…pad_left`, … |
-| Absolute position | `lv_obj_set_floating(obj, true)`, then `lv_obj_align(obj, LV_ALIGN_TOP_RIGHT, x, y)`. Floating, unlike the ignore-layout flag, also leaves the object out of a hugging parent's size, as in Figma. |
+| Horizontal / vertical gap | `lv_obj_set_style_pad_column(obj, trlv_get_space(TRLV_SPACE_MD), 0)`, `…pad_row` |
+| Horizontal / vertical padding, one side | `lv_obj_set_style_pad_hor(obj, trlv_get_space(TRLV_SPACE_LG), 0)`, `…pad_ver`, `…pad_left`, … |
+| Absolute position | `lv_obj_set_floating(obj, true)`, then `lv_obj_align(obj, LV_ALIGN_TOP_RIGHT, x, y)`. Floating, unlike the ignore-layout flag, also leaves the object out of a fit-content parent's size, as in Figma. `LV_PCT` positions are whole percent, so for finer placement (a pointer on a 400 px scale moves in 4 px steps) compute pixels from the parent's content width. |
 | Wrap | `lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)` |
 | Min / max size | `lv_obj_set_style_min_width(obj, px, 0)`, `…max_width`, `…min_height`, `…max_height` |
 | Scroll | `lv_obj_set_scrollable(obj, true)`, then `lv_obj_set_scroll_dir(obj, LV_DIR_VER)` |
@@ -769,10 +794,11 @@ looks are token styles, so they recolour on `trlv_theme_set_color_mode`.
 
 | Group | Functions | Notes |
 |---|---|---|
-| Surfaces | `trlv_apply_surface(obj, TRLV_SURFACE_SURFACE / CONTAINER_LOWEST / CONTAINER_LOW / CONTAINER / CONTAINER_HIGH / CONTAINER_HIGHEST / PRIMARY_CONTAINER / SECONDARY_CONTAINER / TERTIARY_CONTAINER / ERROR_CONTAINER / INVERSE)`, `trlv_apply_surface_custom(obj, index, TRLV_CUSTOM_SURFACE_COLOR / CONTAINER)` | Sets container colour + matching `on_` text colour (inherited). Tone only: no radius, border or padding. `trlv_apply_surface_custom` does the same with a project custom colour or its container. One group with cards: `trlv_apply_surface` and `trlv_apply_card` replace each other. |
+| Surfaces | `trlv_apply_surface(obj, TRLV_SURFACE_SURFACE / CONTAINER_LOWEST / CONTAINER_LOW / CONTAINER / CONTAINER_HIGH / CONTAINER_HIGHEST / PRIMARY_CONTAINER / SECONDARY_CONTAINER / TERTIARY_CONTAINER / ERROR_CONTAINER / INVERSE / DIM / BRIGHT)`, `trlv_apply_surface_custom(obj, index, TRLV_CUSTOM_SURFACE_COLOR / CONTAINER)` | Sets container colour + matching `on_` text colour (inherited). Tone only: no radius, border or padding. `trlv_apply_surface_custom` does the same with a project custom colour or its container. One group with cards: `trlv_apply_surface` and `trlv_apply_card` replace each other. |
 | Cards | `trlv_apply_card(obj, TRLV_CARD_FILLED / ELEVATED / OUTLINED)` | MD3 cards: tone + radius MD + border/shadow, on a row or column. No padding: set it with `trlv_set_pad`, `LG` for MD3 cards. A header, media and actions are children. Not interactive in v1. |
 | Buttons | `trlv_apply_button_type(btn, TRLV_BUTTON_FILLED / TONAL / OUTLINED / TEXT)` | Restyles an `lv_button`, or any clickable object (the theme default is FILLED): container colour, border and content colour, with pressed / focus / disabled states. Shape, height and text role stay the theme's. |
 | Text | `trlv_apply_text_role(obj, role)` | On a label it changes the role; on a container it sets the role for every label inside that has none of its own (inheritance). |
+| Text emphasis | `trlv_apply_text_emphasis(obj, TRLV_TEXT_EMPHASIS_LOW / NORMAL)` | LOW sets the inherited text colour to `on_surface_variant` (tags, units, captions, supporting text), on a label or on a container for every label inside; NORMAL removes it. Shared, so it follows colour-mode switches. Independent of the text role. |
 
 **Odd targets warn.** Like LVGL styles, each look applies to any object.
 Where the object makes no sense for it, the function logs an
@@ -795,11 +821,27 @@ compiles out with LVGL logging):
 |---|---|
 | `trlv_get_color_tokens()` | The colour tokens in use: the set passed to `trlv_init` or the latest `trlv_theme_set_color_mode`. |
 | `trlv_get_layout_tokens()` | The layout tokens passed to `trlv_init`. |
+| `trlv_get_space(TRLV_SPACE_*)` | One step of the spacing scale, in px. |
+| `trlv_get_radius(TRLV_RADIUS_*)` | One step of the shape scale, in px. |
+| `trlv_get_control_height(TRLV_SIZE_*)` | One control height, in px. |
 
 Modifiers take token names (`TRLV_SPACE_LG`, `TRLV_SURFACE_CONTAINER`)
 and look the values up themselves. The getters are for the places a
 modifier doesn't reach: raw LVGL calls (§7.3 "Left to LVGL") and widget
-APIs that take a value, such as a chart series colour.
+APIs that take a value, such as a chart series colour. The three value
+getters make a raw call read like a modifier, in the same dialect:
+
+```c
+trlv_set_pad(chip, TRLV_SPACE_XS);
+lv_obj_set_style_pad_hor(chip, trlv_get_space(TRLV_SPACE_MD), 0);
+lv_obj_set_style_radius(chip, trlv_get_radius(TRLV_RADIUS_FULL), 0);
+lv_obj_set_height(field, trlv_get_control_height(TRLV_SIZE_MD));
+```
+
+There is no setter for radius or height on purpose:
+`lv_obj_set_style_radius` and `lv_obj_set_height` are single, clear LVGL
+calls, and the getter gives them a token. Each getter returns 0, with a
+warning, for a value that isn't a step or before `trlv_init`.
 
 **Token values in raw LVGL are snapshots.** `trlv_get_color_tokens()` and
 `trlv_get_layout_tokens()` return the current values, and a local style
@@ -814,6 +856,41 @@ colours are affected. If the product switches colour mode, either:
 - keep the colours in the project's own shared `lv_style_t`, re-set its
   properties from `trlv_get_color_tokens()` on each switch, and call
   `lv_obj_report_style_change(&style)`, as the theme does.
+
+The second way, added to the subject recipe in §6.3. A tick colour the
+project needs on many objects, with no TreLVis call for it:
+
+```c
+static lv_style_t style_tick;
+
+static void project_styles_set(const trlv_color_tokens_t * c)
+{
+    lv_style_set_bg_color(&style_tick, c->outline);
+    lv_style_set_bg_opa(&style_tick, LV_OPA_COVER);
+    lv_obj_report_style_change(&style_tick);
+}
+
+static void color_mode_cb(lv_observer_t * observer, lv_subject_t * subject)
+{
+    LV_UNUSED(observer);
+    int32_t mode = lv_subject_get_int(subject);
+    if(mode >= 0 && mode < (int32_t)(sizeof(color_modes) / sizeof(color_modes[0]))) {
+        trlv_theme_set_color_mode(color_modes[mode]);
+        project_styles_set(color_modes[mode]);      /* the line added to §6.3 */
+    }
+}
+
+/* after trlv_init */
+lv_style_init(&style_tick);
+project_styles_set(trlv_get_color_tokens());
+
+/* each tick */
+lv_obj_add_style(tick, &style_tick, 0);
+```
+
+Without this, a project style keeps the colours of the mode it was set
+in: after a switch to dark, lower-contrast text or a hollow marker can
+all but vanish.
 
 A product with a single colour mode can ignore this.
 
@@ -850,8 +927,8 @@ handles them, and its docs note where:
 | LVGL behaviour | What TreLVis does |
 |---|---|
 | Plain `lv_obj`s are scrollable and clickable by default, and themed (background, border, padding). | `trlv_box_create` and the layout primitives remove theme styles and turn scroll and click off. Scrolling is opt-in via `lv_obj_set_scrollable`. |
-| Labels hug their text and don't wrap unless they have a width. | `trlv_text_create` keeps that default (Figma "auto width"): names, values, headings and button labels all want to hug. `trlv_set_width_fill` gives the label a width, so it wraps (Figma "auto height"); a paragraph needs it. |
-| A child that fills (grows) along the main axis of a parent that hugs that axis collapses to 0. | `trlv_set_*_fill` logs a warning naming the object. Filling *across* a hugging parent stretches to the widest sibling and is left alone (§7.3). |
+| Labels fit their text and don't wrap unless they have a width. | `trlv_text_create` keeps that default (Figma "auto width"): names, values, headings and button labels all want to fit their content. `trlv_set_width_fill` gives the label a width, so it wraps (Figma "auto height"); a paragraph needs it. |
+| A child that fills (grows) along the main axis of a parent that fits that axis to its content collapses to 0. | `trlv_set_*_fill` logs a warning naming the object. Filling *across* a fit-content parent stretches to the widest sibling and is left alone (§7.3). |
 | `lv_obj_set_style_*` allocates a local style per object. | Modifiers use shared styles; any exceptions are documented. |
 | A border sits inside the object's size and insets the content by its width, on top of the padding. | Matches Figma "inside stroke, include in layout" and CSS `box-sizing: border-box`. See the hand-off guide. |
 | LVGL uses line *spacing*, Figma uses line *height*. | Tokens use line height; TreLVis converts (`line_height − font line height`). |
@@ -886,7 +963,7 @@ lay out the same.
 | Alignment (main axis) / space between | `justify-content` | `trlv_set_justify` | `flex_main_place` |
 | Alignment (cross axis) | `align-items` | `trlv_set_align_items` | `flex_cross_place` + `flex_track_place` |
 | Wrap | `flex-wrap` | *raw LVGL* | `lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)` |
-| Hug contents | `width: fit-content` | `trlv_set_width_hug/height_hug` | `LV_SIZE_CONTENT` |
+| Hug contents | `width: fit-content` | `trlv_set_width_fit/height_fit` | `LV_SIZE_CONTENT` |
 | Fill container | `flex: 1` / `align-self: stretch` | `trlv_set_width_fill/height_fill` | `flex_grow` or `LV_PCT(100)` |
 | Fixed size | `width`, `height` | *raw LVGL* | `lv_obj_set_size` |
 | Min / max size | `min-width`, `max-width`, … | *raw LVGL* | `lv_obj_set_style_min_width`, `…max_width`, … |
@@ -900,6 +977,7 @@ lay out the same.
 | MD3 card | — | `trlv_apply_card` | shared style: `bg_color`, `radius`, `border_*` / `shadow_*` |
 | MD3 button type (filled, tonal, outlined, text) | button classes | `trlv_apply_button_type` | shared styles with `LV_STATE_PRESSED` / `FOCUS_KEY` / `DISABLED` selectors |
 | Text style (type scale) | `font`, `line-height`, `letter-spacing` | `trlv_text_create`, `trlv_apply_text_role` | `text_font`, `text_line_space`, `text_letter_space` |
+| Lower-emphasis text (*On Surface Variant*) | lower-emphasis `color` | `trlv_apply_text_emphasis` | inherited `text_color` |
 | List (MD3 list items) | `ul` / `li` | `trlv_column_create` of `trlv_row_create` items with `trlv_divider_create` | flex; `lv_list` is deprecated in LVGL 9.6 |
 | Truncate text | `text-overflow: ellipsis` | *raw LVGL* | `lv_label_set_long_mode(label, LV_LABEL_LONG_MODE_DOTS)` |
 | Corner radius (shape scale) | `border-radius` | `TRLV_RADIUS_*` | `radius` |

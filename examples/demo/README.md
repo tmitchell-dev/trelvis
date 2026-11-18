@@ -5,10 +5,14 @@ and one button per section, and the selected section below it. It is plain
 C, `trlv_demo_create(parent, light, dark)`, so any host project can show it
 in its own simulator or on its target. TreLVis ships no simulator.
 
+Each section's source starts with its object tree, as a frame tree to read
+next to the code. To design your own screens, see
+[Designing a screen](../../docs/designing-a-screen.md).
+
 | Section  | File                   | Shows |
 |----------|------------------------|-------|
-| Readouts | `trlv_demo_readouts.c` | A screen built from boxes, rows, columns and text: fill and hug, wrapping text, a wrapping row of buttons |
-| Surfaces | `trlv_demo_surfaces.c` | Every MD3 surface and container role and the custom colours, with text taking the `on_` colour by inheritance |
+| Readouts | `trlv_demo_readouts.c` | A screen built from boxes, rows, columns and text: fill and fit, wrapping text, a wrapping row of buttons |
+| Surfaces | `trlv_demo_surfaces.c` | Every surface and container role and the custom colours, with text taking the `on_` colour by inheritance |
 | Cards    | `trlv_demo_cards.c`    | Filled, elevated and outlined cards with a title, wrapping body text and actions packed at the end |
 | Controls | `trlv_demo_controls.c` | The four button types and every widget the theme covers (switch, checkbox, slider, bar, arc, spinner, dropdown, textarea), default, checked and disabled |
 | List     | `trlv_demo_list.c`     | A settings list built from rows and dividers, the replacement for `lv_list`: icons, supporting text, trailing switches, values and chevrons |
@@ -61,9 +65,7 @@ trlv_demo_create(lv_display_get_screen_active(disp), &tokens_light, &tokens_dark
 If your project already has its own copy of the token template, pass your
 tokens instead and leave out `templates/`. For the template's Compact
 layout, pass `&tokens_compact` to `trlv_init`; the demo is laid out for
-both. To see the example HMI colours, build `templates/trlv_tokens_hmi.c`
-too and pass `&tokens_hmi_light` and `&tokens_hmi_dark` in place of the
-template's colours; their alarm priorities show in the Surfaces section.
+both.
 
 The demo fills the object it is given, and the content area scrolls
 vertically when a section is taller than the display. It is laid out for
@@ -91,7 +93,7 @@ the widget, is never clipped (see "Focus rings need clearance" in
 
 [`tests/layout/test_demo.c`](../../tests/layout/test_demo.c) builds the demo on
 800 × 480 and 320 × 480 test displays, in the Regular and Compact layouts,
-with the template's colours and the example HMI colours.
+with the template's colours.
 It checks the frame, moving between
 sections (and that the one left is freed), each section's layout, that
 nothing overflows its parent, the light/dark switch recolouring every

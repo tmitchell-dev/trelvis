@@ -17,8 +17,9 @@
  *           └─ swatch  row, padding MD, fills the width, a surface
  *              └─ name   Body Large, fills the width (wraps if narrow)
  *
- * The groups are the surface ladder (Surface up to Surface Container
- * Highest, the tones of a screen's layers), the accent containers with the
+ * The groups are the surface ladder (Surface Dim, Surface and Surface
+ * Bright, then Surface Container Lowest up to Highest: the tones of a
+ * screen's layers), the accent containers with the
  * inverse surface, and the custom colours, each as its strong colour and
  * its container. The custom colour group lists the tokens' custom colours
  * up to TRLV_CUSTOM_COLOR_MAX, and is left out if there are none.
@@ -34,7 +35,9 @@ typedef struct {
 } surface_swatch_t;
 
 static const surface_swatch_t ladder[] = {
+    { TRLV_SURFACE_DIM,               "Surface Dim" },
     { TRLV_SURFACE_SURFACE,           "Surface" },
+    { TRLV_SURFACE_BRIGHT,            "Surface Bright" },
     { TRLV_SURFACE_CONTAINER_LOWEST,  "Surface Container Lowest" },
     { TRLV_SURFACE_CONTAINER_LOW,     "Surface Container Low" },
     { TRLV_SURFACE_CONTAINER,         "Surface Container" },

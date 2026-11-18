@@ -12,17 +12,17 @@
 #include "trlv_style_group.h"
 
 /*---------------------------------------------------------------------------
- * Sizing styles (constant). Each axis has its own group of three: hug, fill
+ * Sizing styles (constant). Each axis has its own group of three: fit, fill
  * by percentage (cross axis, or no flex parent) and fill by growing (main
  * axis). The two grow styles are identical but separate, so that changing
  * one axis never removes the other axis's style.
  *-------------------------------------------------------------------------*/
 
-static const lv_style_const_prop_t hug_width_props[] = {
+static const lv_style_const_prop_t fit_width_props[] = {
     LV_STYLE_CONST_WIDTH(LV_SIZE_CONTENT),
     LV_STYLE_CONST_PROPS_END
 };
-static LV_STYLE_CONST_INIT(hug_width, hug_width_props);
+static LV_STYLE_CONST_INIT(fit_width, fit_width_props);
 
 static const lv_style_const_prop_t full_width_props[] = {
     LV_STYLE_CONST_WIDTH(LV_PCT(100)),
@@ -36,11 +36,11 @@ static const lv_style_const_prop_t grow_width_props[] = {
 };
 static LV_STYLE_CONST_INIT(grow_width, grow_width_props);
 
-static const lv_style_const_prop_t hug_height_props[] = {
+static const lv_style_const_prop_t fit_height_props[] = {
     LV_STYLE_CONST_HEIGHT(LV_SIZE_CONTENT),
     LV_STYLE_CONST_PROPS_END
 };
-static LV_STYLE_CONST_INIT(hug_height, hug_height_props);
+static LV_STYLE_CONST_INIT(fit_height, fit_height_props);
 
 static const lv_style_const_prop_t full_height_props[] = {
     LV_STYLE_CONST_HEIGHT(LV_PCT(100)),
@@ -54,8 +54,8 @@ static const lv_style_const_prop_t grow_height_props[] = {
 };
 static LV_STYLE_CONST_INIT(grow_height, grow_height_props);
 
-static const lv_style_t * const width_styles[] = { &hug_width, &full_width, &grow_width };
-static const lv_style_t * const height_styles[] = { &hug_height, &full_height, &grow_height };
+static const lv_style_t * const width_styles[] = { &fit_width, &full_width, &grow_width };
+static const lv_style_t * const height_styles[] = { &fit_height, &full_height, &grow_height };
 static const trlv_style_group_t width_group = TRLV_STYLE_GROUP_LIST(width_styles);
 static const trlv_style_group_t height_group = TRLV_STYLE_GROUP_LIST(height_styles);
 
@@ -216,7 +216,7 @@ lv_obj_t * trlv_spacer_create(lv_obj_t * parent)
 {
     lv_obj_t * obj = trlv_box_create(parent);
 
-    /* An empty box hugs to 0 x 0. Fill only along the main axis, so it takes
+    /* An empty box fits to 0 x 0. Fill only along the main axis, so it takes
      * no room across it; with no flex parent it stays 0 x 0. */
     if(parent_main_axis_is(obj, true)) fill(obj, true, "trlv_spacer_create");
     else if(parent_main_axis_is(obj, false)) fill(obj, false, "trlv_spacer_create");
@@ -255,16 +255,16 @@ void trlv_set_pad(lv_obj_t * obj, trlv_space_t space)
     trlv_style_group_apply(obj, &pad_group, pad_styles[space], LV_PART_MAIN);
 }
 
-void trlv_set_width_hug(lv_obj_t * obj)
+void trlv_set_width_fit(lv_obj_t * obj)
 {
     LV_ASSERT_NULL(obj);
-    trlv_style_group_apply(obj, &width_group, &hug_width, LV_PART_MAIN);
+    trlv_style_group_apply(obj, &width_group, &fit_width, LV_PART_MAIN);
 }
 
-void trlv_set_height_hug(lv_obj_t * obj)
+void trlv_set_height_fit(lv_obj_t * obj)
 {
     LV_ASSERT_NULL(obj);
-    trlv_style_group_apply(obj, &height_group, &hug_height, LV_PART_MAIN);
+    trlv_style_group_apply(obj, &height_group, &fit_height, LV_PART_MAIN);
 }
 
 /* True if obj's parent is a flex container whose main axis is horizontal
@@ -279,16 +279,16 @@ static bool parent_main_axis_is(lv_obj_t * obj, bool horizontal)
     return parent_is_row == horizontal;
 }
 
-/* Growing along the main axis of a parent that hugs it always collapses:
- * the parent sizes itself without the growing child, so there is no free
+/* Growing along the main axis of a parent that fits that axis to its
+ * content always collapses: the parent sizes itself without the growing child, so there is no free
  * space. TreLVis lets LVGL's result stand, but says so, naming the object.
  *
- * Filling across the axis (100 %) of a hugging parent is not warned about:
+ * Filling across the axis (100 %) of a fit-content parent is not warned about:
  * LVGL leaves the child out of the parent's content size, so it stretches
  * to the widest sibling (CSS align-self: stretch), which is a useful pattern.
  *
  * Compiled out unless LVGL logs warnings. */
-static void warn_if_growing_in_hug(lv_obj_t * obj, bool horizontal, const char * func)
+static void warn_if_growing_in_fit_parent(lv_obj_t * obj, bool horizontal, const char * func)
 {
 #if LV_USE_LOG && LV_LOG_LEVEL <= LV_LOG_LEVEL_WARN
     lv_obj_t * parent = lv_obj_get_parent(obj);
@@ -298,8 +298,8 @@ static void warn_if_growing_in_hug(lv_obj_t * obj, bool horizontal, const char *
                    : lv_obj_get_style_height(parent, LV_PART_MAIN);
     if(size == LV_SIZE_CONTENT) {
         const char * axis = horizontal ? "width" : "height";
-        LV_LOG_WARN("%s(%p): the parent hugs its %s, so there is no space to grow into "
-                    "and the object collapses. Give the parent a %s (lv_obj_set_%s or "
+        LV_LOG_WARN("%s(%p): the parent fits its %s to its content, so there is no space "
+                    "to grow into and the object collapses. Give the parent a %s (lv_obj_set_%s or "
                     "trlv_set_%s_fill) first.",
                     func, (void *)obj, axis, axis, axis, axis);
     }
@@ -314,7 +314,7 @@ static void warn_if_growing_in_hug(lv_obj_t * obj, bool horizontal, const char *
 static void fill(lv_obj_t * obj, bool horizontal, const char * func)
 {
     bool grow = parent_main_axis_is(obj, horizontal);
-    if(grow) warn_if_growing_in_hug(obj, horizontal, func);
+    if(grow) warn_if_growing_in_fit_parent(obj, horizontal, func);
 
     if(horizontal) {
         trlv_style_group_apply(obj, &width_group, grow ? &grow_width : &full_width, LV_PART_MAIN);

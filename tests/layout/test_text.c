@@ -48,8 +48,8 @@ static lv_point_t text_size(const char * text, int32_t letter_space, int32_t lin
     return size;
 }
 
-/* Hugs its text by default, like any LVGL label (Figma "auto width"). */
-static void hugs_its_text(lv_obj_t * screen)
+/* Fits its text by default, like any LVGL label (Figma "auto width"). */
+static void fits_its_text(lv_obj_t * screen)
 {
     lv_obj_t * text = trlv_text_create(setup(screen), LONG_TEXT, TRLV_TEXT_BODY_MEDIUM);
     lv_point_t size = text_size(LONG_TEXT, 0, 0, LV_COORD_MAX);
@@ -116,7 +116,7 @@ static void zero_line_height_keeps_the_font(lv_obj_t * screen)
     TRLV_ASSERT_HEIGHT(text, 2 * font_line_height());
 }
 
-/* Letter spacing comes from the token and widens the hugged text. */
+/* Letter spacing comes from the token and widens the text it fits. */
 static void letter_spacing_is_applied(lv_obj_t * screen)
 {
     lv_obj_t * text = trlv_text_create(setup_with(screen, 0, 2), "Spacing", TRLV_TEXT_BODY_MEDIUM);
@@ -228,7 +228,7 @@ static void invalid_role_gives_a_plain_label(lv_obj_t * screen)
 
 int main(void)
 {
-    TRLV_TEST_RUN(hugs_its_text);
+    TRLV_TEST_RUN(fits_its_text);
     TRLV_TEST_RUN(wraps_after_fill_width);
     TRLV_TEST_RUN(wraps_when_growing_in_a_row);
     TRLV_TEST_RUN(line_height_is_converted);

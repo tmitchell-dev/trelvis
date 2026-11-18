@@ -69,23 +69,23 @@ static void pad(lv_obj_t * screen)
     TRLV_ASSERT_INT(lv_obj_get_style_pad_top(box, LV_PART_MAIN), tokens_regular.space[TRLV_SPACE_SM]);
 }
 
-/* Hug and fill width, one group. */
+/* Fit and fill width, one group. */
 static void width(lv_obj_t * screen)
 {
     lv_obj_t * box = trlv_box_create(setup(screen));
     lv_obj_set_size(box, 200, 100);
     lv_obj_t * obj = trlv_box_create(box);
-    trlv_set_width_hug(obj);
+    trlv_set_width_fit(obj);
     lv_style_set_width(&project, 77);
     add_project(obj, LV_PART_MAIN);
     trlv_set_width_fill(obj);
     TRLV_ASSERT_WIDTH(obj, 77);
 
-    trlv_set_width_hug(obj);
+    trlv_set_width_fit(obj);
     TRLV_ASSERT_WIDTH(obj, 77);
 }
 
-/* Hug and fill height, one group. Without a flex parent, fill sets the
+/* Fit and fill height, one group. Without a flex parent, fill sets the
  * height (100 %), the property the project style sets. */
 static void height(lv_obj_t * screen)
 {
@@ -95,7 +95,7 @@ static void height(lv_obj_t * screen)
     trlv_set_height_fill(obj);
     lv_style_set_height(&project, 33);
     add_project(obj, LV_PART_MAIN);
-    trlv_set_height_hug(obj);
+    trlv_set_height_fit(obj);
     TRLV_ASSERT_HEIGHT(obj, 33);
 
     trlv_set_height_fill(obj);
@@ -138,6 +138,19 @@ static void text_role(lv_obj_t * screen)
     ASSERT_TRUE(lv_obj_get_style_text_font(text, LV_PART_MAIN) == LV_FONT_DEFAULT);
 }
 
+/* trlv_apply_text_emphasis: one group with one member. Applying LOW again
+ * keeps its place, so the project style added after it still wins. */
+static void text_emphasis(lv_obj_t * screen)
+{
+    lv_obj_t * text = trlv_text_create(setup(screen), "Text", TRLV_TEXT_LABEL_MEDIUM);
+    trlv_apply_text_emphasis(text, TRLV_TEXT_EMPHASIS_LOW);
+    lv_style_set_text_color(&project, project_color());
+    add_project(text, LV_PART_MAIN);
+    trlv_apply_text_emphasis(text, TRLV_TEXT_EMPHASIS_LOW);
+
+    ASSERT_COLOR(lv_obj_get_style_text_color(text, LV_PART_MAIN), project_color());
+}
+
 /* trlv_apply_surface, trlv_apply_surface_custom and trlv_apply_card: one group. */
 static void fill(lv_obj_t * screen)
 {
@@ -151,10 +164,10 @@ static void fill(lv_obj_t * screen)
     TRLV_ASSERT_INT(lv_obj_get_style_border_width(box, LV_PART_MAIN), tokens_regular.border_width);
 
 #if TRLV_CUSTOM_COLOR_MAX > 0
-    trlv_apply_surface_custom(box, TOKEN_CUSTOM_SUCCESS, TRLV_CUSTOM_SURFACE_COLOR);
+    trlv_apply_surface_custom(box, TOKEN_CUSTOM_FAULT, TRLV_CUSTOM_SURFACE_COLOR);
     ASSERT_COLOR(lv_obj_get_style_bg_color(box, LV_PART_MAIN), project_color());
     ASSERT_COLOR(lv_obj_get_style_text_color(box, LV_PART_MAIN),
-                 tokens_light.custom[TOKEN_CUSTOM_SUCCESS].on_color);
+                 tokens_light.custom[TOKEN_CUSTOM_FAULT].on_color);
 #endif
 
     trlv_apply_surface(box, TRLV_SURFACE_INVERSE);
@@ -192,6 +205,7 @@ int main(void)
     TRLV_TEST_RUN(justify);
     TRLV_TEST_RUN(align_items);
     TRLV_TEST_RUN(text_role);
+    TRLV_TEST_RUN(text_emphasis);
     TRLV_TEST_RUN(fill);
     TRLV_TEST_RUN(button_type);
     return trlv_test_finish();

@@ -143,7 +143,7 @@ static void range_group(lv_obj_t * section)
     lv_arc_set_value(arc, 40);
     lv_obj_add_state(arc, LV_STATE_DISABLED);
     lv_obj_t * spinner = lv_spinner_create(row);
-    int32_t spinner_size = trlv_get_layout_tokens()->control_height[TRLV_SIZE_MD];
+    int32_t spinner_size = trlv_get_control_height(TRLV_SIZE_MD);
     lv_obj_set_size(spinner, spinner_size, spinner_size);
 }
 

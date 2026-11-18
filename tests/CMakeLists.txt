@@ -74,16 +74,6 @@ set_target_properties(trlv_tokens_template PROPERTIES
     C_STANDARD_REQUIRED ON
     C_EXTENSIONS OFF)
 
-# The example HMI colour scheme next to the template, built the same way.
-add_library(trlv_tokens_hmi OBJECT ../templates/trlv_tokens_hmi.c)
-target_include_directories(trlv_tokens_hmi PUBLIC ${PROJECT_SOURCE_DIR}/templates)
-target_link_libraries(trlv_tokens_hmi PUBLIC trelvis)
-target_compile_options(trlv_tokens_hmi PRIVATE ${TRLV_STRICT_WARNINGS})
-set_target_properties(trlv_tokens_hmi PROPERTIES
-    C_STANDARD 99
-    C_STANDARD_REQUIRED ON
-    C_EXTENSIONS OFF)
-
 # ---- Compile-only: the public headers must work from C++17 ----
 enable_language(CXX)
 add_library(trlv_cpp_include_test OBJECT cpp_include_test.cpp)
@@ -153,6 +143,20 @@ trlv_add_test(theme_init theme/test_init.c)
 target_link_libraries(theme_init PRIVATE trlv_tokens_template)
 trlv_add_test(theme_surface theme/test_surface.c)
 target_link_libraries(theme_surface PRIVATE trlv_tokens_template)
+trlv_add_test(theme_text_emphasis theme/test_text_emphasis.c)
+target_link_libraries(theme_text_emphasis PRIVATE trlv_tokens_template)
+trlv_add_test(theme_token_getters theme/test_token_getters.c)
+target_link_libraries(theme_token_getters PRIVATE trlv_tokens_template)
+
+# The token check: test code a project can also build with its own tokens.
+trlv_add_test(tokens_contrast tokens/test_token_contrast.c)
+target_sources(tokens_contrast PRIVATE tokens/token_check.c)
+target_include_directories(tokens_contrast PRIVATE tokens)
+target_link_libraries(tokens_contrast PRIVATE trlv_tokens_template)
+find_library(TRLV_MATH_LIBRARY m)
+if(TRLV_MATH_LIBRARY)
+    target_link_libraries(tokens_contrast PRIVATE ${TRLV_MATH_LIBRARY})
+endif()
 
 if(TRLV_TEST_FULL)
     trlv_add_test(layout_sizing layout/test_sizing.c)
@@ -168,7 +172,7 @@ if(TRLV_TEST_FULL)
     trlv_add_test(layout_replace_not_stack layout/test_replace_not_stack.c)
     target_link_libraries(layout_replace_not_stack PRIVATE trlv_tokens_template)
     trlv_add_test(layout_demo layout/test_demo.c)
-    target_link_libraries(layout_demo PRIVATE trlv_tokens_template trlv_tokens_hmi trlv_demo)
+    target_link_libraries(layout_demo PRIVATE trlv_tokens_template trlv_demo)
     trlv_add_test(layout_readme_card layout/test_readme_card.c)
     target_link_libraries(layout_readme_card PRIVATE trlv_tokens_template)
 

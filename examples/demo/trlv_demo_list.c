@@ -20,7 +20,8 @@
  *        │  ├─ icon    an LVGL symbol, Title Large, centred in a fixed width
  *        │  ├─ text    column, no gap, fills (pushes the trailing item right)
  *        │  │  ├─ headline    Body Large
- *        │  │  └─ supporting  Body Medium, fills the width so it wraps
+ *        │  │  └─ supporting  Body Medium, lower emphasis, fills the width
+ *        │  │                  so it wraps
  *        │  └─ trailing  lv_switch, a Label Large value, or a chevron
  *        └─ divider    between items, the full width
  *
@@ -80,6 +81,7 @@ static void item(lv_obj_t * list, uint32_t index)
     trlv_set_width_fill(text);
     trlv_text_create(text, items[index].headline, TRLV_TEXT_BODY_LARGE);
     lv_obj_t * supporting = trlv_text_create(text, items[index].supporting, TRLV_TEXT_BODY_MEDIUM);
+    trlv_apply_text_emphasis(supporting, TRLV_TEXT_EMPHASIS_LOW);
     trlv_set_width_fill(supporting);
 
     switch(items[index].trailing) {

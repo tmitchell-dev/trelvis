@@ -90,9 +90,9 @@ static void spacers_share_the_space(lv_obj_t * screen)
     TRLV_ASSERT_X(last, 180);
 }
 
-/* In a row that hugs its width there is no free space: 0 wide, and a
+/* In a row that fits its width to its content there is no free space: 0 wide, and a
  * warning naming trlv_spacer_create. */
-static void warns_in_a_hugging_row(lv_obj_t * screen)
+static void warns_in_a_fit_content_row(lv_obj_t * screen)
 {
     lv_obj_t * row = trlv_row_create(setup(screen));
     child(row, 30, 20);
@@ -133,7 +133,7 @@ int main(void)
     TRLV_TEST_RUN(pushes_apart_in_a_column);
     TRLV_TEST_RUN(respects_the_gap);
     TRLV_TEST_RUN(spacers_share_the_space);
-    TRLV_TEST_RUN(warns_in_a_hugging_row);
+    TRLV_TEST_RUN(warns_in_a_fit_content_row);
     TRLV_TEST_RUN(no_size_without_flex);
     TRLV_TEST_RUN(works_in_a_plain_flex_object);
     return trlv_test_finish();

@@ -16,8 +16,8 @@ static lv_obj_t * child_at(lv_obj_t * parent, int32_t x, int32_t y, int32_t w, i
     return obj;
 }
 
-/* A box hugs its children: it is as big as the furthest child edge. */
-static void hugs_its_children(lv_obj_t * screen)
+/* A box fits its children: it is as big as the furthest child edge. */
+static void fits_its_children(lv_obj_t * screen)
 {
     lv_obj_t * box = trlv_box_create(screen);
     lv_obj_set_pos(box, 10, 20);
@@ -68,7 +68,7 @@ static void not_scrollable_or_clickable(lv_obj_t * screen)
     TRLV_ASSERT_INT(lv_obj_is_clickable(plain), true);
 }
 
-/* A fixed size set with LVGL replaces the hug size. */
+/* A fixed size set with LVGL replaces the content size. */
 static void fixed_size_with_lvgl(lv_obj_t * screen)
 {
     lv_obj_t * box = trlv_box_create(screen);
@@ -80,7 +80,7 @@ static void fixed_size_with_lvgl(lv_obj_t * screen)
 
 int main(void)
 {
-    TRLV_TEST_RUN(hugs_its_children);
+    TRLV_TEST_RUN(fits_its_children);
     TRLV_TEST_RUN(empty_box_is_zero_size);
     TRLV_TEST_RUN(no_padding_or_border);
     TRLV_TEST_RUN(transparent);

@@ -22,7 +22,7 @@ static lv_obj_t * child(lv_obj_t * parent, int32_t w, int32_t h)
     return obj;
 }
 
-/* Children go left to right with the gap; the row hugs them, as tall as
+/* Children go left to right with the gap; the row fits them, as tall as
  * the tallest child. */
 static void row_places_children_left_to_right(lv_obj_t * screen)
 {
@@ -38,7 +38,7 @@ static void row_places_children_left_to_right(lv_obj_t * screen)
     TRLV_ASSERT_RECT(row, 0, 0, 40 + 8 + 30 + 8 + 20, 30);
 }
 
-/* Children go top to bottom with the gap; the column hugs them, as wide as
+/* Children go top to bottom with the gap; the column fits them, as wide as
  * the widest child. */
 static void column_places_children_top_to_bottom(lv_obj_t * screen)
 {

@@ -16,6 +16,7 @@ static_assert(TRLV_VERSION_MAJOR >= 0, "TreLVis headers must be usable from C++"
 static_assert(sizeof(trlv_layout_tokens_t) > 0, "layout tokens");
 static_assert(sizeof(trlv_color_tokens_t) > 0, "color tokens");
 static_assert(TRLV_TEXT_COUNT == 15, "MD3 type scale has 15 roles");
+static_assert(TRLV_TEXT_EMPHASIS_COUNT == 2, "text emphasis levels");
 
 /* Custom colours: a project-defined table, the same struct shape whatever
  * the configuration. */
@@ -60,6 +61,9 @@ TRLV_CHECK_SIGNATURE(trlv_init, void (*)(lv_display_t *, const trlv_color_tokens
 TRLV_CHECK_SIGNATURE(trlv_theme_set_color_mode, void (*)(const trlv_color_tokens_t *));
 TRLV_CHECK_SIGNATURE(trlv_get_color_tokens, const trlv_color_tokens_t * (*)(void));
 TRLV_CHECK_SIGNATURE(trlv_get_layout_tokens, const trlv_layout_tokens_t * (*)(void));
+TRLV_CHECK_SIGNATURE(trlv_get_space, int32_t (*)(trlv_space_t));
+TRLV_CHECK_SIGNATURE(trlv_get_radius, int32_t (*)(trlv_radius_t));
+TRLV_CHECK_SIGNATURE(trlv_get_control_height, int32_t (*)(trlv_size_t));
 
 /* trlv_layout.h: constructors */
 TRLV_CHECK_SIGNATURE(trlv_box_create, lv_obj_t * (*)(lv_obj_t *));
@@ -73,14 +77,15 @@ TRLV_CHECK_SIGNATURE(trlv_set_gap, void (*)(lv_obj_t *, trlv_space_t));
 TRLV_CHECK_SIGNATURE(trlv_set_pad, void (*)(lv_obj_t *, trlv_space_t));
 TRLV_CHECK_SIGNATURE(trlv_set_justify, void (*)(lv_obj_t *, trlv_justify_t));
 TRLV_CHECK_SIGNATURE(trlv_set_align_items, void (*)(lv_obj_t *, trlv_align_items_t));
-TRLV_CHECK_SIGNATURE(trlv_set_width_hug, void (*)(lv_obj_t *));
-TRLV_CHECK_SIGNATURE(trlv_set_height_hug, void (*)(lv_obj_t *));
+TRLV_CHECK_SIGNATURE(trlv_set_width_fit, void (*)(lv_obj_t *));
+TRLV_CHECK_SIGNATURE(trlv_set_height_fit, void (*)(lv_obj_t *));
 TRLV_CHECK_SIGNATURE(trlv_set_width_fill, void (*)(lv_obj_t *));
 TRLV_CHECK_SIGNATURE(trlv_set_height_fill, void (*)(lv_obj_t *));
 
 /* trlv_text.h */
 TRLV_CHECK_SIGNATURE(trlv_text_create, lv_obj_t * (*)(lv_obj_t *, const char *, trlv_text_role_t));
 TRLV_CHECK_SIGNATURE(trlv_apply_text_role, void (*)(lv_obj_t *, trlv_text_role_t));
+TRLV_CHECK_SIGNATURE(trlv_apply_text_emphasis, void (*)(lv_obj_t *, trlv_text_emphasis_t));
 
 /* trlv_surface.h */
 TRLV_CHECK_SIGNATURE(trlv_apply_surface, void (*)(lv_obj_t *, trlv_surface_t));
@@ -95,7 +100,7 @@ static_assert(std::is_same<decltype(trlv_style_column), const lv_style_t>::value
 
 /* Enum sizes that the token arrays and the docs rely on. */
 static_assert(TRLV_SPACE_COUNT == 9, "spacing scale NONE..3XL");
-static_assert(TRLV_SURFACE_COUNT == 11, "surface roles");
+static_assert(TRLV_SURFACE_COUNT == 13, "surface roles");
 static_assert(TRLV_CUSTOM_SURFACE_COUNT == 2, "custom colour pairs");
 static_assert(TRLV_CARD_COUNT == 3, "MD3 card types");
 static_assert(TRLV_BUTTON_COUNT == 4, "v1 button types");
