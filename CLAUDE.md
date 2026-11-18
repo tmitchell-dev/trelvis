@@ -114,6 +114,38 @@ compatibility table. Change both together.
   fetched tree under `build/_deps/lvgl-src`) rather than guessing. In
   particular, use the per-flag setters, not `lv_obj_add_flag`.
 - Never silence warnings (including LVGL deprecations) to get a build through.
-- Work on a branch, never on `main`. Don't commit, push or open PRs unless asked.
+- Work on a branch, never on `main`. Commit and push to the working branch
+  freely, following "Commits and pull requests" below; never commit or push
+  to `main`. Open a pull request only when asked.
 - Nothing company- or product-specific, and no secrets, anywhere, including
   commit messages and PR text.
+
+## Commits and pull requests
+
+When committing and opening a PR:
+
+- **One PR for the block of work, made of several meaningful commits.**
+  Split by issue or by step (for example a mechanical rename, then a
+  behaviour change, then docs), not by file type. Each commit builds and
+  passes the tests on its own, and its message ends with `Refs #N` for the
+  issues it touches. The PR says `Closes #N` for each issue it completes
+  (an issue settled by a decision rather than code is closed with that
+  decision stated in the PR).
+- **Run the hook checks.** Enable the shared hooks with
+  `git config core.hooksPath .githooks` before pushing. Before pushing,
+  also run what CI runs and can be run locally (see
+  [CONTRIBUTING.md](CONTRIBUTING.md) "Development setup"): the GCC and
+  Clang builds and tests, `-DTRLV_TEST_CONFIG=minimal`, the compile
+  without CMake, `tests/consumer` and `doxygen`. In the PR, say which
+  checks ran and which didn't.
+- Fill in the PR template (`.github/pull_request_template.md`).
+- **Never approve, accept or merge a pull request**, in any circumstances,
+  and never enable auto-merge. The maintainer does the final checks and
+  merges.
+
+## Design discussions
+
+For an API or design decision, show the options as concrete function
+signatures and call sites, with a recommendation, before implementing.
+Ask rather than assume. Record the outcome in ROADMAP ("Settled in …")
+in the same PR.
