@@ -60,7 +60,7 @@ that need no widgets, log or extra fonts; register a new test in that
 group when it can run there.
 
 Milestone 6 grew `examples/demo` into sections that exercise every
-primitive (surfaces, cards, button variants and themed widgets in their
+primitive (surfaces, cards, button types and themed widgets in their
 states, a list built from rows, a light/dark switch, keypad focus), added
 an example Compact token set and an HMI colour scheme next to the
 template, brought the README, concepts and Figma hand-off docs up to date,
@@ -69,6 +69,11 @@ and checked the v1 acceptance criteria (evidence on issue #75).
 **Now: M8, 1.0** (ROADMAP "1.0", tracking issue #124): the compatibility
 promise (README "What a version number promises"), CI build coverage, a
 theme coverage audit and a product trial, then the API freeze and 1.0.0.
+The 1.0 review moved the API to LVGL's grammar: `trlv_*_create`
+constructors that take no spacing, `trlv_set_*` layout setters,
+`trlv_apply_*` appearance functions (which warn on an object they make no
+sense on) and `trlv_get_*_tokens` getters. Cards stay an applied look,
+with no constructor (#141–#143, ROADMAP "Settled in the 1.0 review").
 Alongside it, v1.x items are built one at a time and only when a product
 needs one (ROADMAP "v1.x (on demand)"). An API change still needs the
 docs, the include test and the changelog updated with it, and must keep

@@ -2,7 +2,7 @@
 /* Copyright (c) 2026 Timothy Mitchell */
 
 /*
- * trlv_box: a Figma frame without auto layout.
+ * trlv_box_create: a Figma frame without auto layout.
  */
 
 #include "trlv_test.h"
@@ -10,7 +10,7 @@
 /* A fixed-size child placed by hand. */
 static lv_obj_t * child_at(lv_obj_t * parent, int32_t x, int32_t y, int32_t w, int32_t h)
 {
-    lv_obj_t * obj = trlv_box(parent);
+    lv_obj_t * obj = trlv_box_create(parent);
     lv_obj_set_pos(obj, x, y);
     lv_obj_set_size(obj, w, h);
     return obj;
@@ -19,7 +19,7 @@ static lv_obj_t * child_at(lv_obj_t * parent, int32_t x, int32_t y, int32_t w, i
 /* A box hugs its children: it is as big as the furthest child edge. */
 static void hugs_its_children(lv_obj_t * screen)
 {
-    lv_obj_t * box = trlv_box(screen);
+    lv_obj_t * box = trlv_box_create(screen);
     lv_obj_set_pos(box, 10, 20);
     child_at(box, 0, 0, 40, 30);
     child_at(box, 50, 10, 20, 60);
@@ -30,7 +30,7 @@ static void hugs_its_children(lv_obj_t * screen)
 /* An empty box has no size. */
 static void empty_box_is_zero_size(lv_obj_t * screen)
 {
-    lv_obj_t * box = trlv_box(screen);
+    lv_obj_t * box = trlv_box_create(screen);
 
     TRLV_ASSERT_RECT(box, 0, 0, 0, 0);
 }
@@ -38,7 +38,7 @@ static void empty_box_is_zero_size(lv_obj_t * screen)
 /* No theme padding or border: a child at (0, 0) sits at the box's outer corner. */
 static void no_padding_or_border(lv_obj_t * screen)
 {
-    lv_obj_t * box = trlv_box(screen);
+    lv_obj_t * box = trlv_box_create(screen);
     lv_obj_t * child = child_at(box, 0, 0, 10, 10);
 
     TRLV_ASSERT_RECT(child, 0, 0, 10, 10);
@@ -50,7 +50,7 @@ static void no_padding_or_border(lv_obj_t * screen)
 /* Transparent: no theme background. */
 static void transparent(lv_obj_t * screen)
 {
-    lv_obj_t * box = trlv_box(screen);
+    lv_obj_t * box = trlv_box_create(screen);
 
     TRLV_ASSERT_INT(lv_obj_get_style_bg_opa(box, LV_PART_MAIN), LV_OPA_TRANSP);
 }
@@ -58,7 +58,7 @@ static void transparent(lv_obj_t * screen)
 /* Not scrollable and not clickable, unlike a plain lv_obj. */
 static void not_scrollable_or_clickable(lv_obj_t * screen)
 {
-    lv_obj_t * box = trlv_box(screen);
+    lv_obj_t * box = trlv_box_create(screen);
     lv_obj_t * plain = lv_obj_create(screen);
 
     TRLV_ASSERT_INT(lv_obj_is_scrollable(box), false);
@@ -71,7 +71,7 @@ static void not_scrollable_or_clickable(lv_obj_t * screen)
 /* A fixed size set with LVGL replaces the hug size. */
 static void fixed_size_with_lvgl(lv_obj_t * screen)
 {
-    lv_obj_t * box = trlv_box(screen);
+    lv_obj_t * box = trlv_box_create(screen);
     lv_obj_set_size(box, 120, 80);
     child_at(box, 0, 0, 10, 10);
 

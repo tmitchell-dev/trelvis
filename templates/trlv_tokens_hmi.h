@@ -22,7 +22,7 @@
  *     #include "trlv_tokens_template.h"
  *
  *     trlv_init(disp, &tokens_hmi_light, &tokens_regular);
- *     trlv_surface_custom(banner, TOKEN_ALARM_HIGH, TRLV_CUSTOM_SURFACE_COLOR);
+ *     trlv_apply_surface_custom(banner, TOKEN_ALARM_HIGH, TRLV_CUSTOM_SURFACE_COLOR);
  *
  * Copy it into your project the same way as the template (see
  * trlv_tokens_template.h), or take what you need from it.
@@ -39,7 +39,7 @@ extern "C" {
 
 /**
  * The example's custom colours: alarm priorities, the index into
- * trlv_color_tokens_t::custom and the argument of trlv_surface_custom.
+ * trlv_color_tokens_t::custom and the argument of trlv_apply_surface_custom.
  * A site's alarm philosophy sets how many priorities there are and what
  * they look like.
  */

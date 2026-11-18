@@ -35,7 +35,7 @@ static LV_STYLE_CONST_INIT(text_label_large, text_props[TRLV_TEXT_LABEL_LARGE]);
 static LV_STYLE_CONST_INIT(text_label_medium, text_props[TRLV_TEXT_LABEL_MEDIUM]);
 static LV_STYLE_CONST_INIT(text_label_small, text_props[TRLV_TEXT_LABEL_SMALL]);
 
-/* Indexed by trlv_text_role_t. One group, so a later role (trlv_text_role)
+/* Indexed by trlv_text_role_t. One group, so a later role (trlv_apply_text_role)
  * replaces the earlier one. */
 static const lv_style_t * const text_styles[] = {
     &text_display_large, &text_display_medium, &text_display_small,
@@ -78,7 +78,7 @@ const lv_style_t * trlv_text_role_style(trlv_text_role_t role)
  * Constructor
  *-------------------------------------------------------------------------*/
 
-lv_obj_t * trlv_text(lv_obj_t * parent, const char * text, trlv_text_role_t role)
+lv_obj_t * trlv_text_create(lv_obj_t * parent, const char * text, trlv_text_role_t role)
 {
     lv_obj_t * obj = lv_label_create(parent);
     lv_label_set_text(obj, text);
@@ -87,7 +87,7 @@ lv_obj_t * trlv_text(lv_obj_t * parent, const char * text, trlv_text_role_t role
         trlv_style_group_apply(obj, &text_group, text_styles[role], LV_PART_MAIN);
     }
     else {
-        LV_LOG_WARN("trlv_text: %d is not a trlv_text_role_t", (int)role);
+        LV_LOG_WARN("trlv_text_create: %d is not a trlv_text_role_t", (int)role);
     }
     return obj;
 }
@@ -96,12 +96,12 @@ lv_obj_t * trlv_text(lv_obj_t * parent, const char * text, trlv_text_role_t role
  * Modifier
  *-------------------------------------------------------------------------*/
 
-void trlv_text_role(lv_obj_t * obj, trlv_text_role_t role)
+void trlv_apply_text_role(lv_obj_t * obj, trlv_text_role_t role)
 {
     LV_ASSERT_NULL(obj);
 
     if((uint32_t)role >= TRLV_TEXT_COUNT) {
-        LV_LOG_WARN("trlv_text_role: %d is not a trlv_text_role_t", (int)role);
+        LV_LOG_WARN("trlv_apply_text_role: %d is not a trlv_text_role_t", (int)role);
         return;
     }
     trlv_style_group_apply(obj, &text_group, text_styles[role], LV_PART_MAIN);

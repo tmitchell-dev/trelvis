@@ -2,8 +2,9 @@
 /* Copyright (c) 2026 Timothy Mitchell */
 
 /*
- * Fill modifiers: trlv_surface and trlv_card (custom colours have their own
- * file). Colours come from the token template's light and dark schemes.
+ * Fill modifiers: trlv_apply_surface and trlv_apply_card (custom colours have
+ * their own file). Colours come from the token template's light and dark
+ * schemes.
  */
 
 #include "trlv_test.h"
@@ -41,14 +42,16 @@ static lv_color_t text_of(lv_obj_t * obj)
 /* A column with a label two levels down, to check inheritance. */
 static lv_obj_t * column_with_label(lv_obj_t * parent, lv_obj_t ** label)
 {
-    lv_obj_t * column = trlv_column(parent, TRLV_SPACE_SM);
-    lv_obj_t * row = trlv_row(column, TRLV_SPACE_SM);
+    lv_obj_t * column = trlv_column_create(parent);
+    trlv_set_gap(column, TRLV_SPACE_SM);
+    lv_obj_t * row = trlv_row_create(column);
+    trlv_set_gap(row, TRLV_SPACE_SM);
     *label = lv_label_create(row);
     return column;
 }
 
 /*---------------------------------------------------------------------------
- * trlv_surface
+ * trlv_apply_surface
  *-------------------------------------------------------------------------*/
 
 typedef struct {
@@ -77,7 +80,7 @@ static void check_every_surface(lv_obj_t * parent, const trlv_color_tokens_t * c
     for(uint32_t i = 0; i < sizeof(cases) / sizeof(cases[0]); i++) {
         lv_obj_t * label;
         lv_obj_t * column = column_with_label(parent, &label);
-        trlv_surface(column, cases[i].surface);
+        trlv_apply_surface(column, cases[i].surface);
 
         ASSERT_COLOR(bg_of(column), cases[i].container);
         TRLV_ASSERT_INT(lv_obj_get_style_bg_opa(column, LV_PART_MAIN), LV_OPA_COVER);
@@ -97,7 +100,7 @@ static void surfaces_recolour(lv_obj_t * screen)
 {
     lv_obj_t * label;
     lv_obj_t * column = column_with_label(setup(screen), &label);
-    trlv_surface(column, TRLV_SURFACE_PRIMARY_CONTAINER);
+    trlv_apply_surface(column, TRLV_SURFACE_PRIMARY_CONTAINER);
 
     trlv_theme_set_color_mode(&tokens_dark);
     settle();
@@ -112,9 +115,9 @@ static void surfaces_recolour(lv_obj_t * screen)
 /* Tone only: no radius, border or padding of its own. */
 static void tone_only(lv_obj_t * screen)
 {
-    lv_obj_t * box = trlv_box(setup(screen));
+    lv_obj_t * box = trlv_box_create(setup(screen));
     lv_obj_set_size(box, 40, 20);
-    trlv_surface(box, TRLV_SURFACE_CONTAINER);
+    trlv_apply_surface(box, TRLV_SURFACE_CONTAINER);
 
     TRLV_ASSERT_INT(lv_obj_get_style_radius(box, LV_PART_MAIN), 0);
     TRLV_ASSERT_INT(lv_obj_get_style_border_width(box, LV_PART_MAIN), 0);
@@ -133,13 +136,13 @@ static void a_second_call_replaces_the_first(lv_obj_t * screen)
 
     lv_obj_t * label;
     lv_obj_t * column = column_with_label(setup(screen), &label);
-    trlv_surface(column, TRLV_SURFACE_ERROR_CONTAINER);
-    trlv_surface(column, TRLV_SURFACE_CONTAINER_HIGH);
+    trlv_apply_surface(column, TRLV_SURFACE_ERROR_CONTAINER);
+    trlv_apply_surface(column, TRLV_SURFACE_CONTAINER_HIGH);
     ASSERT_COLOR(bg_of(column), tokens_light.surface_container_high);
     ASSERT_COLOR(text_of(label), tokens_light.on_surface);
 
     lv_obj_add_style(column, &project_style, LV_PART_MAIN);
-    trlv_surface(column, TRLV_SURFACE_INVERSE);
+    trlv_apply_surface(column, TRLV_SURFACE_INVERSE);
     ASSERT_COLOR(bg_of(column), tokens_light.inverse_surface);
     ASSERT_COLOR(text_of(label), lv_color_hex(0x123456));
 }
@@ -150,7 +153,7 @@ static void own_text_colour_wins(lv_obj_t * screen)
     lv_obj_t * label;
     lv_obj_t * column = column_with_label(setup(screen), &label);
     lv_obj_set_style_text_color(label, tokens_light.primary, LV_PART_MAIN);
-    trlv_surface(column, TRLV_SURFACE_CONTAINER);
+    trlv_apply_surface(column, TRLV_SURFACE_CONTAINER);
 
     ASSERT_COLOR(text_of(label), tokens_light.primary);
 }
@@ -159,7 +162,7 @@ static void own_text_colour_wins(lv_obj_t * screen)
 static void works_on_a_themed_object(lv_obj_t * screen)
 {
     lv_obj_t * obj = lv_obj_create(setup(screen));
-    trlv_surface(obj, TRLV_SURFACE_TERTIARY_CONTAINER);
+    trlv_apply_surface(obj, TRLV_SURFACE_TERTIARY_CONTAINER);
 
     ASSERT_COLOR(bg_of(obj), tokens_light.tertiary_container);
 }
@@ -167,15 +170,15 @@ static void works_on_a_themed_object(lv_obj_t * screen)
 /* A value outside the enum changes nothing. */
 static void invalid_surface_changes_nothing(lv_obj_t * screen)
 {
-    lv_obj_t * box = trlv_box(setup(screen));
-    trlv_surface(box, TRLV_SURFACE_CONTAINER);
-    trlv_surface(box, TRLV_SURFACE_COUNT);
+    lv_obj_t * box = trlv_box_create(setup(screen));
+    trlv_apply_surface(box, TRLV_SURFACE_CONTAINER);
+    trlv_apply_surface(box, TRLV_SURFACE_COUNT);
 
     ASSERT_COLOR(bg_of(box), tokens_light.surface_container);
 }
 
 /*---------------------------------------------------------------------------
- * trlv_card
+ * trlv_apply_card
  *-------------------------------------------------------------------------*/
 
 static void assert_shadow(lv_obj_t * obj, const trlv_shadow_t * s, lv_color_t color)
@@ -208,7 +211,7 @@ static void card_filled(lv_obj_t * screen)
 {
     lv_obj_t * label;
     lv_obj_t * card = column_with_label(setup(screen), &label);
-    trlv_card(card, TRLV_CARD_FILLED);
+    trlv_apply_card(card, TRLV_CARD_FILLED);
 
     assert_card_tone(card, label, tokens_light.surface_container_highest, &tokens_light);
     TRLV_ASSERT_INT(lv_obj_get_style_border_width(card, LV_PART_MAIN), 0);
@@ -219,7 +222,7 @@ static void card_elevated(lv_obj_t * screen)
 {
     lv_obj_t * label;
     lv_obj_t * card = column_with_label(setup(screen), &label);
-    trlv_card(card, TRLV_CARD_ELEVATED);
+    trlv_apply_card(card, TRLV_CARD_ELEVATED);
 
     assert_card_tone(card, label, tokens_light.surface_container_low, &tokens_light);
     TRLV_ASSERT_INT(lv_obj_get_style_border_width(card, LV_PART_MAIN), 0);
@@ -230,7 +233,7 @@ static void card_outlined(lv_obj_t * screen)
 {
     lv_obj_t * label;
     lv_obj_t * card = column_with_label(setup(screen), &label);
-    trlv_card(card, TRLV_CARD_OUTLINED);
+    trlv_apply_card(card, TRLV_CARD_OUTLINED);
 
     assert_card_tone(card, label, tokens_light.surface, &tokens_light);
     TRLV_ASSERT_INT(lv_obj_get_style_border_width(card, LV_PART_MAIN), tokens_regular.border_width);
@@ -239,13 +242,13 @@ static void card_outlined(lv_obj_t * screen)
     assert_no_shadow(card);
 }
 
-/* Padding stays explicit: a filled card adds none. */
-static void card_adds_no_padding(lv_obj_t * screen)
+/* Padding is layout, set with trlv_set_pad: a card adds none. */
+static void apply_card_adds_no_padding(lv_obj_t * screen)
 {
-    lv_obj_t * card = trlv_column(setup(screen), TRLV_SPACE_NONE);
-    lv_obj_t * child = trlv_box(card);
+    lv_obj_t * card = trlv_column_create(setup(screen));
+    lv_obj_t * child = trlv_box_create(card);
     lv_obj_set_size(child, 30, 20);
-    trlv_card(card, TRLV_CARD_FILLED);
+    trlv_apply_card(card, TRLV_CARD_FILLED);
 
     TRLV_ASSERT_RECT(card, 0, 0, 30, 20);
     TRLV_ASSERT_RECT(child, 0, 0, 30, 20);
@@ -258,11 +261,11 @@ static void card_border_insets_the_content(lv_obj_t * screen)
 {
     int32_t b = tokens_regular.border_width;
     int32_t p = tokens_regular.space[TRLV_SPACE_LG];
-    lv_obj_t * card = trlv_column(setup(screen), TRLV_SPACE_NONE);
-    lv_obj_t * child = trlv_box(card);
+    lv_obj_t * card = trlv_column_create(setup(screen));
+    lv_obj_t * child = trlv_box_create(card);
     lv_obj_set_size(child, 30, 20);
-    trlv_card(card, TRLV_CARD_OUTLINED);
-    trlv_pad(card, TRLV_SPACE_LG);
+    trlv_apply_card(card, TRLV_CARD_OUTLINED);
+    trlv_set_pad(card, TRLV_SPACE_LG);
 
     TRLV_ASSERT_INT(b > 0, 1);
     TRLV_ASSERT_RECT(card, 0, 0, 30 + 2 * (b + p), 20 + 2 * (b + p));
@@ -274,9 +277,10 @@ static void cards_recolour(lv_obj_t * screen)
 {
     lv_obj_t * label;
     lv_obj_t * elevated = column_with_label(setup(screen), &label);
-    trlv_card(elevated, TRLV_CARD_ELEVATED);
-    lv_obj_t * outlined = trlv_column(screen, TRLV_SPACE_SM);
-    trlv_card(outlined, TRLV_CARD_OUTLINED);
+    trlv_apply_card(elevated, TRLV_CARD_ELEVATED);
+    lv_obj_t * outlined = trlv_column_create(screen);
+    trlv_set_gap(outlined, TRLV_SPACE_SM);
+    trlv_apply_card(outlined, TRLV_CARD_OUTLINED);
 
     trlv_theme_set_color_mode(&tokens_dark);
     settle();
@@ -292,24 +296,24 @@ static void cards_recolour(lv_obj_t * screen)
  * shadow. */
 static void cards_share_the_fill_group(lv_obj_t * screen)
 {
-    lv_obj_t * box = trlv_box(setup(screen));
-    trlv_card(box, TRLV_CARD_OUTLINED);
-    trlv_card(box, TRLV_CARD_ELEVATED);
+    lv_obj_t * box = trlv_box_create(setup(screen));
+    trlv_apply_card(box, TRLV_CARD_OUTLINED);
+    trlv_apply_card(box, TRLV_CARD_ELEVATED);
     TRLV_ASSERT_INT(lv_obj_get_style_border_width(box, LV_PART_MAIN), 0);
     ASSERT_COLOR(bg_of(box), tokens_light.surface_container_low);
 
-    trlv_surface(box, TRLV_SURFACE_PRIMARY_CONTAINER);
+    trlv_apply_surface(box, TRLV_SURFACE_PRIMARY_CONTAINER);
     ASSERT_COLOR(bg_of(box), tokens_light.primary_container);
     TRLV_ASSERT_INT(lv_obj_get_style_shadow_width(box, LV_PART_MAIN), 0);
     TRLV_ASSERT_INT(lv_obj_get_style_radius(box, LV_PART_MAIN), 0);
 
 #if TRLV_CUSTOM_COLOR_MAX > 0
-    trlv_card(box, TRLV_CARD_FILLED);
-    trlv_surface_custom(box, TOKEN_CUSTOM_WARNING, TRLV_CUSTOM_SURFACE_COLOR);
+    trlv_apply_card(box, TRLV_CARD_FILLED);
+    trlv_apply_surface_custom(box, TOKEN_CUSTOM_WARNING, TRLV_CUSTOM_SURFACE_COLOR);
     ASSERT_COLOR(bg_of(box), tokens_light.custom[TOKEN_CUSTOM_WARNING].color);
     TRLV_ASSERT_INT(lv_obj_get_style_radius(box, LV_PART_MAIN), 0);
 
-    trlv_card(box, TRLV_CARD_OUTLINED);
+    trlv_apply_card(box, TRLV_CARD_OUTLINED);
     ASSERT_COLOR(bg_of(box), tokens_light.surface);
     ASSERT_COLOR(text_of(box), tokens_light.on_surface);
 #endif
@@ -319,7 +323,7 @@ static void cards_share_the_fill_group(lv_obj_t * screen)
 static void card_on_a_themed_object(lv_obj_t * screen)
 {
     lv_obj_t * obj = lv_obj_create(setup(screen));
-    trlv_card(obj, TRLV_CARD_FILLED);
+    trlv_apply_card(obj, TRLV_CARD_FILLED);
 
     ASSERT_COLOR(bg_of(obj), tokens_light.surface_container_highest);
     TRLV_ASSERT_INT(lv_obj_get_style_border_width(obj, LV_PART_MAIN), 0);
@@ -329,9 +333,9 @@ static void card_on_a_themed_object(lv_obj_t * screen)
 /* A value outside the enum changes nothing. */
 static void invalid_card_changes_nothing(lv_obj_t * screen)
 {
-    lv_obj_t * box = trlv_box(setup(screen));
-    trlv_card(box, TRLV_CARD_OUTLINED);
-    trlv_card(box, TRLV_CARD_COUNT);
+    lv_obj_t * box = trlv_box_create(setup(screen));
+    trlv_apply_card(box, TRLV_CARD_OUTLINED);
+    trlv_apply_card(box, TRLV_CARD_COUNT);
 
     TRLV_ASSERT_INT(lv_obj_get_style_border_width(box, LV_PART_MAIN), tokens_regular.border_width);
 }
@@ -341,7 +345,7 @@ int main(void)
     TRLV_TEST_RUN(card_filled);
     TRLV_TEST_RUN(card_elevated);
     TRLV_TEST_RUN(card_outlined);
-    TRLV_TEST_RUN(card_adds_no_padding);
+    TRLV_TEST_RUN(apply_card_adds_no_padding);
     TRLV_TEST_RUN(card_border_insets_the_content);
     TRLV_TEST_RUN(cards_recolour);
     TRLV_TEST_RUN(cards_share_the_fill_group);

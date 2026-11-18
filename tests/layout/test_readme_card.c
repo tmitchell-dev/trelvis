@@ -26,22 +26,24 @@
 
 static lv_obj_t * card_trelvis(lv_obj_t * parent)
 {
-    lv_obj_t * card = trlv_column(parent, TRLV_SPACE_SM);
-    trlv_card(card, TRLV_CARD_FILLED);
-    trlv_pad(card, TRLV_SPACE_LG);
-    trlv_fill_width(card);
+    lv_obj_t * card = trlv_column_create(parent);
+    trlv_apply_card(card, TRLV_CARD_FILLED);
+    trlv_set_pad(card, TRLV_SPACE_LG);
+    trlv_set_gap(card, TRLV_SPACE_SM);
+    trlv_set_width_fill(card);
 
-    lv_obj_t * header = trlv_row(card, TRLV_SPACE_SM);
-    trlv_fill_width(header);
-    trlv_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);
-    trlv_align_items(header, TRLV_ALIGN_ITEMS_CENTER);
+    lv_obj_t * header = trlv_row_create(card);
+    trlv_set_gap(header, TRLV_SPACE_SM);
+    trlv_set_width_fill(header);
+    trlv_set_justify(header, TRLV_JUSTIFY_SPACE_BETWEEN);
+    trlv_set_align_items(header, TRLV_ALIGN_ITEMS_CENTER);
 
-    trlv_text(header, "Temperature", TRLV_TEXT_TITLE_MEDIUM);
-    trlv_text(header, "37.2 °C", TRLV_TEXT_HEADLINE_SMALL);
+    trlv_text_create(header, "Temperature", TRLV_TEXT_TITLE_MEDIUM);
+    trlv_text_create(header, "37.2 °C", TRLV_TEXT_HEADLINE_SMALL);
 
     lv_obj_t * btn = lv_button_create(card);
-    trlv_button_variant(btn, TRLV_BUTTON_TONAL);
-    trlv_text(btn, "Calibrate", TRLV_TEXT_LABEL_LARGE);
+    trlv_apply_button_type(btn, TRLV_BUTTON_TONAL);
+    trlv_text_create(btn, "Calibrate", TRLV_TEXT_LABEL_LARGE);
 
     return card;
 }

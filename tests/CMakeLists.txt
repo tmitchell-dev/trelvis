@@ -182,8 +182,10 @@ if(TRLV_TEST_FULL)
     target_link_libraries(theme_widgets PRIVATE trlv_tokens_template)
     trlv_add_test(theme_surface_custom theme/test_surface_custom.c)
     target_link_libraries(theme_surface_custom PRIVATE trlv_tokens_template)
-    trlv_add_test(theme_button_variant theme/test_button_variant.c)
-    target_link_libraries(theme_button_variant PRIVATE trlv_tokens_template)
+    trlv_add_test(theme_button_type theme/test_button_type.c)
+    target_link_libraries(theme_button_type PRIVATE trlv_tokens_template)
+    trlv_add_test(theme_apply_warnings theme/test_apply_warnings.c)
+    target_link_libraries(theme_apply_warnings PRIVATE trlv_tokens_template)
 endif()
 
 # Config options: a copy of the library built with one option set, and a

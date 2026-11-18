@@ -3,7 +3,7 @@
 
 /**
  * @file trlv_surface.c
- * Surfaces, custom colours, cards and button variants: MD3 container
+ * Surfaces, custom colours, cards and button types: MD3 container
  * colours with their inherited content colour.
  */
 
@@ -61,9 +61,9 @@ static const lv_style_t * const card_styles[] = { &card_filled, &card_elevated, 
 TRLV_STATIC_ASSERT(sizeof(card_styles) / sizeof(card_styles[0]) == TRLV_CARD_COUNT,
                    card_styles_cover_the_enum);
 
-/* Button variants: one style per variant at each of four selectors. The
+/* Button types: one style per type at each of four selectors. The
  * theme's filled-button styles stay on the button; LVGL resolves a property
- * by state first, so each variant sets the same properties as the theme at
+ * by state first, so each type sets the same properties as the theme at
  * every state it styles, and wins at each because it is added later.
  *
  * Default: bg_color, bg_opa, text_color, border_width, border_color,
@@ -78,11 +78,11 @@ static lv_style_const_prop_t button_pressed_props[TRLV_BUTTON_COUNT][BUTTON_STAT
 static lv_style_const_prop_t button_focus_props[TRLV_BUTTON_COUNT][BUTTON_STATE_PROPS];
 static lv_style_const_prop_t button_disabled_props[TRLV_BUTTON_COUNT][BUTTON_DISABLED_PROPS];
 
-#define BUTTON_STYLES(name_, variant_)                                                             \
-    static LV_STYLE_CONST_INIT(button_##name_, button_props[variant_]);                           \
-    static LV_STYLE_CONST_INIT(button_##name_##_pressed, button_pressed_props[variant_]);         \
-    static LV_STYLE_CONST_INIT(button_##name_##_focus, button_focus_props[variant_]);             \
-    static LV_STYLE_CONST_INIT(button_##name_##_disabled, button_disabled_props[variant_])
+#define BUTTON_STYLES(name_, type_)                                                             \
+    static LV_STYLE_CONST_INIT(button_##name_, button_props[type_]);                           \
+    static LV_STYLE_CONST_INIT(button_##name_##_pressed, button_pressed_props[type_]);         \
+    static LV_STYLE_CONST_INIT(button_##name_##_focus, button_focus_props[type_]);             \
+    static LV_STYLE_CONST_INIT(button_##name_##_disabled, button_disabled_props[type_])
 
 BUTTON_STYLES(filled, TRLV_BUTTON_FILLED);
 BUTTON_STYLES(tonal, TRLV_BUTTON_TONAL);
@@ -110,7 +110,7 @@ static const trlv_style_group_t button_pressed_group = TRLV_STYLE_GROUP_LIST(but
 static const trlv_style_group_t button_focus_group = TRLV_STYLE_GROUP_LIST(button_focus_styles);
 static const trlv_style_group_t button_disabled_group = TRLV_STYLE_GROUP_LIST(button_disabled_styles);
 
-/* Divider (trlv_divider in trlv_layout.c): bg_color, bg_opa, the line's
+/* Divider (trlv_divider_create in trlv_layout.c): bg_color, bg_opa, the line's
  * thickness (height when horizontal, width when vertical), outline_width 0
  * so the debug outline doesn't hide the line, end marker. */
 #define DIVIDER_PROPS 5
@@ -191,7 +191,8 @@ TRLV_STATIC_ASSERT(sizeof(custom_styles) / sizeof(custom_styles[0])
 #endif
 
 /* The fill group: every style that sets an object's container colour.
- * trlv_surface, trlv_surface_custom and trlv_card replace each other. */
+ * trlv_apply_surface, trlv_apply_surface_custom and trlv_apply_card replace
+ * each other. */
 static const lv_style_t * const fill_styles[] = {
     &surface_surface, &surface_container_lowest, &surface_container_low,
     &surface_container, &surface_container_high, &surface_container_highest,
@@ -259,15 +260,15 @@ static void put_state_layer(lv_style_const_prop_t * entry, bool opaque, lv_color
     trlv_prop_set_end(entry);
 }
 
-/* One button variant at all four selectors. `opaque` is false for the
- * transparent variants; `border_width` is 0 except for outlined. */
-static void build_button(trlv_button_t variant, bool opaque, lv_color_t container,
+/* One button type at all four selectors. `opaque` is false for the
+ * transparent types; `border_width` is 0 except for outlined. */
+static void build_button(trlv_button_t type, bool opaque, lv_color_t container,
                          lv_color_t content, int32_t border_width, const trlv_color_tokens_t * color)
 {
     const trlv_state_tokens_t * state = &color->state;
     lv_style_const_prop_t * entry;
 
-    entry = button_props[variant];
+    entry = button_props[type];
     trlv_prop_set_color(entry++, LV_STYLE_BG_COLOR, container);
     trlv_prop_set_num(entry++, LV_STYLE_BG_OPA, opaque ? LV_OPA_COVER : LV_OPA_TRANSP);
     trlv_prop_set_color(entry++, LV_STYLE_TEXT_COLOR, content);
@@ -276,12 +277,12 @@ static void build_button(trlv_button_t variant, bool opaque, lv_color_t containe
     trlv_prop_set_num(entry++, LV_STYLE_BORDER_OPA, LV_OPA_COVER);
     trlv_prop_set_end(entry);
 
-    put_state_layer(button_pressed_props[variant], opaque, container, content, state->pressed);
-    put_state_layer(button_focus_props[variant], opaque, container, content, state->focus);
+    put_state_layer(button_pressed_props[type], opaque, container, content, state->pressed);
+    put_state_layer(button_focus_props[type], opaque, container, content, state->focus);
 
     /* MD3 disabled: content on_surface at 38 %; an opaque container, or
      * the outlined border, on_surface at 12 %. */
-    entry = button_disabled_props[variant];
+    entry = button_disabled_props[type];
     trlv_prop_set_color(entry++, LV_STYLE_BG_COLOR, color->on_surface);
     trlv_prop_set_num(entry++, LV_STYLE_BG_OPA, opaque ? state->disabled_container : LV_OPA_TRANSP);
     trlv_prop_set_color(entry++, LV_STYLE_TEXT_COLOR, color->on_surface);
@@ -358,78 +359,138 @@ void trlv_surface_styles_build(const trlv_color_tokens_t * color, const trlv_lay
 }
 
 /*---------------------------------------------------------------------------
- * Modifiers
+ * Target checks. Each look applies to any object, as LVGL styles do; on an
+ * object where it makes no sense these log a warning and change nothing.
+ * Compiled out unless LVGL logs warnings.
  *-------------------------------------------------------------------------*/
 
-void trlv_surface(lv_obj_t * obj, trlv_surface_t surface)
+#if LV_USE_LOG && LV_LOG_LEVEL <= LV_LOG_LEVEL_WARN
+#define TRLV_CHECK_TARGETS 1
+#else
+#define TRLV_CHECK_TARGETS 0
+#endif
+
+/* A fill on a button changes its colour at rest only: the theme's or the
+ * button type's pressed and focus styles keep their own colours. */
+static void warn_if_button(lv_obj_t * obj, const char * func)
+{
+#if TRLV_CHECK_TARGETS && LV_USE_BUTTON
+    if(lv_obj_check_type(obj, &lv_button_class)) {
+        LV_LOG_WARN("%s(%p): on an lv_button only the colour at rest changes; pressed and "
+                    "focus keep the button's colours. Use trlv_apply_button_type for a button.",
+                    func, (void *)obj);
+    }
+#else
+    LV_UNUSED(obj);
+    LV_UNUSED(func);
+#endif
+}
+
+/* A card is a container look: on a widget it mixes with the widget's own
+ * parts and states. */
+static void warn_if_not_container(lv_obj_t * obj)
+{
+#if TRLV_CHECK_TARGETS
+    if(!lv_obj_check_type(obj, &lv_obj_class)) {
+        LV_LOG_WARN("trlv_apply_card(%p): a card is meant for a row, column, box or plain "
+                    "lv_obj, not an LVGL widget.", (void *)obj);
+    }
+#else
+    LV_UNUSED(obj);
+#endif
+}
+
+/* Button states only show on an object that can be pressed or focused. */
+static void warn_if_not_clickable(lv_obj_t * obj)
+{
+#if TRLV_CHECK_TARGETS
+    if(!lv_obj_is_clickable(obj)) {
+        LV_LOG_WARN("trlv_apply_button_type(%p): the object is not clickable, so its pressed "
+                    "and focus states never show. Use an lv_button, or make it clickable "
+                    "with lv_obj_set_clickable.", (void *)obj);
+    }
+#else
+    LV_UNUSED(obj);
+#endif
+}
+
+/*---------------------------------------------------------------------------
+ * Appearance
+ *-------------------------------------------------------------------------*/
+
+void trlv_apply_surface(lv_obj_t * obj, trlv_surface_t surface)
 {
     LV_ASSERT_NULL(obj);
 
     if((uint32_t)surface >= TRLV_SURFACE_COUNT) {
-        LV_LOG_WARN("trlv_surface: %d is not a trlv_surface_t", (int)surface);
+        LV_LOG_WARN("trlv_apply_surface: %d is not a trlv_surface_t", (int)surface);
         return;
     }
+    warn_if_button(obj, "trlv_apply_surface");
     trlv_style_group_apply(obj, &fill_group, surface_styles[surface], LV_PART_MAIN);
 }
 
-void trlv_card(lv_obj_t * obj, trlv_card_t card)
+void trlv_apply_card(lv_obj_t * obj, trlv_card_t card)
 {
     LV_ASSERT_NULL(obj);
 
     if((uint32_t)card >= TRLV_CARD_COUNT) {
-        LV_LOG_WARN("trlv_card: %d is not a trlv_card_t", (int)card);
+        LV_LOG_WARN("trlv_apply_card: %d is not a trlv_card_t", (int)card);
         return;
     }
+    warn_if_not_container(obj);
     trlv_style_group_apply(obj, &fill_group, card_styles[card], LV_PART_MAIN);
 }
 
-void trlv_button_variant(lv_obj_t * btn, trlv_button_t variant)
+void trlv_apply_button_type(lv_obj_t * btn, trlv_button_t type)
 {
     LV_ASSERT_NULL(btn);
 
-    if((uint32_t)variant >= TRLV_BUTTON_COUNT) {
-        LV_LOG_WARN("trlv_button_variant: %d is not a trlv_button_t", (int)variant);
+    if((uint32_t)type >= TRLV_BUTTON_COUNT) {
+        LV_LOG_WARN("trlv_apply_button_type: %d is not a trlv_button_t", (int)type);
         return;
     }
-    trlv_style_group_apply(btn, &button_group, button_styles[variant], LV_PART_MAIN);
-    trlv_style_group_apply(btn, &button_pressed_group, button_pressed_styles[variant],
+    warn_if_not_clickable(btn);
+    trlv_style_group_apply(btn, &button_group, button_styles[type], LV_PART_MAIN);
+    trlv_style_group_apply(btn, &button_pressed_group, button_pressed_styles[type],
                            LV_PART_MAIN | LV_STATE_PRESSED);
-    trlv_style_group_apply(btn, &button_focus_group, button_focus_styles[variant],
+    trlv_style_group_apply(btn, &button_focus_group, button_focus_styles[type],
                            LV_PART_MAIN | LV_STATE_FOCUS_KEY);
-    trlv_style_group_apply(btn, &button_disabled_group, button_disabled_styles[variant],
+    trlv_style_group_apply(btn, &button_disabled_group, button_disabled_styles[type],
                            LV_PART_MAIN | LV_STATE_DISABLED);
 }
 
-void trlv_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t surface)
+void trlv_apply_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t surface)
 {
     LV_ASSERT_NULL(obj);
 
     if((uint32_t)surface >= TRLV_CUSTOM_SURFACE_COUNT) {
-        LV_LOG_WARN("trlv_surface_custom: %d is not a trlv_custom_surface_t", (int)surface);
+        LV_LOG_WARN("trlv_apply_surface_custom: %d is not a trlv_custom_surface_t", (int)surface);
         return;
     }
 
 #if TRLV_CUSTOM_COLOR_MAX > 0
     if(index >= TRLV_CUSTOM_COLOR_MAX) {
-        LV_LOG_WARN("trlv_surface_custom: index %d is at or beyond TRLV_CUSTOM_COLOR_MAX (%d)",
+        LV_LOG_WARN("trlv_apply_surface_custom: index %d is at or beyond TRLV_CUSTOM_COLOR_MAX (%d)",
                     (int)index, (int)TRLV_CUSTOM_COLOR_MAX);
         return;
     }
 
     /* Before trlv_init the count is unknown; the style is empty until then. */
-    const trlv_color_tokens_t * color = trlv_color();
+    const trlv_color_tokens_t * color = trlv_get_color_tokens();
     if(color != NULL && index >= color->custom_count) {
-        LV_LOG_WARN("trlv_surface_custom: index %d is beyond the tokens' custom_count (%d)",
+        LV_LOG_WARN("trlv_apply_surface_custom: index %d is beyond the tokens' custom_count (%d)",
                     (int)index, (int)color->custom_count);
         return;
     }
 
+    warn_if_button(obj, "trlv_apply_surface_custom");
     trlv_style_group_apply(obj, &fill_group,
                            custom_styles[index * TRLV_CUSTOM_SURFACE_COUNT + (uint32_t)surface],
                            LV_PART_MAIN);
 #else
     LV_UNUSED(obj);
-    LV_LOG_WARN("trlv_surface_custom: index %d is at or beyond TRLV_CUSTOM_COLOR_MAX (0)", (int)index);
+    LV_LOG_WARN("trlv_apply_surface_custom: index %d is at or beyond TRLV_CUSTOM_COLOR_MAX (0)", (int)index);
     LV_UNUSED(index);
 #endif
 }

@@ -124,7 +124,7 @@ static void plain_obj_is_an_md3_container(lv_obj_t * screen)
 static void box_stays_transparent(lv_obj_t * screen)
 {
     init_with(screen, &tokens_light);
-    lv_obj_t * box = trlv_box(screen);
+    lv_obj_t * box = trlv_box_create(screen);
 
     TRLV_ASSERT_INT(lv_obj_get_style_bg_opa(box, LV_PART_MAIN), LV_OPA_TRANSP);
     TRLV_ASSERT_INT(lv_obj_get_style_border_width(box, LV_PART_MAIN), 0);
@@ -162,7 +162,7 @@ static void button_puts_icon_and_label_in_a_row(lv_obj_t * screen)
     init_with(screen, &tokens_light);
     lv_obj_t * btn = lv_button_create(screen);
     lv_obj_set_width(btn, 200);
-    lv_obj_t * icon = trlv_box(btn);
+    lv_obj_t * icon = trlv_box_create(btn);
     lv_obj_set_size(icon, 18, 18);
     lv_obj_t * label = lv_label_create(btn);
     lv_label_set_text(label, "Save");
@@ -202,7 +202,7 @@ static void button_layout_can_be_turned_off(lv_obj_t * screen)
     lv_obj_set_layout(btn, LV_LAYOUT_NONE);
     TRLV_ASSERT_X(label, pad);                                  /* left, as aligned */
 
-    lv_obj_t * badge = trlv_box(btn);
+    lv_obj_t * badge = trlv_box_create(btn);
     lv_obj_set_size(badge, 8, 8);
     lv_obj_set_layout(btn, LV_LAYOUT_FLEX);
     lv_obj_set_floating(badge, true);

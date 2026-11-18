@@ -8,8 +8,47 @@ While the version is 0.x, minor releases may contain breaking changes.
 
 ## [Unreleased]
 
+### Added
+
+- The appearance functions log an `LV_LOG_WARN` (and still apply) on an
+  object the look makes no sense on: `trlv_apply_card` on an LVGL widget
+  rather than a plain container, `trlv_apply_surface` or
+  `trlv_apply_surface_custom` on an `lv_button` (pressed and focus keep
+  the button's colours), and `trlv_apply_button_type` on an object that
+  isn't clickable. The warnings compile out with LVGL logging.
+
 ### Changed
 
+- **Breaking: the API follows LVGL's grammar.** Constructors end in
+  `_create`, layout setters are `trlv_set_<property>`, appearance
+  functions are `trlv_apply_<look>` (as Figma applies a style) and
+  getters use `_get_`, so a call site shows whether a call creates an
+  object, and which kind of property it changes. Rename every call as
+  follows. There are no deprecated aliases in 0.x.
+
+  | 0.1.0 | Now |
+  |---|---|
+  | `trlv_box`, `trlv_row`, `trlv_column` | `trlv_box_create`, `trlv_row_create`, `trlv_column_create` |
+  | `trlv_spacer`, `trlv_divider`, `trlv_text` | `trlv_spacer_create`, `trlv_divider_create`, `trlv_text_create` |
+  | `trlv_gap`, `trlv_pad` | `trlv_set_gap`, `trlv_set_pad` |
+  | `trlv_justify`, `trlv_align_items` | `trlv_set_justify`, `trlv_set_align_items` |
+  | `trlv_fill_width`, `trlv_fill_height` | `trlv_set_width_fill`, `trlv_set_height_fill` |
+  | `trlv_hug_width`, `trlv_hug_height` | `trlv_set_width_hug`, `trlv_set_height_hug` |
+  | `trlv_surface`, `trlv_surface_custom`, `trlv_card` | `trlv_apply_surface`, `trlv_apply_surface_custom`, `trlv_apply_card` |
+  | `trlv_text_role`, `trlv_button_variant` | `trlv_apply_text_role`, `trlv_apply_button_type` |
+  | `trlv_color()`, `trlv_layout()` | `trlv_get_color_tokens()`, `trlv_get_layout_tokens()` |
+
+- **Breaking: rows and columns take no gap.** `trlv_row_create(parent)`
+  and `trlv_column_create(parent)` start with no gap, like a fresh Figma
+  frame; set it with `trlv_set_gap`. Replace
+  `lv_obj_t * row = trlv_row(parent, TRLV_SPACE_SM);` with
+  `lv_obj_t * row = trlv_row_create(parent);` followed by
+  `trlv_set_gap(row, TRLV_SPACE_SM);`. A gap of `TRLV_SPACE_NONE` needs no
+  setter.
+- The fill warning (a child growing along the main axis of a parent that
+  hugs it) names the new functions, for example
+  `trlv_set_width_fill(...)`, and suggests `trlv_set_width_fill` on the
+  parent.
 - The token templates name every field they set (designated initialisers),
   including the state opacities, the text styles and the elevation
   shadows. A field added to a token struct in a later minor release is

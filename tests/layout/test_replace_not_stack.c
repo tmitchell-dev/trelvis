@@ -43,26 +43,27 @@ static lv_color_t project_color(void)
     return lv_color_hex(0x123456);
 }
 
-/* trlv_gap: pad_row and pad_column. */
+/* trlv_set_gap: pad_row and pad_column. */
 static void gap(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row(setup(screen), TRLV_SPACE_LG);
+    lv_obj_t * row = trlv_row_create(setup(screen));
+    trlv_set_gap(row, TRLV_SPACE_LG);
     lv_style_set_pad_column(&project, 40);
     add_project(row, LV_PART_MAIN);
-    trlv_gap(row, TRLV_SPACE_SM);
+    trlv_set_gap(row, TRLV_SPACE_SM);
 
     TRLV_ASSERT_INT(lv_obj_get_style_pad_column(row, LV_PART_MAIN), 40);
     TRLV_ASSERT_INT(lv_obj_get_style_pad_row(row, LV_PART_MAIN), tokens_regular.space[TRLV_SPACE_SM]);
 }
 
-/* trlv_pad: the four sides. */
+/* trlv_set_pad: the four sides. */
 static void pad(lv_obj_t * screen)
 {
-    lv_obj_t * box = trlv_box(setup(screen));
-    trlv_pad(box, TRLV_SPACE_LG);
+    lv_obj_t * box = trlv_box_create(setup(screen));
+    trlv_set_pad(box, TRLV_SPACE_LG);
     lv_style_set_pad_left(&project, 40);
     add_project(box, LV_PART_MAIN);
-    trlv_pad(box, TRLV_SPACE_SM);
+    trlv_set_pad(box, TRLV_SPACE_SM);
 
     TRLV_ASSERT_INT(lv_obj_get_style_pad_left(box, LV_PART_MAIN), 40);
     TRLV_ASSERT_INT(lv_obj_get_style_pad_top(box, LV_PART_MAIN), tokens_regular.space[TRLV_SPACE_SM]);
@@ -71,16 +72,16 @@ static void pad(lv_obj_t * screen)
 /* Hug and fill width, one group. */
 static void width(lv_obj_t * screen)
 {
-    lv_obj_t * box = trlv_box(setup(screen));
+    lv_obj_t * box = trlv_box_create(setup(screen));
     lv_obj_set_size(box, 200, 100);
-    lv_obj_t * obj = trlv_box(box);
-    trlv_hug_width(obj);
+    lv_obj_t * obj = trlv_box_create(box);
+    trlv_set_width_hug(obj);
     lv_style_set_width(&project, 77);
     add_project(obj, LV_PART_MAIN);
-    trlv_fill_width(obj);
+    trlv_set_width_fill(obj);
     TRLV_ASSERT_WIDTH(obj, 77);
 
-    trlv_hug_width(obj);
+    trlv_set_width_hug(obj);
     TRLV_ASSERT_WIDTH(obj, 77);
 }
 
@@ -88,89 +89,89 @@ static void width(lv_obj_t * screen)
  * height (100 %), the property the project style sets. */
 static void height(lv_obj_t * screen)
 {
-    lv_obj_t * box = trlv_box(setup(screen));
+    lv_obj_t * box = trlv_box_create(setup(screen));
     lv_obj_set_size(box, 200, 100);
-    lv_obj_t * obj = trlv_box(box);
-    trlv_fill_height(obj);
+    lv_obj_t * obj = trlv_box_create(box);
+    trlv_set_height_fill(obj);
     lv_style_set_height(&project, 33);
     add_project(obj, LV_PART_MAIN);
-    trlv_hug_height(obj);
+    trlv_set_height_hug(obj);
     TRLV_ASSERT_HEIGHT(obj, 33);
 
-    trlv_fill_height(obj);
+    trlv_set_height_fill(obj);
     TRLV_ASSERT_HEIGHT(obj, 33);
 }
 
-/* trlv_justify: flex_main_place. */
+/* trlv_set_justify: flex_main_place. */
 static void justify(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row(setup(screen), TRLV_SPACE_NONE);
-    trlv_justify(row, TRLV_JUSTIFY_END);
+    lv_obj_t * row = trlv_row_create(setup(screen));
+    trlv_set_justify(row, TRLV_JUSTIFY_END);
     lv_style_set_flex_main_place(&project, LV_FLEX_ALIGN_SPACE_AROUND);
     add_project(row, LV_PART_MAIN);
-    trlv_justify(row, TRLV_JUSTIFY_CENTER);
+    trlv_set_justify(row, TRLV_JUSTIFY_CENTER);
 
     TRLV_ASSERT_INT(lv_obj_get_style_flex_main_place(row, LV_PART_MAIN), LV_FLEX_ALIGN_SPACE_AROUND);
 }
 
-/* trlv_align_items: flex_cross_place and flex_track_place. */
+/* trlv_set_align_items: flex_cross_place and flex_track_place. */
 static void align_items(lv_obj_t * screen)
 {
-    lv_obj_t * row = trlv_row(setup(screen), TRLV_SPACE_NONE);
-    trlv_align_items(row, TRLV_ALIGN_ITEMS_END);
+    lv_obj_t * row = trlv_row_create(setup(screen));
+    trlv_set_align_items(row, TRLV_ALIGN_ITEMS_END);
     lv_style_set_flex_cross_place(&project, LV_FLEX_ALIGN_CENTER);
     add_project(row, LV_PART_MAIN);
-    trlv_align_items(row, TRLV_ALIGN_ITEMS_START);
+    trlv_set_align_items(row, TRLV_ALIGN_ITEMS_START);
 
     TRLV_ASSERT_INT(lv_obj_get_style_flex_cross_place(row, LV_PART_MAIN), LV_FLEX_ALIGN_CENTER);
     TRLV_ASSERT_INT(lv_obj_get_style_flex_track_place(row, LV_PART_MAIN), LV_FLEX_ALIGN_START);
 }
 
-/* trlv_text and trlv_text_role: one group. */
+/* trlv_text_create and trlv_apply_text_role: one group. */
 static void text_role(lv_obj_t * screen)
 {
-    lv_obj_t * text = trlv_text(setup(screen), "Text", TRLV_TEXT_TITLE_LARGE);
+    lv_obj_t * text = trlv_text_create(setup(screen), "Text", TRLV_TEXT_TITLE_LARGE);
     lv_style_set_text_font(&project, LV_FONT_DEFAULT);
     add_project(text, LV_PART_MAIN);
-    trlv_text_role(text, TRLV_TEXT_LABEL_SMALL);
+    trlv_apply_text_role(text, TRLV_TEXT_LABEL_SMALL);
 
     ASSERT_TRUE(lv_obj_get_style_text_font(text, LV_PART_MAIN) == LV_FONT_DEFAULT);
 }
 
-/* trlv_surface, trlv_surface_custom and trlv_card: one group. */
+/* trlv_apply_surface, trlv_apply_surface_custom and trlv_apply_card: one group. */
 static void fill(lv_obj_t * screen)
 {
-    lv_obj_t * box = trlv_box(setup(screen));
-    trlv_surface(box, TRLV_SURFACE_CONTAINER);
+    lv_obj_t * box = trlv_box_create(setup(screen));
+    trlv_apply_surface(box, TRLV_SURFACE_CONTAINER);
     lv_style_set_bg_color(&project, project_color());
     add_project(box, LV_PART_MAIN);
 
-    trlv_card(box, TRLV_CARD_OUTLINED);
+    trlv_apply_card(box, TRLV_CARD_OUTLINED);
     ASSERT_COLOR(lv_obj_get_style_bg_color(box, LV_PART_MAIN), project_color());
     TRLV_ASSERT_INT(lv_obj_get_style_border_width(box, LV_PART_MAIN), tokens_regular.border_width);
 
 #if TRLV_CUSTOM_COLOR_MAX > 0
-    trlv_surface_custom(box, TOKEN_CUSTOM_SUCCESS, TRLV_CUSTOM_SURFACE_COLOR);
+    trlv_apply_surface_custom(box, TOKEN_CUSTOM_SUCCESS, TRLV_CUSTOM_SURFACE_COLOR);
     ASSERT_COLOR(lv_obj_get_style_bg_color(box, LV_PART_MAIN), project_color());
     ASSERT_COLOR(lv_obj_get_style_text_color(box, LV_PART_MAIN),
                  tokens_light.custom[TOKEN_CUSTOM_SUCCESS].on_color);
 #endif
 
-    trlv_surface(box, TRLV_SURFACE_INVERSE);
+    trlv_apply_surface(box, TRLV_SURFACE_INVERSE);
     ASSERT_COLOR(lv_obj_get_style_bg_color(box, LV_PART_MAIN), project_color());
     ASSERT_COLOR(lv_obj_get_style_text_color(box, LV_PART_MAIN), tokens_light.inverse_on_surface);
     TRLV_ASSERT_INT(lv_obj_get_style_border_width(box, LV_PART_MAIN), 0);
 }
 
-/* trlv_button_variant: four groups, one per state selector. The project
- * style sets the pressed colour; a later variant must not take it over. */
-static void button_variant(lv_obj_t * screen)
+/* trlv_apply_button_type: four groups, one per state selector. The project
+ * style sets the pressed colour; a later type must not take it over. */
+static void button_type(lv_obj_t * screen)
 {
     lv_obj_t * btn = lv_button_create(setup(screen));
-    trlv_button_variant(btn, TRLV_BUTTON_TONAL);
+    trlv_apply_button_type(btn, TRLV_BUTTON_TONAL);
     lv_style_set_bg_color(&project, project_color());
     add_project(btn, LV_PART_MAIN | LV_STATE_PRESSED);
-    trlv_button_variant(btn, TRLV_BUTTON_FILLED);
+    trlv_apply_button_type(btn, TRLV_BUTTON_FILLED);
 
     ASSERT_COLOR(lv_obj_get_style_bg_color(btn, LV_PART_MAIN), tokens_light.primary);
 
@@ -192,6 +193,6 @@ int main(void)
     TRLV_TEST_RUN(align_items);
     TRLV_TEST_RUN(text_role);
     TRLV_TEST_RUN(fill);
-    TRLV_TEST_RUN(button_variant);
+    TRLV_TEST_RUN(button_type);
     return trlv_test_finish();
 }
