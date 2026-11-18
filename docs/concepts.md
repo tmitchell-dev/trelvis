@@ -483,7 +483,7 @@ The theme's apply callback checks each object's class with
 | `lv_checkbox` | A `space[SM]` gap before the text. Box with a `border_width` border in `on_surface_variant`, radius XS, 3 dpx around the mark; checked: `primary` with an `on_primary` mark (`LV_SYMBOL_OK`). Text inherits. No recolour on press. |
 | `lv_slider`, `lv_bar` | `surface_container_highest` track, `primary` indicator (and slider knob), all radius FULL. The slider knob reaches 6 dpx beyond the track; pressed, it doesn't grow. |
 | `lv_arc`, `lv_spinner` | The same pair as arc colours: `surface_container_highest` track, `primary` indicator (and round arc knob, 6 dpx beyond the arc), 15 dpx wide with rounded ends. |
-| `lv_dropdown`, `lv_textarea` | MD3 outlined field: `surface`, a `border_width` border in `outline`, radius XS, `on_surface` text, `space[LG]` side padding and `space[SM]` top and bottom, so a one-line field set to `control_height[MD]` fits a line of body text (MD3's 16 px is for its 56 px field). Focused: the border turns `primary` and `focus_width` thick, with no extra ring (LVGL draws borders inside, so the field's size doesn't change; its content box does, see [#130](https://github.com/tmitchell-dev/trelvis/issues/130)). Textarea caret in `primary`, placeholder in `on_surface_variant`. |
+| `lv_dropdown`, `lv_textarea` | MD3 outlined field: `surface`, a `border_width` border in `outline`, radius XS, `on_surface` text, `space[LG]` side padding and `space[SM]` top and bottom, so a one-line field set to `control_height[MD]` fits a line of body text (MD3's 16 px is for its 56 px field). Focused: the border turns `primary` and `focus_width` thick, with no extra ring. LVGL draws borders inside, so the padding shrinks by the extra border width: the field's size, its content box and the text stay where they are. Textarea caret in `primary`, placeholder in `on_surface_variant`. |
 | Dropdown list | MD3 menu: `surface_container`, radius XS, the level 2 elevation shadow, `on_surface` text. The selected option is `secondary_container` / `on_secondary_container`; a pressed option gets the state layer. |
 | All interactive widgets | Disabled: `on_surface` at 12 % for containers and tracks, 38 % for content, indicators, knobs and check boxes, as real opacity. Keypad or encoder focus (and encoder editing): the focus ring (`focus`, `focus_width`, `space[2XS]` outside), except fields, which use their border. LVGL's default recolour on press, grow on press and focus outline are switched off. |
 
@@ -522,7 +522,7 @@ The last column says what `TRLV_THEME_PARENT_NONE` leaves.
 | Screen, plain `lv_obj`, `lv_label`, `lv_button` | covered | usable |
 | `lv_switch`, `lv_checkbox`, `lv_slider`, `lv_bar` | covered | covered |
 | `lv_arc`, `lv_spinner` | covered | covered |
-| `lv_dropdown`, `lv_textarea` | covered; a focused one-line textarea shows scrollbars ([#130](https://github.com/tmitchell-dev/trelvis/issues/130)) | covered |
+| `lv_dropdown`, `lv_textarea` | covered | covered |
 | `lv_arclabel`, `lv_spangroup` | fine via the parent theme: text inherits the role and colour | usable |
 | `lv_led` | fine via the parent theme (`primary`) | invisible |
 | `lv_line` | fine via the parent theme | invisible: no line width |

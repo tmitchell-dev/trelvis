@@ -253,10 +253,13 @@ TOKEN_STYLE(checkbox_box_disabled, 3);
  * MD3, space SM at the top and bottom, so a one-line field set to
  * `control_height[MD]` fits a line of body text (MD3's 16 px is for its
  * 56 px field). The focused border is primary and `focus_width` thick:
- * the field's focus indicator. */
+ * the field's focus indicator. LVGL draws borders inside the object, so
+ * the focused padding is smaller by the extra border width: the content
+ * box and the text stay where they are, and a one-line textarea doesn't
+ * start to scroll. */
 #if THEME_FIELD
 TOKEN_STYLE(field, 9);
-TOKEN_STYLE(field_focused, 2);
+TOKEN_STYLE(field_focused, 6);
 TOKEN_STYLE(field_disabled, 5);
 #endif
 
@@ -467,6 +470,7 @@ static void theme_styles_build(lv_display_t * disp, const trlv_color_tokens_t * 
 #if THEME_FIELD
     int32_t pad_ver = layout->space[TRLV_SPACE_SM];
     int32_t pad_hor = layout->space[TRLV_SPACE_LG];
+    int32_t extra_border = layout->focus_width - layout->border_width;
     BUILD(field, {
         put_color(w, LV_STYLE_BG_COLOR, color->surface);
         put_color(w, LV_STYLE_BORDER_COLOR, color->outline);
@@ -481,6 +485,10 @@ static void theme_styles_build(lv_display_t * disp, const trlv_color_tokens_t * 
     BUILD(field_focused, {
         put_color(w, LV_STYLE_BORDER_COLOR, color->primary);
         put_num(w, LV_STYLE_BORDER_WIDTH, layout->focus_width);
+        put_num(w, LV_STYLE_PAD_TOP, LV_MAX(pad_ver - extra_border, 0));
+        put_num(w, LV_STYLE_PAD_BOTTOM, LV_MAX(pad_ver - extra_border, 0));
+        put_num(w, LV_STYLE_PAD_LEFT, LV_MAX(pad_hor - extra_border, 0));
+        put_num(w, LV_STYLE_PAD_RIGHT, LV_MAX(pad_hor - extra_border, 0));
     });
     BUILD(field_disabled, {
         put_color(w, LV_STYLE_BORDER_COLOR, color->on_surface);

@@ -67,6 +67,11 @@ While the version is 0.x, minor releases may contain breaking changes.
 
 ### Fixed
 
+- A focused dropdown or textarea keeps its content box. Its border grows
+  to `focus_width` inside the field, and the padding now shrinks by the
+  same amount, so the text no longer moves, a field sized by its content
+  no longer grows, and a one-line textarea no longer shows scrollbars
+  when focused.
 - With `TRLV_THEME_PARENT_NONE`, the widgets the theme covers keep their
   shape: arcs and spinners are drawn, switches, sliders and bars are
   round, the slider has its knob, a checked checkbox shows its mark and
