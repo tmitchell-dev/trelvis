@@ -17,7 +17,8 @@ added only if it does at least one of these:
   clicks, set the flow).
 - **Takes a design token**, so screens hold no magic numbers
   (`trlv_set_pad(obj, TRLV_SPACE_LG)`).
-- **Fixes an LVGL default that surprises** people coming from Figma or CSS
+- **Fixes an LVGL default that surprises** people coming from CSS, Figma
+  or other UI toolkits
   (`trlv_box_create`: not scrollable, not clickable, no theme padding).
 - **Makes a decision LVGL leaves to the caller** (`trlv_set_width_fill`: grow or
   100 %, depending on the parent's direction).
@@ -30,8 +31,9 @@ names the LVGL call to use.
 LVGL's natural behaviour stands. Every deliberate difference (such as
 `trlv_box_create` not scrolling) is documented on the function.
 
-The v1 budget is about 20 layout and styling functions, plus four for
-initialisation and token access. The reviewed API has 19 plus four.
+The v1 budget is about 20 layout and styling functions, plus a few for
+initialisation and token access. After the trial-2 review the API has 20
+plus seven: `trlv_apply_text_emphasis`, and three token value getters.
 
 ## Milestones
 
@@ -295,6 +297,61 @@ Trimmed in the pre-1.0 triage, as they don't pass "What earns a place":
   layout mode): the layout mode is fixed at `trlv_init`, so this is one
   `if` in the screen code.
 
+### Settled in the trial-2 review
+
+The second product trial (0.2.0) built a process-HMI screen in the
+high-performance style of ISA-101, with no designer and no Figma file. An
+AI agent chose the look from the docs. The code held up: about 700 lines,
+warning-free and correctly laid out on the first run. The design side
+assumed Figma and MD3 knowledge: the only design rules were in the Figma
+hand-off doc, role choice needed MD3, and about half the screen was off
+the easy path. These decisions came out of the review (#155–#163, #144,
+#145, #146).
+
+- **Identity** (#155). TreLVis's design language is inspired by, and
+  compatible with, Material Design 3. It keeps MD3's colour roles and
+  type scale, so Material tools and designs map one-to-one, and explains
+  them by purpose, so neither Figma nor MD3 is needed. "Inspired by" lets
+  TreLVis add what MD3 lacks. Figma is one supported hand-off. MD3 is
+  credited in the README, NOTICE and concepts.
+- **Vocabulary** (#155). The most intuitive existing word for a reader
+  who knows CSS or LVGL but not Figma; MD3 role names for tokens, for
+  compatibility; still no fourth vocabulary. An audit of every public name
+  kept all but `hug`. A setter is described as a layout property (size,
+  spacing, flow), not "a row of Figma's auto layout panel".
+- **`hug` is renamed `fit`** (#156): `trlv_set_width_fit`,
+  `trlv_set_height_fit`, after CSS `fit-content`. This is the review's one
+  breaking change, so it needs a 0.3.0 before the freeze.
+- **No radius or height setters** (#145, #146). They would rename single,
+  clear LVGL calls. What the trials objected to was the token expression,
+  so raw calls take tokens through `trlv_get_space`, `trlv_get_radius` and
+  `trlv_get_control_height` (#161).
+- **Added before 1.0:** `trlv_apply_text_emphasis` (lower-emphasis text in
+  `on_surface_variant`, a shared style that follows colour-mode switches;
+  #144) and `TRLV_SURFACE_DIM` / `_BRIGHT` (#160). On a coloured container
+  the emphasis is still `on_surface_variant`, documented as meant for
+  surfaces.
+- **One token template** (#158). TreLVis ships the MD3 baseline template,
+  with a generic status set (fault, warning, advisory, bad data) as its
+  custom colour example; it has no "error" entry, so a fault never reads
+  as MD3's input-error role. The HMI example is removed: building a
+  scheme for a domain is the project's job. Two docs support it:
+  [Designing a screen](docs/designing-a-screen.md) for tool-neutral rules
+  and role choice, and [Building a token set](docs/building-a-token-set.md)
+  for what each token is used for.
+- **Testing scope.** CI tests the library and what TreLVis ships (the
+  template and the demo), not every scheme a project might design. A
+  small test-only contrast check (#159) is an aid a project can build with
+  its own tokens. External theme tools (#86, #147) may be supported more
+  officially later.
+- **Per-axis padding stays "Not planned"** for now, with the trial's
+  count (5 of 7 padded objects) kept as evidence in #162. With
+  `trlv_get_space` the raw call reads cleanly.
+- **Left to projects:** components outside MD3's set (alarm indicators,
+  range bars, state markers, chips, badges, dialogs) are compositions of
+  primitives, as Designing a screen shows. Ready-made ones would belong in
+  `trelvis-starter`, not the library.
+
 ## v1.x (on demand)
 
 Additive items, each built only when a product needs it, before or after
@@ -313,6 +370,10 @@ Additive items, each built only when a product needs it, before or after
   to MD3 ([docs/concepts.md §6.4](docs/concepts.md#64-widget-coverage-v1)):
   roller, button matrix and keyboard, message box, spinbox, table, chart,
   calendar, and the tabview and tileview content. One issue each.
+- Per-axis padding as token setters (`trlv_set_pad_horizontal` /
+  `_vertical`, shared styles), if a second product needs them (#162).
+- `trlv_apply_text_custom(obj, index)`: a custom colour as text colour,
+  following colour-mode switches, when a product needs it (#163).
 
 ## Later (designed for, not yet built)
 
@@ -325,6 +386,9 @@ Additive items, each built only when a product needs it, before or after
   builds weekly against LVGL master. Support for v10 comes in a new major
   version, with a `release/v1.x` branch for products that stay on LVGL 9
   (see the [compatibility promise](README.md#what-a-version-number-promises)).
+- **Theme role indirection:** which colour role fills which widget part,
+  set in the tokens. Only if a product needs a look the role values can't
+  reach; the trial-2 HMI scheme got its look from values alone.
 
 ## Related project: `trelvis-starter`
 
@@ -346,7 +410,10 @@ These are deliberately excluded:
 - Wrappers for single clear LVGL calls: visibility, clipping, scrolling,
   wrapping, text truncation, min / max size, grid cells, different
   horizontal and vertical gaps or padding (`_xy` variants), absolute
-  position. The mapping table names the LVGL call for each.
+  position, corner radius, control height. The mapping table names the
+  LVGL call for each, with a token getter (`trlv_get_space`, …) where it
+  takes a token. Per-axis padding as token setters is reconsidered if a
+  second product needs it (v1.x).
 - `trlv_page` (header / body / footer) and `trlv_grid`. Not every project
   uses them; a page is a project component, and grids use LVGL's grid API.
 - Token values compiled into the library. Tokens come from a template the
