@@ -129,6 +129,8 @@ extern "C" {
  * @param layout  Layout collection: the layout mode (e.g. Regular)
  *
  * A NULL argument is rejected with LV_LOG_WARN and nothing changes.
+ *
+ * @ingroup trlv_setup
  */
 void trlv_init(lv_display_t * disp, const trlv_color_tokens_t * color,
                const trlv_layout_tokens_t * layout);
@@ -161,6 +163,8 @@ void trlv_init(lv_display_t * disp, const trlv_color_tokens_t * color,
  * @param color  the Color collection mode to switch to. NULL is rejected
  *               with LV_LOG_WARN, and so is a call before trlv_init; in
  *               both cases nothing changes.
+ *
+ * @ingroup trlv_setup
  */
 void trlv_theme_set_color_mode(const trlv_color_tokens_t * color);
 
@@ -177,6 +181,8 @@ void trlv_theme_set_color_mode(const trlv_color_tokens_t * color);
  *
  * @return the tokens passed to trlv_init or trlv_theme_set_color_mode,
  *         or NULL before trlv_init
+ *
+ * @ingroup trlv_get
  */
 const trlv_color_tokens_t * trlv_get_color_tokens(void);
 
@@ -189,6 +195,8 @@ const trlv_color_tokens_t * trlv_get_color_tokens(void);
  *     lv_obj_set_style_pad_left(obj, trlv_get_layout_tokens()->space[TRLV_SPACE_LG], 0);
  *
  * @return the tokens passed to trlv_init, or NULL before trlv_init
+ *
+ * @ingroup trlv_get
  */
 const trlv_layout_tokens_t * trlv_get_layout_tokens(void);
 

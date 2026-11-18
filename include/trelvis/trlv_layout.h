@@ -6,28 +6,16 @@
  * Layout primitives (box, row, column, spacer, divider) and layout
  * modifiers: Figma auto layout, CSS flexbox.
  *
- * Names follow LVGL's grammar with Figma, CSS and MD3 words. There are
- * four kinds of function:
- *
- * - constructors, `trlv_<thing>_create(parent, ...)`, create an object and
- *   return a plain lv_obj_t *. They take the parent plus only arguments
- *   whose type makes them clear at the call site (never a bare
- *   TRLV_SPACE_*);
- * - layout setters, `trlv_set_*` (this header): the properties of Figma's
- *   auto layout panel. A setter never changes colour;
- * - appearance functions, `trlv_apply_*` (trlv_surface.h, trlv_text.h):
- *   Figma's "apply a style", for colour, shape and type. An apply never
- *   changes layout;
- * - getters, `trlv_get_*` (trlv_theme.h).
- *
- * Setters and applies work on any object, including ones TreLVis didn't
- * create, and each replaces its own previous style rather than adding
- * another, which is what `set` means in LVGL. Raw LVGL calls stay valid on
+ * This header holds two of the five kinds of function described on the
+ * main page: constructors (`trlv_<thing>_create`) and layout setters
+ * (`trlv_set_<property>`). Setters work on any object, including ones
+ * TreLVis didn't create, replace their own previous style rather than
+ * adding another, and never change colour. Raw LVGL calls stay valid on
  * every object.
  *
  * Unlike lv_obj_set_style_*, which adds a local style to the one object,
- * TreLVis setters and applies use shared styles (one per value), so they
- * cost no RAM per object.
+ * TreLVis setters use shared styles (one per value), so they cost no RAM
+ * per object.
  *
  * Create, then set one property per line, as in Figma's auto layout panel:
  *
@@ -144,6 +132,8 @@ typedef enum {
  *
  * @param parent  the parent object
  * @return        the new box
+ *
+ * @ingroup trlv_create
  */
 lv_obj_t * trlv_box_create(lv_obj_t * parent);
 
@@ -169,6 +159,8 @@ lv_obj_t * trlv_box_create(lv_obj_t * parent);
  *
  * @param parent  the parent object
  * @return        the new row
+ *
+ * @ingroup trlv_create
  */
 lv_obj_t * trlv_row_create(lv_obj_t * parent);
 
@@ -180,6 +172,8 @@ lv_obj_t * trlv_row_create(lv_obj_t * parent);
  *
  * @param parent  the parent object
  * @return        the new column
+ *
+ * @ingroup trlv_create
  */
 lv_obj_t * trlv_column_create(lv_obj_t * parent);
 
@@ -204,6 +198,8 @@ lv_obj_t * trlv_column_create(lv_obj_t * parent);
  *
  * @param parent  the parent object, normally a row or column
  * @return        the new spacer
+ *
+ * @ingroup trlv_create
  */
 lv_obj_t * trlv_spacer_create(lv_obj_t * parent);
 
@@ -230,6 +226,8 @@ lv_obj_t * trlv_spacer_create(lv_obj_t * parent);
  *
  * @param parent  the parent object, normally a row or column
  * @return        the new divider
+ *
+ * @ingroup trlv_create
  */
 lv_obj_t * trlv_divider_create(lv_obj_t * parent);
 
@@ -248,6 +246,8 @@ lv_obj_t * trlv_divider_create(lv_obj_t * parent);
  *
  * @param obj    any object; the gap applies to its flex or grid children
  * @param space  a step of the spacing scale
+ *
+ * @ingroup trlv_set
  */
 void trlv_set_gap(lv_obj_t * obj, trlv_space_t space);
 
@@ -267,6 +267,8 @@ void trlv_set_gap(lv_obj_t * obj, trlv_space_t space);
  *
  * @param obj    any object
  * @param space  a step of the spacing scale
+ *
+ * @ingroup trlv_set
  */
 void trlv_set_pad(lv_obj_t * obj, trlv_space_t space);
 
@@ -288,6 +290,8 @@ void trlv_set_pad(lv_obj_t * obj, trlv_space_t space);
  * @param obj      any object with a flex layout, such as a row or column
  * @param justify  how to distribute the children; any other value logs a
  *                 warning and changes nothing
+ *
+ * @ingroup trlv_set
  */
 void trlv_set_justify(lv_obj_t * obj, trlv_justify_t justify);
 
@@ -314,6 +318,8 @@ void trlv_set_justify(lv_obj_t * obj, trlv_justify_t justify);
  * @param obj    any object with a flex layout, such as a row or column
  * @param align  where to place the children across the axis; any other
  *               value logs a warning and changes nothing
+ *
+ * @ingroup trlv_set
  */
 void trlv_set_align_items(lv_obj_t * obj, trlv_align_items_t align);
 
@@ -326,6 +332,8 @@ void trlv_set_align_items(lv_obj_t * obj, trlv_align_items_t align);
  * local style and so takes precedence over hug and fill.
  *
  * @param obj  any object
+ *
+ * @ingroup trlv_set
  */
 void trlv_set_width_hug(lv_obj_t * obj);
 
@@ -333,6 +341,8 @@ void trlv_set_width_hug(lv_obj_t * obj);
  * Hug the content's height. Like trlv_set_width_hug, for the height.
  *
  * @param obj  any object
+ *
+ * @ingroup trlv_set
  */
 void trlv_set_height_hug(lv_obj_t * obj);
 
@@ -367,6 +377,8 @@ void trlv_set_height_hug(lv_obj_t * obj);
  * "auto height").
  *
  * @param obj  any object
+ *
+ * @ingroup trlv_set
  */
 void trlv_set_width_fill(lv_obj_t * obj);
 
@@ -375,6 +387,8 @@ void trlv_set_width_fill(lv_obj_t * obj);
  * a column (main axis), 100 % in a row (cross axis) or without flex layout.
  *
  * @param obj  any object
+ *
+ * @ingroup trlv_set
  */
 void trlv_set_height_fill(lv_obj_t * obj);
 

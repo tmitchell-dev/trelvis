@@ -76,6 +76,8 @@ extern "C" {
  * @param text    the text, copied into the label
  * @param role    a role of the MD3 type scale, such as TRLV_TEXT_BODY_MEDIUM
  * @return        the new label
+ *
+ * @ingroup trlv_create
  */
 lv_obj_t * trlv_text_create(lv_obj_t * parent, const char * text, trlv_text_role_t role);
 
@@ -99,6 +101,8 @@ lv_obj_t * trlv_text_create(lv_obj_t * parent, const char * text, trlv_text_role
  * @param obj   any object
  * @param role  a role of the MD3 type scale, such as TRLV_TEXT_LABEL_LARGE;
  *              any other value logs a warning and changes nothing
+ *
+ * @ingroup trlv_apply
  */
 void trlv_apply_text_role(lv_obj_t * obj, trlv_text_role_t role);
 

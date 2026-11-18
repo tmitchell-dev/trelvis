@@ -1,8 +1,8 @@
 # TreLVis concepts
 
 This document explains how TreLVis is designed: its vocabulary, design tokens,
-fonts, how it uses LVGL's theme and style engine, and the primitives and
-modifiers it provides.
+fonts, how it uses LVGL's theme and style engine, and its functions, by
+kind (§7).
 
 > **Status:** this describes TreLVis v1, which is fully implemented. The
 > public headers are the source of truth for exact signatures; this document
@@ -15,7 +15,7 @@ modifiers it provides.
 - [4. Design tokens](#4-design-tokens)
 - [5. Fonts](#5-fonts)
 - [6. Theme and style engine](#6-theme-and-style-engine)
-- [7. Primitives and modifiers](#7-primitives-and-modifiers)
+- [7. The API by kind](#7-the-api-by-kind)
 - [8. Memory and threading](#8-memory-and-threading)
 - [9. LVGL behaviours TreLVis handles](#9-lvgl-behaviours-trelvis-handles)
 - [10. Mapping: Figma / MD3 → CSS → TreLVis → LVGL](#10-mapping-figma--md3--css--trelvis--lvgl)
@@ -65,7 +65,7 @@ A function that only renames a single clear LVGL call does not qualify.
 
 | Term | Meaning | Examples |
 |---|---|---|
-| **Primitive** | A TreLVis building block (this library). | `trlv_box_create`, `trlv_row_create`, `trlv_text_create` |
+| **Primitive** | A TreLVis building block (this library): an object made by a TreLVis constructor (§7.2). | box, row, column, spacer, divider, text |
 | **Component** | A project-level composition with no state of its own, created by `<name>_create(parent, props…)`. The default choice. | `stat_card` |
 | **Widget** | Something with its own C state or logic: LVGL's built-in widgets, plus a project's custom widgets (`wd_<name>`). | `lv_slider`, `wd_readout` |
 
@@ -114,12 +114,13 @@ primitives inside.
     An apply never changes layout, so a card's padding is a separate
     `trlv_set_pad`.
   - **Getters** use `_get_`: `trlv_get_color_tokens()`.
+  - **Setup** functions keep LVGL's module grammar: `trlv_init`, like
+    `lv_init`, and `trlv_theme_set_color_mode`, like `lv_theme_*`.
 
-  Setters and applies (together, the *modifiers*) work on any object and
-  replace their previous value, which is what `set` means in LVGL
-  (`lv_obj_add_style` stacks, `lv_obj_set_*` replaces); an apply replaces
-  too. There is no `obj` in the names, unlike LVGL's `lv_obj_set_*`: they
-  work on any object, so there is no class to name.
+  §7 describes each kind, its rules and how a screen uses them. Setters
+  and applies (together, the *modifiers*) have no `obj` in their names,
+  unlike LVGL's `lv_obj_set_*`: they work on any object, so there is no
+  class to name.
 
   The same grammar is what §2 asks projects to use for their
   components (`readout_create(parent, …)`), so library and project calls
@@ -601,14 +602,48 @@ shared state styles) are internal too, and only the theme applies them.
 They are token styles like the rest: `trlv_init` and every colour-mode
 switch rewrite them in place.
 
-## 7. Primitives and modifiers
+## 7. The API by kind
+
+TreLVis has five kinds of function. The verb in the name says which
+kind a call is, as in LVGL, so a call site reads the same way whether it
+was written by hand, ported from Figma or generated:
+
+| Kind | Name | Takes | Returns | Rule |
+|---|---|---|---|---|
+| [Setup](#71-setup) | `trlv_init`, `trlv_theme_set_color_mode` | the display, token sets | nothing | Once at start-up; the colour mode at any time. |
+| [Constructors](#72-constructors-_create) | `trlv_<thing>_create` | the parent, plus only arguments whose type is clear at the call site | the new `lv_obj_t *` | Containers start empty: no gap, no padding, hug. |
+| [Layout setters](#73-layout-setters-trlv_set_) | `trlv_set_<property>` | any object | nothing | One row of Figma's auto layout panel. Never changes colour. |
+| [Appearance](#74-appearance-trlv_apply_) | `trlv_apply_<look>` | any object | nothing | Figma's "apply a style": colour, shape, type. Never changes layout. |
+| [Getters](#75-getters-trlv_get_) | `trlv_get_<what>_tokens` | nothing | the current tokens | For raw LVGL calls that need a token value. |
+
+Setters and applies together are the **modifiers**. They follow the same
+three rules:
+
+- **Any object.** They work on every `lv_obj_t`, not only objects TreLVis
+  created: a row, an `lv_obj`, an `lv_button`. Raw LVGL calls stay valid
+  on the same objects.
+- **Replace, don't stack.** Each modifier group (gap, padding, width,
+  surface, button type, …) replaces the style it applied before, which
+  is what `set` means in LVGL (`lv_obj_add_style` stacks,
+  `lv_obj_set_*` replaces). Calling `trlv_set_pad` twice leaves one
+  padding.
+- **Shared, not local.** In LVGL, `lv_obj_set_style_*` adds a *local*
+  style to the one object, which costs RAM per object. A modifier uses a
+  *shared* style (one per value) instead, so `trlv_set_pad` on a thousand
+  objects costs no more RAM than on one. As shared styles, they sit below
+  project styles and local styles in precedence (§6.2).
+
+**How a screen reads.** One block per Figma frame, in the same order
+every time: the constructor, then one setter per auto layout property
+(gap, padding, width and height, justify, align items), then the looks it
+applies. Children follow their parent's block:
 
 ```c
 lv_obj_t * card = trlv_column_create(parent);
-trlv_apply_card(card, TRLV_CARD_FILLED);
-trlv_set_pad(card, TRLV_SPACE_LG);
 trlv_set_gap(card, TRLV_SPACE_SM);
+trlv_set_pad(card, TRLV_SPACE_LG);
 trlv_set_width_fill(card);
+trlv_apply_card(card, TRLV_CARD_FILLED);
 
 lv_obj_t * header = trlv_row_create(card);
 trlv_set_gap(header, TRLV_SPACE_SM);
@@ -623,10 +658,27 @@ trlv_apply_button_type(btn, TRLV_BUTTON_TONAL);
 trlv_text_create(btn, "Calibrate", TRLV_TEXT_LABEL_LARGE);
 ```
 
-The [demo](../examples/demo) uses every primitive and modifier on real
-screens, and each of its sections is a worked example.
+The order is a convention for reading, not a rule of the API: setters and
+applies touch different style properties, so any order gives the same
+result. The one ordering that matters is the parent's direction before
+`trlv_set_*_fill` on its children (§7.3), and a constructor always sets
+it.
 
-### 7.1 Constructors (`_create`)
+The [demo](../examples/demo) uses every function on real screens, and
+each of its sections is a worked example.
+
+### 7.1 Setup
+
+| Function | When | What it does |
+|---|---|---|
+| `trlv_init(disp, color, layout)` | Once, after creating the display and before building screens | Takes the project's token sets, builds the shared styles and installs the MD3 theme on the display. Objects created before it keep their old theme styles. |
+| `trlv_theme_set_color_mode(color)` | Any time after `trlv_init` | Switches to another colour token set (light, dark, …): rewrites the shared styles in place and refreshes every object. Layout tokens stay as set at `trlv_init`. |
+
+Setup functions act on the whole library, not on an object, so they are
+not modifiers. The details, including driving the colour mode from a
+subject, are in §6.3.
+
+### 7.2 Constructors (`_create`)
 
 | Function | Figma | CSS | Behaviour |
 |---|---|---|---|
@@ -645,7 +697,7 @@ in LVGL and CSS; `trlv_set_pad(obj, TRLV_SPACE_NONE)` says "no padding" on
 purpose.
 
 **No card constructor.** A card is a look applied to a row or column, as
-a surface is: `trlv_apply_card`, then `trlv_set_pad` (MD3 cards use `LG`).
+a surface is: `trlv_set_pad` (MD3 cards use `LG`), then `trlv_apply_card`.
 Every part of an MD3 card (headline, subhead, media, supporting text,
 actions) is optional, so a card's content is children, and a card with
 fixed content is a project component (§2), such as
@@ -655,17 +707,10 @@ There is no grid or page constructor. Grids use LVGL's own grid API on a
 `trlv_box_create`, and a page skeleton (header / body / footer) is a project
 component.
 
-### 7.2 Layout setters (`trlv_set_*`)
+### 7.3 Layout setters (`trlv_set_*`)
 
-All setters work on **any** `lv_obj_t`, not only objects TreLVis created,
-and each group replaces its previous style. They never change colour.
-
-**Shared, not local.** In LVGL, `lv_obj_set_style_*` adds a *local* style
-to the one object, which costs RAM per object. A TreLVis setter (or
-apply, §7.3) uses a *shared* style (one per value) instead, so
-`trlv_set_pad` on a thousand objects costs no more RAM than on one. As
-shared styles, they sit below project styles and local styles in
-precedence (§6.2).
+All setters work on **any** `lv_obj_t` and each group replaces its
+previous style. They never change colour.
 
 | Group | Functions | Notes |
 |---|---|---|
@@ -715,23 +760,7 @@ LVGL, so TreLVis adds no function for them. Setters named
 | Truncate text | `lv_label_set_long_mode(label, LV_LABEL_LONG_MODE_DOTS)` |
 | Grid | `lv_obj_set_grid_dsc_array(obj, cols, rows)` on a `trlv_box_create`, `lv_obj_set_grid_cell(child, …)`. The track arrays are referenced, not copied, so keep them `static`. |
 
-**Token values in raw LVGL are snapshots.** `trlv_get_color_tokens()` and
-`trlv_get_layout_tokens()` return the current values, and a local style
-(`lv_obj_set_style_*`) or a widget call such as `lv_chart_add_series`
-stores the value it was given. TreLVis's own shared styles follow
-`trlv_theme_set_color_mode`; these don't, so after a switch to dark they
-keep the light colour. Layout values are fixed at `trlv_init`, so only
-colours are affected. If the product switches colour mode, either:
-
-- re-apply the colours in the code that calls
-  `trlv_theme_set_color_mode` (or in the subject observer in §6.3), or
-- keep the colours in the project's own shared `lv_style_t`, re-set its
-  properties from `trlv_get_color_tokens()` on each switch, and call
-  `lv_obj_report_style_change(&style)`, as the theme does.
-
-A product with a single colour mode can ignore this.
-
-### 7.3 Appearance (`trlv_apply_*`)
+### 7.4 Appearance (`trlv_apply_*`)
 
 Each applies a shared look to any object, replaces the look its group had
 and never changes layout. Surfaces, custom surfaces and cards are one
@@ -760,7 +789,35 @@ compiles out with LVGL logging):
 - `trlv_apply_button_type` on an object that isn't clickable: its pressed
   and focus states never show.
 
-### 7.4 Debug aids
+### 7.5 Getters (`trlv_get_*`)
+
+| Function | Returns |
+|---|---|
+| `trlv_get_color_tokens()` | The colour tokens in use: the set passed to `trlv_init` or the latest `trlv_theme_set_color_mode`. |
+| `trlv_get_layout_tokens()` | The layout tokens passed to `trlv_init`. |
+
+Modifiers take token names (`TRLV_SPACE_LG`, `TRLV_SURFACE_CONTAINER`)
+and look the values up themselves. The getters are for the places a
+modifier doesn't reach: raw LVGL calls (§7.3 "Left to LVGL") and widget
+APIs that take a value, such as a chart series colour.
+
+**Token values in raw LVGL are snapshots.** `trlv_get_color_tokens()` and
+`trlv_get_layout_tokens()` return the current values, and a local style
+(`lv_obj_set_style_*`) or a widget call such as `lv_chart_add_series`
+stores the value it was given. TreLVis's own shared styles follow
+`trlv_theme_set_color_mode`; these don't, so after a switch to dark they
+keep the light colour. Layout values are fixed at `trlv_init`, so only
+colours are affected. If the product switches colour mode, either:
+
+- re-apply the colours in the code that calls
+  `trlv_theme_set_color_mode` (or in the subject observer in §6.3), or
+- keep the colours in the project's own shared `lv_style_t`, re-set its
+  properties from `trlv_get_color_tokens()` on each switch, and call
+  `lv_obj_report_style_change(&style)`, as the theme does.
+
+A product with a single colour mode can ignore this.
+
+### 7.6 Debug aids
 
 - `TRLV_USE_DEBUG_OUTLINE` draws a 1 px outline around every box, row,
   column and spacer. It is drawn outside the object, in magenta,
@@ -781,7 +838,7 @@ compiles out with LVGL logging):
   objects allocates as usual in LVGL.
 - Every modifier applies shared styles; none creates a local style on the
   object. A value with no shared style (an uncommon padding, gap or size)
-  is raw LVGL in the project (§7.2), with LVGL's per-object local style.
+  is raw LVGL in the project (§7.3), with LVGL's per-object local style.
 - **Threading:** call every TreLVis function from the LVGL thread only, the
   same rule as for LVGL itself.
 
@@ -794,7 +851,7 @@ handles them, and its docs note where:
 |---|---|
 | Plain `lv_obj`s are scrollable and clickable by default, and themed (background, border, padding). | `trlv_box_create` and the layout primitives remove theme styles and turn scroll and click off. Scrolling is opt-in via `lv_obj_set_scrollable`. |
 | Labels hug their text and don't wrap unless they have a width. | `trlv_text_create` keeps that default (Figma "auto width"): names, values, headings and button labels all want to hug. `trlv_set_width_fill` gives the label a width, so it wraps (Figma "auto height"); a paragraph needs it. |
-| A child that fills (grows) along the main axis of a parent that hugs that axis collapses to 0. | `trlv_set_*_fill` logs a warning naming the object. Filling *across* a hugging parent stretches to the widest sibling and is left alone (§7.2). |
+| A child that fills (grows) along the main axis of a parent that hugs that axis collapses to 0. | `trlv_set_*_fill` logs a warning naming the object. Filling *across* a hugging parent stretches to the widest sibling and is left alone (§7.3). |
 | `lv_obj_set_style_*` allocates a local style per object. | Modifiers use shared styles; any exceptions are documented. |
 | A border sits inside the object's size and insets the content by its width, on top of the padding. | Matches Figma "inside stroke, include in layout" and CSS `box-sizing: border-box`. See the hand-off guide. |
 | LVGL uses line *spacing*, Figma uses line *height*. | Tokens use line height; TreLVis converts (`line_height − font line height`). |

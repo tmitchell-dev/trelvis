@@ -319,7 +319,8 @@ turning a frame into a screen function.
    ```
 
    Then write the code top-down, one block per frame: the constructor,
-   then one setter per auto layout property. A reviewer, or a tool, can
+   then one setter per auto layout property, then the styles the frame
+   applies (a card, a surface, a text style). A reviewer, or a tool, can
    then check the code against the design frame by frame:
 
    ```c
@@ -328,11 +329,19 @@ turning a frame into a screen function.
    trlv_set_pad(page, TRLV_SPACE_LG);
    trlv_set_width_fill(page);
    trlv_set_height_fill(page);
+
+   lv_obj_t * card = trlv_column_create(readouts);
+   trlv_set_gap(card, TRLV_SPACE_XS);
+   trlv_set_pad(card, TRLV_SPACE_LG);
+   trlv_set_width_fill(card);
+   trlv_apply_card(card, TRLV_CARD_FILLED);
    ```
 
    A new row or column has no gap or padding, like a fresh frame set to 0.
-   Appearance is applied, not set: `trlv_apply_card`, `trlv_apply_surface`
-   and `trlv_apply_text_role` correspond to applying a style in Figma.
+   Layout is set (`trlv_set_*`, the auto layout panel); appearance is
+   applied (`trlv_apply_*`), as you apply a colour or text style in
+   Figma. [Concepts §7](concepts.md#7-the-api-by-kind) lists every
+   function by kind.
 4. **Translate each property with the [mapping table](#mapping-table).**
    Each auto layout property is one call. Set a container's direction (its
    constructor) before filling its children, as the fill modifiers depend
@@ -344,7 +353,7 @@ turning a frame into a screen function.
    vertical spacing, lower-emphasis text colour, wrap, absolute
    positions, and widget behaviour (options, one-line mode, accepted
    characters). Raw LVGL colours taken from `trlv_get_color_tokens()` don't follow a
-   colour-mode switch; see [concepts §7.2](concepts.md#72-layout-setters-trlv_set_).
+   colour-mode switch; see [concepts §7.5](concepts.md#75-getters-trlv_get_).
 6. **Compare.** Build with `TRLV_USE_DEBUG_OUTLINE 1` in `trlv_conf.h` to
    outline every container, and compare a screenshot with the frame
    exported at 1×. Expect text boxes to be a little shorter than Figma's

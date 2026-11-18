@@ -13,8 +13,8 @@
  * never changes colour, so a card's padding is a separate trlv_set_pad:
  *
  *     lv_obj_t * card = trlv_column_create(parent);
- *     trlv_apply_card(card, TRLV_CARD_FILLED);
  *     trlv_set_pad(card, TRLV_SPACE_LG);
+ *     trlv_apply_card(card, TRLV_CARD_FILLED);
  *
  * Each function works on any object, as LVGL styles do, and logs a
  * warning (LV_LOG_WARN, which changes nothing) for an object it makes no
@@ -131,6 +131,8 @@ typedef enum {
  * @param obj      any object
  * @param surface  the surface or container role; any other value logs a
  *                 warning and changes nothing
+ *
+ * @ingroup trlv_apply
  */
 void trlv_apply_surface(lv_obj_t * obj, trlv_surface_t surface);
 
@@ -161,6 +163,8 @@ void trlv_apply_surface(lv_obj_t * obj, trlv_surface_t surface);
  *                 of the project's own enum
  * @param surface  which pair of the custom colour to use; any other value
  *                 logs a warning and changes nothing
+ *
+ * @ingroup trlv_apply
  */
 void trlv_apply_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t surface);
 
@@ -203,6 +207,8 @@ void trlv_apply_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surfa
  * @param obj   a row, column, box or plain lv_obj
  * @param card  the card type; any other value logs a warning and changes
  *              nothing
+ *
+ * @ingroup trlv_apply
  */
 void trlv_apply_card(lv_obj_t * obj, trlv_card_t card);
 
@@ -249,6 +255,8 @@ void trlv_apply_card(lv_obj_t * obj, trlv_card_t card);
  * @param btn   an lv_button, or another clickable object
  * @param type  the button type; any other value logs a warning and changes
  *              nothing
+ *
+ * @ingroup trlv_apply
  */
 void trlv_apply_button_type(lv_obj_t * btn, trlv_button_t type);
 

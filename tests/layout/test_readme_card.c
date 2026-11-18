@@ -27,10 +27,10 @@
 static lv_obj_t * card_trelvis(lv_obj_t * parent)
 {
     lv_obj_t * card = trlv_column_create(parent);
-    trlv_apply_card(card, TRLV_CARD_FILLED);
-    trlv_set_pad(card, TRLV_SPACE_LG);
     trlv_set_gap(card, TRLV_SPACE_SM);
+    trlv_set_pad(card, TRLV_SPACE_LG);
     trlv_set_width_fill(card);
+    trlv_apply_card(card, TRLV_CARD_FILLED);
 
     lv_obj_t * header = trlv_row_create(card);
     trlv_set_gap(header, TRLV_SPACE_SM);
@@ -150,9 +150,9 @@ static lv_obj_t * card_lvgl(lv_obj_t * parent)
     lv_obj_set_scrollable(card, false);
     lv_obj_set_flex_flow(card, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_style_pad_row(card, SPACE_SM, 0);   /* gap */
-    lv_obj_add_style(card, &style_card, 0);
     lv_obj_set_style_pad_all(card, SPACE_LG, 0);
     lv_obj_set_size(card, LV_PCT(100), LV_SIZE_CONTENT);
+    lv_obj_add_style(card, &style_card, 0);
 
     lv_obj_t * header = lv_obj_create(card);
     lv_obj_remove_style_all(header);
