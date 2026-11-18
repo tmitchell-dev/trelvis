@@ -21,6 +21,15 @@ Design specification followed
   code, fonts, icons or images. TreLVis is not affiliated with or endorsed
   by Google.
 
+  Google makes Material 3's content, guidelines and resources available
+  under the Apache License 2.0 or the Creative Commons Attribution 4.0
+  International licence (https://m3.material.io/get-started). Attribution
+  under CC BY 4.0: "Material Design 3" by Google (https://m3.material.io),
+  licensed under CC BY 4.0
+  (https://creativecommons.org/licenses/by/4.0/). Changes: TreLVis adapts
+  the role names, scales and baseline colour values into C token types and
+  a token template, and adds roles and uses MD3 doesn't define.
+
 Not included, but referenced
 ----------------------------
 

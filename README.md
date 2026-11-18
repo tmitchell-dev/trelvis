@@ -509,6 +509,10 @@ the colour role names and their pairings, the type scale's role names and
 sizes, the shape, elevation and state-layer scales, and the baseline colour
 scheme in the token template. TreLVis includes no Material Design code,
 fonts, icons or images.
+Google makes Material 3's content available under the Apache License 2.0
+or [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/); TreLVis uses
+it under CC BY 4.0, adapted into C token types and a token template, with
+the attribution in [NOTICE](NOTICE).
 
 TreLVis is an independent project. It is not affiliated with or endorsed by
 LVGL, Google or Figma.
