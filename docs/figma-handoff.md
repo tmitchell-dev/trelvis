@@ -38,7 +38,6 @@ The [demo](../examples/demo) shows most of them on real screens.
   every colour mode, and use them for alarms only. Check that MD3 `error`
   (invalid fields) is not the same colour as an alarm priority. Never show a
   state by colour alone: pair it with text, an icon or a shape.
-  `templates/trlv_tokens_hmi.c` is a worked example of such a scheme.
 - **Draw frames at 1×, in real display pixels**, with one frame size per layout
   mode (e.g. 480×320 for compact, 800×480 for regular). There is no scaling
   step between Figma and the display.

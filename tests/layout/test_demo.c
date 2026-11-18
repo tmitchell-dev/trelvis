@@ -6,7 +6,7 @@
  * content), moving between sections, the light/dark switch, keypad focus,
  * each section's layout, nothing overflowing its parent, room for every
  * focus ring and no TreLVis warnings while it is built. Every test runs in
- * each layout mode (Regular and Compact) and colour scheme; expected
+ * each layout mode (Regular and Compact), with the template's colours; expected
  * spacing is read from the tokens in use. Text
  * sizes are computed from the font with lv_text_get_size, so the tests
  * don't depend on the fonts' metrics. The object trees are described at the
@@ -15,14 +15,13 @@
 
 #include "trlv_test.h"
 #include "trlv_tokens_template.h"
-#include "trlv_tokens_hmi.h"
 #include "trlv_demo.h"
 
 #include <stdio.h>
 #include <string.h>
 
-/* The tokens the tests run with. main() runs every test once per mode:
- * each layout collection, and each colour scheme. */
+/* The tokens the tests run with. main() runs every test once per layout
+ * mode, with the template's colours. */
 static const trlv_color_tokens_t * color_light;
 static const trlv_color_tokens_t * color_dark;
 static const trlv_layout_tokens_t * layout_tokens;
@@ -1269,7 +1268,5 @@ int main(void)
 {
     run_all("template colours, Regular layout", &tokens_light, &tokens_dark, &tokens_regular);
     run_all("template colours, Compact layout", &tokens_light, &tokens_dark, &tokens_compact);
-    run_all("HMI colours, Regular layout", &tokens_hmi_light, &tokens_hmi_dark, &tokens_regular);
-    run_all("HMI colours, Compact layout", &tokens_hmi_light, &tokens_hmi_dark, &tokens_compact);
     return trlv_test_finish();
 }

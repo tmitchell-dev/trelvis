@@ -102,11 +102,11 @@ static void shares_the_group_with_surface(lv_obj_t * screen)
 {
     lv_obj_t * box = trlv_box_create(setup(screen));
     trlv_apply_surface(box, TRLV_SURFACE_CONTAINER_HIGH);
-    trlv_apply_surface_custom(box, TOKEN_CUSTOM_SUCCESS, TRLV_CUSTOM_SURFACE_COLOR);
-    ASSERT_COLOR(bg_of(box), tokens_light.custom[TOKEN_CUSTOM_SUCCESS].color);
+    trlv_apply_surface_custom(box, TOKEN_CUSTOM_FAULT, TRLV_CUSTOM_SURFACE_COLOR);
+    ASSERT_COLOR(bg_of(box), tokens_light.custom[TOKEN_CUSTOM_FAULT].color);
 
-    trlv_apply_surface_custom(box, TOKEN_CUSTOM_SUCCESS, TRLV_CUSTOM_SURFACE_CONTAINER);
-    ASSERT_COLOR(bg_of(box), tokens_light.custom[TOKEN_CUSTOM_SUCCESS].color_container);
+    trlv_apply_surface_custom(box, TOKEN_CUSTOM_FAULT, TRLV_CUSTOM_SURFACE_CONTAINER);
+    ASSERT_COLOR(bg_of(box), tokens_light.custom[TOKEN_CUSTOM_FAULT].color_container);
 
     trlv_apply_surface(box, TRLV_SURFACE_CONTAINER_HIGH);
     ASSERT_COLOR(bg_of(box), tokens_light.surface_container_high);
@@ -122,7 +122,7 @@ static void out_of_range_index_warns(lv_obj_t * screen)
 
     trlv_apply_surface_custom(box, TOKEN_CUSTOM_COUNT, TRLV_CUSTOM_SURFACE_COLOR);
     trlv_apply_surface_custom(box, TRLV_CUSTOM_COLOR_MAX, TRLV_CUSTOM_SURFACE_COLOR);
-    trlv_apply_surface_custom(box, TOKEN_CUSTOM_SUCCESS, TRLV_CUSTOM_SURFACE_COUNT);
+    trlv_apply_surface_custom(box, TOKEN_CUSTOM_FAULT, TRLV_CUSTOM_SURFACE_COUNT);
 
     TRLV_ASSERT_INT(custom_warnings, 3);
     ASSERT_COLOR(bg_of(box), tokens_light.surface_container);
@@ -135,7 +135,7 @@ static void every_call_warns(lv_obj_t * screen)
 {
     lv_obj_t * box = trlv_box_create(setup(screen));
     trlv_apply_surface(box, TRLV_SURFACE_CONTAINER);
-    trlv_apply_surface_custom(box, TOKEN_CUSTOM_SUCCESS, TRLV_CUSTOM_SURFACE_COLOR);
+    trlv_apply_surface_custom(box, TOKEN_CUSTOM_FAULT, TRLV_CUSTOM_SURFACE_COLOR);
 
     TRLV_ASSERT_INT(custom_warnings, 1);
     ASSERT_COLOR(bg_of(box), tokens_light.surface_container);

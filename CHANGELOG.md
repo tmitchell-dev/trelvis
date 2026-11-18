@@ -22,6 +22,21 @@ While the version is 0.x, minor releases may contain breaking changes.
 
   The fill warning's text changes with it ("the parent fits its width to
   its content").
+- The token template's example custom colours are a generic status set:
+  `TOKEN_CUSTOM_FAULT`, `_WARNING`, `_ADVISORY` and `_BAD_DATA`, in place
+  of success and warning. Their strong colours are the same in both
+  colour modes and their containers follow the mode; none of them is
+  `error`, `primary` or `focus`. There is no "error" entry, so a process
+  fault never looks like MD3's input-error role.
+  **Migration:** none needed; a project owns its copy of the template. To
+  adopt the new examples, copy the enum and the two `custom_*` tables.
+
+### Removed
+
+- The example HMI colour scheme (`templates/trlv_tokens_hmi.c` and `.h`).
+  TreLVis now ships one token template. Building a scheme for a domain
+  (an HMI, a medical device, a brand) is the project's job, using the
+  token guide. A project that copied the HMI example keeps its copy.
 
 ## [0.2.0] - 2026-11-18
 

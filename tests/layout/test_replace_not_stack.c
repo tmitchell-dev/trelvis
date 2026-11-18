@@ -151,10 +151,10 @@ static void fill(lv_obj_t * screen)
     TRLV_ASSERT_INT(lv_obj_get_style_border_width(box, LV_PART_MAIN), tokens_regular.border_width);
 
 #if TRLV_CUSTOM_COLOR_MAX > 0
-    trlv_apply_surface_custom(box, TOKEN_CUSTOM_SUCCESS, TRLV_CUSTOM_SURFACE_COLOR);
+    trlv_apply_surface_custom(box, TOKEN_CUSTOM_FAULT, TRLV_CUSTOM_SURFACE_COLOR);
     ASSERT_COLOR(lv_obj_get_style_bg_color(box, LV_PART_MAIN), project_color());
     ASSERT_COLOR(lv_obj_get_style_text_color(box, LV_PART_MAIN),
-                 tokens_light.custom[TOKEN_CUSTOM_SUCCESS].on_color);
+                 tokens_light.custom[TOKEN_CUSTOM_FAULT].on_color);
 #endif
 
     trlv_apply_surface(box, TRLV_SURFACE_INVERSE);
