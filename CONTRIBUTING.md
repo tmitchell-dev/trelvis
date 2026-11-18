@@ -300,6 +300,13 @@ Maintainers release like this:
 4. The `release.yml` workflow runs CI, checks that the tag matches the header,
    and creates the GitHub Release from the changelog section.
 
+A release made on GitHub's website instead (which creates the tag) works
+too: the workflow then replaces its title and notes with the changelog's.
+To reset an existing release's notes to its changelog section (as it is
+at the tag), run the Release workflow by hand (*Actions*, *Release*, *Run
+workflow*) with the tag. A manual run skips CI, so it never creates a
+release, only updates one.
+
 Maintenance branches (`release/vX.x`) are created only when an older line
 needs fixes while `main` moves on, for example an LVGL 9 line after the move
 to LVGL v10.
