@@ -110,8 +110,8 @@ marker), never red and green.
 - **Rows and columns first.** A box with no layout is for overlapping
   children only.
 - **Spacing sits on the token scale** and is one value per side through
-  `trlv_set_pad`. For different horizontal and vertical padding, use
-  `lv_obj_set_style_pad_hor(obj, trlv_get_space(TRLV_SPACE_LG), 0)`.
+  `trlv_set_pad`. For different horizontal and vertical padding, follow
+  it with `trlv_set_pad_horizontal` or `trlv_set_pad_vertical`.
 - **Fill needs free space.** A child set to fill along the direction of a
   parent that fits its content collapses to 0, and TreLVis warns. Across
   the axis it stretches to the widest sibling (CSS `align-self: stretch`).
@@ -187,7 +187,7 @@ lv_obj_t * chip_create(lv_obj_t * parent, const char * text, uint32_t status)
     lv_obj_t * chip = trlv_row_create(parent);
     trlv_set_align_items(chip, TRLV_ALIGN_ITEMS_CENTER);
     trlv_set_pad(chip, TRLV_SPACE_XS);
-    lv_obj_set_style_pad_hor(chip, trlv_get_space(TRLV_SPACE_MD), 0);
+    trlv_set_pad_horizontal(chip, TRLV_SPACE_MD);
     lv_obj_set_style_radius(chip, trlv_get_radius(TRLV_RADIUS_FULL), 0);
     trlv_apply_surface_custom(chip, status, TRLV_CUSTOM_SURFACE_CONTAINER);
     trlv_text_create(chip, text, TRLV_TEXT_LABEL_MEDIUM);

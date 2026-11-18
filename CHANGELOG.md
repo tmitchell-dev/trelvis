@@ -8,6 +8,16 @@ While the version is 0.x, minor releases may contain breaking changes.
 
 ## [Unreleased]
 
+### Added
+
+- `trlv_set_pad_horizontal(obj, space)` and `trlv_set_pad_vertical(obj,
+  space)`: padding on one axis from the spacing scale, CSS
+  `padding-inline` / `padding-block`, as a shared style. This replaces the
+  raw `lv_obj_set_style_pad_hor(obj, trlv_get_space(...), 0)` that chips,
+  bars and banners needed, which added a local style to each object.
+  `trlv_set_pad` now sets both axes through the same two groups, so the
+  last call wins on each axis in any order. Its result is unchanged.
+
 ## [0.3.0] - 2026-11-18
 
 ### Added

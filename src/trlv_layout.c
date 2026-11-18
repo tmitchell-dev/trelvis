@@ -282,6 +282,22 @@ void trlv_set_pad(lv_obj_t * obj, trlv_space_t space)
     trlv_style_group_apply(obj, &pad_ver_group, pad_ver_styles[space], LV_PART_MAIN);
 }
 
+void trlv_set_pad_horizontal(lv_obj_t * obj, trlv_space_t space)
+{
+    LV_ASSERT_NULL(obj);
+    if(!space_is_valid(space, "trlv_set_pad_horizontal")) return;
+
+    trlv_style_group_apply(obj, &pad_hor_group, pad_hor_styles[space], LV_PART_MAIN);
+}
+
+void trlv_set_pad_vertical(lv_obj_t * obj, trlv_space_t space)
+{
+    LV_ASSERT_NULL(obj);
+    if(!space_is_valid(space, "trlv_set_pad_vertical")) return;
+
+    trlv_style_group_apply(obj, &pad_ver_group, pad_ver_styles[space], LV_PART_MAIN);
+}
+
 void trlv_set_width_fit(lv_obj_t * obj)
 {
     LV_ASSERT_NULL(obj);

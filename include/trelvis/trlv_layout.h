@@ -37,6 +37,7 @@
  * | Divider (MD3)               | `hr`                                 | trlv_divider_create                       | box + `bg_color = outline_variant`         |
  * | Gap between items           | `gap`                                | trlv_set_gap                              | `pad_row`, `pad_column`                    |
  * | Padding                     | `padding`                            | trlv_set_pad                              | `pad_top/bottom/left/right`                |
+ * | Horizontal / vertical padding | `padding-inline` / `padding-block` | trlv_set_pad_horizontal, trlv_set_pad_vertical | `pad_left/right`, `pad_top/bottom`  |
  * | Alignment, space between    | `justify-content`                    | trlv_set_justify                          | `flex_main_place`                          |
  * | Alignment (cross axis)      | `align-items`                        | trlv_set_align_items                      | `flex_cross_place` + `flex_track_place`    |
  * | Hug contents                | `width: fit-content`                 | trlv_set_width_fit, trlv_set_height_fit   | LV_SIZE_CONTENT                            |
@@ -49,7 +50,6 @@
  * | Figma / MD3                   | CSS                           | LVGL                                                                                     |
  * |-------------------------------|-------------------------------|------------------------------------------------------------------------------------------|
  * | Horizontal / vertical gap     | `column-gap`, `row-gap`       | lv_obj_set_style_pad_column(obj, trlv_get_space(...), 0), `..._pad_row`                  |
- * | Horizontal / vertical padding | `padding: y x`                | lv_obj_set_style_pad_hor(obj, trlv_get_space(...), 0), `..._pad_ver`                     |
  * | Padding on one side           | `padding-left`, ...           | lv_obj_set_style_pad_left(obj, trlv_get_space(...), 0), ...                              |
  * | Wrap                          | `flex-wrap: wrap`             | lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)                                         |
  * | Line placement when wrapping  | `align-content`               | lv_obj_set_style_flex_track_place(obj, LV_FLEX_ALIGN_..., 0)                             |
@@ -253,11 +253,15 @@ void trlv_set_gap(lv_obj_t * obj, trlv_space_t space);
 /**
  * Set the padding on all four sides: Figma auto layout padding, CSS
  * `padding`. Sets LVGL `pad_top`, `pad_bottom`, `pad_left` and `pad_right`
- * to the token value. For one side, or different horizontal and vertical
- * padding, use raw LVGL (see the table above), which adds a local style.
+ * to the token value. For different horizontal and vertical padding, follow
+ * it with trlv_set_pad_horizontal or trlv_set_pad_vertical; for one side,
+ * use raw LVGL (see the table above), which adds a local style.
  *
- * Applies a shared style (one per space step), so it costs no RAM per
- * object. Calling it again replaces the previous padding.
+ * Applies two shared styles, one per axis (one per space step each), so it
+ * costs no RAM per object. Calling it again replaces the previous padding.
+ * It sets both axes, so it also replaces an earlier
+ * trlv_set_pad_horizontal or trlv_set_pad_vertical: the last call wins on
+ * each axis, as with CSS `padding` and `padding-inline`.
  *
  * As in Figma with an inside stroke included in layout (CSS
  * `box-sizing: border-box`), a border sits inside the object's size and the
@@ -270,6 +274,45 @@ void trlv_set_gap(lv_obj_t * obj, trlv_space_t space);
  * @ingroup trlv_set
  */
 void trlv_set_pad(lv_obj_t * obj, trlv_space_t space);
+
+/**
+ * Set the left and right padding: Figma auto layout horizontal padding,
+ * CSS `padding-inline` (the `x` of `padding: y x`). Sets LVGL `pad_left`
+ * and `pad_right` to the token value and leaves the top and bottom as they
+ * are.
+ *
+ * Applies a shared style (one per space step), so it costs no RAM per
+ * object. It replaces the horizontal padding set by an earlier call to it
+ * or to trlv_set_pad, and trlv_set_pad called later replaces it: the last
+ * call wins, in any order.
+ *
+ *     trlv_set_pad(chip, TRLV_SPACE_XS);
+ *     trlv_set_pad_horizontal(chip, TRLV_SPACE_MD);
+ *
+ * @param obj    any object
+ * @param space  a step of the spacing scale
+ *
+ * @ingroup trlv_set
+ */
+void trlv_set_pad_horizontal(lv_obj_t * obj, trlv_space_t space);
+
+/**
+ * Set the top and bottom padding: Figma auto layout vertical padding, CSS
+ * `padding-block` (the `y` of `padding: y x`). Sets LVGL `pad_top` and
+ * `pad_bottom` to the token value and leaves the left and right as they
+ * are.
+ *
+ * Applies a shared style (one per space step), so it costs no RAM per
+ * object. It replaces the vertical padding set by an earlier call to it or
+ * to trlv_set_pad, and trlv_set_pad called later replaces it: the last call
+ * wins, in any order.
+ *
+ * @param obj    any object
+ * @param space  a step of the spacing scale
+ *
+ * @ingroup trlv_set
+ */
+void trlv_set_pad_vertical(lv_obj_t * obj, trlv_space_t space);
 
 /**
  * Distribute the children along the main axis: Figma auto layout alignment

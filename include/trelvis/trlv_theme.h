@@ -204,11 +204,12 @@ const trlv_layout_tokens_t * trlv_get_layout_tokens(void);
  * A step of the spacing scale, in px, for a raw LVGL call. CSS
  * `var(--space-lg)`; Figma a number bound to `space/lg`.
  *
- * TreLVis has setters for gap and padding on every side. For anything
- * else that takes a spacing token, such as padding on one axis:
+ * TreLVis has setters for gap and for padding (all sides or per axis).
+ * For anything else that takes a spacing token, such as a column gap that
+ * differs from the row gap, or padding on one side:
  *
- *     trlv_set_pad(bar, TRLV_SPACE_SM);
- *     lv_obj_set_style_pad_hor(bar, trlv_get_space(TRLV_SPACE_LG), 0);
+ *     trlv_set_gap(grid, TRLV_SPACE_SM);
+ *     lv_obj_set_style_pad_column(grid, trlv_get_space(TRLV_SPACE_LG), 0);
  *
  * Same as `trlv_get_layout_tokens()->space[space]`. The value is fixed at
  * trlv_init, so a local style that holds it never goes stale.

@@ -163,7 +163,7 @@ Five kinds of function, and the verb in the name says which:
 |---|---|---|
 | Setup | `trlv_init`, `trlv_theme_set_color_mode` | Install the theme with your tokens, once; switch light and dark at any time. |
 | Constructors, `_create` | `trlv_box_create`, `trlv_row_create`, `trlv_column_create`, `trlv_spacer_create`, `trlv_divider_create`, `trlv_text_create` | Make a primitive and return a plain `lv_obj_t *`. Containers start like a CSS `div` or a fresh Figma frame: no gap, no padding, fit content. |
-| Layout setters, `trlv_set_*` | `trlv_set_gap`, `trlv_set_pad`, `trlv_set_width_fill` / `_fit`, `trlv_set_height_fill` / `_fit`, `trlv_set_justify`, `trlv_set_align_items` | One layout property each: size, spacing or flow (a row of Figma's auto layout panel). Never change colour. |
+| Layout setters, `trlv_set_*` | `trlv_set_gap`, `trlv_set_pad` / `_horizontal` / `_vertical`, `trlv_set_width_fill` / `_fit`, `trlv_set_height_fill` / `_fit`, `trlv_set_justify`, `trlv_set_align_items` | One layout property each: size, spacing or flow (a row of Figma's auto layout panel). Never change colour. |
 | Appearance, `trlv_apply_*` | `trlv_apply_surface`, `trlv_apply_surface_custom`, `trlv_apply_card`, `trlv_apply_button_type`, `trlv_apply_text_role`, `trlv_apply_text_emphasis` | Colour, shape and type, applied like a CSS class or a Figma style. Never change layout. |
 | Getters, `trlv_get_*` | `trlv_get_color_tokens`, `trlv_get_layout_tokens`, `trlv_get_space`, `trlv_get_radius`, `trlv_get_control_height` | The tokens, or one token value, for raw LVGL calls. |
 

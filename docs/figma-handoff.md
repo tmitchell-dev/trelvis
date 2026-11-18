@@ -136,8 +136,10 @@ template:
   the `_height_` setters). Grid auto layout maps to
   LVGL's own grid API, so prefer rows and columns where they do the job.
 - **Spacing sits on the 4 px grid** and is bound to `space/*` variables only.
-  Gap and padding are one value on all sides in TreLVis; different
-  horizontal and vertical values are possible but are raw LVGL in the code.
+  Gap is one value both ways in TreLVis. Padding can differ horizontally
+  and vertically (`trlv_set_pad_horizontal`, `trlv_set_pad_vertical`);
+  padding that differs on one side only, or a different row and column
+  gap, is raw LVGL in the code.
   Figma starts new auto layout with a 10 px gap and padding, which is off
   the grid: bind both to a `space/*` variable (or 0) every time.
 - **An empty frame set to fill** pushes what follows to the far end (a
@@ -342,8 +344,8 @@ turning a frame into a screen function.
    function ([Components](#components)).
 5. **Where raw LVGL is needed:** fixed sizes (`lv_obj_set_size`, with
    `trlv_get_control_height(TRLV_SIZE_MD)` for a field bound to
-   `size/md`), a corner radius on a non-card, different horizontal and
-   vertical spacing, wrap, absolute
+   `size/md`), a corner radius on a non-card, a different row and column
+   gap or one-side padding, wrap, absolute
    positions, and widget behaviour (options, one-line mode, accepted
    characters). Raw LVGL colours taken from `trlv_get_color_tokens()` don't follow a
    colour-mode switch; see [concepts §7.5](concepts.md#75-getters-trlv_get_).
@@ -377,6 +379,7 @@ agree a workaround with the developers:
 | Auto layout → / ↓ | `flex-direction: row / column` | `trlv_row_create` / `trlv_column_create` | flex layout |
 | Gap | `gap` | `trlv_set_gap` | `pad_row` / `pad_column` |
 | Padding | `padding` | `trlv_set_pad` | `pad_*` |
+| Horizontal / vertical padding | `padding-inline` / `padding-block` | `trlv_set_pad_horizontal` / `trlv_set_pad_vertical` | `pad_left/right`, `pad_top/bottom` |
 | Space between / packed | `justify-content` | `trlv_set_justify` | `flex_main_place` |
 | Cross-axis alignment | `align-items` | `trlv_set_align_items` | `flex_cross_place` + `flex_track_place` |
 | Hug / Fill / Fixed | `fit-content` / `flex: 1` / `width` | `trlv_set_width_fit` / `trlv_set_width_fill` / `lv_obj_set_size` (and `_height_`) | `LV_SIZE_CONTENT` / `flex_grow` or `LV_PCT(100)` / `width` |

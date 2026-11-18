@@ -69,6 +69,32 @@ static void pad(lv_obj_t * screen)
     TRLV_ASSERT_INT(lv_obj_get_style_pad_top(box, LV_PART_MAIN), tokens_regular.space[TRLV_SPACE_SM]);
 }
 
+/* trlv_set_pad_horizontal: left and right, a group of its own. */
+static void pad_horizontal(lv_obj_t * screen)
+{
+    lv_obj_t * box = trlv_box_create(setup(screen));
+    trlv_set_pad_horizontal(box, TRLV_SPACE_LG);
+    lv_style_set_pad_left(&project, 40);
+    add_project(box, LV_PART_MAIN);
+    trlv_set_pad_horizontal(box, TRLV_SPACE_SM);
+
+    TRLV_ASSERT_INT(lv_obj_get_style_pad_left(box, LV_PART_MAIN), 40);
+    TRLV_ASSERT_INT(lv_obj_get_style_pad_right(box, LV_PART_MAIN), tokens_regular.space[TRLV_SPACE_SM]);
+}
+
+/* trlv_set_pad_vertical: top and bottom, a group of its own. */
+static void pad_vertical(lv_obj_t * screen)
+{
+    lv_obj_t * box = trlv_box_create(setup(screen));
+    trlv_set_pad_vertical(box, TRLV_SPACE_LG);
+    lv_style_set_pad_top(&project, 40);
+    add_project(box, LV_PART_MAIN);
+    trlv_set_pad_vertical(box, TRLV_SPACE_SM);
+
+    TRLV_ASSERT_INT(lv_obj_get_style_pad_top(box, LV_PART_MAIN), 40);
+    TRLV_ASSERT_INT(lv_obj_get_style_pad_bottom(box, LV_PART_MAIN), tokens_regular.space[TRLV_SPACE_SM]);
+}
+
 /* Fit and fill width, one group. */
 static void width(lv_obj_t * screen)
 {
@@ -200,6 +226,8 @@ int main(void)
 {
     TRLV_TEST_RUN(gap);
     TRLV_TEST_RUN(pad);
+    TRLV_TEST_RUN(pad_horizontal);
+    TRLV_TEST_RUN(pad_vertical);
     TRLV_TEST_RUN(width);
     TRLV_TEST_RUN(height);
     TRLV_TEST_RUN(justify);

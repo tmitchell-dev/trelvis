@@ -2,7 +2,8 @@
 /* Copyright (c) 2026 Timothy Mitchell */
 
 /*
- * Spacing modifiers: trlv_set_gap and trlv_set_pad, with the token template's
+ * Spacing modifiers: trlv_set_gap, trlv_set_pad and the per-axis padding
+ * setters, with the token template's
  * Regular values (SM = 8, MD = 12, LG = 16).
  */
 
@@ -157,6 +158,60 @@ static void pad_and_gap_are_independent(lv_obj_t * screen)
 }
 
 /*---------------------------------------------------------------------------
+ * trlv_set_pad_horizontal, trlv_set_pad_vertical
+ *-------------------------------------------------------------------------*/
+
+/* Uniform padding, then a wider horizontal step (a chip). */
+static void pad_then_horizontal(lv_obj_t * screen)
+{
+    lv_obj_t * box = trlv_box_create(setup(screen));
+    lv_obj_t * c = child(box);
+    trlv_set_pad(box, TRLV_SPACE_SM);
+    trlv_set_pad_horizontal(box, TRLV_SPACE_LG);
+
+    TRLV_ASSERT_RECT(c, 16, 8, 10, 10);
+    TRLV_ASSERT_RECT(box, 0, 0, 16 + 10 + 16, 8 + 10 + 8);
+}
+
+/* The order doesn't matter on the other axis, and trlv_set_pad called
+ * later replaces the horizontal value, as CSS `padding` would. */
+static void horizontal_then_pad(lv_obj_t * screen)
+{
+    lv_obj_t * box = trlv_box_create(setup(screen));
+    lv_obj_t * c = child(box);
+    trlv_set_pad_horizontal(box, TRLV_SPACE_LG);
+    trlv_set_pad(box, TRLV_SPACE_SM);
+
+    TRLV_ASSERT_RECT(c, 8, 8, 10, 10);
+    TRLV_ASSERT_WIDTH(box, 8 + 10 + 8);
+}
+
+/* Each axis setter leaves the other axis alone. */
+static void vertical_keeps_horizontal(lv_obj_t * screen)
+{
+    lv_obj_t * box = trlv_box_create(setup(screen));
+    lv_obj_t * c = child(box);
+    trlv_set_pad_horizontal(box, TRLV_SPACE_LG);
+    trlv_set_pad_vertical(box, TRLV_SPACE_SM);
+    trlv_set_pad_vertical(box, TRLV_SPACE_MD);
+
+    TRLV_ASSERT_RECT(c, 16, 12, 10, 10);
+    TRLV_ASSERT_RECT(box, 0, 0, 16 + 10 + 16, 12 + 10 + 12);
+}
+
+/* An out-of-range step is ignored and the padding stays as it was. */
+static void pad_axis_out_of_range_is_ignored(lv_obj_t * screen)
+{
+    lv_obj_t * box = trlv_box_create(setup(screen));
+    trlv_set_pad(box, TRLV_SPACE_SM);
+    trlv_set_pad_horizontal(box, TRLV_SPACE_COUNT);
+    trlv_set_pad_vertical(box, TRLV_SPACE_COUNT);
+
+    TRLV_ASSERT_INT(lv_obj_get_style_pad_left(box, LV_PART_MAIN), 8);
+    TRLV_ASSERT_INT(lv_obj_get_style_pad_top(box, LV_PART_MAIN), 8);
+}
+
+/*---------------------------------------------------------------------------
  * Token styles and trlv_init
  *-------------------------------------------------------------------------*/
 
@@ -201,6 +256,10 @@ int main(void)
     TRLV_TEST_RUN(second_pad_replaces_first);
     TRLV_TEST_RUN(pad_on_a_plain_lv_obj);
     TRLV_TEST_RUN(pad_and_gap_are_independent);
+    TRLV_TEST_RUN(pad_then_horizontal);
+    TRLV_TEST_RUN(horizontal_then_pad);
+    TRLV_TEST_RUN(vertical_keeps_horizontal);
+    TRLV_TEST_RUN(pad_axis_out_of_range_is_ignored);
     TRLV_TEST_RUN(init_again_updates_existing_objects);
     TRLV_TEST_RUN(modifier_before_init_takes_value_at_init);
     return trlv_test_finish();
