@@ -148,6 +148,16 @@ target_link_libraries(theme_text_emphasis PRIVATE trlv_tokens_template)
 trlv_add_test(theme_token_getters theme/test_token_getters.c)
 target_link_libraries(theme_token_getters PRIVATE trlv_tokens_template)
 
+# The token check: test code a project can also build with its own tokens.
+trlv_add_test(tokens_contrast tokens/test_token_contrast.c)
+target_sources(tokens_contrast PRIVATE tokens/token_check.c)
+target_include_directories(tokens_contrast PRIVATE tokens)
+target_link_libraries(tokens_contrast PRIVATE trlv_tokens_template)
+find_library(TRLV_MATH_LIBRARY m)
+if(TRLV_MATH_LIBRARY)
+    target_link_libraries(tokens_contrast PRIVATE ${TRLV_MATH_LIBRARY})
+endif()
+
 if(TRLV_TEST_FULL)
     trlv_add_test(layout_sizing layout/test_sizing.c)
     target_link_libraries(layout_sizing PRIVATE trlv_tokens_template)

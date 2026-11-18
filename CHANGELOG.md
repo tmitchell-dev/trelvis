@@ -32,6 +32,13 @@ While the version is 0.x, minor releases may contain breaking changes.
   return 0, with a warning, for a value that isn't a step or before
   `trlv_init`. There are deliberately no radius or height setters: those
   are single, clear LVGL calls.
+- A small contrast check for colour tokens, as test code
+  (`tests/tokens/token_check.c`): each `on_` pair and lower-emphasis text
+  at 4.5:1, `outline` and `focus` at 3:1, custom colours kept apart from
+  `error`, `primary` and `focus`, and the same custom colour count in
+  every mode. CI runs it on the template; a project can build it with its
+  own tokens. It reports and enforces nothing; it is not part of the
+  library.
 
 ### Changed
 
