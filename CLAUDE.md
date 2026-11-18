@@ -39,7 +39,8 @@ and theme), 5 (surfaces, cards and remaining primitives) and 6 (demo and
 docs) are done, and 0.1.0 is the v1 feature-complete release. 0.2.0
 carries the 1.0 review's breaking changes and the theme audit's fixes,
 for the second product trial. 0.3.0 carries the trial-2 review (the
-MD3-inspired design language, `hug` renamed `fit`), for the API freeze.
+MD3-inspired design language, `hug` renamed `fit`), for a third product
+trial before the API freeze.
 The slice implemented the token template, `trlv_init`, box, row, column,
 gap, pad, fill/fit and text, the demo screen `trlv_demo_create(parent)` in
 `examples/demo`, and headless layout tests. TreLVis ships no simulator; host
@@ -79,7 +80,7 @@ and checked the v1 acceptance criteria (evidence on issue #75).
 promise (README "What a version number promises"), CI build coverage, a
 theme coverage audit and a product trial, then a 0.2.0 release for a
 second trial on the 1.0 API, a 0.3.0 release with the trial-2 review's
-changes, the API freeze (#123) and 1.0.0.
+changes, a third product trial on 0.3.0, the API freeze (#123) and 1.0.0.
 The 1.0 review moved the API to LVGL's grammar: `trlv_*_create`
 constructors that take no spacing, `trlv_set_*` layout setters,
 `trlv_apply_*` appearance functions (which warn on an object they make no
