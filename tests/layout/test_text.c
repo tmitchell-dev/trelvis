@@ -2,8 +2,9 @@
 /* Copyright (c) 2026 Timothy Mitchell */
 
 /*
- * trlv_text_create and the text role styles. Sizes are computed from the font with
- * lv_text_get_size, so the tests don't depend on LV_FONT_DEFAULT's metrics.
+ * trlv_text_create and the text role styles. Sizes are computed from the font
+ * with lv_text_get_size, so the tests don't depend on LV_FONT_DEFAULT's
+ * metrics.
  */
 
 #include "trlv_test.h"

@@ -44,8 +44,8 @@ extern "C" {
 #endif
 
 /**
- * The project's custom colours: the index into trlv_color_tokens_t::custom
- * and the argument of trlv_apply_surface_custom. Success and warning are examples.
+ * The project's custom colours: the index into trlv_color_tokens_t::custom and
+ * the argument of trlv_apply_surface_custom. Success and warning are examples.
  * If you need more than TRLV_CUSTOM_COLOR_MAX (default 4) with
  * trlv_apply_surface_custom, raise it in trlv_conf.h.
  */

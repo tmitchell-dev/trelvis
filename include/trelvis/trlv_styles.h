@@ -5,11 +5,11 @@
  * @file trlv_styles.h
  * The shared LVGL styles a project can add to an object directly.
  *
- * TreLVis exposes a style only when no modifier can apply it to an object
- * that already exists. trlv_box_create, trlv_row_create and trlv_column_create create new
- * objects, so their styles are here: with them, a project can turn an
- * existing object, such as a plain lv_obj used as a list item, into a row
- * or column while it keeps its theme look, or reset its theme look:
+ * TreLVis exposes a style only when no modifier can apply it to an object that
+ * already exists. trlv_box_create, trlv_row_create and trlv_column_create
+ * create new objects, so their styles are here: with them, a project can turn
+ * an existing object, such as a plain lv_obj used as a list item, into a row or
+ * column while it keeps its theme look, or reset its theme look:
  *
  *     lv_obj_t * item = lv_obj_create(list);
  *     lv_obj_add_style(item, &trlv_style_row, 0);
@@ -21,7 +21,7 @@
  * centred row.)
  *
  * Every other TreLVis style (gap, pad, justify, align items, hug and fill,
- * text roles, surfaces, cards, button variants, divider) stays internal:
+ * text roles, surfaces, cards, button types, divider) stays internal:
  * its modifier works on any object, including inside a project's own theme
  * apply callback, and also replaces the group's previous style, which
  * lv_obj_add_style does not.
@@ -40,11 +40,11 @@
  *
  * Mapping: Figma / MD3 → CSS → TreLVis → LVGL mechanism
  *
- * | Figma / MD3                    | CSS                                       | TreLVis            | LVGL properties                                    |
- * |--------------------------------|-------------------------------------------|--------------------|----------------------------------------------------|
- * | Frame, no fill, stroke or padding | `div` with no styles                  | trlv_style_box     | `bg_opa`, `border_width`, `pad_*` = 0; size LV_SIZE_CONTENT |
- * | Auto layout →                  | `display: flex; flex-direction: row`      | trlv_style_row     | `layout = LV_LAYOUT_FLEX`, `flex_flow = ROW`       |
- * | Auto layout ↓                  | `display: flex; flex-direction: column`   | trlv_style_column  | `layout = LV_LAYOUT_FLEX`, `flex_flow = COLUMN`    |
+ * | Figma / MD3                       | CSS                                     | TreLVis           | LVGL properties                                             |
+ * |-----------------------------------|-----------------------------------------|-------------------|-------------------------------------------------------------|
+ * | Frame, no fill, stroke or padding | `div` with no styles                    | trlv_style_box    | `bg_opa`, `border_width`, `pad_*` = 0; size LV_SIZE_CONTENT |
+ * | Auto layout →                     | `display: flex; flex-direction: row`    | trlv_style_row    | `layout = LV_LAYOUT_FLEX`, `flex_flow = ROW`                |
+ * | Auto layout ↓                     | `display: flex; flex-direction: column` | trlv_style_column | `layout = LV_LAYOUT_FLEX`, `flex_flow = COLUMN`             |
  *
  * All functions using these styles must be called from the LVGL thread.
  */

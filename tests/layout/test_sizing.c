@@ -2,8 +2,8 @@
 /* Copyright (c) 2026 Timothy Mitchell */
 
 /*
- * Sizing modifiers: trlv_set_*_hug and axis-aware trlv_set_*_fill, with the token
- * template's Regular values (SM = 8).
+ * Sizing modifiers: trlv_set_*_hug and axis-aware trlv_set_*_fill, with the
+ * token template's Regular values (SM = 8).
  */
 
 #include "trlv_test.h"

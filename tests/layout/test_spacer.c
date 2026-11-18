@@ -2,8 +2,8 @@
 /* Copyright (c) 2026 Timothy Mitchell */
 
 /*
- * trlv_spacer_create: takes the free space along the parent's main axis and none
- * across it. Uses gap NONE so the arithmetic is plain.
+ * trlv_spacer_create: takes the free space along the parent's main axis and
+ * none across it. Uses gap NONE so the arithmetic is plain.
  */
 
 #include "trlv_test.h"

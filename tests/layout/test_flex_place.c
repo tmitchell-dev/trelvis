@@ -2,8 +2,9 @@
 /* Copyright (c) 2026 Timothy Mitchell */
 
 /*
- * Flex placement modifiers: trlv_set_justify (main axis) and trlv_set_align_items
- * (cross axis), with the token template's Regular values (SM = 8).
+ * Flex placement modifiers: trlv_set_justify (main axis) and
+ * trlv_set_align_items (cross axis), with the token template's Regular values
+ * (SM = 8).
  *
  * Most tests use a 180 px row with three 20 px children and no gap, so the
  * free space is 120 px and every mode lands on whole pixels.
@@ -250,7 +251,8 @@ static void align_items_replaces_its_previous_style(lv_obj_t * screen)
 }
 
 /* A local flex_track_place (CSS align-content) takes precedence over the
- * line placement trlv_set_align_items sets: items centre within the line only. */
+ * line placement trlv_set_align_items sets: items centre within the line only.
+ * */
 static void align_items_line_placement_can_be_overridden(lv_obj_t * screen)
 {
     lv_obj_t * small;
