@@ -605,7 +605,7 @@ and each group replaces its previous style.
 | Group | Functions | Notes |
 |---|---|---|
 | Spacing | `trlv_gap(obj, space)`, `trlv_pad(obj, space)` | Different horizontal / vertical values, or one side: use raw LVGL with a token value (below). |
-| Distribution | `trlv_justify(obj, TRLV_JUSTIFY_START / CENTER / END / SPACE_BETWEEN / SPACE_AROUND / SPACE_EVENLY)`, `trlv_align_items(obj, TRLV_ALIGN_ITEMS_START / CENTER / END)` | Two named calls in place of `lv_obj_set_flex_align`'s three positional arguments, with shared styles instead of a local one. `ALIGN_ITEMS`, not `ALIGN`, so the values aren't mistaken for `lv_align_t`. The enum values equal LVGL's `LV_FLEX_ALIGN_*`. LVGL flex has no cross-axis stretch; use `trlv_fill_*` on the children. |
+| Distribution | `trlv_justify(obj, TRLV_JUSTIFY_START / CENTER / END / SPACE_BETWEEN / SPACE_AROUND / SPACE_EVENLY)`, `trlv_align_items(obj, TRLV_ALIGN_ITEMS_START / CENTER / END)` | Two named calls in place of `lv_obj_set_flex_align`'s three positional arguments, with shared styles instead of a local one. `ALIGN_ITEMS`, not `ALIGN`, so the values aren't mistaken for `lv_align_t`. The enum values equal LVGL's `LV_FLEX_ALIGN_*`. LVGL flex has no cross-axis stretch; use `trlv_fill_*` on each child, as in Figma (in CSS a column's children stretch by default). Expect `trlv_fill_width` to be one of the most frequent calls in a screen. |
 | Sizing | `trlv_hug_width/height`, `trlv_fill_width/height` | Fixed size: `lv_obj_set_size`. Hug and fill are one group, so `trlv_hug_*` also clears an earlier fill. |
 | Surfaces | `trlv_surface(obj, TRLV_SURFACE_SURFACE / CONTAINER_LOWEST / CONTAINER_LOW / CONTAINER / CONTAINER_HIGH / CONTAINER_HIGHEST / PRIMARY_CONTAINER / SECONDARY_CONTAINER / TERTIARY_CONTAINER / ERROR_CONTAINER / INVERSE)`, `trlv_surface_custom(obj, index, TRLV_CUSTOM_SURFACE_COLOR / CONTAINER)` | Sets container colour + matching `on_` text colour (inherited). Tone only: no radius or border. `trlv_surface_custom` does the same with a project custom colour or its container. One group with cards: `trlv_surface` and `trlv_card` replace each other. |
 | Cards | `trlv_card(obj, TRLV_CARD_FILLED / ELEVATED / OUTLINED)` | MD3 cards: tone + radius MD + border/shadow. Padding stays explicit (`trlv_pad`, typically `LG`). Not interactive in v1. |
@@ -653,6 +653,22 @@ LVGL, so TreLVis adds no function for them. Setters named
 | Show / hide | `lv_obj_set_hidden(obj, true)`. Hidden objects leave the layout (CSS `display: none`). |
 | Truncate text | `lv_label_set_long_mode(label, LV_LABEL_LONG_MODE_DOTS)` |
 | Grid | `lv_obj_set_grid_dsc_array(obj, cols, rows)` on a `trlv_box`, `lv_obj_set_grid_cell(child, …)`. The track arrays are referenced, not copied, so keep them `static`. |
+
+**Token values in raw LVGL are snapshots.** `trlv_color()` and
+`trlv_layout()` return the current values, and a local style
+(`lv_obj_set_style_*`) or a widget call such as `lv_chart_add_series`
+stores the value it was given. TreLVis's own shared styles follow
+`trlv_theme_set_color_mode`; these don't, so after a switch to dark they
+keep the light colour. Layout values are fixed at `trlv_init`, so only
+colours are affected. If the product switches colour mode, either:
+
+- re-apply the colours in the code that calls
+  `trlv_theme_set_color_mode` (or in the subject observer in §6.3), or
+- keep the colours in the project's own shared `lv_style_t`, re-set its
+  properties from `trlv_color()` on each switch, and call
+  `lv_obj_report_style_change(&style)`, as the theme does.
+
+A product with a single colour mode can ignore this.
 
 ### 7.3 Debug aids
 
