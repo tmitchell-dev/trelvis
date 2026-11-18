@@ -25,6 +25,13 @@ While the version is 0.x, minor releases may contain breaking changes.
   darker or lighter step in both modes. Existing values keep their
   numbers; `TRLV_SURFACE_COUNT` is now 13. The demo's surface ladder
   shows both.
+- `trlv_get_space`, `trlv_get_radius` and `trlv_get_control_height`: one
+  token value, in px, for a raw LVGL call, so it reads like the modifiers
+  (`lv_obj_set_style_radius(panel, trlv_get_radius(TRLV_RADIUS_MD), 0)`
+  rather than `trlv_get_layout_tokens()->radius[TRLV_RADIUS_MD]`). They
+  return 0, with a warning, for a value that isn't a step or before
+  `trlv_init`. There are deliberately no radius or height setters: those
+  are single, clear LVGL calls.
 
 ### Changed
 

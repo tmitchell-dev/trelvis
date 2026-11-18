@@ -740,8 +740,8 @@ LVGL, so TreLVis adds no function for them. Setters named
 
 | Need | LVGL |
 |---|---|
-| Horizontal / vertical gap | `lv_obj_set_style_pad_column(obj, trlv_get_layout_tokens()->space[TRLV_SPACE_MD], 0)`, `…pad_row` |
-| Horizontal / vertical padding, one side | `lv_obj_set_style_pad_hor(obj, trlv_get_layout_tokens()->space[TRLV_SPACE_LG], 0)`, `…pad_ver`, `…pad_left`, … |
+| Horizontal / vertical gap | `lv_obj_set_style_pad_column(obj, trlv_get_space(TRLV_SPACE_MD), 0)`, `…pad_row` |
+| Horizontal / vertical padding, one side | `lv_obj_set_style_pad_hor(obj, trlv_get_space(TRLV_SPACE_LG), 0)`, `…pad_ver`, `…pad_left`, … |
 | Absolute position | `lv_obj_set_floating(obj, true)`, then `lv_obj_align(obj, LV_ALIGN_TOP_RIGHT, x, y)`. Floating, unlike the ignore-layout flag, also leaves the object out of a fit-content parent's size, as in Figma. |
 | Wrap | `lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)` |
 | Min / max size | `lv_obj_set_style_min_width(obj, px, 0)`, `…max_width`, `…min_height`, `…max_height` |
@@ -787,11 +787,27 @@ compiles out with LVGL logging):
 |---|---|
 | `trlv_get_color_tokens()` | The colour tokens in use: the set passed to `trlv_init` or the latest `trlv_theme_set_color_mode`. |
 | `trlv_get_layout_tokens()` | The layout tokens passed to `trlv_init`. |
+| `trlv_get_space(TRLV_SPACE_*)` | One step of the spacing scale, in px. |
+| `trlv_get_radius(TRLV_RADIUS_*)` | One step of the shape scale, in px. |
+| `trlv_get_control_height(TRLV_SIZE_*)` | One control height, in px. |
 
 Modifiers take token names (`TRLV_SPACE_LG`, `TRLV_SURFACE_CONTAINER`)
 and look the values up themselves. The getters are for the places a
 modifier doesn't reach: raw LVGL calls (§7.3 "Left to LVGL") and widget
-APIs that take a value, such as a chart series colour.
+APIs that take a value, such as a chart series colour. The three value
+getters make a raw call read like a modifier, in the same dialect:
+
+```c
+trlv_set_pad(chip, TRLV_SPACE_XS);
+lv_obj_set_style_pad_hor(chip, trlv_get_space(TRLV_SPACE_MD), 0);
+lv_obj_set_style_radius(chip, trlv_get_radius(TRLV_RADIUS_FULL), 0);
+lv_obj_set_height(field, trlv_get_control_height(TRLV_SIZE_MD));
+```
+
+There is no setter for radius or height on purpose:
+`lv_obj_set_style_radius` and `lv_obj_set_height` are single, clear LVGL
+calls, and the getter gives them a token. Each getter returns 0, with a
+warning, for a value that isn't a step or before `trlv_init`.
 
 **Token values in raw LVGL are snapshots.** `trlv_get_color_tokens()` and
 `trlv_get_layout_tokens()` return the current values, and a local style

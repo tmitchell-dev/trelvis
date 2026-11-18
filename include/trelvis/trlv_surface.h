@@ -120,7 +120,7 @@ typedef enum {
  *
  * Tone only: no radius, border, shadow or padding. Add a radius with
  *
- *     lv_obj_set_style_radius(obj, trlv_get_layout_tokens()->radius[TRLV_RADIUS_MD], 0);
+ *     lv_obj_set_style_radius(obj, trlv_get_radius(TRLV_RADIUS_MD), 0);
  *
  * or use trlv_apply_card.
  *
@@ -241,7 +241,7 @@ void trlv_apply_card(lv_obj_t * obj, trlv_card_t card);
  *
  * TRLV_BUTTON_FILLED returns the button to the theme's default. Shape, height
  * and text role stay the theme's; change the height with lv_obj_set_height(btn,
- * trlv_get_layout_tokens()->control_height[TRLV_SIZE_LG]). Calling it again
+ * trlv_get_control_height(TRLV_SIZE_LG)). Calling it again
  * replaces the previous type.
  *
  * With TRLV_USE_THEME 0 the type still sets its colours and states, but

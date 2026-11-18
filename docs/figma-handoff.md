@@ -255,7 +255,7 @@ template:
   textarea or dropdown from its font and padding (`space/sm` top and
   bottom, `space/lg` at the sides). If the design fixes the height, bind
   it to `size/*` and set it in code (`lv_obj_set_height` with
-  `trlv_get_layout_tokens()->control_height[…]`). A one-line field at
+  `trlv_get_control_height(…)`). A one-line field at
   `size/md` fits a line of body text; the text sits at the top of the
   field, under the padding, not centred.
 
@@ -347,7 +347,7 @@ turning a frame into a screen function.
    on it. A component the designer made becomes a project `_create()`
    function ([Components](#components)).
 5. **Where raw LVGL is needed:** fixed sizes (`lv_obj_set_size`, with
-   `trlv_get_layout_tokens()->control_height[TRLV_SIZE_MD]` for a field bound to
+   `trlv_get_control_height(TRLV_SIZE_MD)` for a field bound to
    `size/md`), a corner radius on a non-card, different horizontal and
    vertical spacing, wrap, absolute
    positions, and widget behaviour (options, one-line mode, accepted

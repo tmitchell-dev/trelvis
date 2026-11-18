@@ -31,7 +31,7 @@
  * | @ref trlv_create    | `trlv_<thing>_create(parent, ...)`      | Make a primitive and return it. Containers start with no gap or padding, fit content. |
  * | @ref trlv_set       | `trlv_set_<property>(obj, ...)`         | One row of Figma's auto layout panel. Never changes colour.                    |
  * | @ref trlv_apply     | `trlv_apply_<look>(obj, ...)`           | Figma's "apply a style": colour, shape, type. Never changes layout.            |
- * | @ref trlv_get       | `trlv_get_<what>_tokens()`              | The current tokens, for raw LVGL calls that need a token value.                |
+ * | @ref trlv_get       | `trlv_get_<what>()`                     | The current tokens or one token value, for raw LVGL calls.                     |
  *
  * Setters and applies (the modifiers) work on any object, including LVGL
  * widgets and objects TreLVis didn't create, and each replaces its own
@@ -91,9 +91,11 @@
 
 /**
  * @defgroup trlv_get Getters
- * `trlv_get_<what>_tokens()`: the tokens in use, for raw LVGL calls and
- * widget APIs that need a token value. A value passed to LVGL this way is a
- * snapshot: it doesn't follow a later colour-mode switch.
+ * `trlv_get_<what>_tokens()`: the tokens in use, and `trlv_get_space`,
+ * `trlv_get_radius`, `trlv_get_control_height`: one layout value, for raw
+ * LVGL calls and widget APIs that need a token value. A colour passed to
+ * LVGL this way is a snapshot: it doesn't follow a later colour-mode
+ * switch. Layout values are fixed at trlv_init.
  */
 
 #ifndef TRELVIS_H

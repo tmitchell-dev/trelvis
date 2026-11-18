@@ -61,6 +61,9 @@ TRLV_CHECK_SIGNATURE(trlv_init, void (*)(lv_display_t *, const trlv_color_tokens
 TRLV_CHECK_SIGNATURE(trlv_theme_set_color_mode, void (*)(const trlv_color_tokens_t *));
 TRLV_CHECK_SIGNATURE(trlv_get_color_tokens, const trlv_color_tokens_t * (*)(void));
 TRLV_CHECK_SIGNATURE(trlv_get_layout_tokens, const trlv_layout_tokens_t * (*)(void));
+TRLV_CHECK_SIGNATURE(trlv_get_space, int32_t (*)(trlv_space_t));
+TRLV_CHECK_SIGNATURE(trlv_get_radius, int32_t (*)(trlv_radius_t));
+TRLV_CHECK_SIGNATURE(trlv_get_control_height, int32_t (*)(trlv_size_t));
 
 /* trlv_layout.h: constructors */
 TRLV_CHECK_SIGNATURE(trlv_box_create, lv_obj_t * (*)(lv_obj_t *));

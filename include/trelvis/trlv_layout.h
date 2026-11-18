@@ -44,13 +44,13 @@
  *
  * Left to LVGL: these are already one clear call, so TreLVis adds no
  * function. Setters named lv_obj_set_style_* add a local style to the
- * object; read token values with trlv_get_layout_tokens().
+ * object; read token values with trlv_get_space and the other token getters.
  *
  * | Figma / MD3                   | CSS                           | LVGL                                                                                     |
  * |-------------------------------|-------------------------------|------------------------------------------------------------------------------------------|
- * | Horizontal / vertical gap     | `column-gap`, `row-gap`       | lv_obj_set_style_pad_column(obj, trlv_get_layout_tokens()->space[...], 0), `..._pad_row` |
- * | Horizontal / vertical padding | `padding: y x`                | lv_obj_set_style_pad_hor(obj, trlv_get_layout_tokens()->space[...], 0), `..._pad_ver`    |
- * | Padding on one side           | `padding-left`, ...           | lv_obj_set_style_pad_left(obj, trlv_get_layout_tokens()->space[...], 0), ...             |
+ * | Horizontal / vertical gap     | `column-gap`, `row-gap`       | lv_obj_set_style_pad_column(obj, trlv_get_space(...), 0), `..._pad_row`                  |
+ * | Horizontal / vertical padding | `padding: y x`                | lv_obj_set_style_pad_hor(obj, trlv_get_space(...), 0), `..._pad_ver`                     |
+ * | Padding on one side           | `padding-left`, ...           | lv_obj_set_style_pad_left(obj, trlv_get_space(...), 0), ...                              |
  * | Wrap                          | `flex-wrap: wrap`             | lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)                                         |
  * | Line placement when wrapping  | `align-content`               | lv_obj_set_style_flex_track_place(obj, LV_FLEX_ALIGN_..., 0)                             |
  * | Fixed size                    | `width`, `height`             | lv_obj_set_size, lv_obj_set_width, lv_obj_set_height                                     |
@@ -217,8 +217,7 @@ lv_obj_t * trlv_spacer_create(lv_obj_t * parent);
  *
  * The colour is a shared token style, so it follows colour-mode switches. For
  * an MD3 inset divider, add a margin, which LVGL's flex layout honours:
- * lv_obj_set_style_margin_left(divider,
- * trlv_get_layout_tokens()->space[TRLV_SPACE_LG], 0).
+ * lv_obj_set_style_margin_left(divider, trlv_get_space(TRLV_SPACE_LG), 0).
  *
  * The thickness is a shared token style too, so it follows trlv_init. A
  * divider is a box, so lv_obj_set_size and the modifiers work on it as on
