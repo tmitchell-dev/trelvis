@@ -66,7 +66,7 @@
  */
 
 /**
- * @defgroup trlv_create Constructors (_create)
+ * @defgroup trlv_create Constructors
  * `trlv_<thing>_create(parent, ...)`: create a primitive and return a plain
  * lv_obj_t *. They take the parent plus only arguments whose type makes
  * them clear at the call site, never spacing. Box, row and column start
@@ -75,14 +75,14 @@
  */
 
 /**
- * @defgroup trlv_set Layout setters (trlv_set_*)
+ * @defgroup trlv_set Layout setters
  * `trlv_set_<property>(obj, ...)`: the properties of Figma's auto layout
  * panel, one call each. They work on any object, replace the previous value
  * of their group, use shared styles, and never change colour.
  */
 
 /**
- * @defgroup trlv_apply Appearance (trlv_apply_*)
+ * @defgroup trlv_apply Appearance
  * `trlv_apply_<look>(obj, ...)`: Figma's "apply a style", for colour, shape
  * and type. They work on any object, replace the previous look of their
  * group, recolour on a colour-mode switch, and never change layout. On an
@@ -90,7 +90,7 @@
  */
 
 /**
- * @defgroup trlv_get Getters (trlv_get_*)
+ * @defgroup trlv_get Getters
  * `trlv_get_<what>_tokens()`: the tokens in use, for raw LVGL calls and
  * widget APIs that need a token value. A value passed to LVGL this way is a
  * snapshot: it doesn't follow a later colour-mode switch.
