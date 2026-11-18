@@ -97,7 +97,7 @@ static_assert(std::is_same<decltype(trlv_style_column), const lv_style_t>::value
 
 /* Enum sizes that the token arrays and the docs rely on. */
 static_assert(TRLV_SPACE_COUNT == 9, "spacing scale NONE..3XL");
-static_assert(TRLV_SURFACE_COUNT == 11, "surface roles");
+static_assert(TRLV_SURFACE_COUNT == 13, "surface roles");
 static_assert(TRLV_CUSTOM_SURFACE_COUNT == 2, "custom colour pairs");
 static_assert(TRLV_CARD_COUNT == 3, "MD3 card types");
 static_assert(TRLV_BUTTON_COUNT == 4, "v1 button types");

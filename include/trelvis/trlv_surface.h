@@ -67,6 +67,11 @@ typedef enum {
     TRLV_SURFACE_TERTIARY_CONTAINER,  /**< tertiary_container / on_tertiary_container */
     TRLV_SURFACE_ERROR_CONTAINER,     /**< error_container / on_error_container */
     TRLV_SURFACE_INVERSE,            /**< inverse_surface / inverse_on_surface: snackbars, tooltips */
+    TRLV_SURFACE_DIM,                 /**< surface_dim / on_surface: the dimmest surface. In MD3's
+                                           dark schemes it equals `surface`, so it is not darker
+                                           than the page in both modes */
+    TRLV_SURFACE_BRIGHT,              /**< surface_bright / on_surface: the brightest surface. In
+                                           MD3's light schemes it equals `surface` */
     TRLV_SURFACE_COUNT                /**< Number of surfaces; not a surface */
 } trlv_surface_t;
 

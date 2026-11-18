@@ -33,13 +33,16 @@ static LV_STYLE_CONST_INIT(surface_secondary_container, surface_props[TRLV_SURFA
 static LV_STYLE_CONST_INIT(surface_tertiary_container, surface_props[TRLV_SURFACE_TERTIARY_CONTAINER]);
 static LV_STYLE_CONST_INIT(surface_error_container, surface_props[TRLV_SURFACE_ERROR_CONTAINER]);
 static LV_STYLE_CONST_INIT(surface_inverse, surface_props[TRLV_SURFACE_INVERSE]);
+static LV_STYLE_CONST_INIT(surface_dim, surface_props[TRLV_SURFACE_DIM]);
+static LV_STYLE_CONST_INIT(surface_bright, surface_props[TRLV_SURFACE_BRIGHT]);
 
 /* Indexed by trlv_surface_t. */
 static const lv_style_t * const surface_styles[] = {
     &surface_surface, &surface_container_lowest, &surface_container_low,
     &surface_container, &surface_container_high, &surface_container_highest,
     &surface_primary_container, &surface_secondary_container,
-    &surface_tertiary_container, &surface_error_container, &surface_inverse
+    &surface_tertiary_container, &surface_error_container, &surface_inverse,
+    &surface_dim, &surface_bright
 };
 TRLV_STATIC_ASSERT(sizeof(surface_styles) / sizeof(surface_styles[0]) == TRLV_SURFACE_COUNT,
                    surface_styles_cover_the_enum);
@@ -336,6 +339,8 @@ void trlv_surface_styles_build(const trlv_color_tokens_t * color, const trlv_lay
                   color->on_tertiary_container);
     build_surface(TRLV_SURFACE_ERROR_CONTAINER, color->error_container, color->on_error_container);
     build_surface(TRLV_SURFACE_INVERSE, color->inverse_surface, color->inverse_on_surface);
+    build_surface(TRLV_SURFACE_DIM, color->surface_dim, color->on_surface);
+    build_surface(TRLV_SURFACE_BRIGHT, color->surface_bright, color->on_surface);
 
 #if TRLV_CUSTOM_COLOR_MAX > 0
     /* An index the tokens don't define gets an empty style, so an object

@@ -18,6 +18,13 @@ While the version is 0.x, minor releases may contain breaking changes.
   old colour), and combines with the text role.
   `TRLV_TEXT_EMPHASIS_NORMAL` removes it. The demo's list uses it for
   supporting text.
+- `TRLV_SURFACE_DIM` and `TRLV_SURFACE_BRIGHT`: the `surface_dim` and
+  `surface_bright` tokens as surfaces, with `on_surface` content. In
+  MD3's schemes `surface_dim` equals `surface` in dark mode (and
+  `surface_bright` equals `surface` in light mode), so neither is a
+  darker or lighter step in both modes. Existing values keep their
+  numbers; `TRLV_SURFACE_COUNT` is now 13. The demo's surface ladder
+  shows both.
 
 ### Changed
 

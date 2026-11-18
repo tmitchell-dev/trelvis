@@ -74,6 +74,8 @@ static void check_every_surface(lv_obj_t * parent, const trlv_color_tokens_t * c
         { TRLV_SURFACE_TERTIARY_CONTAINER, c->tertiary_container, c->on_tertiary_container },
         { TRLV_SURFACE_ERROR_CONTAINER, c->error_container, c->on_error_container },
         { TRLV_SURFACE_INVERSE, c->inverse_surface, c->inverse_on_surface },
+        { TRLV_SURFACE_DIM, c->surface_dim, c->on_surface },
+        { TRLV_SURFACE_BRIGHT, c->surface_bright, c->on_surface },
     };
     TRLV_ASSERT_INT((int32_t)(sizeof(cases) / sizeof(cases[0])), TRLV_SURFACE_COUNT);
 

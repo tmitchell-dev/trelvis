@@ -595,14 +595,16 @@ static void assert_swatches(lv_obj_t * demo, int32_t group, const color_pair_t *
     TRLV_ASSERT_HEIGHT(column, y);
 }
 
-/* The ladder runs from Surface to Surface Container Highest, all with
- * on_surface text. */
+/* The ladder runs from Surface Dim, Surface and Surface Bright to Surface
+ * Container Highest, all with on_surface text. */
 static void surfaces_show_the_ladder(lv_obj_t * screen)
 {
     lv_obj_t * demo = build(screen);
     const trlv_color_tokens_t * c = trlv_get_color_tokens();
     const color_pair_t ladder[] = {
+        { c->surface_dim, c->on_surface },
         { c->surface, c->on_surface },
+        { c->surface_bright, c->on_surface },
         { c->surface_container_lowest, c->on_surface },
         { c->surface_container_low, c->on_surface },
         { c->surface_container, c->on_surface },
@@ -611,7 +613,7 @@ static void surfaces_show_the_ladder(lv_obj_t * screen)
     };
 
     select_section(demo, SECTION_SURFACES);
-    assert_swatches(demo, SURFACES_LADDER, ladder, 6);
+    assert_swatches(demo, SURFACES_LADDER, ladder, 8);
 }
 
 /* The accent containers and the inverse surface, each with its own
@@ -1006,7 +1008,7 @@ static void assert_section_colors(lv_obj_t * demo, int32_t index, const trlv_col
         ASSERT_COLOR(lv_obj_get_style_text_color(lv_obj_get_child(start, 0), LV_PART_MAIN), c->on_primary);
     }
     else if(index == SECTION_SURFACES) {
-        lv_obj_t * highest = lv_obj_get_child(swatches(demo, SURFACES_LADDER), 5);
+        lv_obj_t * highest = lv_obj_get_child(swatches(demo, SURFACES_LADDER), -1);
         lv_obj_t * primary = lv_obj_get_child(swatches(demo, SURFACES_CONTAINERS), 0);
         ASSERT_COLOR(lv_obj_get_style_bg_color(highest, LV_PART_MAIN), c->surface_container_highest);
         ASSERT_COLOR(lv_obj_get_style_bg_color(primary, LV_PART_MAIN), c->primary_container);

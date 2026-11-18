@@ -34,7 +34,7 @@
  * | Material Theme Builder custom colour       | `--md-extended-color-*`    | trlv_custom_color_t, `custom[]`  | trlv_apply_surface_custom                                  |
  *
  * Tokens that no TreLVis function reads (for example TRLV_SIZE_LG,
- * TRLV_ELEVATION_3 or `surface_dim`) are there for a project's own
+ * TRLV_ELEVATION_3 or `scrim`) are there for a project's own
  * components, so screens hold no magic numbers.
  *
  * The structs hold the standard MD3 roles and scales, plus what v1 reads.
