@@ -296,7 +296,7 @@ project that follows these steps with CMake and with a Makefile.
 
 ```sh
 git submodule add https://github.com/tmitchell-dev/trelvis.git external/trelvis
-git -C external/trelvis checkout v0.2.0   # pin a release
+git -C external/trelvis checkout v0.3.0   # pin a release
 ```
 
 ### 2. Build it with your project

@@ -24,11 +24,11 @@
 /** Major version: a change breaks the compatibility promise (README). */
 #define TRLV_VERSION_MAJOR  0
 /** Minor version: additions and changes to the theme's look. */
-#define TRLV_VERSION_MINOR  2
+#define TRLV_VERSION_MINOR  3
 /** Patch version: fixes only. */
 #define TRLV_VERSION_PATCH  0
 /** The version as a string, "MAJOR.MINOR.PATCH". */
-#define TRLV_VERSION_STRING "0.2.0"
+#define TRLV_VERSION_STRING "0.3.0"
 
 /*---------------------------------------------------------------------------
  * Supported LVGL: 9.x with x >= 6
