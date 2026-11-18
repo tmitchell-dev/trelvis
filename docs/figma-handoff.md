@@ -253,9 +253,12 @@ template:
   | Chips, badges, navigation, dialogs, sheets, snackbars, tabs, date and time pickers | No MD3 style in v1: a project design, or an LVGL widget the theme doesn't cover ([concepts §6.4](concepts.md#64-md3-widget-coverage-v1)) |
 
 - **Field heights.** The kit draws fields at a fixed 56 px; LVGL sizes a
-  textarea or dropdown from its font and padding. If the design fixes
-  the height, bind it to `size/*` and set it in code (`lv_obj_set_height`
-  with `trlv_get_layout_tokens()->control_height[…]`).
+  textarea or dropdown from its font and padding (`space/sm` top and
+  bottom, `space/lg` at the sides). If the design fixes the height, bind
+  it to `size/*` and set it in code (`lv_obj_set_height` with
+  `trlv_get_layout_tokens()->control_height[…]`). A one-line field at
+  `size/md` fits a line of body text; the text sits at the top of the
+  field, under the padding, not centred.
 
 ## Strokes, corners and effects
 

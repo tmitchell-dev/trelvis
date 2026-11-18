@@ -391,6 +391,37 @@ static void textarea_focused(lv_obj_t * screen)
     ASSERT_COLOR(lv_obj_get_style_border_color(ta, LV_PART_CURSOR), L->primary);
 }
 
+/* The thicker focused border doesn't shrink the content box (LVGL draws
+ * borders inside): the field keeps its size, the text stays put, and a
+ * one-line textarea set to the control height, as the Figma hand-off
+ * suggests, doesn't start to scroll (#130). */
+static void textarea_focused_keeps_its_content_box(lv_obj_t * screen)
+{
+    lv_obj_t * ta = lv_textarea_create(init(screen));
+    lv_textarea_set_one_line(ta, true);
+    lv_textarea_set_text(ta, "Text");
+    lv_obj_update_layout(ta);
+    int32_t height = lv_obj_get_height(ta);
+    int32_t content_width = lv_obj_get_content_width(ta);
+    int32_t content_height = lv_obj_get_content_height(ta);
+
+    lv_obj_t * fixed = lv_textarea_create(screen);
+    lv_textarea_set_one_line(fixed, true);
+    lv_textarea_set_text(fixed, "Text");
+    lv_obj_set_height(fixed, tokens_regular.control_height[TRLV_SIZE_MD]);
+
+    set_state(ta, LV_STATE_FOCUSED);
+    set_state(fixed, LV_STATE_FOCUSED);
+    lv_obj_update_layout(screen);
+
+    TRLV_ASSERT_INT(lv_obj_get_height(ta), height);
+    TRLV_ASSERT_INT(lv_obj_get_content_width(ta), content_width);
+    TRLV_ASSERT_INT(lv_obj_get_content_height(ta), content_height);
+    /* Nothing to scroll to: the text fits (a negative value is room). */
+    TRLV_ASSERT_INT(LV_MAX(lv_obj_get_scroll_bottom(fixed), 0), 0);
+    TRLV_ASSERT_INT(LV_MAX(lv_obj_get_scroll_right(fixed), 0), 0);
+}
+
 static void textarea_recolours(lv_obj_t * screen)
 {
     lv_obj_t * ta = lv_textarea_create(init(screen));
@@ -438,6 +469,7 @@ int main(void)
     TRLV_TEST_RUN(dropdown_recolours);
     TRLV_TEST_RUN(textarea_field);
     TRLV_TEST_RUN(textarea_focused);
+    TRLV_TEST_RUN(textarea_focused_keeps_its_content_box);
     TRLV_TEST_RUN(textarea_recolours);
     return trlv_test_finish();
 }

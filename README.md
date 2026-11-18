@@ -414,7 +414,7 @@ don't call, so they are an upper bound.
 |---|---:|---:|
 | Minimal `lv_conf.h` (no widgets but the label), theme on | 5.4 KB | 2.5 KB |
 | Minimal `lv_conf.h`, theme off (`TRLV_USE_THEME 0`) | 4.8 KB | 2.5 KB |
-| LVGL's default `lv_conf.h` (every widget), theme on | 10.5 KB | 3.8 KB |
+| LVGL's default `lv_conf.h` (every widget), theme on | 11.1 KB | 4.0 KB |
 | LVGL's default `lv_conf.h`, theme off | 5.2 KB | 2.7 KB |
 | Each custom colour allowed by `TRLV_CUSTOM_COLOR_MAX` | 108 B | 64 B |
 

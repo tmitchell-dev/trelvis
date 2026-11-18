@@ -37,6 +37,9 @@ static lv_display_t * current_display;
 #define THEME_PRESSED_RESET (LV_USE_BUTTON || LV_USE_CHECKBOX || LV_USE_SLIDER || THEME_FIELD)
 #define THEME_DISABLED      (LV_USE_BUTTON || THEME_TRACK)
 #define THEME_DISABLED_PART (THEME_TRACK || LV_USE_CHECKBOX || LV_USE_ARC)
+#define THEME_ROUND         (THEME_TRACK || LV_USE_ARC)
+#define THEME_KNOB          (LV_USE_SLIDER || LV_USE_ARC)
+#define THEME_DPX           (THEME_KNOB || THEME_ARC || LV_USE_CHECKBOX)
 
 /*---------------------------------------------------------------------------
  * Writing token styles. Each token style has a static property array sized
@@ -97,6 +100,16 @@ static void put_end(style_writer_t * w)
         put_end(w);                         \
     } while(0)
 
+#if THEME_DPX
+/* A size with no token, scaled by the display's DPI as LVGL's default theme
+ * scales it (LV_DPX_CALC), so these widgets keep the default theme's shape
+ * with either parent theme. */
+static int32_t dpx(lv_display_t * disp, int32_t n)
+{
+    return LV_DPX_CALC(lv_display_get_dpi(disp), n);
+}
+#endif
+
 /*---------------------------------------------------------------------------
  * Constant styles (flash)
  *-------------------------------------------------------------------------*/
@@ -143,6 +156,15 @@ static const lv_style_const_prop_t no_outline_props[] = {
 static LV_STYLE_CONST_INIT(no_outline_style, no_outline_props);
 #endif
 
+#if LV_USE_CHECKBOX
+/* The check mark of a checked checkbox, as in LVGL's default theme. */
+static const lv_style_const_prop_t check_mark_props[] = {
+    LV_STYLE_CONST_BG_IMAGE_SRC(LV_SYMBOL_OK),
+    LV_STYLE_CONST_PROPS_END
+};
+static LV_STYLE_CONST_INIT(check_mark_style, check_mark_props);
+#endif
+
 /*---------------------------------------------------------------------------
  * Token styles (RAM, written by theme_styles_build)
  *-------------------------------------------------------------------------*/
@@ -177,6 +199,17 @@ TOKEN_STYLE(disabled_part, 3);
 TOKEN_STYLE(disabled_text, 2);
 #endif
 
+/* Geometry. The widgets' shape is TreLVis's too, not only their colours,
+ * so they keep it with TRLV_THEME_PARENT_NONE. Round: radius FULL for
+ * tracks, indicators and knobs. Knob: the slider's and arc's knob reaches
+ * 6 dpx beyond the track (LVGL's default theme). */
+#if THEME_ROUND
+TOKEN_STYLE(round, 1);
+#endif
+#if THEME_KNOB
+TOKEN_STYLE(knob, 4);
+#endif
+
 /* Bars, sliders and switches: the inactive track and the active
  * indicator. The slider's knob is the indicator colour. */
 #if THEME_TRACK
@@ -186,10 +219,11 @@ TOKEN_STYLE(track, 2);
 TOKEN_STYLE(indicator, 2);
 #endif
 
-/* Arcs and spinners: the same pair as arc colours. */
+/* Arcs and spinners: the same pair as arc colours, 15 dpx wide with
+ * rounded ends (LVGL's default theme). */
 #if THEME_ARC
-TOKEN_STYLE(arc_track, 2);
-TOKEN_STYLE(arc_indicator, 2);
+TOKEN_STYLE(arc_track, 4);
+TOKEN_STYLE(arc_indicator, 4);
 TOKEN_STYLE(arc_disabled_track, 2);
 TOKEN_STYLE(arc_disabled_indicator, 2);
 #endif
@@ -200,24 +234,32 @@ TOKEN_STYLE(arc_disabled_indicator, 2);
 #if LV_USE_SWITCH
 TOKEN_STYLE(switch_track, 4);
 TOKEN_STYLE(switch_track_checked, 1);
-TOKEN_STYLE(switch_knob, 6);
+TOKEN_STYLE(switch_knob, 7);
 TOKEN_STYLE(switch_knob_checked, 5);
 TOKEN_STYLE(switch_knob_pressed, 4);
 #endif
 
-/* Checkbox: the box outlined in on_surface_variant, filled primary with an
- * on_primary check mark when checked. */
+/* Checkbox: a space SM gap before the text; the box outlined in
+ * on_surface_variant, 3 dpx around the mark (LVGL's default theme), filled
+ * primary with an on_primary check mark when checked. */
 #if LV_USE_CHECKBOX
-TOKEN_STYLE(checkbox_box, 4);
+TOKEN_STYLE(checkbox, 1);
+TOKEN_STYLE(checkbox_box, 8);
 TOKEN_STYLE(checkbox_box_checked, 4);
 TOKEN_STYLE(checkbox_box_disabled, 3);
 #endif
 
-/* Dropdown and textarea: an MD3 outlined field. The focused border is
- * primary and `focus_width` thick: the field's focus indicator. */
+/* Dropdown and textarea: an MD3 outlined field. Space LG at the sides as in
+ * MD3, space SM at the top and bottom, so a one-line field set to
+ * `control_height[MD]` fits a line of body text (MD3's 16 px is for its
+ * 56 px field). The focused border is primary and `focus_width` thick:
+ * the field's focus indicator. LVGL draws borders inside the object, so
+ * the focused padding is smaller by the extra border width: the content
+ * box and the text stay where they are, and a one-line textarea doesn't
+ * start to scroll. */
 #if THEME_FIELD
-TOKEN_STYLE(field, 7);
-TOKEN_STYLE(field_focused, 2);
+TOKEN_STYLE(field, 9);
+TOKEN_STYLE(field_focused, 6);
 TOKEN_STYLE(field_disabled, 5);
 #endif
 
@@ -237,11 +279,13 @@ TOKEN_STYLE(menu_option_checked, 2);
 TOKEN_STYLE(menu_option_pressed, 2);
 #endif
 
-static void theme_styles_build(const trlv_color_tokens_t * color, const trlv_layout_tokens_t * layout)
+static void theme_styles_build(lv_display_t * disp, const trlv_color_tokens_t * color,
+                               const trlv_layout_tokens_t * layout)
 {
     const trlv_state_tokens_t * state = &color->state;
 
     /* Unused when lv_conf.h turns off every widget the theme styles. */
+    LV_UNUSED(disp);
     LV_UNUSED(state);
     LV_UNUSED(layout);
 
@@ -308,6 +352,21 @@ static void theme_styles_build(const trlv_color_tokens_t * color, const trlv_lay
     });
 #endif
 
+#if THEME_ROUND
+    BUILD(round, {
+        put_num(w, LV_STYLE_RADIUS, layout->radius[TRLV_RADIUS_FULL]);
+    });
+#endif
+#if THEME_KNOB
+    int32_t knob_pad = dpx(disp, 6);
+    BUILD(knob, {
+        put_num(w, LV_STYLE_PAD_TOP, knob_pad);
+        put_num(w, LV_STYLE_PAD_BOTTOM, knob_pad);
+        put_num(w, LV_STYLE_PAD_LEFT, knob_pad);
+        put_num(w, LV_STYLE_PAD_RIGHT, knob_pad);
+    });
+#endif
+
 #if THEME_TRACK
     BUILD(track, {
         put_color(w, LV_STYLE_BG_COLOR, color->surface_container_highest);
@@ -322,13 +381,18 @@ static void theme_styles_build(const trlv_color_tokens_t * color, const trlv_lay
 #endif
 
 #if THEME_ARC
+    int32_t arc_width = dpx(disp, 15);
     BUILD(arc_track, {
         put_color(w, LV_STYLE_ARC_COLOR, color->surface_container_highest);
         put_num(w, LV_STYLE_ARC_OPA, LV_OPA_COVER);
+        put_num(w, LV_STYLE_ARC_WIDTH, arc_width);
+        put_num(w, LV_STYLE_ARC_ROUNDED, 1);
     });
     BUILD(arc_indicator, {
         put_color(w, LV_STYLE_ARC_COLOR, color->primary);
         put_num(w, LV_STYLE_ARC_OPA, LV_OPA_COVER);
+        put_num(w, LV_STYLE_ARC_WIDTH, arc_width);
+        put_num(w, LV_STYLE_ARC_ROUNDED, 1);
     });
     BUILD(arc_disabled_track, {
         put_color(w, LV_STYLE_ARC_COLOR, color->on_surface);
@@ -358,6 +422,7 @@ static void theme_styles_build(const trlv_color_tokens_t * color, const trlv_lay
         put_num(w, LV_STYLE_PAD_BOTTOM, -switch_height / 4);
         put_num(w, LV_STYLE_PAD_LEFT, -switch_height / 4);
         put_num(w, LV_STYLE_PAD_RIGHT, -switch_height / 4);
+        put_num(w, LV_STYLE_RADIUS, layout->radius[TRLV_RADIUS_FULL]);
     });
     BUILD(switch_knob_checked, {
         put_color(w, LV_STYLE_BG_COLOR, color->on_primary);
@@ -375,11 +440,19 @@ static void theme_styles_build(const trlv_color_tokens_t * color, const trlv_lay
 #endif
 
 #if LV_USE_CHECKBOX
+    BUILD(checkbox, {
+        put_num(w, LV_STYLE_PAD_COLUMN, layout->space[TRLV_SPACE_SM]);
+    });
+    int32_t mark_pad = dpx(disp, 3);
     BUILD(checkbox_box, {
         put_num(w, LV_STYLE_BG_OPA, LV_OPA_TRANSP);
         put_color(w, LV_STYLE_BORDER_COLOR, color->on_surface_variant);
         put_num(w, LV_STYLE_BORDER_WIDTH, layout->border_width);
         put_num(w, LV_STYLE_RADIUS, layout->radius[TRLV_RADIUS_XS]);
+        put_num(w, LV_STYLE_PAD_TOP, mark_pad);
+        put_num(w, LV_STYLE_PAD_BOTTOM, mark_pad);
+        put_num(w, LV_STYLE_PAD_LEFT, mark_pad);
+        put_num(w, LV_STYLE_PAD_RIGHT, mark_pad);
     });
     BUILD(checkbox_box_checked, {
         put_color(w, LV_STYLE_BG_COLOR, color->primary);
@@ -395,18 +468,27 @@ static void theme_styles_build(const trlv_color_tokens_t * color, const trlv_lay
 #endif
 
 #if THEME_FIELD
+    int32_t pad_ver = layout->space[TRLV_SPACE_SM];
+    int32_t pad_hor = layout->space[TRLV_SPACE_LG];
+    int32_t extra_border = layout->focus_width - layout->border_width;
     BUILD(field, {
         put_color(w, LV_STYLE_BG_COLOR, color->surface);
         put_color(w, LV_STYLE_BORDER_COLOR, color->outline);
         put_num(w, LV_STYLE_BORDER_WIDTH, layout->border_width);
         put_num(w, LV_STYLE_RADIUS, layout->radius[TRLV_RADIUS_XS]);
         put_color(w, LV_STYLE_TEXT_COLOR, color->on_surface);
-        put_num(w, LV_STYLE_PAD_LEFT, layout->space[TRLV_SPACE_LG]);
-        put_num(w, LV_STYLE_PAD_RIGHT, layout->space[TRLV_SPACE_LG]);
+        put_num(w, LV_STYLE_PAD_TOP, pad_ver);
+        put_num(w, LV_STYLE_PAD_BOTTOM, pad_ver);
+        put_num(w, LV_STYLE_PAD_LEFT, pad_hor);
+        put_num(w, LV_STYLE_PAD_RIGHT, pad_hor);
     });
     BUILD(field_focused, {
         put_color(w, LV_STYLE_BORDER_COLOR, color->primary);
         put_num(w, LV_STYLE_BORDER_WIDTH, layout->focus_width);
+        put_num(w, LV_STYLE_PAD_TOP, LV_MAX(pad_ver - extra_border, 0));
+        put_num(w, LV_STYLE_PAD_BOTTOM, LV_MAX(pad_ver - extra_border, 0));
+        put_num(w, LV_STYLE_PAD_LEFT, LV_MAX(pad_hor - extra_border, 0));
+        put_num(w, LV_STYLE_PAD_RIGHT, LV_MAX(pad_hor - extra_border, 0));
     });
     BUILD(field_disabled, {
         put_color(w, LV_STYLE_BORDER_COLOR, color->on_surface);
@@ -488,7 +570,9 @@ static void add_state_styles(lv_obj_t * obj, const lv_style_t * pressed, const l
 static void add_track_styles(lv_obj_t * obj)
 {
     lv_obj_add_style(obj, &track_style, LV_PART_MAIN);
+    lv_obj_add_style(obj, &round_style, LV_PART_MAIN);
     lv_obj_add_style(obj, &indicator_style, LV_PART_INDICATOR);
+    lv_obj_add_style(obj, &round_style, LV_PART_INDICATOR);
     lv_obj_add_style(obj, &disabled_style, LV_PART_MAIN | LV_STATE_DISABLED);
     lv_obj_add_style(obj, &disabled_part_style, LV_PART_INDICATOR | LV_STATE_DISABLED);
 }
@@ -565,8 +649,10 @@ static void theme_apply(lv_theme_t * theme, lv_obj_t * obj)
 #if LV_USE_SWITCH
     if(lv_obj_check_type(obj, &lv_switch_class)) {
         lv_obj_add_style(obj, &track_style, LV_PART_MAIN);
+        lv_obj_add_style(obj, &round_style, LV_PART_MAIN);
         lv_obj_add_style(obj, &switch_track_style, LV_PART_MAIN);
         lv_obj_add_style(obj, &switch_track_checked_style, LV_PART_MAIN | LV_STATE_CHECKED);
+        lv_obj_add_style(obj, &round_style, LV_PART_INDICATOR);
         lv_obj_add_style(obj, &indicator_style, LV_PART_INDICATOR | LV_STATE_CHECKED);
         lv_obj_add_style(obj, &switch_knob_style, LV_PART_KNOB);
         lv_obj_add_style(obj, &switch_knob_checked_style, LV_PART_KNOB | LV_STATE_CHECKED);
@@ -580,8 +666,10 @@ static void theme_apply(lv_theme_t * theme, lv_obj_t * obj)
 #endif
 #if LV_USE_CHECKBOX
     if(lv_obj_check_type(obj, &lv_checkbox_class)) {
+        lv_obj_add_style(obj, &checkbox_style, LV_PART_MAIN);
         lv_obj_add_style(obj, &checkbox_box_style, LV_PART_INDICATOR);
         lv_obj_add_style(obj, &checkbox_box_checked_style, LV_PART_INDICATOR | LV_STATE_CHECKED);
+        lv_obj_add_style(obj, &check_mark_style, LV_PART_INDICATOR | LV_STATE_CHECKED);
         lv_obj_add_style(obj, &pressed_reset_style, LV_PART_INDICATOR | LV_STATE_PRESSED);
         add_focus_ring(obj);
         lv_obj_add_style(obj, &disabled_text_style, LV_PART_MAIN | LV_STATE_DISABLED);
@@ -594,6 +682,8 @@ static void theme_apply(lv_theme_t * theme, lv_obj_t * obj)
     if(lv_obj_check_type(obj, &lv_slider_class)) {
         add_track_styles(obj);
         lv_obj_add_style(obj, &indicator_style, LV_PART_KNOB);
+        lv_obj_add_style(obj, &round_style, LV_PART_KNOB);
+        lv_obj_add_style(obj, &knob_style, LV_PART_KNOB);
         lv_obj_add_style(obj, &pressed_reset_style, LV_PART_KNOB | LV_STATE_PRESSED);
         lv_obj_add_style(obj, &disabled_part_style, LV_PART_KNOB | LV_STATE_DISABLED);
         add_focus_ring(obj);
@@ -617,6 +707,8 @@ static void theme_apply(lv_theme_t * theme, lv_obj_t * obj)
     if(lv_obj_check_type(obj, &lv_arc_class)) {
         add_arc_styles(obj);
         lv_obj_add_style(obj, &indicator_style, LV_PART_KNOB);
+        lv_obj_add_style(obj, &round_style, LV_PART_KNOB);
+        lv_obj_add_style(obj, &knob_style, LV_PART_KNOB);
         lv_obj_add_style(obj, &disabled_part_style, LV_PART_KNOB | LV_STATE_DISABLED);
         add_focus_ring(obj);
         return;
@@ -755,7 +847,7 @@ void trlv_init(lv_display_t * disp, const trlv_color_tokens_t * color,
     trlv_surface_styles_build(color, layout);
 
 #if TRLV_USE_THEME
-    theme_styles_build(color, layout);
+    theme_styles_build(disp, color, layout);
     theme_install(disp, color, layout);
 #endif
 
@@ -778,7 +870,7 @@ void trlv_theme_set_color_mode(const trlv_color_tokens_t * color)
     trlv_surface_styles_build(color, current_layout);
 
 #if TRLV_USE_THEME
-    theme_styles_build(color, current_layout);
+    theme_styles_build(current_display, color, current_layout);
     theme_recolor(current_display, color, current_layout);
 #endif
 

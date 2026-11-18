@@ -479,11 +479,11 @@ The theme's apply callback checks each object's class with
 | Plain `lv_obj` | LVGL's container shape (radius, border, padding, scrolling) in MD3 colours: `surface`, `outline_variant` border, `on_surface` content. Boxes, rows and columns remove all theme styles, so this never reaches them. |
 | `lv_label` | No role or colour of its own: it inherits Body Medium and `on_surface` from the screen, or the role and `on_` colour of the surface, card or button it sits in. |
 | `lv_button` | Filled button by default (`primary` / `on_primary`, radius FULL, height `control_height[MD]`, side padding `space[XL]`, no shadow, Label Large); variants via `trlv_apply_button_type()`. Content is a centred flex row with a `space[SM]` gap, so a label is centred and an icon sits beside it, as in an MD3 button. This differs from LVGL's default theme, which leaves placement to the caller: `lv_obj_align` and `lv_obj_set_pos` on a button's children are ignored, as for any flex child. To place one child by hand (a badge), make it floating with `lv_obj_set_floating(child, true)`; to place them all, `lv_obj_set_layout(btn, LV_LAYOUT_NONE)`. The tab buttons of an `lv_tabview` are left to the parent theme. |
-| `lv_switch` | MD3 52 × 32 track (`control_height[SM]` tall): `surface_container_highest` with an `outline` border when off, `primary` when on. Handle in `outline` (16 px) when off, `on_primary` (24 px) when on, 28 px while pressed, as fractions of the track height. |
-| `lv_checkbox` | Box with a `border_width` border in `on_surface_variant`, radius XS; checked: `primary` with an `on_primary` mark. Text inherits. No recolour on press. |
-| `lv_slider`, `lv_bar` | `surface_container_highest` track, `primary` indicator (and slider knob). The pressed knob doesn't grow. |
-| `lv_arc`, `lv_spinner` | The same pair as arc colours: `surface_container_highest` track, `primary` indicator (and arc knob). |
-| `lv_dropdown`, `lv_textarea` | MD3 outlined field: `surface`, a `border_width` border in `outline`, radius XS, `on_surface` text, `space[LG]` side padding. Focused: the border turns `primary` and `focus_width` thick, with no extra ring (LVGL draws borders inside, so the field's size doesn't change; its content box does, see [#130](https://github.com/tmitchell-dev/trelvis/issues/130)). Textarea caret in `primary`, placeholder in `on_surface_variant`. |
+| `lv_switch` | MD3 52 × 32 track (`control_height[SM]` tall, radius FULL): `surface_container_highest` with an `outline` border when off, `primary` when on. Round handle in `outline` (16 px) when off, `on_primary` (24 px) when on, 28 px while pressed, as fractions of the track height. |
+| `lv_checkbox` | A `space[SM]` gap before the text. Box with a `border_width` border in `on_surface_variant`, radius XS, 3 dpx around the mark; checked: `primary` with an `on_primary` mark (`LV_SYMBOL_OK`). Text inherits. No recolour on press. |
+| `lv_slider`, `lv_bar` | `surface_container_highest` track, `primary` indicator (and slider knob), all radius FULL. The slider knob reaches 6 dpx beyond the track; pressed, it doesn't grow. |
+| `lv_arc`, `lv_spinner` | The same pair as arc colours: `surface_container_highest` track, `primary` indicator (and round arc knob, 6 dpx beyond the arc), 15 dpx wide with rounded ends. |
+| `lv_dropdown`, `lv_textarea` | MD3 outlined field: `surface`, a `border_width` border in `outline`, radius XS, `on_surface` text, `space[LG]` side padding and `space[SM]` top and bottom, so a one-line field set to `control_height[MD]` fits a line of body text (MD3's 16 px is for its 56 px field). Focused: the border turns `primary` and `focus_width` thick, with no extra ring. LVGL draws borders inside, so the padding shrinks by the extra border width: the field's size, its content box and the text stay where they are. Textarea caret in `primary`, placeholder in `on_surface_variant`. |
 | Dropdown list | MD3 menu: `surface_container`, radius XS, the level 2 elevation shadow, `on_surface` text. The selected option is `secondary_container` / `on_secondary_container`; a pressed option gets the state layer. |
 | All interactive widgets | Disabled: `on_surface` at 12 % for containers and tracks, 38 % for content, indicators, knobs and check boxes, as real opacity. Keypad or encoder focus (and encoder editing): the focus ring (`focus`, `focus_width`, `space[2XS]` outside), except fields, which use their border. LVGL's default recolour on press, grow on press and focus outline are switched off. |
 
@@ -491,6 +491,12 @@ Buttons, in every variant, and the dropdown list's options also get
 pressed state layers, and buttons a focus state layer, pre-mixed (§6.1).
 The switch, checkbox, slider and arc don't have the MD3 circular state
 layer around their handle: LVGL has no part for it.
+
+The theme gives the widgets it covers their shape as well as their
+colours, so they look the same with `TRLV_THEME_PARENT_NONE`. Sizes with
+a token come from the layout tokens; the few with none (arc width, knob
+and check-mark padding) are LVGL's default-theme values in dpx, scaled by
+the display's DPI as LVGL scales them (`LV_DPX_CALC`).
 
 Other widgets fall back to the parent default theme, seeded with MD3
 colours. With `TRLV_THEME_PARENT_NONE`, they are unstyled.
@@ -514,9 +520,9 @@ The last column says what `TRLV_THEME_PARENT_NONE` leaves.
 | Widget | Default parent theme | `TRLV_THEME_PARENT_NONE` |
 |---|---|---|
 | Screen, plain `lv_obj`, `lv_label`, `lv_button` | covered | usable |
-| `lv_switch`, `lv_checkbox`, `lv_slider`, `lv_bar` | covered | loses its shape: square switch, no check mark, no slider knob ([#131](https://github.com/tmitchell-dev/trelvis/issues/131)) |
-| `lv_arc`, `lv_spinner` | covered | invisible: no arc width ([#131](https://github.com/tmitchell-dev/trelvis/issues/131)) |
-| `lv_dropdown`, `lv_textarea` | covered; a focused one-line textarea shows scrollbars ([#130](https://github.com/tmitchell-dev/trelvis/issues/130)) | no vertical padding ([#131](https://github.com/tmitchell-dev/trelvis/issues/131)) |
+| `lv_switch`, `lv_checkbox`, `lv_slider`, `lv_bar` | covered | covered |
+| `lv_arc`, `lv_spinner` | covered | covered |
+| `lv_dropdown`, `lv_textarea` | covered | covered |
 | `lv_arclabel`, `lv_spangroup` | fine via the parent theme: text inherits the role and colour | usable |
 | `lv_led` | fine via the parent theme (`primary`) | invisible |
 | `lv_line` | fine via the parent theme | invisible: no line width |
@@ -537,8 +543,7 @@ The last column says what `TRLV_THEME_PARENT_NONE` leaves.
 | `lv_gif`, `lv_lottie`, `lv_ffmpeg_player`, `lv_gstreamer`, `lv_3dtexture` | content only | content only |
 
 `TRLV_THEME_PARENT_NONE` therefore suits a product that uses only the
-covered widgets (once [#131](https://github.com/tmitchell-dev/trelvis/issues/131)
-is fixed) or styles the others itself.
+covered widgets or styles the others itself.
 
 **Focus rings need clearance.** The ring is drawn outside the widget
 (`focus_width + space[2XS]`, 5 px in the template), and LVGL clips children
