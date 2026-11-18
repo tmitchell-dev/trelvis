@@ -12,7 +12,19 @@ The [demo](../examples/demo) shows most of them on real screens.
 
 - **Start from the Material 3 Figma kit.** Generate the colour scheme (light,
   dark, plus any custom colours the product needs) with **Material Theme
-  Builder**, from the product's seed colour.
+  Builder**, from the product's seed colour. Both are free in Figma
+  Community (search for them by name):
+  - *Material 3 Design Kit* is a Community **file**. Open it and choose
+    *Open in Figma* (or *Duplicate*) to get your own editable copy. Its
+    text styles, components and variables exist only inside that copy.
+  - *Material Theme Builder* is a Community **plugin**. Run it inside your
+    copy of the kit (*Plugins* in the main menu or the toolbar). It creates
+    the colour scheme as variables, and can swap the kit's components onto
+    it.
+- **Contrast modes:** Theme Builder also generates medium and high contrast
+  versions of each scheme. TreLVis doesn't use them. Ignore them, or ship
+  one as an extra colour token set (another `trlv_color_tokens_t` for
+  `trlv_theme_set_color_mode`).
 - **Custom colours are the product's own list**: success and warning, extra
   brand accents, or alarm priorities. Agree the list and its order with the
   developers; it becomes an enum in code. Each one has the four Material
@@ -30,6 +42,26 @@ The [demo](../examples/demo) shows most of them on real screens.
 - **Draw frames at 1×, in real display pixels**, with one frame size per layout
   mode (e.g. 480×320 for compact, 800×480 for regular). There is no scaling
   step between Figma and the display.
+- **Design in the product's real font.** The kit's text styles use Roboto;
+  the token template uses the nearest Montserrat size LVGL ships
+  ([concepts §4.2](concepts.md#42-token-template-and-reference-values)). If the
+  product will keep Montserrat, switch the kit's text styles to it.
+  Otherwise give the template the product's font. A side-by-side comparison
+  with mismatched fonts looks wrong for reasons unrelated to layout.
+
+### A first screen: the minimal path
+
+The rest of this document describes the full set-up. A first screen or a
+prototype needs only:
+
+1. A copy of the kit, with a **Light** scheme from Material Theme Builder.
+2. A `Layout` collection holding at least the `space/*` variables (see
+   [Variables](#variables); the kit doesn't include it).
+3. One frame at the display's size, built with auto layout.
+
+It can skip the dark scheme, custom colours, contrast modes, a Compact
+layout mode and the alarm-colour rules, and add them when the product
+needs them.
 
 ## Variables
 
@@ -56,6 +88,42 @@ The [demo](../examples/demo) shows most of them on real screens.
   `3xl`. The token template's values for both layout modes are in
   [concepts.md §4.2](concepts.md#42-token-template-and-reference-values);
   start from them so code and design agree before anything is tuned.
+- **The kit has no `Layout` variables.** It comes with colour variables
+  only, so create the `Layout` collection (`space/*`, `radius/*`, `size/*`)
+  by hand from the tables in concepts §4.2.
+- **Names in the kit differ from the table above.** The kit's colour
+  variables sit in a group called `Schemes` (`Schemes/Surface Container
+  High`), and Material Theme Builder names its collection `material-theme`.
+  Only the role name at the end matters: it converts to the token name in
+  snake_case.
+
+### From Figma variables to `tokens.c`
+
+Until the token generator exists ([ROADMAP](../ROADMAP.md) "Later"), the
+colour values are copied by hand into the project's copy of the token
+template:
+
+1. In *Local variables*, export the colour collection. Figma writes one
+   `<Mode>.tokens.json` per mode (`Light.tokens.json`, `Dark.tokens.json`).
+2. In each file, use the `Schemes` group. Each colour's `$value` has a
+   `hex` field. Convert the Title Case name to snake_case to get the field
+   (`Surface Container High` → `.surface_container_high`), and paste the
+   value as `TOKEN_HEX(0x…)` in `tokens_light` / `tokens_dark`.
+3. Skip roles TreLVis has no field for: `Background` and `On Background`
+   (the same as Surface / On Surface), `Surface Tint`, `Surface Variant`,
+   and every `Fixed`, `Fixed Dim` and `Fixed Variant` role.
+4. Skip the `State Layers` group: TreLVis computes pressed and focus
+   colours from the `.state` opacities.
+5. **`focus` has no Figma source.** It is TreLVis's focus-ring colour;
+   the template sets it to `secondary`. Keep that, or choose a role.
+6. Custom colours are in the `Extended Colors` group, four per colour
+   (`Custom Color 1`, `On Custom Color 1`, `Custom Color 1 Container`,
+   `On Custom Color 1 Container`). Their names are the designer's, so map
+   each one to the project's custom colour enum by hand.
+7. Do every mode. The template's baseline differs from the kit's current
+   scheme (for example `primary` `#6750A4` in the template, `#65558F` in
+   the kit), so a mode that isn't imported is visibly out of step with
+   the design.
 
 ## Layout
 
@@ -66,6 +134,8 @@ The [demo](../examples/demo) shows most of them on real screens.
 - **Spacing sits on the 4 px grid** and is bound to `space/*` variables only.
   Gap and padding are one value on all sides in TreLVis; different
   horizontal and vertical values are possible but are raw LVGL in the code.
+  Figma starts new auto layout with a 10 px gap and padding, which is off
+  the grid: bind both to a `space/*` variable (or 0) every time.
 - **An empty frame set to fill** pushes what follows to the far end (a
   spacer, `trlv_spacer`).
 - **Fill needs a parent with a size.** A child set to fill along the
@@ -91,8 +161,32 @@ The [demo](../examples/demo) shows most of them on real screens.
 ## Type
 
 - Use **MD3 type-scale styles only**: Display / Headline / Title / Body /
-  Label × Large / Medium / Small.
+  Label × Large / Medium / Small. In the kit, select a text layer and apply
+  one with the *Apply styles* button in the *Typography*
+  section of the right panel. The styles live in the kit, so this works in
+  your copy of it. To set a style by hand, use MD3's values (Regular
+  layout mode):
+
+  | Role | Large | Medium | Small | Weight |
+  |---|---|---|---|---|
+  | Display | 57 / 64 | 45 / 52 | 36 / 44 | Regular |
+  | Headline | 32 / 40 | 28 / 36 | 24 / 32 | Regular |
+  | Title | 22 / 28 | 16 / 24 | 14 / 20 | Regular (Large), Medium |
+  | Body | 16 / 24 | 14 / 20 | 12 / 16 | Regular |
+  | Label | 14 / 20 | 12 / 16 | 11 / 16 | Medium |
+
+  Size / line height in px. The token template maps each role to the
+  nearest Montserrat size ([concepts §4.2](concepts.md#42-token-template-and-reference-values)).
 - Give line height in **px**, not percent.
+- **Text boxes are shorter in LVGL.** LVGL adds line spacing only between
+  lines, while Figma centres each line in its line height. So a text box
+  is shorter than in Figma by `line_height − font line height` (a one-line
+  Body Medium text is about 16 px tall rather than 20 px), and its text sits
+  slightly higher. The spacing between lines matches. Expect this when
+  comparing screenshots; see [concepts §4.2](concepts.md#42-token-template-and-reference-values).
+- **Lower-emphasis text** (On Surface Variant, for labels and supporting
+  text) has no TreLVis call yet; in code it is a local text colour (see
+  [Reading a Figma frame](#reading-a-figma-frame-and-writing-the-screen)).
 - The type scale belongs to the layout mode: a Compact design may use
   smaller sizes and tighter lines for the same roles. Keep one set of text
   styles per layout mode, or bind font size and line height to `Layout`
@@ -114,6 +208,11 @@ The [demo](../examples/demo) shows most of them on real screens.
 - Cards are **Filled, Elevated or Outlined** only (MD3 card types), with
   corner radius Medium. Their padding is explicit: usually `space/lg`.
   Cards are not clickable in v1; put an action in them as a button.
+- **A rounded tonal area is a card.** A surface container role on its own
+  has no corner radius in TreLVis. For a rounded panel, use one of the
+  card types (Elevated is Surface Container Low, and has no shadow in a
+  layout mode without shadows). Any other tone-plus-radius combination is
+  raw LVGL.
 - Always pair a container colour with its `on_` content colour.
 - Custom colours fill a surface in two strengths: the colour itself (an
   alarm banner, a status badge) or its container (a calmer background).
@@ -132,6 +231,26 @@ The [demo](../examples/demo) shows most of them on real screens.
 - Built-in controls (switch, checkbox, slider, progress bar, arc, spinner,
   dropdown, text field) use the Material 3 kit's versions as drawn; the
   theme gives them the MD3 look. Other components need a project design.
+- Kit components and what they become:
+
+  | Material 3 kit | TreLVis / LVGL |
+  |---|---|
+  | Buttons: Filled, Tonal, Outlined, Text | `lv_button` + `trlv_button_variant` |
+  | Buttons: Elevated, FAB, icon buttons, segmented | Not in v1 (an icon button is an `lv_button` holding an icon) |
+  | Cards: Filled, Elevated, Outlined | `trlv_card` |
+  | Text field: Outlined | `lv_textarea` (one line or more). The floating label in the border has no LVGL equivalent: put the label above the field as text. |
+  | Text field: Filled | Not in v1; use Outlined |
+  | Menu (with a field) | `lv_dropdown` |
+  | Switch, Checkbox, Slider | `lv_switch`, `lv_checkbox`, `lv_slider` |
+  | Progress indicators: linear, circular | `lv_bar`, `lv_arc` / `lv_spinner` |
+  | Divider | `trlv_divider` |
+  | Lists | Rows and dividers (see above) |
+  | Chips, badges, navigation, dialogs, sheets, snackbars, tabs, date and time pickers | No MD3 style in v1: a project design, or an LVGL widget the theme doesn't cover ([concepts §6.4](concepts.md#64-md3-widget-coverage-v1)) |
+
+- **Field heights.** The kit draws fields at a fixed 56 px; LVGL sizes a
+  textarea or dropdown from its font and padding. If the design fixes
+  the height, bind it to `size/*` and set it in code (`lv_obj_set_height`
+  with `trlv_layout()->control_height[…]`).
 
 ## Strokes, corners and effects
 
@@ -165,6 +284,51 @@ The [demo](../examples/demo) shows most of them on real screens.
 
 - Use **one icon set**. Material Symbols is recommended.
 - Export images at **1×**, named `icon_*` / `img_*`.
+
+## Reading a Figma frame and writing the screen
+
+The sections above are for the designer. This one is for the developer
+turning a frame into a screen function.
+
+1. **Read the frame in Figma's right panel.** Select each layer. *Auto
+   layout* shows direction, gap, padding and alignment; *W* / *H* show
+   Fixed, Hug or Fill. Values bound to variables appear as named pills:
+   the pill's name is the token (`space/lg` → `TRLV_SPACE_LG`). A plain
+   number where you expected a pill is a question for the designer. Dev
+   Mode shows the same information but is optional (and a paid feature).
+2. **Rename layers to code names** (`header`, `readouts`, `settings`), so
+   the design and the code use the same words.
+3. **Sketch the frame tree as a comment** at the top of the screen
+   function, one line per frame with its auto layout settings:
+
+   ```c
+   /* page        column, gap lg, pad lg, fill × fill
+    *   header    row, gap sm, fill width, space between
+    *   readouts  row, gap md, fill width
+    *     card ×3 Filled card, column, gap xs, pad lg, fill width
+    *   ...
+    */
+   ```
+
+   Then write the code top-down, one block per frame. A reviewer, or a
+   tool, can then check the code against the design frame by frame.
+4. **Translate each property with the [mapping table](#mapping-table).**
+   Each auto layout property is one call. Set a container's direction (its
+   constructor) before filling its children, as the fill modifiers depend
+   on it. A component the designer made becomes a project `_create()`
+   function ([Components](#components)).
+5. **Where raw LVGL is needed:** fixed sizes (`lv_obj_set_size`, with
+   `trlv_layout()->control_height[TRLV_SIZE_MD]` for a field bound to
+   `size/md`), a corner radius on a non-card, different horizontal and
+   vertical spacing, lower-emphasis text colour, wrap, absolute
+   positions, and widget behaviour (options, one-line mode, accepted
+   characters). Raw LVGL colours taken from `trlv_color()` don't follow a
+   colour-mode switch; see [concepts §7.2](concepts.md#72-modifiers-verbs--properties).
+6. **Compare.** Build with `TRLV_USE_DEBUG_OUTLINE 1` in `trlv_conf.h` to
+   outline every container, and compare a screenshot with the frame
+   exported at 1×. Expect text boxes to be a little shorter than Figma's
+   ([Type](#type)) and fonts to differ unless the design uses the
+   product's real font.
 
 ## What has no TreLVis equivalent
 
