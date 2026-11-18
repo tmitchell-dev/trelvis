@@ -237,6 +237,14 @@ The scrim's colour is a local style, so a dialog that stays open across a
 colour-mode switch keeps the old colour; `scrim` is black in most schemes,
 so this rarely shows.
 
+**In screenshots**, the top layer is drawn over every screen but is not
+part of one, so a snapshot of the screen ([Reviewing a
+screen](#reviewing-a-screen)) leaves the dialog out. Give the function
+that builds the dialog its parent: `lv_layer_top()` in the product, and
+the screen when taking screenshots. On a parent with a layout, also call
+`lv_obj_set_floating(scrim, true)`, so the scrim covers the parent instead
+of joining its layout.
+
 ## Reviewing a screen
 
 - **Outline every container:** build with `TRLV_USE_DEBUG_OUTLINE 1` in
@@ -300,3 +308,9 @@ so this rarely shows.
   ```
 
   LVGL's RGB888 is stored blue, green, red, the order BMP expects.
+  A snapshot holds `obj` and its children only: a screen's snapshot
+  leaves out `lv_layer_top()`, so build a dialog on the screen for
+  screenshots ([A modal over a scrim](#a-modal-over-a-scrim)). Call
+  `lv_obj_update_layout` and scroll without animation
+  (`lv_obj_scroll_to_view_recursive(obj, LV_ANIM_OFF)`) before the
+  snapshot, so the image shows the final positions.
