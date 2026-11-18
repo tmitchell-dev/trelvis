@@ -24,6 +24,9 @@ never wrapped. MIT licensed, used as a git submodule from C and C++ products
   theme/style engine, primitives and modifiers, mapping tables. Read the
   relevant section before changing an area. Once the public headers exist,
   they are the source of truth for signatures.
+- [docs/getting-started.md](docs/getting-started.md): the first-use path
+  (reading order, the kinds of call, fit/fill, one complete screen pinned
+  by `tests/layout/test_getting_started.c`, what stays LVGL).
 - [docs/designing-a-screen.md](docs/designing-a-screen.md): tool-neutral
   design rules and which role to use for what.
 - [docs/building-a-token-set.md](docs/building-a-token-set.md): what each
