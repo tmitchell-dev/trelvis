@@ -186,6 +186,8 @@ if(TRLV_TEST_FULL)
     target_link_libraries(theme_button_type PRIVATE trlv_tokens_template)
     trlv_add_test(theme_apply_warnings theme/test_apply_warnings.c)
     target_link_libraries(theme_apply_warnings PRIVATE trlv_tokens_template)
+    trlv_add_test(theme_shape theme/test_shape.c)
+    target_link_libraries(theme_shape PRIVATE trlv_tokens_template)
 endif()
 
 # Config options: a copy of the library built with one option set, and a
@@ -222,6 +224,8 @@ if(TRLV_TEST_FULL)
     trlv_add_option_test(theme_no_theme theme/test_no_theme.c trelvis_no_theme TRLV_USE_THEME=0)
     trlv_add_option_test(theme_surface_custom_max0 theme/test_surface_custom.c
                          trelvis_custom_color_max0 TRLV_CUSTOM_COLOR_MAX=0)
+    trlv_add_option_test(theme_shape_parent_none theme/test_shape.c
+                         trelvis_parent_none TRLV_THEME_PARENT=TRLV_THEME_PARENT_NONE)
 endif()
 
 # Tests of internal helpers also see src/.

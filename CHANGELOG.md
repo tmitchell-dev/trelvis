@@ -56,9 +56,23 @@ While the version is 0.x, minor releases may contain breaking changes.
   The values are unchanged; copies made from 0.1.0 keep working, but are
   worth converting the same way (see "What a version number promises" in
   the README).
+- Dropdowns and textareas get their top and bottom padding from the
+  theme: `space[SM]` (8 px in the template) instead of LVGL's default
+  theme's `pad_small`, which depends on the display's size and DPI (8,
+  10 or 11 px at LVGL's default DPI). A field sized by its content is up
+  to 6 px shorter there, and a one-line field set to
+  `control_height[MD]` fits a line of body text. The checkbox's gap
+  before its text is `space[SM]` too (8 px at LVGL's default DPI, as
+  before).
 
 ### Fixed
 
+- With `TRLV_THEME_PARENT_NONE`, the widgets the theme covers keep their
+  shape: arcs and spinners are drawn, switches, sliders and bars are
+  round, the slider has its knob, a checked checkbox shows its mark and
+  fields have their padding. The theme now sets the geometry as well as
+  the colours, with LVGL's default-theme sizes where there is no token,
+  so nothing else changes with the default parent.
 - The token template's include guard is now `TOKENS_TEMPLATE_H` (the HMI
   example's `TOKENS_HMI_H`). Renamed the obvious way, the old
   `TRLV_TOKENS_TEMPLATE_H` became `TRLV_TOKENS_H`, the guard of
