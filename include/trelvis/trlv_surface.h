@@ -13,8 +13,8 @@
  * never changes colour, so a card's padding is a separate trlv_set_pad:
  *
  *     lv_obj_t * card = trlv_column_create(parent);
- *     trlv_apply_card(card, TRLV_CARD_FILLED);
  *     trlv_set_pad(card, TRLV_SPACE_LG);
+ *     trlv_apply_card(card, TRLV_CARD_FILLED);
  *
  * Each function works on any object, as LVGL styles do, and logs a
  * warning (LV_LOG_WARN, which changes nothing) for an object it makes no

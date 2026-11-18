@@ -68,10 +68,10 @@ static void button(lv_obj_t * parent, const char * text, trlv_button_t type)
 static void card(lv_obj_t * section, const demo_card_t * content)
 {
     lv_obj_t * obj = trlv_column_create(section);
-    trlv_apply_card(obj, content->card);
-    trlv_set_pad(obj, TRLV_SPACE_LG);
     trlv_set_gap(obj, TRLV_SPACE_SM);
+    trlv_set_pad(obj, TRLV_SPACE_LG);
     trlv_set_width_fill(obj);
+    trlv_apply_card(obj, content->card);
 
     trlv_text_create(obj, content->type, TRLV_TEXT_LABEL_MEDIUM);
     trlv_text_create(obj, content->title, TRLV_TEXT_TITLE_MEDIUM);
