@@ -64,6 +64,10 @@ static void intended_targets_are_silent(lv_obj_t * screen)
     lv_obj_set_clickable(list_row, true);
     trlv_apply_button_type(list_row, TRLV_BUTTON_TEXT);
 
+    lv_obj_t * toggle = lv_button_create(screen);
+    lv_obj_set_checkable(toggle, true);
+    trlv_apply_button_type(toggle, TRLV_BUTTON_FILLED_TOGGLE);
+
     TRLV_ASSERT_INT(warnings, 0);
 }
 
@@ -112,6 +116,19 @@ static void button_type_on_a_plain_row_warns(lv_obj_t * screen)
     ASSERT_COLOR(lv_obj_get_style_bg_color(row, LV_PART_MAIN), tokens_light.secondary_container);
 }
 
+/* A toggle type on a button that isn't checkable warns: its selected look
+ * never shows. The unselected look still applies. */
+static void toggle_type_on_a_plain_button_warns(lv_obj_t * screen)
+{
+    lv_obj_t * btn = lv_button_create(setup(screen));
+    trlv_apply_button_type(btn, TRLV_BUTTON_FILLED_TOGGLE);
+
+    TRLV_ASSERT_INT(warnings, 1);
+    TRLV_ASSERT_INT(warning_names("trlv_apply_button_type", btn), true);
+    TRLV_ASSERT_INT(strstr(last_warning, "lv_obj_set_checkable") != NULL, true);
+    ASSERT_COLOR(lv_obj_get_style_bg_color(btn, LV_PART_MAIN), tokens_light.surface_container);
+}
+
 /* An invalid value logs its own warning only, not a target warning too. */
 static void invalid_value_warns_once(lv_obj_t * screen)
 {
@@ -128,6 +145,7 @@ int main(void)
     TRLV_TEST_RUN(card_on_a_widget_warns);
     TRLV_TEST_RUN(surface_on_a_button_warns);
     TRLV_TEST_RUN(button_type_on_a_plain_row_warns);
+    TRLV_TEST_RUN(toggle_type_on_a_plain_button_warns);
     TRLV_TEST_RUN(invalid_value_warns_once);
     return trlv_test_finish();
 }

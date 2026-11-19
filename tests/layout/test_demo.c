@@ -815,6 +815,32 @@ static void controls_show_every_button_type(lv_obj_t * screen)
     }
 }
 
+/* A third row of the three toggle types, each unselected then selected. */
+static void controls_show_every_toggle_type(lv_obj_t * screen)
+{
+    lv_obj_t * demo = build(screen);
+    const trlv_color_tokens_t * c = trlv_get_color_tokens();
+
+    select_section(demo, SECTION_CONTROLS);
+    lv_obj_t * toggles = controls_row(demo, CONTROLS_BUTTONS, 2);
+
+    TRLV_ASSERT_INT(lv_obj_get_child_count(toggles), 6);
+    for(int32_t i = 0; i < 6; i++) {
+        lv_obj_t * btn = lv_obj_get_child(toggles, i);
+        TRLV_ASSERT_INT(lv_obj_is_checkable(btn), true);
+        TRLV_ASSERT_INT(lv_obj_has_state(btn, LV_STATE_CHECKED), i % 2 == 1);
+    }
+    TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(lv_obj_get_child(toggles, 0), LV_PART_MAIN),
+                               c->surface_container), true);
+    TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(lv_obj_get_child(toggles, 1), LV_PART_MAIN),
+                               c->primary), true);
+    TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(lv_obj_get_child(toggles, 3), LV_PART_MAIN),
+                               c->secondary), true);
+    TRLV_ASSERT_INT(lv_obj_get_style_bg_opa(lv_obj_get_child(toggles, 4), LV_PART_MAIN), LV_OPA_TRANSP);
+    TRLV_ASSERT_INT(same_color(lv_obj_get_style_bg_color(lv_obj_get_child(toggles, 5), LV_PART_MAIN),
+                               c->inverse_surface), true);
+}
+
 /* Switches and checkboxes off, on, off and disabled, on and disabled. */
 static void controls_show_switch_and_checkbox_states(lv_obj_t * screen)
 {
@@ -1245,6 +1271,7 @@ static void run_all(const char * mode, const trlv_color_tokens_t * light, const 
     TRLV_TEST_RUN(cards_put_actions_at_the_end);
 
     TRLV_TEST_RUN(controls_show_every_button_type);
+    TRLV_TEST_RUN(controls_show_every_toggle_type);
     TRLV_TEST_RUN(controls_show_switch_and_checkbox_states);
     TRLV_TEST_RUN(controls_cover_every_themed_widget);
     TRLV_TEST_RUN(controls_line_up_with_their_headings);

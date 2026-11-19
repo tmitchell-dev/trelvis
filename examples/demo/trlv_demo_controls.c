@@ -3,9 +3,9 @@
 
 /**
  * @file trlv_demo_controls.c
- * The Controls section: the four MD3 button types and every LVGL widget the
- * theme covers, in their default, checked and disabled states where they
- * apply. Pressed and focused states come from using them, with a pointer or
+ * The Controls section: the four MD3 button types, the three toggle
+ * button types, and every LVGL widget the theme covers, in their default,
+ * checked and disabled states where they apply. Pressed and focused states come from using them, with a pointer or
  * with a keypad or encoder.
  *
  * The widgets are plain LVGL widgets: the theme styles them as they are
@@ -42,6 +42,16 @@ static const struct {
     { TRLV_BUTTON_TONAL,    "Tonal" },
     { TRLV_BUTTON_OUTLINED, "Outlined" },
     { TRLV_BUTTON_TEXT,     "Text" },
+};
+
+/* Toggle buttons, each shown unselected and selected. */
+static const struct {
+    trlv_button_type_t type;
+    const char * name;
+} toggles[] = {
+    { TRLV_BUTTON_FILLED_TOGGLE,   "Filled" },
+    { TRLV_BUTTON_TONAL_TOGGLE,    "Tonal" },
+    { TRLV_BUTTON_OUTLINED_TOGGLE, "Outlined" },
 };
 
 /* The states shown for switches and checkboxes. */
@@ -92,6 +102,19 @@ static void button_group(lv_obj_t * section)
             trlv_apply_button_type(btn, buttons[i].type);
             trlv_text_create(btn, buttons[i].name, TRLV_TEXT_LABEL_LARGE);
             if(disabled) lv_obj_add_state(btn, LV_STATE_DISABLED);
+        }
+    }
+
+    /* Toggle buttons: checkable, unselected then selected. Clicking one
+     * toggles it. */
+    lv_obj_t * row = widget_row(obj, TRLV_SPACE_SM);
+    for(uint32_t i = 0; i < COUNT(toggles); i++) {
+        for(uint32_t selected = 0; selected < 2; selected++) {
+            lv_obj_t * btn = lv_button_create(row);
+            lv_obj_set_checkable(btn, true);
+            trlv_apply_button_type(btn, toggles[i].type);
+            trlv_text_create(btn, toggles[i].name, TRLV_TEXT_LABEL_LARGE);
+            if(selected) lv_obj_add_state(btn, LV_STATE_CHECKED);
         }
     }
 }

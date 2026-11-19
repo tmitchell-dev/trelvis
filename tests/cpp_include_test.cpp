@@ -105,7 +105,10 @@ static_assert(TRLV_SPACE_COUNT == 9, "spacing scale NONE..3XL");
 static_assert(TRLV_SURFACE_COUNT == 13, "surface roles");
 static_assert(TRLV_CUSTOM_SURFACE_COUNT == 2, "custom colour pairs");
 static_assert(TRLV_CARD_COUNT == 3, "MD3 card types");
-static_assert(TRLV_BUTTON_COUNT == 4, "v1 button types");
+static_assert(TRLV_BUTTON_COUNT == 7, "v1 button types: four common, three toggle");
+static_assert(TRLV_BUTTON_FILLED_TOGGLE > TRLV_BUTTON_TEXT &&
+              TRLV_BUTTON_TONAL_TOGGLE > TRLV_BUTTON_TEXT &&
+              TRLV_BUTTON_OUTLINED_TOGGLE > TRLV_BUTTON_TEXT, "toggle button types");
 static_assert(static_cast<int>(TRLV_JUSTIFY_SPACE_EVENLY) == static_cast<int>(LV_FLEX_ALIGN_SPACE_EVENLY),
               "justify values equal lv_flex_align_t");
 static_assert(static_cast<int>(TRLV_ALIGN_ITEMS_END) == static_cast<int>(LV_FLEX_ALIGN_END),
