@@ -59,7 +59,7 @@ static LV_STYLE_CONST_INIT(card_filled, card_props[TRLV_CARD_FILLED]);
 static LV_STYLE_CONST_INIT(card_elevated, card_props[TRLV_CARD_ELEVATED]);
 static LV_STYLE_CONST_INIT(card_outlined, card_props[TRLV_CARD_OUTLINED]);
 
-/* Indexed by trlv_card_t. */
+/* Indexed by trlv_card_type_t. */
 static const lv_style_t * const card_styles[] = { &card_filled, &card_elevated, &card_outlined };
 TRLV_STATIC_ASSERT(sizeof(card_styles) / sizeof(card_styles[0]) == TRLV_CARD_COUNT,
                    card_styles_cover_the_enum);
@@ -92,7 +92,7 @@ BUTTON_STYLES(tonal, TRLV_BUTTON_TONAL);
 BUTTON_STYLES(outlined, TRLV_BUTTON_OUTLINED);
 BUTTON_STYLES(text, TRLV_BUTTON_TEXT);
 
-/* Indexed by trlv_button_t, one list per selector. */
+/* Indexed by trlv_button_type_t, one list per selector. */
 static const lv_style_t * const button_styles[] = {
     &button_filled, &button_tonal, &button_outlined, &button_text
 };
@@ -223,7 +223,7 @@ static void build_surface(trlv_surface_t surface, lv_color_t container, lv_color
 }
 
 /* A card: a surface tone, radius MD, an optional border and shadow. */
-static void build_card(trlv_card_t card, lv_color_t container, int32_t border_width,
+static void build_card(trlv_card_type_t card, lv_color_t container, int32_t border_width,
                        const trlv_shadow_t * shadow, const trlv_color_tokens_t * color,
                        const trlv_layout_tokens_t * layout)
 {
@@ -265,7 +265,7 @@ static void put_state_layer(lv_style_const_prop_t * entry, bool opaque, lv_color
 
 /* One button type at all four selectors. `opaque` is false for the
  * transparent types; `border_width` is 0 except for outlined. */
-static void build_button(trlv_button_t type, bool opaque, lv_color_t container,
+static void build_button(trlv_button_type_t type, bool opaque, lv_color_t container,
                          lv_color_t content, int32_t border_width, const trlv_color_tokens_t * color)
 {
     const trlv_state_tokens_t * state = &color->state;
@@ -435,24 +435,24 @@ void trlv_apply_surface(lv_obj_t * obj, trlv_surface_t surface)
     trlv_style_group_apply(obj, &fill_group, surface_styles[surface], LV_PART_MAIN);
 }
 
-void trlv_apply_card(lv_obj_t * obj, trlv_card_t card)
+void trlv_apply_card(lv_obj_t * obj, trlv_card_type_t card)
 {
     LV_ASSERT_NULL(obj);
 
     if((uint32_t)card >= TRLV_CARD_COUNT) {
-        LV_LOG_WARN("trlv_apply_card: %d is not a trlv_card_t", (int)card);
+        LV_LOG_WARN("trlv_apply_card: %d is not a trlv_card_type_t", (int)card);
         return;
     }
     warn_if_not_container(obj);
     trlv_style_group_apply(obj, &fill_group, card_styles[card], LV_PART_MAIN);
 }
 
-void trlv_apply_button_type(lv_obj_t * btn, trlv_button_t type)
+void trlv_apply_button_type(lv_obj_t * btn, trlv_button_type_t type)
 {
     LV_ASSERT_NULL(btn);
 
     if((uint32_t)type >= TRLV_BUTTON_COUNT) {
-        LV_LOG_WARN("trlv_apply_button_type: %d is not a trlv_button_t", (int)type);
+        LV_LOG_WARN("trlv_apply_button_type: %d is not a trlv_button_type_t", (int)type);
         return;
     }
     warn_if_not_clickable(btn);

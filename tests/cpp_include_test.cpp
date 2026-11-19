@@ -92,8 +92,8 @@ TRLV_CHECK_SIGNATURE(trlv_apply_text_emphasis, void (*)(lv_obj_t *, trlv_text_em
 /* trlv_surface.h */
 TRLV_CHECK_SIGNATURE(trlv_apply_surface, void (*)(lv_obj_t *, trlv_surface_t));
 TRLV_CHECK_SIGNATURE(trlv_apply_surface_custom, void (*)(lv_obj_t *, uint32_t, trlv_custom_surface_t));
-TRLV_CHECK_SIGNATURE(trlv_apply_card, void (*)(lv_obj_t *, trlv_card_t));
-TRLV_CHECK_SIGNATURE(trlv_apply_button_type, void (*)(lv_obj_t *, trlv_button_t));
+TRLV_CHECK_SIGNATURE(trlv_apply_card, void (*)(lv_obj_t *, trlv_card_type_t));
+TRLV_CHECK_SIGNATURE(trlv_apply_button_type, void (*)(lv_obj_t *, trlv_button_type_t));
 
 /* trlv_styles.h */
 static_assert(std::is_same<decltype(trlv_style_box), const lv_style_t>::value, "trlv_style_box");

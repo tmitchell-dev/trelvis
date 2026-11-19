@@ -102,7 +102,7 @@ typedef enum {
     TRLV_CARD_ELEVATED,   /**< surface_container_low with the level 1 shadow */
     TRLV_CARD_OUTLINED,   /**< surface with a border_width outline_variant border */
     TRLV_CARD_COUNT       /**< Number of card types; not a card type */
-} trlv_card_t;
+} trlv_card_type_t;
 
 /** The MD3 common button types (v1 has no elevated button). */
 typedef enum {
@@ -111,7 +111,7 @@ typedef enum {
     TRLV_BUTTON_OUTLINED, /**< transparent, border_width outline border, primary content */
     TRLV_BUTTON_TEXT,     /**< transparent, no border, primary content */
     TRLV_BUTTON_COUNT     /**< Number of button types; not a button type */
-} trlv_button_t;
+} trlv_button_type_t;
 
 /*---------------------------------------------------------------------------
  * Appearance. Each applies a shared look to any object, replaces the look
@@ -225,7 +225,7 @@ void trlv_apply_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surfa
  *
  * @ingroup trlv_apply
  */
-void trlv_apply_card(lv_obj_t * obj, trlv_card_t card);
+void trlv_apply_card(lv_obj_t * obj, trlv_card_type_t card);
 
 /**
  * Restyle an lv_button as another MD3 button type: filled, tonal,
@@ -273,7 +273,7 @@ void trlv_apply_card(lv_obj_t * obj, trlv_card_t card);
  *
  * @ingroup trlv_apply
  */
-void trlv_apply_button_type(lv_obj_t * btn, trlv_button_t type);
+void trlv_apply_button_type(lv_obj_t * btn, trlv_button_type_t type);
 
 #ifdef __cplusplus
 } /* extern "C" */

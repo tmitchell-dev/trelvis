@@ -18,6 +18,17 @@ While the version is 0.x, minor releases may contain breaking changes.
   `trlv_set_pad` now sets both axes through the same two groups, so the
   last call wins on each axis in any order. Its result is unchanged.
 
+### Changed
+
+- **Breaking:** the button and card type enums are renamed
+  `trlv_button_t` → `trlv_button_type_t` and `trlv_card_t` →
+  `trlv_card_type_t`, after MD3's "button type" and "card type" and
+  `trlv_apply_button_type`. As type names they read like a handle to a
+  button or card object. Their values (`TRLV_BUTTON_TONAL`,
+  `TRLV_CARD_FILLED`, …) and every call site are unchanged; only code
+  that spells the type name, such as a function parameter, needs the new
+  name. Decided in the API freeze review.
+
 ## [0.3.0] - 2026-11-18
 
 ### Added

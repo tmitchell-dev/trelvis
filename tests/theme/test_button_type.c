@@ -52,7 +52,7 @@ static lv_opa_t bg_opa_of(lv_obj_t * obj)
 
 /* What a type looks like with the given colours. */
 typedef struct {
-    trlv_button_t type;
+    trlv_button_type_t type;
     bool opaque;
     lv_color_t container;
     lv_color_t content;

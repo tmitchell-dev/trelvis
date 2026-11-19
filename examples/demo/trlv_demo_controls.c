@@ -35,7 +35,7 @@
 #define ARC_SIZE 96
 
 static const struct {
-    trlv_button_t type;
+    trlv_button_type_t type;
     const char * name;
 } buttons[] = {
     { TRLV_BUTTON_FILLED,   "Filled" },

@@ -119,7 +119,7 @@ static void invalid_value_warns_once(lv_obj_t * screen)
     trlv_apply_card(btn, TRLV_CARD_COUNT);
 
     TRLV_ASSERT_INT(warnings, 1);
-    TRLV_ASSERT_INT(strstr(last_warning, "is not a trlv_card_t") != NULL, true);
+    TRLV_ASSERT_INT(strstr(last_warning, "is not a trlv_card_type_t") != NULL, true);
 }
 
 int main(void)
