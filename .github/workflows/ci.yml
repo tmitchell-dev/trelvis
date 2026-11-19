@@ -155,10 +155,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # --no-install-recommends: libnewlib-arm-none-eabi recommends the C++
+      # library for newlib (a 463 MB download, 2 GB installed), which the
+      # footprint build, C only and never linked, doesn't use. It was most
+      # of this step's time, and its slow downloads made the job take up to
+      # 8 minutes.
       - name: Install the Arm toolchain
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq gcc-arm-none-eabi libnewlib-arm-none-eabi
+          sudo apt-get install -y -qq --no-install-recommends gcc-arm-none-eabi libnewlib-arm-none-eabi
 
       - name: Fetch LVGL
         run: |
