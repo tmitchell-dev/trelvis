@@ -108,7 +108,8 @@ designated initialisers, a Migration note for any token schema change.
 Work is tracked in GitHub issues, one per item, under milestones
 (`M<N>: …`, plus the `v1.x (on demand)` and `Later` backlogs) with a
 tracking issue each. Findings from using TreLVis in a product are filed
-with the product-trial issue form (label `product-trial`). Each PR says
+with the bug report or feature request form (the `product-trial` label
+marks the pre-1.0 trials' findings). Each PR says
 `Closes #N` for the issues it completes, and the tracking issue is kept
 current.
 
