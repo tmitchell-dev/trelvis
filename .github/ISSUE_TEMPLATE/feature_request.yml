@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        TreLVis is a utility layer, not a framework. Please check the scope in CONTRIBUTING.md and the "Not planned" list in ROADMAP.md first.
+        TreLVis is a utility layer, not a framework. Please check the scope in CONTRIBUTING.md and the "Not planned" list in ROADMAP.md first. Requests from using TreLVis in a real product are especially welcome; leave out anything confidential about the product.
   - type: textarea
     id: problem
     attributes:
@@ -22,3 +22,15 @@ body:
     id: alternatives
     attributes:
       label: How do you do it today with raw LVGL?
+      description: The code you write in its place, and how often it repeats.
+      render: c
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Would it change existing code?
+      description: See "What a version number promises" in the README. A breaking change waits for the next major version.
+      options:
+        - Additive (new function, option, enum value or token field; existing code keeps working)
+        - Breaking (changes or removes something existing code uses)
+        - Docs or template only
+        - Not sure

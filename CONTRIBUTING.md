@@ -312,13 +312,14 @@ Maintenance branches (`release/vX.x`) are created only when an older line
 needs fixes while `main` moves on, for example an LVGL 9 line after the move
 to LVGL v10.
 
-## Product-trial findings
+## Findings from a product
 
-Anything found while using TreLVis in a real product (a bug, a missing
-piece, a surprise, raw LVGL written more than once) is filed with the
-*Product-trial finding* issue form, which asks whether a fix would be
-breaking or additive. Additive fixes go to v1.x (on demand); a breaking
-one waits for the next major version.
+Anything found while using TreLVis in a real product is filed with the
+*Bug report* form if TreLVis doesn't work as documented, and with the
+*Feature request* form otherwise (a missing piece, a surprise, raw LVGL
+written more than once). The feature request asks whether a change would
+be breaking or additive: additive changes go to v1.x (on demand); a
+breaking one waits for the next major version.
 
 ## Reporting bugs
 
