@@ -38,12 +38,12 @@ calls stay valid everywhere. TreLVis does not wrap LVGL widgets; it styles them
 through LVGL's theme engine. It also doesn't rename LVGL calls that are
 already clear: for those, the docs name the LVGL call to use.
 
-> **Status: early development (0.x).** Every function of the v1 API is
-> built and covered by headless tests, and a [demo](examples/demo) shows
-> the whole library in light and dark, Regular and Compact. The API may
-> still change in any 0.x release; 1.0 follows once it has been proven in
-> a real product. See [ROADMAP.md](ROADMAP.md) and what 1.0 will
-> [promise](#what-a-version-number-promises).
+> **Status: stable (1.x).** Every function of the API is built and
+> covered by headless tests, a [demo](examples/demo) shows the whole
+> library in light and dark, Regular and Compact, and the API has been
+> through three product trials. From 1.0.0 the API changes only
+> additively; see what a version number
+> [promises](#what-a-version-number-promises) and [ROADMAP.md](ROADMAP.md).
 
 ## A taste of the API
 
@@ -206,7 +206,7 @@ each kind.
 
 | TreLVis | LVGL | C | Notes |
 |---|---|---|---|
-| 0.x (in development) | 9.6 (any 9.x ≥ 9.6) | C99; headers usable from C++17 | Also built weekly against LVGL master (v10 development) as an early warning. |
+| 1.x | 9.6 (any 9.x ≥ 9.6) | C99; headers usable from C++17 | Also built weekly against LVGL master (v10 development) as an early warning. |
 
 A compile-time check rejects unsupported LVGL versions.
 
@@ -216,9 +216,9 @@ applications.
 
 ### What a version number promises
 
-TreLVis follows [Semantic Versioning](https://semver.org). Until 1.0.0, a
-minor release may break anything below, and the [changelog](CHANGELOG.md)
-says what. From 1.0.0 on, these rules hold.
+TreLVis follows [Semantic Versioning](https://semver.org). From 1.0.0 on,
+these rules hold. (Before 1.0.0, a 0.x minor release could break anything
+below, and the [changelog](CHANGELOG.md) says what.)
 
 TreLVis is built from source with your project, so the promise is about
 source compatibility: code that builds and works with 1.x builds and works
@@ -296,7 +296,7 @@ project that follows these steps with CMake and with a Makefile.
 
 ```sh
 git submodule add https://github.com/tmitchell-dev/trelvis.git external/trelvis
-git -C external/trelvis checkout v0.3.0   # pin a release
+git -C external/trelvis checkout v1.0.0   # pin a release
 ```
 
 ### 2. Build it with your project
@@ -455,11 +455,11 @@ don't call, so they are an upper bound.
 
 | Configuration | Flash | Static RAM |
 |---|---:|---:|
-| Minimal `lv_conf.h` (no widgets but the label), theme on | 5.5 KB | 2.6 KB |
-| Minimal `lv_conf.h`, theme off (`TRLV_USE_THEME 0`) | 5.0 KB | 2.5 KB |
-| LVGL's default `lv_conf.h` (every widget), theme on | 11.2 KB | 4.0 KB |
-| LVGL's default `lv_conf.h`, theme off | 5.4 KB | 2.7 KB |
-| Each custom colour allowed by `TRLV_CUSTOM_COLOR_MAX` | 107 B | 64 B |
+| Minimal `lv_conf.h` (no widgets but the label), theme on | 6.6 KB | 3.1 KB |
+| Minimal `lv_conf.h`, theme off (`TRLV_USE_THEME 0`) | 6.1 KB | 3.1 KB |
+| LVGL's default `lv_conf.h` (every widget), theme on | 12.3 KB | 4.6 KB |
+| LVGL's default `lv_conf.h`, theme off | 6.5 KB | 3.3 KB |
+| Each custom colour allowed by `TRLV_CUSTOM_COLOR_MAX` | 106 B | 64 B |
 
 The static RAM is the token styles' property arrays, which `trlv_init` and
 colour-mode switches fill in. Constant styles live in flash. The theme's

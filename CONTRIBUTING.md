@@ -3,7 +3,8 @@
 Thanks for your interest in TreLVis. This guide explains how the project is
 run, what fits its scope, and the rules code must follow to be merged.
 
-TreLVis is at an early stage (0.x) and the public API is still being designed.
+TreLVis is stable (1.x): the public API changes only additively, under the
+[compatibility promise](README.md#what-a-version-number-promises).
 For anything bigger than a small fix, please open an issue first so we can
 agree on the approach before you write code.
 
@@ -277,9 +278,8 @@ Never commit secrets.
 
 ## Versioning and releases
 
-TreLVis follows [Semantic Versioning](https://semver.org). In 0.x, minor
-releases may break the API. 1.0.0 follows once the API has been proven in a
-real product. What counts as breaking (public headers, configuration
+TreLVis follows [Semantic Versioning](https://semver.org). From 1.0.0 on,
+a breaking change needs a new major version. What counts as breaking (public headers, configuration
 options, token struct shapes, public style names, supported LVGL versions)
 and how the theme's look, deprecations and LVGL versions are handled is in
 [Compatibility](README.md#what-a-version-number-promises).
@@ -313,11 +313,11 @@ to LVGL v10.
 
 ## Product-trial findings
 
-Before 1.0.0, anything found while using TreLVis in a real product (a bug,
-a missing piece, a surprise, raw LVGL written more than once) is filed with
-the *Product-trial finding* issue form, which asks whether a fix would be
-breaking or additive. Breaking fixes go in before the 1.0 API freeze;
-additive ones can wait for v1.x.
+Anything found while using TreLVis in a real product (a bug, a missing
+piece, a surprise, raw LVGL written more than once) is filed with the
+*Product-trial finding* issue form, which asks whether a fix would be
+breaking or additive. Additive fixes go to v1.x (on demand); a breaking
+one waits for the next major version.
 
 ## Reporting bugs
 

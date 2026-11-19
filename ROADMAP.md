@@ -50,7 +50,7 @@ per-axis padding setters.
 | 5 | **Surfaces, cards and remaining primitives**: `trlv_apply_surface`, `trlv_apply_surface_custom`, `trlv_apply_card`, `trlv_apply_button_type`, `trlv_apply_text_role`, `trlv_spacer_create`, `trlv_divider_create`, `trlv_set_justify`, `trlv_set_align_items`, the `TRLV_USE_DEBUG_OUTLINE` option. Layout tests for every primitive and modifier. | done |
 | 6 | **Demo and docs**: `examples/demo` grows from the slice screen to exercise every primitive: surface container ladder; filled / elevated / outlined cards; all button types and covered widgets in each state; light/dark toggle; an example Compact token set next to the template values; visible keypad/encoder focus; a list built from rows (no `lv_list`). README quick start, `docs/concepts.md` and `docs/figma-handoff.md` brought up to date with the implementation. | done |
 | 7 | **v1.x (on demand)**: additive items, each built only when a product needs it, before or after 1.0 (see below). A backlog, not a milestone with an end. | ongoing |
-| 8 | **1.0**: the [compatibility promise](README.md#what-a-version-number-promises); CI that builds TreLVis the ways products do (a minimal `lv_conf.h`, a Cortex-M cross build with a footprint report, a consumer project, a check that every public symbol is documented); an audit of theme coverage for every LVGL 9.6 widget; product trials on 0.1.0, 0.2.0 and 0.3.0, with findings filed as `product-trial` issues; then the API freeze review and the 1.0.0 release. | in progress |
+| 8 | **1.0**: the [compatibility promise](README.md#what-a-version-number-promises); CI that builds TreLVis the ways products do (a minimal `lv_conf.h`, a Cortex-M cross build with a footprint report, a consumer project, a check that every public symbol is documented); an audit of theme coverage for every LVGL 9.6 widget; product trials on 0.1.0, 0.2.0 and 0.3.0, with findings filed as `product-trial` issues; then the API freeze review and the 1.0.0 release. | done |
 
 ## Settled in the slice
 
@@ -224,7 +224,10 @@ anything that might break goes in before the API freeze. From 1.0.0 the
   to v1.x. Done: it found nothing breaking, so no 0.4.0 is needed
   ("Settled in the trial-3 review").
 - The API freeze review records its decisions here. Done ("Settled in
-  the API freeze review"); the next step is the 1.0.0 release.
+  the API freeze review").
+- 1.0.0 is released with the trial-3 review's additions and the freeze
+  review's rename and toggle buttons. Done: from 1.0.0 the public API
+  changes only additively, and v1.x items are built on demand (below).
 
 ### Settled in the 1.0 review
 
