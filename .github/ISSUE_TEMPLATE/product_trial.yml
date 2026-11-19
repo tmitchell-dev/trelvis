@@ -37,7 +37,7 @@ body:
     id: suggestion
     attributes:
       label: Suggested fix
-      description: Optional. An API sketch, a doc change, or "none: the LVGL code is fine".
+      description: 'Optional. An API sketch, a doc change, or "none: the LVGL code is fine".'
   - type: input
     id: versions
     attributes:
