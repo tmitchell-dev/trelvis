@@ -61,7 +61,6 @@ Prerequisites: Git, CMake ≥ 3.16 and a C99 / C++17 compiler (GCC or Clang).
 ```sh
 git clone https://github.com/tmitchell-dev/trelvis.git
 cd trelvis
-git config core.hooksPath .githooks   # shared hooks: blocks direct pushes to main
 
 cmake -B build                        # fetches LVGL v9.6 on first run
 cmake --build build

@@ -161,10 +161,9 @@ When committing and opening a PR:
   issues it touches. The PR says `Closes #N` for each issue it completes
   (an issue settled by a decision rather than code is closed with that
   decision stated in the PR).
-- **Run the hook checks.** Enable the shared hooks with
-  `git config core.hooksPath .githooks` before pushing. Before pushing,
-  also run what CI runs and can be run locally (see
-  [CONTRIBUTING.md](CONTRIBUTING.md) "Development setup"): the GCC and
+- **Run CI's checks locally.** Before pushing, run what CI runs and can
+  be run locally (see [CONTRIBUTING.md](CONTRIBUTING.md) "Development
+  setup"): the GCC and
   Clang builds and tests, `-DTRLV_TEST_CONFIG=minimal`, the compile
   without CMake, `tests/consumer` and `doxygen`. In the PR, say which
   checks ran and which didn't.
