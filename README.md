@@ -1,11 +1,9 @@
 # TreLVis
 
-*A light and versatile layout layer for [LVGL](https://lvgl.io).*
-
 [![CI](https://github.com/tmitchell-dev/trelvis/actions/workflows/ci.yml/badge.svg)](https://github.com/tmitchell-dev/trelvis/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-TreLVis is a small C utility layer for LVGL: CSS-style layout, design
+TreLVis is a small C utility layer for [LVGL](https://lvgl.io): CSS-style layout, design
 tokens, and a theme that gives LVGL's widgets a consistent look out of the
 box. Its tokens use Material Design 3's colour roles and type scale, so
 Material tools and designs map straight across, with or without a designer.
