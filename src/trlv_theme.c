@@ -639,6 +639,11 @@ static void theme_apply(lv_theme_t * theme, lv_obj_t * obj)
             return;
         }
 #endif
+        /* LVGL's default theme colours a checked button `secondary`, which
+         * isn't MD3. Only a toggle button type has a selected look, so the
+         * parent theme's checked style goes. The object is new, so every
+         * style at this selector is the parent theme's. */
+        lv_obj_remove_style(obj, NULL, LV_PART_MAIN | LV_STATE_CHECKED);
         lv_obj_add_style(obj, &button_style, LV_PART_MAIN);
         lv_obj_add_style(obj, &button_layout_style, LV_PART_MAIN);
         lv_obj_add_style(obj, trlv_text_role_style(TRLV_TEXT_LABEL_LARGE), LV_PART_MAIN);

@@ -225,8 +225,10 @@ template:
 
 ## Buttons and controls
 
-- Buttons are **Filled, Tonal, Outlined or Text** (MD3 button types). The
-  Elevated button type is not in v1. Shape (full), height (`size/md`) and the
+- Buttons are **Filled, Tonal, Outlined or Text** (MD3 button types). A
+  button that stays on or off (the kit's selected / unselected toggle) is a
+  **Filled, Tonal or Outlined toggle**. The Elevated button type is not in
+  v1. Shape (full), height (`size/md`) and the
   Label Large text style come from the theme.
 - Built-in controls (switch, checkbox, slider, progress bar, arc, spinner,
   dropdown, text field) use the Material 3 kit's versions as drawn; the
@@ -236,6 +238,7 @@ template:
   | Material 3 kit | TreLVis / LVGL |
   |---|---|
   | Buttons: Filled, Tonal, Outlined, Text | `lv_button` + `trlv_apply_button_type` |
+  | Toggle buttons: Filled, Tonal, Outlined (selected / unselected) | a checkable `lv_button` (`lv_obj_set_checkable`) + `trlv_apply_button_type(btn, TRLV_BUTTON_*_TOGGLE)`; selected is `LV_STATE_CHECKED` |
   | Buttons: Elevated, FAB, icon buttons, segmented | Not in v1 (an icon button is an `lv_button` holding an icon) |
   | Cards: Filled, Elevated, Outlined | a row or column + `trlv_apply_card` + `trlv_set_pad` |
   | Text field: Outlined | `lv_textarea` (one line or more). The floating label in the border has no LVGL equivalent: put the label above the field as text. |

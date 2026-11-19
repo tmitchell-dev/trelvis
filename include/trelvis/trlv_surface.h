@@ -28,6 +28,7 @@
  * | Fill with a custom colour or its container      | `background` + `color`                                       | trlv_apply_surface_custom | shared styles per custom colour: `bg_color`, `bg_opa`, inherited `text_color`   |
  * | MD3 card (filled, elevated, outlined)           | `background`, `border-radius`, `border` / `box-shadow`       | trlv_apply_card           | shared style: `bg_*`, `radius`, `border_*` / `shadow_*`, inherited `text_color` |
  * | MD3 button type (filled, tonal, outlined, text) | button classes with `:active`, `:focus-visible`, `:disabled` | trlv_apply_button_type    | shared styles with LV_STATE_PRESSED / FOCUS_KEY / DISABLED selectors            |
+ * | MD3 toggle button (filled, tonal, outlined)     | the same, with `:checked`                                    | trlv_apply_button_type    | the same, plus LV_STATE_CHECKED combined with each                              |
  *
  * All are shared token styles, one per value, so they cost no RAM per
  * object and recolour on trlv_theme_set_color_mode. trlv_apply_surface,
@@ -102,16 +103,30 @@ typedef enum {
     TRLV_CARD_ELEVATED,   /**< surface_container_low with the level 1 shadow */
     TRLV_CARD_OUTLINED,   /**< surface with a border_width outline_variant border */
     TRLV_CARD_COUNT       /**< Number of card types; not a card type */
-} trlv_card_t;
+} trlv_card_type_t;
 
-/** The MD3 common button types (v1 has no elevated button). */
+/**
+ * The MD3 common button types, and the toggle buttons of MD3's button
+ * spec (v1 has no elevated button).
+ *
+ * A toggle type is for a checkable button (lv_obj_set_checkable): it
+ * has an unselected look and a selected look (LV_STATE_CHECKED), each
+ * listed here as unselected → selected. MD3 has no text toggle button.
+ */
 typedef enum {
-    TRLV_BUTTON_FILLED,   /**< primary / on_primary: the theme's default */
-    TRLV_BUTTON_TONAL,    /**< secondary_container / on_secondary_container */
-    TRLV_BUTTON_OUTLINED, /**< transparent, border_width outline border, primary content */
-    TRLV_BUTTON_TEXT,     /**< transparent, no border, primary content */
-    TRLV_BUTTON_COUNT     /**< Number of button types; not a button type */
-} trlv_button_t;
+    TRLV_BUTTON_FILLED,          /**< primary / on_primary: the theme's default */
+    TRLV_BUTTON_TONAL,           /**< secondary_container / on_secondary_container */
+    TRLV_BUTTON_OUTLINED,        /**< transparent, border_width outline border, primary content */
+    TRLV_BUTTON_TEXT,            /**< transparent, no border, primary content */
+    TRLV_BUTTON_FILLED_TOGGLE,   /**< surface_container / on_surface_variant →
+                                      primary / on_primary */
+    TRLV_BUTTON_TONAL_TOGGLE,    /**< secondary_container / on_secondary_container →
+                                      secondary / on_secondary */
+    TRLV_BUTTON_OUTLINED_TOGGLE, /**< transparent, border_width outline_variant border,
+                                      on_surface_variant content →
+                                      inverse_surface / inverse_on_surface, no border */
+    TRLV_BUTTON_COUNT            /**< Number of button types; not a button type */
+} trlv_button_type_t;
 
 /*---------------------------------------------------------------------------
  * Appearance. Each applies a shared look to any object, replaces the look
@@ -225,12 +240,13 @@ void trlv_apply_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surfa
  *
  * @ingroup trlv_apply
  */
-void trlv_apply_card(lv_obj_t * obj, trlv_card_t card);
+void trlv_apply_card(lv_obj_t * obj, trlv_card_type_t card);
 
 /**
  * Restyle an lv_button as another MD3 button type: filled, tonal,
- * outlined or text. Figma: the MD3 button component's "Style" property;
- * CSS a button class.
+ * outlined or text, or a filled, tonal or outlined toggle button. Figma:
+ * the MD3 button component's "Style" property (and its selected variant);
+ * CSS a button class (with `:checked`).
  *
  * With the TreLVis theme, every lv_button is already an MD3 filled button:
  * radius FULL, height control_height[TRLV_SIZE_MD], Label Large text, and
@@ -261,6 +277,27 @@ void trlv_apply_card(lv_obj_t * obj, trlv_card_t card);
  * The type adds four shared styles (default, pressed, focus and
  * disabled), each one group, so a second call replaces all four in place.
  *
+ * **Toggle buttons.** A toggle type (TRLV_BUTTON_FILLED_TOGGLE,
+ * TRLV_BUTTON_TONAL_TOGGLE, TRLV_BUTTON_OUTLINED_TOGGLE) is for a
+ * checkable button, an MD3 toggle button: the type's unselected look at
+ * rest, and its selected look when LV_STATE_CHECKED is set, each with its
+ * own pressed and focus state layer. Disabled is the same as for the other
+ * types, except that a selected outlined toggle keeps an `on_surface`
+ * container at `state.disabled_container`. Make the button checkable
+ * first; a toggle type on an object that isn't checkable logs an
+ * LV_LOG_WARN, then applies anyway:
+ *
+ *     lv_obj_t * btn = lv_button_create(row);
+ *     lv_obj_set_checkable(btn, true);
+ *     trlv_apply_button_type(btn, TRLV_BUTTON_TONAL_TOGGLE);
+ *     trlv_text_create(btn, "Auto", TRLV_TEXT_LABEL_LARGE);
+ *
+ * A toggle type adds four more shared styles (selected, and selected while
+ * pressed, focused or disabled), again one group each; any other type
+ * removes them. The other types have no selected look: with the TreLVis
+ * theme, a checkable button of another type looks the same checked or not
+ * (the theme removes the parent theme's checked colour from lv_button).
+ *
  * It works on any clickable object, for example a clickable row used as a
  * list item: the colours and states apply, but the shape, height and
  * text role are the theme's for lv_button only. On an object that is not
@@ -273,7 +310,7 @@ void trlv_apply_card(lv_obj_t * obj, trlv_card_t card);
  *
  * @ingroup trlv_apply
  */
-void trlv_apply_button_type(lv_obj_t * btn, trlv_button_t type);
+void trlv_apply_button_type(lv_obj_t * btn, trlv_button_type_t type);
 
 #ifdef __cplusplus
 } /* extern "C" */

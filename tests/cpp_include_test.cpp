@@ -92,8 +92,8 @@ TRLV_CHECK_SIGNATURE(trlv_apply_text_emphasis, void (*)(lv_obj_t *, trlv_text_em
 /* trlv_surface.h */
 TRLV_CHECK_SIGNATURE(trlv_apply_surface, void (*)(lv_obj_t *, trlv_surface_t));
 TRLV_CHECK_SIGNATURE(trlv_apply_surface_custom, void (*)(lv_obj_t *, uint32_t, trlv_custom_surface_t));
-TRLV_CHECK_SIGNATURE(trlv_apply_card, void (*)(lv_obj_t *, trlv_card_t));
-TRLV_CHECK_SIGNATURE(trlv_apply_button_type, void (*)(lv_obj_t *, trlv_button_t));
+TRLV_CHECK_SIGNATURE(trlv_apply_card, void (*)(lv_obj_t *, trlv_card_type_t));
+TRLV_CHECK_SIGNATURE(trlv_apply_button_type, void (*)(lv_obj_t *, trlv_button_type_t));
 
 /* trlv_styles.h */
 static_assert(std::is_same<decltype(trlv_style_box), const lv_style_t>::value, "trlv_style_box");
@@ -105,7 +105,10 @@ static_assert(TRLV_SPACE_COUNT == 9, "spacing scale NONE..3XL");
 static_assert(TRLV_SURFACE_COUNT == 13, "surface roles");
 static_assert(TRLV_CUSTOM_SURFACE_COUNT == 2, "custom colour pairs");
 static_assert(TRLV_CARD_COUNT == 3, "MD3 card types");
-static_assert(TRLV_BUTTON_COUNT == 4, "v1 button types");
+static_assert(TRLV_BUTTON_COUNT == 7, "v1 button types: four common, three toggle");
+static_assert(TRLV_BUTTON_FILLED_TOGGLE > TRLV_BUTTON_TEXT &&
+              TRLV_BUTTON_TONAL_TOGGLE > TRLV_BUTTON_TEXT &&
+              TRLV_BUTTON_OUTLINED_TOGGLE > TRLV_BUTTON_TEXT, "toggle button types");
 static_assert(static_cast<int>(TRLV_JUSTIFY_SPACE_EVENLY) == static_cast<int>(LV_FLEX_ALIGN_SPACE_EVENLY),
               "justify values equal lv_flex_align_t");
 static_assert(static_cast<int>(TRLV_ALIGN_ITEMS_END) == static_cast<int>(LV_FLEX_ALIGN_END),

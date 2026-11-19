@@ -222,6 +222,24 @@ static void button_type(lv_obj_t * screen)
     ASSERT_COLOR(lv_obj_get_style_bg_color(btn, LV_PART_MAIN), project_color());
 }
 
+/* trlv_apply_button_type, toggle types: four more groups, one per checked
+ * selector. The project style sets the selected colour; a later toggle type
+ * must not take it over. */
+static void button_toggle_type(lv_obj_t * screen)
+{
+    lv_obj_t * btn = lv_button_create(setup(screen));
+    lv_obj_set_checkable(btn, true);
+    trlv_apply_button_type(btn, TRLV_BUTTON_TONAL_TOGGLE);
+    lv_style_set_bg_color(&project, project_color());
+    add_project(btn, LV_PART_MAIN | LV_STATE_CHECKED);
+    trlv_apply_button_type(btn, TRLV_BUTTON_FILLED_TOGGLE);
+
+    ASSERT_COLOR(lv_obj_get_style_bg_color(btn, LV_PART_MAIN), tokens_light.surface_container);
+
+    lv_obj_add_state(btn, LV_STATE_CHECKED);
+    ASSERT_COLOR(lv_obj_get_style_bg_color(btn, LV_PART_MAIN), project_color());
+}
+
 int main(void)
 {
     TRLV_TEST_RUN(gap);
@@ -236,5 +254,6 @@ int main(void)
     TRLV_TEST_RUN(text_emphasis);
     TRLV_TEST_RUN(fill);
     TRLV_TEST_RUN(button_type);
+    TRLV_TEST_RUN(button_toggle_type);
     return trlv_test_finish();
 }

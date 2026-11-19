@@ -65,7 +65,7 @@ shows the structure without shadows.
 | Header or footer bar | `TRLV_SURFACE_CONTAINER_HIGH` | Full width, no radius. |
 | Menu, popup | `TRLV_SURFACE_CONTAINER` | What the theme uses for dropdown lists. |
 | Modal dialog | `TRLV_SURFACE_CONTAINER_HIGH`, radius XL, over a scrim | [Recipe](#a-modal-over-a-scrim). |
-| Selected item, chip | `TRLV_SURFACE_SECONDARY_CONTAINER` | Noticeable, not loud. |
+| Selected item, chip | `TRLV_SURFACE_SECONDARY_CONTAINER` | Noticeable, not loud. A button that stays on or off is a toggle button type instead (`TRLV_BUTTON_TONAL_TOGGLE`, …). |
 | Emphasised area | `TRLV_SURFACE_PRIMARY_CONTAINER` | Rare in a low-colour product. |
 | Input or action error | `TRLV_SURFACE_ERROR_CONTAINER` | Not for process alarms: those are custom colours. |
 | Toast, tooltip | `TRLV_SURFACE_INVERSE` | |

@@ -17,6 +17,35 @@ While the version is 0.x, minor releases may contain breaking changes.
   bars and banners needed, which added a local style to each object.
   `trlv_set_pad` now sets both axes through the same two groups, so the
   last call wins on each axis in any order. Its result is unchanged.
+- MD3 toggle buttons: `TRLV_BUTTON_FILLED_TOGGLE`,
+  `TRLV_BUTTON_TONAL_TOGGLE` and `TRLV_BUTTON_OUTLINED_TOGGLE` for
+  `trlv_apply_button_type`, on a button made checkable with
+  `lv_obj_set_checkable`. Each has MD3's unselected look and a selected
+  look under `LV_STATE_CHECKED` (filled: `surface_container` →
+  `primary`; tonal: `secondary_container` → `secondary`; outlined: an
+  `outline_variant` border → `inverse_surface`), with pressed, focus and
+  disabled states for both. A toggle type on an object that isn't
+  checkable logs a warning. The demo's Controls section shows each type
+  unselected and selected. The new styles cost about 0.9 KB of flash and
+  0.5 KB of static RAM on Cortex-M4, in every configuration, as button
+  types work on any clickable object; where a toggle's look equals another
+  type's (the tonal toggle unselected, every disabled look), it shares
+  that style.
+
+### Changed
+
+- **Breaking:** the button and card type enums are renamed
+  `trlv_button_t` → `trlv_button_type_t` and `trlv_card_t` →
+  `trlv_card_type_t`, after MD3's "button type" and "card type" and
+  `trlv_apply_button_type`. As type names they read like a handle to a
+  button or card object. Their values (`TRLV_BUTTON_TONAL`,
+  `TRLV_CARD_FILLED`, …) and every call site are unchanged; only code
+  that spells the type name, such as a function parameter, needs the new
+  name. Decided in the API freeze review.
+- Theme look: a checked `lv_button` no longer takes the parent theme's
+  checked colour (LVGL's default theme made it `secondary`, which isn't
+  MD3). Only a toggle button type has a selected look; a checkable button
+  of another type looks the same checked or not.
 
 ## [0.3.0] - 2026-11-18
 

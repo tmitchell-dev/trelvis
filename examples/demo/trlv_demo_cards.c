@@ -28,7 +28,7 @@
 #include "trlv_demo.h"
 
 typedef struct {
-    trlv_card_t card;
+    trlv_card_type_t card;
     const char * type;
     const char * title;
     const char * body;
@@ -58,7 +58,7 @@ static const demo_card_t cards[] = {
 
 #define COUNT(array) (sizeof(array) / sizeof((array)[0]))
 
-static void button(lv_obj_t * parent, const char * text, trlv_button_t type)
+static void button(lv_obj_t * parent, const char * text, trlv_button_type_t type)
 {
     lv_obj_t * btn = lv_button_create(parent);
     trlv_apply_button_type(btn, type);

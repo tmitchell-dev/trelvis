@@ -2,8 +2,9 @@
 /* Copyright (c) 2026 Timothy Mitchell */
 
 /*
- * trlv_apply_button_type: the four MD3 button types in their default, pressed,
- * focused and disabled states, over the theme's filled button.
+ * trlv_apply_button_type: the MD3 button types in their default, pressed,
+ * focused and disabled states, over the theme's filled button, and the
+ * toggle types selected (checked) in each of those states.
  */
 
 #include "trlv_test.h"
@@ -15,11 +16,12 @@
 
 static lv_obj_t * label;
 
-/* A button with a label, after trlv_init with `color`. */
+/* A checkable button with a label, after trlv_init with `color`. */
 static lv_obj_t * button(lv_obj_t * screen, const trlv_color_tokens_t * color)
 {
     trlv_init(lv_obj_get_display(screen), color, &tokens_regular);
     lv_obj_t * btn = lv_button_create(screen);
+    lv_obj_set_checkable(btn, true);
     label = lv_label_create(btn);
     lv_label_set_text(label, "OK");
     return btn;
@@ -52,19 +54,40 @@ static lv_opa_t bg_opa_of(lv_obj_t * obj)
 
 /* What a type looks like with the given colours. */
 typedef struct {
-    trlv_button_t type;
+    trlv_button_type_t type;
     bool opaque;
     lv_color_t container;
     lv_color_t content;
     int32_t border_width;
+    lv_color_t border;
 } type_case_t;
 
 static void type_cases(const trlv_color_tokens_t * c, type_case_t out[TRLV_BUTTON_COUNT])
 {
-    out[0] = (type_case_t) { TRLV_BUTTON_FILLED, true, c->primary, c->on_primary, 0 };
-    out[1] = (type_case_t) { TRLV_BUTTON_TONAL, true, c->secondary_container, c->on_secondary_container, 0 };
-    out[2] = (type_case_t) { TRLV_BUTTON_OUTLINED, false, c->primary, c->primary, tokens_regular.border_width };
-    out[3] = (type_case_t) { TRLV_BUTTON_TEXT, false, c->primary, c->primary, 0 };
+    int32_t bw = tokens_regular.border_width;
+    out[0] = (type_case_t) { TRLV_BUTTON_FILLED, true, c->primary, c->on_primary, 0, c->outline };
+    out[1] = (type_case_t) { TRLV_BUTTON_TONAL, true, c->secondary_container, c->on_secondary_container, 0,
+                             c->outline };
+    out[2] = (type_case_t) { TRLV_BUTTON_OUTLINED, false, c->primary, c->primary, bw, c->outline };
+    out[3] = (type_case_t) { TRLV_BUTTON_TEXT, false, c->primary, c->primary, 0, c->outline };
+    /* Toggle types, unselected. */
+    out[4] = (type_case_t) { TRLV_BUTTON_FILLED_TOGGLE, true, c->surface_container, c->on_surface_variant, 0,
+                             c->outline };
+    out[5] = (type_case_t) { TRLV_BUTTON_TONAL_TOGGLE, true, c->secondary_container,
+                             c->on_secondary_container, 0, c->outline };
+    out[6] = (type_case_t) { TRLV_BUTTON_OUTLINED_TOGGLE, false, c->on_surface_variant, c->on_surface_variant,
+                             bw, c->outline_variant };
+}
+
+/* The toggle types selected: always an opaque container, no border. */
+#define TOGGLE_COUNT 3
+
+static void selected_cases(const trlv_color_tokens_t * c, type_case_t out[TOGGLE_COUNT])
+{
+    out[0] = (type_case_t) { TRLV_BUTTON_FILLED_TOGGLE, true, c->primary, c->on_primary, 0, c->outline };
+    out[1] = (type_case_t) { TRLV_BUTTON_TONAL_TOGGLE, true, c->secondary, c->on_secondary, 0, c->outline };
+    out[2] = (type_case_t) { TRLV_BUTTON_OUTLINED_TOGGLE, true, c->inverse_surface, c->inverse_on_surface, 0,
+                             c->outline };
 }
 
 static void assert_default(lv_obj_t * btn, const type_case_t * v, const trlv_color_tokens_t * c)
@@ -79,8 +102,9 @@ static void assert_default(lv_obj_t * btn, const type_case_t * v, const trlv_col
     ASSERT_COLOR(lv_obj_get_style_text_color(label, LV_PART_MAIN), v->content);
     TRLV_ASSERT_INT(lv_obj_get_style_border_width(btn, LV_PART_MAIN), v->border_width);
     if(v->border_width > 0) {
-        ASSERT_COLOR(lv_obj_get_style_border_color(btn, LV_PART_MAIN), c->outline);
+        ASSERT_COLOR(lv_obj_get_style_border_color(btn, LV_PART_MAIN), v->border);
     }
+    LV_UNUSED(c);
 }
 
 /* The state layer: pre-mixed on an opaque container, the content colour at
@@ -164,6 +188,108 @@ static void every_type_disabled(lv_obj_t * screen)
     }
 }
 
+/* Selected: the toggle's selected container and content, no border. */
+static void every_toggle_selected(lv_obj_t * screen)
+{
+    type_case_t cases[TOGGLE_COUNT];
+    selected_cases(&tokens_light, cases);
+    for(int i = 0; i < TOGGLE_COUNT; i++) {
+        lv_obj_t * btn = button(screen, &tokens_light);
+        trlv_apply_button_type(btn, cases[i].type);
+        set_state(btn, LV_STATE_CHECKED);
+        assert_default(btn, &cases[i], &tokens_light);
+    }
+}
+
+/* Selected and pressed or focused: the state layer over the selected
+ * container, not the unselected one. */
+static void every_toggle_selected_pressed_and_focused(lv_obj_t * screen)
+{
+    type_case_t cases[TOGGLE_COUNT];
+    selected_cases(&tokens_light, cases);
+    for(int i = 0; i < TOGGLE_COUNT; i++) {
+        lv_obj_t * btn = button(screen, &tokens_light);
+        trlv_apply_button_type(btn, cases[i].type);
+        set_state(btn, LV_STATE_CHECKED | LV_STATE_PRESSED);
+        assert_layer(btn, &cases[i], tokens_light.state.pressed);
+
+        btn = button(screen, &tokens_light);
+        trlv_apply_button_type(btn, cases[i].type);
+        set_state(btn, LV_STATE_CHECKED | LV_STATE_FOCUSED | LV_STATE_FOCUS_KEY);
+        assert_layer(btn, &cases[i], tokens_light.state.focus);
+    }
+}
+
+/* Selected and disabled: an on_surface container at 12 % in every toggle
+ * type, the outlined one included, with no border. */
+static void every_toggle_selected_disabled(lv_obj_t * screen)
+{
+    const trlv_state_tokens_t * s = &tokens_light.state;
+    type_case_t cases[TOGGLE_COUNT];
+    selected_cases(&tokens_light, cases);
+    for(int i = 0; i < TOGGLE_COUNT; i++) {
+        lv_obj_t * btn = button(screen, &tokens_light);
+        trlv_apply_button_type(btn, cases[i].type);
+        set_state(btn, LV_STATE_CHECKED | LV_STATE_DISABLED);
+
+        ASSERT_COLOR(bg_of(btn), tokens_light.on_surface);
+        TRLV_ASSERT_INT(bg_opa_of(btn), s->disabled_container);
+        ASSERT_COLOR(lv_obj_get_style_text_color(label, LV_PART_MAIN), tokens_light.on_surface);
+        TRLV_ASSERT_INT(lv_obj_get_style_text_opa(btn, LV_PART_MAIN), s->disabled_content);
+        TRLV_ASSERT_INT(lv_obj_get_style_border_width(btn, LV_PART_MAIN), 0);
+    }
+}
+
+/* Only a toggle type has a selected look: a checked button of another
+ * type looks as it does unchecked. The theme removes the parent theme's
+ * checked colour, and a plain type replacing a toggle removes the toggle's
+ * selected styles. */
+static void other_types_have_no_selected_look(lv_obj_t * screen)
+{
+    type_case_t cases[TRLV_BUTTON_COUNT];
+    type_cases(&tokens_light, cases);
+
+    lv_obj_t * btn = button(screen, &tokens_light);
+    set_state(btn, LV_STATE_CHECKED);
+    assert_default(btn, &cases[TRLV_BUTTON_FILLED], &tokens_light);
+
+    btn = button(screen, &tokens_light);
+    trlv_apply_button_type(btn, TRLV_BUTTON_TONAL_TOGGLE);
+    trlv_apply_button_type(btn, TRLV_BUTTON_TONAL);
+    set_state(btn, LV_STATE_CHECKED);
+    assert_default(btn, &cases[TRLV_BUTTON_TONAL], &tokens_light);
+    set_state(btn, LV_STATE_PRESSED);
+    assert_layer(btn, &cases[TRLV_BUTTON_TONAL], tokens_light.state.pressed);
+}
+
+/* One toggle type replaces another in every selected state. */
+static void a_toggle_replaces_a_toggle(lv_obj_t * screen)
+{
+    type_case_t cases[TOGGLE_COUNT];
+    selected_cases(&tokens_light, cases);
+    lv_obj_t * btn = button(screen, &tokens_light);
+    trlv_apply_button_type(btn, TRLV_BUTTON_OUTLINED_TOGGLE);
+    trlv_apply_button_type(btn, TRLV_BUTTON_FILLED_TOGGLE);
+    set_state(btn, LV_STATE_CHECKED);
+    assert_default(btn, &cases[0], &tokens_light);
+    set_state(btn, LV_STATE_PRESSED);
+    assert_layer(btn, &cases[0], tokens_light.state.pressed);
+}
+
+/* The selected look recolours on a colour-mode switch. */
+static void selected_recolours(lv_obj_t * screen)
+{
+    type_case_t cases[TOGGLE_COUNT];
+    selected_cases(&tokens_dark, cases);
+    lv_obj_t * btn = button(screen, &tokens_light);
+    trlv_apply_button_type(btn, TRLV_BUTTON_OUTLINED_TOGGLE);
+    set_state(btn, LV_STATE_CHECKED);
+
+    trlv_theme_set_color_mode(&tokens_dark);
+    settle();
+    assert_default(btn, &cases[2], &tokens_dark);
+}
+
 /* Shape, height and text role stay the theme's. */
 static void keeps_the_theme_shape(lv_obj_t * screen)
 {
@@ -226,6 +352,12 @@ int main(void)
     TRLV_TEST_RUN(every_type_pressed);
     TRLV_TEST_RUN(every_type_focused);
     TRLV_TEST_RUN(every_type_disabled);
+    TRLV_TEST_RUN(every_toggle_selected);
+    TRLV_TEST_RUN(every_toggle_selected_pressed_and_focused);
+    TRLV_TEST_RUN(every_toggle_selected_disabled);
+    TRLV_TEST_RUN(other_types_have_no_selected_look);
+    TRLV_TEST_RUN(a_toggle_replaces_a_toggle);
+    TRLV_TEST_RUN(selected_recolours);
     TRLV_TEST_RUN(keeps_the_theme_shape);
     TRLV_TEST_RUN(a_second_call_replaces_the_first);
     TRLV_TEST_RUN(types_recolour);

@@ -59,7 +59,7 @@ static LV_STYLE_CONST_INIT(card_filled, card_props[TRLV_CARD_FILLED]);
 static LV_STYLE_CONST_INIT(card_elevated, card_props[TRLV_CARD_ELEVATED]);
 static LV_STYLE_CONST_INIT(card_outlined, card_props[TRLV_CARD_OUTLINED]);
 
-/* Indexed by trlv_card_t. */
+/* Indexed by trlv_card_type_t. */
 static const lv_style_t * const card_styles[] = { &card_filled, &card_elevated, &card_outlined };
 TRLV_STATIC_ASSERT(sizeof(card_styles) / sizeof(card_styles[0]) == TRLV_CARD_COUNT,
                    card_styles_cover_the_enum);
@@ -71,47 +71,132 @@ TRLV_STATIC_ASSERT(sizeof(card_styles) / sizeof(card_styles[0]) == TRLV_CARD_COU
  *
  * Default: bg_color, bg_opa, text_color, border_width, border_color,
  * border_opa. Pressed and focus: bg_color, bg_opa. Disabled: bg_color,
- * bg_opa, text_color, text_opa, border_color, border_opa. Plus end markers. */
+ * bg_opa, text_color, text_opa, border_color, border_opa. Plus end markers.
+ *
+ * A toggle type's styles at these selectors are its unselected look. Where
+ * that is the same as a common type's, the toggle shares its styles rather
+ * than holding a copy: a tonal toggle unselected is a tonal button, and
+ * disabled doesn't depend on the container, so every toggle shares its
+ * common type's disabled style. A shared style still replaces the others
+ * of its group, so types replace each other as before. */
 #define BUTTON_PROPS 7
 #define BUTTON_STATE_PROPS 3
 #define BUTTON_DISABLED_PROPS 7
 
-static lv_style_const_prop_t button_props[TRLV_BUTTON_COUNT][BUTTON_PROPS];
-static lv_style_const_prop_t button_pressed_props[TRLV_BUTTON_COUNT][BUTTON_STATE_PROPS];
-static lv_style_const_prop_t button_focus_props[TRLV_BUTTON_COUNT][BUTTON_STATE_PROPS];
-static lv_style_const_prop_t button_disabled_props[TRLV_BUTTON_COUNT][BUTTON_DISABLED_PROPS];
+/* The distinct looks at rest, pressed and focused. */
+enum {
+    LOOK_FILLED, LOOK_TONAL, LOOK_OUTLINED, LOOK_TEXT,
+    LOOK_FILLED_TOGGLE, LOOK_OUTLINED_TOGGLE,
+    LOOK_COUNT
+};
+#define LOOK_COMMON_COUNT (LOOK_TEXT + 1)   /* the looks with a disabled style of their own */
 
-#define BUTTON_STYLES(name_, type_)                                                             \
-    static LV_STYLE_CONST_INIT(button_##name_, button_props[type_]);                           \
-    static LV_STYLE_CONST_INIT(button_##name_##_pressed, button_pressed_props[type_]);         \
-    static LV_STYLE_CONST_INIT(button_##name_##_focus, button_focus_props[type_]);             \
-    static LV_STYLE_CONST_INIT(button_##name_##_disabled, button_disabled_props[type_])
+static lv_style_const_prop_t button_props[LOOK_COUNT][BUTTON_PROPS];
+static lv_style_const_prop_t button_pressed_props[LOOK_COUNT][BUTTON_STATE_PROPS];
+static lv_style_const_prop_t button_focus_props[LOOK_COUNT][BUTTON_STATE_PROPS];
+static lv_style_const_prop_t button_disabled_props[LOOK_COMMON_COUNT][BUTTON_DISABLED_PROPS];
 
-BUTTON_STYLES(filled, TRLV_BUTTON_FILLED);
-BUTTON_STYLES(tonal, TRLV_BUTTON_TONAL);
-BUTTON_STYLES(outlined, TRLV_BUTTON_OUTLINED);
-BUTTON_STYLES(text, TRLV_BUTTON_TEXT);
+#define BUTTON_STYLES(name_, look_)                                                             \
+    static LV_STYLE_CONST_INIT(button_##name_, button_props[look_]);                           \
+    static LV_STYLE_CONST_INIT(button_##name_##_pressed, button_pressed_props[look_]);         \
+    static LV_STYLE_CONST_INIT(button_##name_##_focus, button_focus_props[look_])
+#define BUTTON_DISABLED_STYLE(name_, look_) \
+    static LV_STYLE_CONST_INIT(button_##name_##_disabled, button_disabled_props[look_])
 
-/* Indexed by trlv_button_t, one list per selector. */
+BUTTON_STYLES(filled, LOOK_FILLED);
+BUTTON_STYLES(tonal, LOOK_TONAL);
+BUTTON_STYLES(outlined, LOOK_OUTLINED);
+BUTTON_STYLES(text, LOOK_TEXT);
+BUTTON_STYLES(filled_toggle, LOOK_FILLED_TOGGLE);
+BUTTON_STYLES(outlined_toggle, LOOK_OUTLINED_TOGGLE);
+BUTTON_DISABLED_STYLE(filled, LOOK_FILLED);
+BUTTON_DISABLED_STYLE(tonal, LOOK_TONAL);
+BUTTON_DISABLED_STYLE(outlined, LOOK_OUTLINED);
+BUTTON_DISABLED_STYLE(text, LOOK_TEXT);
+
+/* Indexed by trlv_button_type_t, one list per selector. */
 static const lv_style_t * const button_styles[] = {
-    &button_filled, &button_tonal, &button_outlined, &button_text
+    &button_filled, &button_tonal, &button_outlined, &button_text,
+    &button_filled_toggle, &button_tonal, &button_outlined_toggle
 };
 static const lv_style_t * const button_pressed_styles[] = {
-    &button_filled_pressed, &button_tonal_pressed, &button_outlined_pressed, &button_text_pressed
+    &button_filled_pressed, &button_tonal_pressed, &button_outlined_pressed, &button_text_pressed,
+    &button_filled_toggle_pressed, &button_tonal_pressed, &button_outlined_toggle_pressed
 };
 static const lv_style_t * const button_focus_styles[] = {
-    &button_filled_focus, &button_tonal_focus, &button_outlined_focus, &button_text_focus
+    &button_filled_focus, &button_tonal_focus, &button_outlined_focus, &button_text_focus,
+    &button_filled_toggle_focus, &button_tonal_focus, &button_outlined_toggle_focus
 };
 static const lv_style_t * const button_disabled_styles[] = {
-    &button_filled_disabled, &button_tonal_disabled, &button_outlined_disabled, &button_text_disabled
+    &button_filled_disabled, &button_tonal_disabled, &button_outlined_disabled, &button_text_disabled,
+    &button_filled_disabled, &button_tonal_disabled, &button_outlined_disabled
 };
 TRLV_STATIC_ASSERT(sizeof(button_styles) / sizeof(button_styles[0]) == TRLV_BUTTON_COUNT,
                    button_styles_cover_the_enum);
+TRLV_STATIC_ASSERT(sizeof(button_disabled_styles) / sizeof(button_disabled_styles[0]) == TRLV_BUTTON_COUNT,
+                   button_disabled_styles_cover_the_enum);
 
 static const trlv_style_group_t button_group = TRLV_STYLE_GROUP_LIST(button_styles);
 static const trlv_style_group_t button_pressed_group = TRLV_STYLE_GROUP_LIST(button_pressed_styles);
 static const trlv_style_group_t button_focus_group = TRLV_STYLE_GROUP_LIST(button_focus_styles);
 static const trlv_style_group_t button_disabled_group = TRLV_STYLE_GROUP_LIST(button_disabled_styles);
+
+/* Toggle types, selected (LV_STATE_CHECKED): one style per toggle type at
+ * three more selectors, each combined with checked, and one disabled style
+ * they share. LVGL resolves a property by the highest matching state, so
+ * PRESSED (or FOCUS_KEY, DISABLED) alone would win over CHECKED: each needs
+ * its own CHECKED | state style.
+ *
+ * Selected: bg_color, bg_opa, text_color, border_width (0: a selected
+ * outlined toggle has no border). Pressed and focus: bg_color, bg_opa.
+ * Disabled: bg_color, bg_opa, text_color, text_opa. Plus end markers. */
+#define BUTTON_TOGGLE_FIRST TRLV_BUTTON_FILLED_TOGGLE
+#define BUTTON_TOGGLE_COUNT (TRLV_BUTTON_COUNT - BUTTON_TOGGLE_FIRST)
+#define BUTTON_CHECKED_PROPS 5
+#define BUTTON_CHECKED_DISABLED_PROPS 5
+
+static lv_style_const_prop_t button_checked_props[BUTTON_TOGGLE_COUNT][BUTTON_CHECKED_PROPS];
+static lv_style_const_prop_t button_checked_pressed_props[BUTTON_TOGGLE_COUNT][BUTTON_STATE_PROPS];
+static lv_style_const_prop_t button_checked_focus_props[BUTTON_TOGGLE_COUNT][BUTTON_STATE_PROPS];
+static lv_style_const_prop_t button_checked_disabled_props[BUTTON_CHECKED_DISABLED_PROPS];
+
+#define BUTTON_CHECKED_STYLES(name_, index_)                                                              \
+    static LV_STYLE_CONST_INIT(button_##name_##_checked, button_checked_props[index_]);                   \
+    static LV_STYLE_CONST_INIT(button_##name_##_checked_pressed, button_checked_pressed_props[index_]);   \
+    static LV_STYLE_CONST_INIT(button_##name_##_checked_focus, button_checked_focus_props[index_])
+
+BUTTON_CHECKED_STYLES(filled_toggle, TRLV_BUTTON_FILLED_TOGGLE - BUTTON_TOGGLE_FIRST);
+BUTTON_CHECKED_STYLES(tonal_toggle, TRLV_BUTTON_TONAL_TOGGLE - BUTTON_TOGGLE_FIRST);
+BUTTON_CHECKED_STYLES(outlined_toggle, TRLV_BUTTON_OUTLINED_TOGGLE - BUTTON_TOGGLE_FIRST);
+static LV_STYLE_CONST_INIT(button_checked_disabled, button_checked_disabled_props);
+
+/* Indexed by trlv_button_type_t - BUTTON_TOGGLE_FIRST, one list per selector. */
+static const lv_style_t * const button_checked_styles[] = {
+    &button_filled_toggle_checked, &button_tonal_toggle_checked, &button_outlined_toggle_checked
+};
+static const lv_style_t * const button_checked_pressed_styles[] = {
+    &button_filled_toggle_checked_pressed, &button_tonal_toggle_checked_pressed,
+    &button_outlined_toggle_checked_pressed
+};
+static const lv_style_t * const button_checked_focus_styles[] = {
+    &button_filled_toggle_checked_focus, &button_tonal_toggle_checked_focus,
+    &button_outlined_toggle_checked_focus
+};
+static const lv_style_t * const button_checked_disabled_styles[] = { &button_checked_disabled };
+TRLV_STATIC_ASSERT(sizeof(button_checked_styles) / sizeof(button_checked_styles[0]) == BUTTON_TOGGLE_COUNT,
+                   button_checked_styles_cover_the_toggles);
+
+static const trlv_style_group_t button_checked_group = TRLV_STYLE_GROUP_LIST(button_checked_styles);
+static const trlv_style_group_t button_checked_pressed_group =
+    TRLV_STYLE_GROUP_LIST(button_checked_pressed_styles);
+static const trlv_style_group_t button_checked_focus_group = TRLV_STYLE_GROUP_LIST(button_checked_focus_styles);
+static const trlv_style_group_t button_checked_disabled_group =
+    TRLV_STYLE_GROUP_LIST(button_checked_disabled_styles);
+
+#define BUTTON_CHECKED            (LV_PART_MAIN | LV_STATE_CHECKED)
+#define BUTTON_CHECKED_PRESSED    (LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_PRESSED)
+#define BUTTON_CHECKED_FOCUS      (LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_FOCUS_KEY)
+#define BUTTON_CHECKED_DISABLED   (LV_PART_MAIN | LV_STATE_CHECKED | LV_STATE_DISABLED)
 
 /* Divider (trlv_divider_create in trlv_layout.c): bg_color, bg_opa, the line's
  * thickness (height when horizontal, width when vertical), outline_width 0
@@ -223,7 +308,7 @@ static void build_surface(trlv_surface_t surface, lv_color_t container, lv_color
 }
 
 /* A card: a surface tone, radius MD, an optional border and shadow. */
-static void build_card(trlv_card_t card, lv_color_t container, int32_t border_width,
+static void build_card(trlv_card_type_t card, lv_color_t container, int32_t border_width,
                        const trlv_shadow_t * shadow, const trlv_color_tokens_t * color,
                        const trlv_layout_tokens_t * layout)
 {
@@ -263,35 +348,74 @@ static void put_state_layer(lv_style_const_prop_t * entry, bool opaque, lv_color
     trlv_prop_set_end(entry);
 }
 
-/* One button type at all four selectors. `opaque` is false for the
- * transparent types; `border_width` is 0 except for outlined. */
-static void build_button(trlv_button_t type, bool opaque, lv_color_t container,
-                         lv_color_t content, int32_t border_width, const trlv_color_tokens_t * color)
+/* One look at rest, pressed and focused, and, for a common type, its
+ * disabled style. `opaque` is false for the transparent types;
+ * `border_width` is 0 except for the outlined types, whose border is
+ * `border`. */
+static void build_button(uint32_t look, bool opaque, lv_color_t container, lv_color_t content,
+                         int32_t border_width, lv_color_t border, const trlv_color_tokens_t * color)
 {
     const trlv_state_tokens_t * state = &color->state;
     lv_style_const_prop_t * entry;
 
-    entry = button_props[type];
+    entry = button_props[look];
     trlv_prop_set_color(entry++, LV_STYLE_BG_COLOR, container);
     trlv_prop_set_num(entry++, LV_STYLE_BG_OPA, opaque ? LV_OPA_COVER : LV_OPA_TRANSP);
     trlv_prop_set_color(entry++, LV_STYLE_TEXT_COLOR, content);
     trlv_prop_set_num(entry++, LV_STYLE_BORDER_WIDTH, border_width);
-    trlv_prop_set_color(entry++, LV_STYLE_BORDER_COLOR, color->outline);
+    trlv_prop_set_color(entry++, LV_STYLE_BORDER_COLOR, border);
     trlv_prop_set_num(entry++, LV_STYLE_BORDER_OPA, LV_OPA_COVER);
     trlv_prop_set_end(entry);
 
-    put_state_layer(button_pressed_props[type], opaque, container, content, state->pressed);
-    put_state_layer(button_focus_props[type], opaque, container, content, state->focus);
+    put_state_layer(button_pressed_props[look], opaque, container, content, state->pressed);
+    put_state_layer(button_focus_props[look], opaque, container, content, state->focus);
+
+    if(look >= LOOK_COMMON_COUNT) return;
 
     /* MD3 disabled: content on_surface at 38 %; an opaque container, or
      * the outlined border, on_surface at 12 %. */
-    entry = button_disabled_props[type];
+    entry = button_disabled_props[look];
     trlv_prop_set_color(entry++, LV_STYLE_BG_COLOR, color->on_surface);
     trlv_prop_set_num(entry++, LV_STYLE_BG_OPA, opaque ? state->disabled_container : LV_OPA_TRANSP);
     trlv_prop_set_color(entry++, LV_STYLE_TEXT_COLOR, color->on_surface);
     trlv_prop_set_num(entry++, LV_STYLE_TEXT_OPA, state->disabled_content);
     trlv_prop_set_color(entry++, LV_STYLE_BORDER_COLOR, color->on_surface);
     trlv_prop_set_num(entry++, LV_STYLE_BORDER_OPA, state->disabled_container);
+    trlv_prop_set_end(entry);
+}
+
+/* A toggle type's selected look, at rest, pressed and focused. Every
+ * selected container is opaque, so the state layers are pre-mixed. */
+static void build_button_checked(trlv_button_type_t type, lv_color_t container, lv_color_t content,
+                                 const trlv_color_tokens_t * color)
+{
+    const trlv_state_tokens_t * state = &color->state;
+    uint32_t i = (uint32_t)type - BUTTON_TOGGLE_FIRST;
+    lv_style_const_prop_t * entry;
+
+    entry = button_checked_props[i];
+    trlv_prop_set_color(entry++, LV_STYLE_BG_COLOR, container);
+    trlv_prop_set_num(entry++, LV_STYLE_BG_OPA, LV_OPA_COVER);
+    trlv_prop_set_color(entry++, LV_STYLE_TEXT_COLOR, content);
+    trlv_prop_set_num(entry++, LV_STYLE_BORDER_WIDTH, 0);
+    trlv_prop_set_end(entry);
+
+    put_state_layer(button_checked_pressed_props[i], true, container, content, state->pressed);
+    put_state_layer(button_checked_focus_props[i], true, container, content, state->focus);
+}
+
+/* Selected and disabled, shared by every toggle type: MD3 disables a
+ * selected button as an opaque container in every type, including the
+ * outlined toggle, which has no border when selected. */
+static void build_button_checked_disabled(const trlv_color_tokens_t * color)
+{
+    const trlv_state_tokens_t * state = &color->state;
+    lv_style_const_prop_t * entry = button_checked_disabled_props;
+
+    trlv_prop_set_color(entry++, LV_STYLE_BG_COLOR, color->on_surface);
+    trlv_prop_set_num(entry++, LV_STYLE_BG_OPA, state->disabled_container);
+    trlv_prop_set_color(entry++, LV_STYLE_TEXT_COLOR, color->on_surface);
+    trlv_prop_set_num(entry++, LV_STYLE_TEXT_OPA, state->disabled_content);
     trlv_prop_set_end(entry);
 }
 
@@ -316,10 +440,23 @@ void trlv_surface_styles_build(const trlv_color_tokens_t * color, const trlv_lay
     build_divider(0, LV_STYLE_HEIGHT, color, layout);
     build_divider(1, LV_STYLE_WIDTH, color, layout);
 
-    build_button(TRLV_BUTTON_FILLED, true, color->primary, color->on_primary, 0, color);
-    build_button(TRLV_BUTTON_TONAL, true, color->secondary_container, color->on_secondary_container, 0, color);
-    build_button(TRLV_BUTTON_OUTLINED, false, color->primary, color->primary, layout->border_width, color);
-    build_button(TRLV_BUTTON_TEXT, false, color->primary, color->primary, 0, color);
+    build_button(LOOK_FILLED, true, color->primary, color->on_primary, 0, color->outline, color);
+    build_button(LOOK_TONAL, true, color->secondary_container, color->on_secondary_container, 0,
+                 color->outline, color);
+    build_button(LOOK_OUTLINED, false, color->primary, color->primary, layout->border_width,
+                 color->outline, color);
+    build_button(LOOK_TEXT, false, color->primary, color->primary, 0, color->outline, color);
+
+    /* Toggle buttons, as in MD3's button tokens: unselected (the tonal
+     * toggle's is the tonal button), then selected. */
+    build_button(LOOK_FILLED_TOGGLE, true, color->surface_container, color->on_surface_variant, 0,
+                 color->outline, color);
+    build_button(LOOK_OUTLINED_TOGGLE, false, color->on_surface_variant, color->on_surface_variant,
+                 layout->border_width, color->outline_variant, color);
+    build_button_checked(TRLV_BUTTON_FILLED_TOGGLE, color->primary, color->on_primary, color);
+    build_button_checked(TRLV_BUTTON_TONAL_TOGGLE, color->secondary, color->on_secondary, color);
+    build_button_checked(TRLV_BUTTON_OUTLINED_TOGGLE, color->inverse_surface, color->inverse_on_surface, color);
+    build_button_checked_disabled(color);
 
     build_card(TRLV_CARD_FILLED, color->surface_container_highest, 0, NULL, color, layout);
     build_card(TRLV_CARD_ELEVATED, color->surface_container_low, 0,
@@ -419,6 +556,20 @@ static void warn_if_not_clickable(lv_obj_t * obj)
 #endif
 }
 
+/* A toggle type's selected look only shows on a checkable object. */
+static void warn_if_not_checkable(lv_obj_t * obj)
+{
+#if TRLV_CHECK_TARGETS
+    if(!lv_obj_is_checkable(obj)) {
+        LV_LOG_WARN("trlv_apply_button_type(%p): a toggle type on an object that is not "
+                    "checkable never shows its selected look. Call "
+                    "lv_obj_set_checkable(btn, true) first.", (void *)obj);
+    }
+#else
+    LV_UNUSED(obj);
+#endif
+}
+
 /*---------------------------------------------------------------------------
  * Appearance
  *-------------------------------------------------------------------------*/
@@ -435,24 +586,24 @@ void trlv_apply_surface(lv_obj_t * obj, trlv_surface_t surface)
     trlv_style_group_apply(obj, &fill_group, surface_styles[surface], LV_PART_MAIN);
 }
 
-void trlv_apply_card(lv_obj_t * obj, trlv_card_t card)
+void trlv_apply_card(lv_obj_t * obj, trlv_card_type_t card)
 {
     LV_ASSERT_NULL(obj);
 
     if((uint32_t)card >= TRLV_CARD_COUNT) {
-        LV_LOG_WARN("trlv_apply_card: %d is not a trlv_card_t", (int)card);
+        LV_LOG_WARN("trlv_apply_card: %d is not a trlv_card_type_t", (int)card);
         return;
     }
     warn_if_not_container(obj);
     trlv_style_group_apply(obj, &fill_group, card_styles[card], LV_PART_MAIN);
 }
 
-void trlv_apply_button_type(lv_obj_t * btn, trlv_button_t type)
+void trlv_apply_button_type(lv_obj_t * btn, trlv_button_type_t type)
 {
     LV_ASSERT_NULL(btn);
 
     if((uint32_t)type >= TRLV_BUTTON_COUNT) {
-        LV_LOG_WARN("trlv_apply_button_type: %d is not a trlv_button_t", (int)type);
+        LV_LOG_WARN("trlv_apply_button_type: %d is not a trlv_button_type_t", (int)type);
         return;
     }
     warn_if_not_clickable(btn);
@@ -463,6 +614,24 @@ void trlv_apply_button_type(lv_obj_t * btn, trlv_button_t type)
                            LV_PART_MAIN | LV_STATE_FOCUS_KEY);
     trlv_style_group_apply(btn, &button_disabled_group, button_disabled_styles[type],
                            LV_PART_MAIN | LV_STATE_DISABLED);
+
+    if(type >= BUTTON_TOGGLE_FIRST) {
+        uint32_t i = (uint32_t)type - BUTTON_TOGGLE_FIRST;
+        warn_if_not_checkable(btn);
+        trlv_style_group_apply(btn, &button_checked_group, button_checked_styles[i], BUTTON_CHECKED);
+        trlv_style_group_apply(btn, &button_checked_pressed_group, button_checked_pressed_styles[i],
+                               BUTTON_CHECKED_PRESSED);
+        trlv_style_group_apply(btn, &button_checked_focus_group, button_checked_focus_styles[i],
+                               BUTTON_CHECKED_FOCUS);
+        trlv_style_group_apply(btn, &button_checked_disabled_group, &button_checked_disabled,
+                               BUTTON_CHECKED_DISABLED);
+    }
+    else {
+        trlv_style_group_remove(btn, &button_checked_group, BUTTON_CHECKED);
+        trlv_style_group_remove(btn, &button_checked_pressed_group, BUTTON_CHECKED_PRESSED);
+        trlv_style_group_remove(btn, &button_checked_focus_group, BUTTON_CHECKED_FOCUS);
+        trlv_style_group_remove(btn, &button_checked_disabled_group, BUTTON_CHECKED_DISABLED);
+    }
 }
 
 void trlv_apply_surface_custom(lv_obj_t * obj, uint32_t index, trlv_custom_surface_t surface)

@@ -32,16 +32,19 @@ LVGL's natural behaviour stands. Every deliberate difference (such as
 `trlv_box_create` not scrolling) is documented on the function.
 
 The v1 budget is about 20 layout and styling functions, plus a few for
-initialisation and token access. After the trial-3 review the API has 20
-plus nine: `trlv_apply_text_emphasis`, three token value getters, and the
-two per-axis padding setters.
+initialisation and token access. At the API freeze the API has 29: 22 for
+layout and styling (6 constructors, 10 layout setters, 6 appearance
+functions) and 7 for setup and token access (`trlv_init`,
+`trlv_theme_set_color_mode` and 5 getters). The trial reviews added
+`trlv_apply_text_emphasis`, the three token value getters and the two
+per-axis padding setters.
 
 ## Milestones
 
 | # | Milestone | Status |
 |---|---|---|
 | 1 | **Scaffold**: repository structure, CMake target, `trelvis.mk`, configuration mechanism, version header and LVGL version check, changelog, NOTICE, SPDX headers, CI (ci / weekly / release workflows, Dependabot), C++ include test. Placeholder headers that compile. | done |
-| 2 | **Vertical slice**: a first working slice of the library: the token template (`templates/`, copied into a project at setup and compiled in CI), a minimal `trlv_init` (no theme yet), `trlv_box_create`, `trlv_row_create`, `trlv_column_create`, `trlv_set_gap`, `trlv_set_pad`, `trlv_set_*_fill` / `trlv_set_*_hug` and `trlv_text_create`. One realistic screen is built with it as `examples/demo`: a plain `trlv_demo_create(parent)` function that any host project's simulator or target can call. A headless layout test harness (build a tree, update the layout, assert coordinates) starts running in CI. The slice is provisional: its job is to prove the approach and settle defaults before the API is fixed. | done |
+| 2 | **Vertical slice**: a first working slice of the library: the token template (`templates/`, copied into a project at setup and compiled in CI), a minimal `trlv_init` (no theme yet), `trlv_box_create`, `trlv_row_create`, `trlv_column_create`, `trlv_set_gap`, `trlv_set_pad`, `trlv_set_*_fill` / `trlv_set_*_fit` and `trlv_text_create`. One realistic screen is built with it as `examples/demo`: a plain `trlv_demo_create(parent)` function that any host project's simulator or target can call. A headless layout test harness (build a tree, update the layout, assert coordinates) starts running in CI. The slice is provisional: its job is to prove the approach and settle defaults before the API is fixed. | done |
 | 3 | **API review**: full public headers for the v1 API, with doc comments and mapping tables, informed by the slice. The API is reviewed before further implementation. | done |
 | 4 | **Tokens and theme**: full token types, the complete token template, the MD3 theme over the default parent theme, state layers, focus ring, colour-mode switching, line-height conversion. Widgets are covered in order: screen, label and button first, then one widget at a time. | done |
 | 5 | **Surfaces, cards and remaining primitives**: `trlv_apply_surface`, `trlv_apply_surface_custom`, `trlv_apply_card`, `trlv_apply_button_type`, `trlv_apply_text_role`, `trlv_spacer_create`, `trlv_divider_create`, `trlv_set_justify`, `trlv_set_align_items`, the `TRLV_USE_DEBUG_OUTLINE` option. Layout tests for every primitive and modifier. | done |
@@ -220,14 +223,17 @@ anything that might break goes in before the API freeze. From 1.0.0 the
   the same way. Breaking ones need another 0.x release; additive ones go
   to v1.x. Done: it found nothing breaking, so no 0.4.0 is needed
   ("Settled in the trial-3 review").
-- The API freeze review records its decisions here.
+- The API freeze review records its decisions here. Done ("Settled in
+  the API freeze review"); the next step is the 1.0.0 release.
 
 ### Settled in the 1.0 review
 
 The product trial ported a Figma screen, and the developer read
 `trlv_column(screen, …)` as "make this a column": the new column was thrown
 away and the layout was silently wrong. These decisions came out of it
-(#141, #142, #143) and the discussion that followed. Names elsewhere in this file are the 1.0 names.
+(#141, #142, #143) and the discussion that followed. Names elsewhere in this file are the 1.0 names; the
+table shows them as this review left them, before `hug` became `fit` (trial-2 review) and the button
+and card enums became `trlv_button_type_t` and `trlv_card_type_t` (API freeze review).
 
 - **Words from Figma / CSS / MD3, grammar from LVGL** (#141). The verb at
   the call site says what a call does. Constructors end in `_create`,
@@ -411,17 +417,87 @@ decisions came out of the review (#162, #171, #172).
   dialog state. TreLVis ships no simulator; a project skeleton belongs in
   `trelvis-starter`.
 
+### Settled in the API freeze review
+
+The last review before 1.0.0 (#123) went through every public symbol in
+`include/trelvis/`, every configuration option and every open issue
+postponed to v1.x or Later, asking of each whether changing it after 1.0
+would break the [compatibility promise](README.md#what-a-version-number-promises).
+After three product trials the API needed one rename and one addition.
+
+- **Renamed: `trlv_button_t` → `trlv_button_type_t`, `trlv_card_t` →
+  `trlv_card_type_t`** (#123). As type names they read like a handle to a
+  button or card object, which a C++ facade with handles (#85) would make
+  worse. The new names match MD3's "button type" and "card type" and
+  `trlv_apply_button_type`. The values (`TRLV_BUTTON_TONAL`, …) and call
+  sites don't change, and every use of the old names is a compile error,
+  so it ships in 1.0.0 with no further 0.x release or trial.
+- **Added before 1.0: toggle buttons** (#116). Toggle buttons are common
+  in HMIs, and a checkable `lv_button` had no MD3 selected look. They are
+  three button types, `TRLV_BUTTON_FILLED_TOGGLE`, `_TONAL_TOGGLE` and
+  `_OUTLINED_TOGGLE`, with MD3's unselected and selected
+  (`LV_STATE_CHECKED`) looks; MD3 has no text toggle. A type, not a new
+  function or a check of `lv_obj_is_checkable` at call time: the call
+  site says it is a toggle, and the order of calls doesn't matter to the
+  look (a toggle type on an object that isn't checkable warns). The theme
+  removes the parent theme's checked colour from `lv_button`, so only a
+  toggle type has a selected look. Looks that equal an existing type's
+  share its style (about 0.5 KB of static RAM on Cortex-M4).
+- **Kept: every function.** All 29 pass "What earns a place"; none was
+  cut. `trlv_theme_set_color_mode` keeps its name: it is a setup call on
+  no object, and `trlv_set_*` is the grammar for a layout property of an
+  object.
+- **Kept: `trlv_apply_surface_custom(obj, uint32_t index, …)`**, the
+  question #123 started with. `uint32_t` matches `custom_count` and LVGL's
+  index types, and a project's C enum (or unscoped C++ enum) converts to
+  it without a cast. The cap of 8 (`TRLV_CUSTOM_COLOR_MAX`, default 4,
+  which fits the template's status set) stays; raising the maximum later
+  is additive.
+- **Kept: `trlv_size_t`** as a general size scale, which icon sizes (#78)
+  may share. The `control_height` field keeps its meaning.
+- **Token structs frozen as they are.** MD3 roles TreLVis leaves out on
+  purpose (`background` / `on_background`, `surface_variant`,
+  `surface_tint`, the `*_fixed` roles) can be added later as fields no
+  TreLVis function reads, so a copied template that lacks them still
+  works. A scale can grow too: the template uses designated array indices
+  (`[TRLV_SPACE_SM] = 8`), and enum numeric values are promised only
+  where a header documents them.
+- **Configuration options kept, with their defaults:**
+  `TRLV_LVGL_INCLUDE`, `TRLV_CONF_PATH`, `TRLV_IGNORE_LVGL_VERSION`,
+  `TRLV_USE_THEME`, `TRLV_THEME_PARENT` (`_NONE` / `_DEFAULT`),
+  `TRLV_CUSTOM_COLOR_MAX` and `TRLV_USE_DEBUG_OUTLINE`.
+- **Public styles kept:** `trlv_style_box`, `trlv_style_row`,
+  `trlv_style_column`.
+- **Every postponed item can be added in 1.x.** None needs a breaking
+  change, so none blocks 1.0:
+
+  | Issue | How it fits 1.x |
+  |---|---|
+  | #78 icons | `trlv_icon_create(parent, symbol, size)` and an icon font token per size, safe at zero (NULL falls back to LVGL's symbol font). |
+  | #80 motion | Duration token fields; zero means no transition. |
+  | #81 elevated button | `TRLV_BUTTON_ELEVATED` and `_ELEVATED_TOGGLE`, appended to `trlv_button_type_t`. |
+  | #82 hover | A `state.hover` opacity field and an `LV_STATE_HOVERED` layer; a theme look change. |
+  | #83 debug dump | A new configuration option, off by default. |
+  | #132–#139 widget styles | Theme look changes, listed under *Changed* in a minor release. |
+  | #163 custom colours as text | `trlv_apply_text_custom(obj, uint32_t index)`, in the same style group as `trlv_apply_text_emphasis`, so the two text colours replace each other. |
+  | #174 custom-coloured button (the red Stop button the apply warnings mention) | A new appearance function, or button states for a custom surface; additive. |
+  | #85 C++ facade, #86 token import, #147 Figma variables file | Tooling over the C API; no change to it. |
+  | #88 LVGL v10 | TreLVis 2.0, with a `release/v1.x` branch, as the promise says. |
+
+- **Product-trial issues closed or moved.** #145 and #146 (radius and
+  height setters) are closed by the trial-2 decision: token getters
+  instead. #147 stays under Later and #163 under v1.x.
+
 ## v1.x (on demand)
 
 Additive items, each built only when a product needs it, before or after
 1.0:
 
-- `trlv_icon(parent, symbol, TRLV_SIZE_*)`: an icon-font glyph sized by a new
-  `icon_size` token, with inherited colour.
-- Checked (toggle) buttons styled as MD3 selected, for each button type.
+- `trlv_icon_create(parent, symbol, size)`: an icon-font glyph sized by a
+  new icon token, with inherited colour.
 - Motion tokens (`duration_short` / `duration_medium`) and style transitions
   for state changes.
-- Elevated button type.
+- Elevated button type, and its toggle.
 - Hover state layer (`LV_STATE_HOVERED`) for pointer-driven products.
 - `trlv_debug_dump(obj)`: prints the object tree with sizes, padding, gaps and
   styles for comparison with Figma (`TRLV_USE_DEBUG`).
@@ -431,6 +507,8 @@ Additive items, each built only when a product needs it, before or after
   calendar, and the tabview and tileview content. One issue each.
 - `trlv_apply_text_custom(obj, index)`: a custom colour as text colour,
   following colour-mode switches, when a product needs it (#163).
+- A custom-coloured button (a red Stop button), with its pressed, focus
+  and disabled states (#174).
 
 ## Later (designed for, not yet built)
 

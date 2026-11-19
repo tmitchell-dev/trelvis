@@ -86,7 +86,11 @@ second trial on the 1.0 API, a 0.3.0 release with the trial-2 review's
 changes, a third product trial on 0.3.0, the API freeze (#123) and 1.0.0.
 The third trial found nothing breaking (ROADMAP "Settled in the trial-3
 review"). Its additive outcomes (the per-axis padding setters and the
-getting-started page) go in before the freeze, so the next step is #123.
+getting-started page) go in before the freeze. The API freeze review
+(#123, ROADMAP "Settled in the API freeze review") renamed the button and
+card enums to `trlv_button_type_t` / `trlv_card_type_t`, added the MD3
+toggle button types (#116) and kept everything else; the next step is the
+1.0.0 release PR. After 1.0.0 the public API changes only additively.
 The 1.0 review moved the API to LVGL's grammar: `trlv_*_create`
 constructors that take no spacing, `trlv_set_*` layout setters,
 `trlv_apply_*` appearance functions (which warn on an object they make no
