@@ -4,9 +4,19 @@ All notable changes to TreLVis are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-While the version is 0.x, minor releases may contain breaking changes.
+From 1.0.0 on, the [compatibility promise](README.md#what-a-version-number-promises)
+applies; in 0.x, minor releases could contain breaking changes.
 
 ## [Unreleased]
+
+## [1.0.0] - 2026-11-19
+
+The first stable release. The API has been through three product trials
+and the API freeze review, and from this release on the
+[compatibility promise](README.md#what-a-version-number-promises) applies:
+code that builds and works with 1.0.0 builds and works with any later
+1.x. Upgrading from 0.3.0 needs a code change only where code spells
+`trlv_button_t` or `trlv_card_t` (see *Changed*).
 
 ### Added
 
@@ -333,7 +343,8 @@ real product.
   include test, non-CMake build, allocation and SPDX checks; weekly build
   against LVGL master; tag-driven release workflow.
 
-[Unreleased]: https://github.com/tmitchell-dev/trelvis/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/tmitchell-dev/trelvis/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/tmitchell-dev/trelvis/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/tmitchell-dev/trelvis/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/tmitchell-dev/trelvis/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/tmitchell-dev/trelvis/releases/tag/v0.1.0

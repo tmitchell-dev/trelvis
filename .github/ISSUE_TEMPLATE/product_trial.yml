@@ -1,11 +1,11 @@
 name: Product-trial finding
-description: Something found while using TreLVis in a real product, before 1.0.
+description: Something found while using TreLVis in a real product.
 labels: [product-trial]
 body:
   - type: markdown
     attributes:
       value: |
-        Use this for anything a product ran into: a bug, a missing piece, a surprise, or raw LVGL written more than once. Findings decide what changes before the 1.0 API freeze, so say whether a fix would break existing code. Keep product names and other product-specific details out of the issue.
+        Use this for anything a product ran into: a bug, a missing piece, a surprise, or raw LVGL written more than once. Findings decide what is built next, so say whether a fix would break existing code. Keep product names and other product-specific details out of the issue.
   - type: textarea
     id: need
     attributes:
@@ -25,7 +25,7 @@ body:
     id: impact
     attributes:
       label: Would a fix be breaking or additive?
-      description: See "Compatibility" in the README. Breaking fixes have to land before 1.0.0.
+      description: See "Compatibility" in the README. A breaking fix waits for the next major version.
       options:
         - Additive (new function, option, enum value or token field; existing code keeps working)
         - Breaking (changes or removes something existing code uses)
@@ -42,6 +42,6 @@ body:
     id: versions
     attributes:
       label: TreLVis and LVGL versions
-      placeholder: "TreLVis 0.3.0, LVGL 9.6.0"
+      placeholder: "TreLVis 1.0.0, LVGL 9.6.0"
     validations:
       required: true

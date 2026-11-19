@@ -2,9 +2,15 @@
 
 ## Supported versions
 
-TreLVis is in early development (0.x). Security fixes are made on `main` and
-included in the next release. Once 1.0 is released, this section will list
-which release lines receive fixes.
+| Version | Supported |
+|---|---|
+| 1.x | Yes |
+| 0.x | No: upgrade to 1.x |
+
+Security fixes are made on `main` and included in the next 1.x patch
+release. When a `release/vX.x` maintenance branch exists for an older
+major line (see [CONTRIBUTING.md](CONTRIBUTING.md) "Versioning and
+releases"), it is listed here with the fixes it receives.
 
 ## Reporting a vulnerability
 

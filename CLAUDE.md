@@ -43,7 +43,8 @@ docs) are done, and 0.1.0 is the v1 feature-complete release. 0.2.0
 carries the 1.0 review's breaking changes and the theme audit's fixes,
 for the second product trial. 0.3.0 carries the trial-2 review (the
 MD3-inspired design language, `hug` renamed `fit`), for a third product
-trial before the API freeze.
+trial before the API freeze. 1.0.0 is the first stable release, after
+the API freeze review; from it the compatibility promise applies.
 The slice implemented the token template, `trlv_init`, box, row, column,
 gap, pad, fill/fit and text, the demo screen `trlv_demo_create(parent)` in
 `examples/demo`, and headless layout tests. TreLVis ships no simulator; host
@@ -79,7 +80,7 @@ an example Compact token set and an HMI colour scheme next to the
 template, brought the README, concepts and Figma hand-off docs up to date,
 and checked the v1 acceptance criteria (evidence on issue #75).
 
-**Now: M8, 1.0** (ROADMAP "1.0", tracking issue #124): the compatibility
+**M8, 1.0** (ROADMAP "1.0", tracking issue #124) is done: the compatibility
 promise (README "What a version number promises"), CI build coverage, a
 theme coverage audit and a product trial, then a 0.2.0 release for a
 second trial on the 1.0 API, a 0.3.0 release with the trial-2 review's
@@ -89,8 +90,10 @@ review"). Its additive outcomes (the per-axis padding setters and the
 getting-started page) go in before the freeze. The API freeze review
 (#123, ROADMAP "Settled in the API freeze review") renamed the button and
 card enums to `trlv_button_type_t` / `trlv_card_type_t`, added the MD3
-toggle button types (#116) and kept everything else; the next step is the
-1.0.0 release PR. After 1.0.0 the public API changes only additively.
+toggle button types (#116) and kept everything else, and 1.0.0 followed.
+**Now:** the public API changes only additively (no renames, removals or
+token field changes without a major version), and v1.x items are built
+on demand.
 The 1.0 review moved the API to LVGL's grammar: `trlv_*_create`
 constructors that take no spacing, `trlv_set_*` layout setters,
 `trlv_apply_*` appearance functions (which warn on an object they make no

@@ -22,13 +22,13 @@
  * release workflow read them with a pattern. */
 
 /** Major version: a change breaks the compatibility promise (README). */
-#define TRLV_VERSION_MAJOR  0
+#define TRLV_VERSION_MAJOR  1
 /** Minor version: additions and changes to the theme's look. */
-#define TRLV_VERSION_MINOR  3
+#define TRLV_VERSION_MINOR  0
 /** Patch version: fixes only. */
 #define TRLV_VERSION_PATCH  0
 /** The version as a string, "MAJOR.MINOR.PATCH". */
-#define TRLV_VERSION_STRING "0.3.0"
+#define TRLV_VERSION_STRING "1.0.0"
 
 /*---------------------------------------------------------------------------
  * Supported LVGL: 9.x with x >= 6
