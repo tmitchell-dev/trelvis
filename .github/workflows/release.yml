@@ -63,11 +63,18 @@ jobs:
           fi
 
           # The "## [X.Y.Z]" section of CHANGELOG.md, up to the next heading
+          # or the link definitions at the end ("[1.0.0]: https://…"). A
+          # wrapped line that merely starts with a link ("[promise](…)")
+          # doesn't end it. Relative links (README.md#…) would resolve
+          # against the release page, so they point at the file at the tag.
           awk -v v="$version" '
             index($0, "## [" v "]") == 1 { found = 1; next }
-            found && /^(## |\[)/         { exit }
+            found && /^## /              { exit }
+            found && /^\[[^]]+\]: /      { exit }
             found                        { print }
-          ' CHANGELOG.md > notes.md
+          ' CHANGELOG.md \
+            | sed -E "s#\]\(([^h#)][^)]*)\)#](https://github.com/$GITHUB_REPOSITORY/blob/$TAG/\1)#g" \
+            > notes.md
           if ! grep -q '[^[:space:]]' notes.md; then
             echo "::error::CHANGELOG.md has no '## [$version]' section"; exit 1
           fi
