@@ -75,6 +75,8 @@ TRLV_CHECK_SIGNATURE(trlv_divider_create, lv_obj_t * (*)(lv_obj_t *));
 /* trlv_layout.h: setters */
 TRLV_CHECK_SIGNATURE(trlv_set_gap, void (*)(lv_obj_t *, trlv_space_t));
 TRLV_CHECK_SIGNATURE(trlv_set_pad, void (*)(lv_obj_t *, trlv_space_t));
+TRLV_CHECK_SIGNATURE(trlv_set_pad_horizontal, void (*)(lv_obj_t *, trlv_space_t));
+TRLV_CHECK_SIGNATURE(trlv_set_pad_vertical, void (*)(lv_obj_t *, trlv_space_t));
 TRLV_CHECK_SIGNATURE(trlv_set_justify, void (*)(lv_obj_t *, trlv_justify_t));
 TRLV_CHECK_SIGNATURE(trlv_set_align_items, void (*)(lv_obj_t *, trlv_align_items_t));
 TRLV_CHECK_SIGNATURE(trlv_set_width_fit, void (*)(lv_obj_t *));

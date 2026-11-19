@@ -163,7 +163,7 @@ Five kinds of function, and the verb in the name says which:
 |---|---|---|
 | Setup | `trlv_init`, `trlv_theme_set_color_mode` | Install the theme with your tokens, once; switch light and dark at any time. |
 | Constructors, `_create` | `trlv_box_create`, `trlv_row_create`, `trlv_column_create`, `trlv_spacer_create`, `trlv_divider_create`, `trlv_text_create` | Make a primitive and return a plain `lv_obj_t *`. Containers start like a CSS `div` or a fresh Figma frame: no gap, no padding, fit content. |
-| Layout setters, `trlv_set_*` | `trlv_set_gap`, `trlv_set_pad`, `trlv_set_width_fill` / `_fit`, `trlv_set_height_fill` / `_fit`, `trlv_set_justify`, `trlv_set_align_items` | One layout property each: size, spacing or flow (a row of Figma's auto layout panel). Never change colour. |
+| Layout setters, `trlv_set_*` | `trlv_set_gap`, `trlv_set_pad` / `_horizontal` / `_vertical`, `trlv_set_width_fill` / `_fit`, `trlv_set_height_fill` / `_fit`, `trlv_set_justify`, `trlv_set_align_items` | One layout property each: size, spacing or flow (a row of Figma's auto layout panel). Never change colour. |
 | Appearance, `trlv_apply_*` | `trlv_apply_surface`, `trlv_apply_surface_custom`, `trlv_apply_card`, `trlv_apply_button_type`, `trlv_apply_text_role`, `trlv_apply_text_emphasis` | Colour, shape and type, applied like a CSS class or a Figma style. Never change layout. |
 | Getters, `trlv_get_*` | `trlv_get_color_tokens`, `trlv_get_layout_tokens`, `trlv_get_space`, `trlv_get_radius`, `trlv_get_control_height` | The tokens, or one token value, for raw LVGL calls. |
 
@@ -410,7 +410,9 @@ Switch to dark at any time with `trlv_theme_set_color_mode(&tokens_dark)`.
 Every function is described in
 [The API by kind](docs/concepts.md#7-the-api-by-kind); the
 [demo](examples/demo) shows every one of them and builds in your project
-the same way. Before your own screens, read
+the same way. Next, read [Getting started](docs/getting-started.md):
+it gives a reading order, explains how fill depends on the parent, and
+builds a complete keypad-ready screen. Before your own screens, read
 [Designing a screen](docs/designing-a-screen.md) (or, with a Figma
 design, the [Figma hand-off](docs/figma-handoff.md)).
 
@@ -476,21 +478,34 @@ Like LVGL itself, every TreLVis function must be called from the LVGL thread
 
 ## Documentation
 
-- [Concepts](docs/concepts.md): vocabulary, design tokens, fonts, the theme and
-  style engine, the API by kind of function, and the Figma / MD3 / CSS /
-  LVGL mapping.
-- API reference: run `doxygen` in the repository and open
-  `build-doxygen/html/index.html`; its *Topics* page lists the functions
-  by kind.
-- [Designing a screen](docs/designing-a-screen.md): rules for writing a
-  screen, which role to use for what, and composing what TreLVis has no
-  primitive for. Start here when there is no designer.
-- [Building a token set](docs/building-a-token-set.md): what each token is
-  used for, what TreLVis assumes about it, and how to check a set.
-- [Figma hand-off](docs/figma-handoff.md): conventions that make a Figma design
-  translate directly into TreLVis code.
-- [Roadmap](ROADMAP.md): milestones, scope and what is deliberately left out.
-- [Changelog](CHANGELOG.md)
+This README is the overview. The other documents, in the order a new
+project needs them:
+
+1. [Getting started](docs/getting-started.md): what to read and in what
+   order, the five kinds of call, how fit and fill depend on the parent,
+   one complete screen (keypad, light and dark, compact layout), and what
+   stays plain LVGL. **Start here** after the Quick start.
+2. [Designing a screen](docs/designing-a-screen.md): the rules for writing
+   a screen, which role to use for what, and composing what TreLVis has no
+   primitive for (chips, banners, dialogs). Start here for design choices,
+   especially with no designer.
+3. The public headers in [`include/trelvis`](include/trelvis): the source
+   of truth for every signature, with its CSS / Figma / MD3 equivalent and
+   edge cases. For an HTML reference, run `doxygen` in the repository and
+   open `build-doxygen/html/index.html`; its *Topics* page lists the
+   functions by kind.
+4. [Building a token set](docs/building-a-token-set.md): what each token is
+   used for, what TreLVis assumes about it, and how to check a set. For
+   when you replace the template's colours, fonts and spacing.
+5. [Figma hand-off](docs/figma-handoff.md): conventions that make a Figma
+   design translate directly into TreLVis code. Only with a Figma design.
+6. [Concepts](docs/concepts.md): reference for vocabulary, design tokens,
+   fonts, the theme and style engine, the API by kind of function, and the
+   Figma / MD3 / CSS / LVGL mapping. Read a section when you need it.
+
+Also: the [demo](examples/demo), which uses every function;
+the [Roadmap](ROADMAP.md) (milestones, scope and what is deliberately left
+out); and the [Changelog](CHANGELOG.md).
 
 ## Contributing
 

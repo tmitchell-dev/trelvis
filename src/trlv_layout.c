@@ -133,25 +133,49 @@ static const lv_style_t * const gap_styles[] = {
 TRLV_STATIC_ASSERT(sizeof(gap_styles) / sizeof(gap_styles[0]) == TRLV_SPACE_COUNT, gap_styles_cover_the_space_scale);
 static const trlv_style_group_t gap_group = TRLV_STYLE_GROUP_LIST(gap_styles);
 
-/* Pad: pad_top, pad_bottom, pad_left, pad_right, end marker. */
-static lv_style_const_prop_t pad_props[TRLV_SPACE_COUNT][5];
+/* Padding is two groups, one per axis, so trlv_set_pad (both) and the
+ * per-axis setters replace each other per axis, in any order, like CSS
+ * `padding` and `padding-inline`. */
 
-static LV_STYLE_CONST_INIT(pad_none, pad_props[TRLV_SPACE_NONE]);
-static LV_STYLE_CONST_INIT(pad_2xs, pad_props[TRLV_SPACE_2XS]);
-static LV_STYLE_CONST_INIT(pad_xs, pad_props[TRLV_SPACE_XS]);
-static LV_STYLE_CONST_INIT(pad_sm, pad_props[TRLV_SPACE_SM]);
-static LV_STYLE_CONST_INIT(pad_md, pad_props[TRLV_SPACE_MD]);
-static LV_STYLE_CONST_INIT(pad_lg, pad_props[TRLV_SPACE_LG]);
-static LV_STYLE_CONST_INIT(pad_xl, pad_props[TRLV_SPACE_XL]);
-static LV_STYLE_CONST_INIT(pad_2xl, pad_props[TRLV_SPACE_2XL]);
-static LV_STYLE_CONST_INIT(pad_3xl, pad_props[TRLV_SPACE_3XL]);
+/* Horizontal padding: pad_left, pad_right, end marker. */
+static lv_style_const_prop_t pad_hor_props[TRLV_SPACE_COUNT][3];
+
+static LV_STYLE_CONST_INIT(pad_hor_none, pad_hor_props[TRLV_SPACE_NONE]);
+static LV_STYLE_CONST_INIT(pad_hor_2xs, pad_hor_props[TRLV_SPACE_2XS]);
+static LV_STYLE_CONST_INIT(pad_hor_xs, pad_hor_props[TRLV_SPACE_XS]);
+static LV_STYLE_CONST_INIT(pad_hor_sm, pad_hor_props[TRLV_SPACE_SM]);
+static LV_STYLE_CONST_INIT(pad_hor_md, pad_hor_props[TRLV_SPACE_MD]);
+static LV_STYLE_CONST_INIT(pad_hor_lg, pad_hor_props[TRLV_SPACE_LG]);
+static LV_STYLE_CONST_INIT(pad_hor_xl, pad_hor_props[TRLV_SPACE_XL]);
+static LV_STYLE_CONST_INIT(pad_hor_2xl, pad_hor_props[TRLV_SPACE_2XL]);
+static LV_STYLE_CONST_INIT(pad_hor_3xl, pad_hor_props[TRLV_SPACE_3XL]);
 
 /* Indexed by trlv_space_t. */
-static const lv_style_t * const pad_styles[] = {
-    &pad_none, &pad_2xs, &pad_xs, &pad_sm, &pad_md, &pad_lg, &pad_xl, &pad_2xl, &pad_3xl
+static const lv_style_t * const pad_hor_styles[] = {
+    &pad_hor_none, &pad_hor_2xs, &pad_hor_xs, &pad_hor_sm, &pad_hor_md, &pad_hor_lg, &pad_hor_xl, &pad_hor_2xl, &pad_hor_3xl
 };
-TRLV_STATIC_ASSERT(sizeof(pad_styles) / sizeof(pad_styles[0]) == TRLV_SPACE_COUNT, pad_styles_cover_the_space_scale);
-static const trlv_style_group_t pad_group = TRLV_STYLE_GROUP_LIST(pad_styles);
+TRLV_STATIC_ASSERT(sizeof(pad_hor_styles) / sizeof(pad_hor_styles[0]) == TRLV_SPACE_COUNT, pad_hor_styles_cover_the_space_scale);
+static const trlv_style_group_t pad_hor_group = TRLV_STYLE_GROUP_LIST(pad_hor_styles);
+
+/* Vertical padding: pad_top, pad_bottom, end marker. */
+static lv_style_const_prop_t pad_ver_props[TRLV_SPACE_COUNT][3];
+
+static LV_STYLE_CONST_INIT(pad_ver_none, pad_ver_props[TRLV_SPACE_NONE]);
+static LV_STYLE_CONST_INIT(pad_ver_2xs, pad_ver_props[TRLV_SPACE_2XS]);
+static LV_STYLE_CONST_INIT(pad_ver_xs, pad_ver_props[TRLV_SPACE_XS]);
+static LV_STYLE_CONST_INIT(pad_ver_sm, pad_ver_props[TRLV_SPACE_SM]);
+static LV_STYLE_CONST_INIT(pad_ver_md, pad_ver_props[TRLV_SPACE_MD]);
+static LV_STYLE_CONST_INIT(pad_ver_lg, pad_ver_props[TRLV_SPACE_LG]);
+static LV_STYLE_CONST_INIT(pad_ver_xl, pad_ver_props[TRLV_SPACE_XL]);
+static LV_STYLE_CONST_INIT(pad_ver_2xl, pad_ver_props[TRLV_SPACE_2XL]);
+static LV_STYLE_CONST_INIT(pad_ver_3xl, pad_ver_props[TRLV_SPACE_3XL]);
+
+/* Indexed by trlv_space_t. */
+static const lv_style_t * const pad_ver_styles[] = {
+    &pad_ver_none, &pad_ver_2xs, &pad_ver_xs, &pad_ver_sm, &pad_ver_md, &pad_ver_lg, &pad_ver_xl, &pad_ver_2xl, &pad_ver_3xl
+};
+TRLV_STATIC_ASSERT(sizeof(pad_ver_styles) / sizeof(pad_ver_styles[0]) == TRLV_SPACE_COUNT, pad_ver_styles_cover_the_space_scale);
+static const trlv_style_group_t pad_ver_group = TRLV_STYLE_GROUP_LIST(pad_ver_styles);
 
 void trlv_layout_styles_build(const trlv_layout_tokens_t * layout)
 {
@@ -162,11 +186,13 @@ void trlv_layout_styles_build(const trlv_layout_tokens_t * layout)
         trlv_prop_set_num(&gap_props[i][1], LV_STYLE_PAD_COLUMN, space);
         trlv_prop_set_end(&gap_props[i][2]);
 
-        trlv_prop_set_num(&pad_props[i][0], LV_STYLE_PAD_TOP, space);
-        trlv_prop_set_num(&pad_props[i][1], LV_STYLE_PAD_BOTTOM, space);
-        trlv_prop_set_num(&pad_props[i][2], LV_STYLE_PAD_LEFT, space);
-        trlv_prop_set_num(&pad_props[i][3], LV_STYLE_PAD_RIGHT, space);
-        trlv_prop_set_end(&pad_props[i][4]);
+        trlv_prop_set_num(&pad_hor_props[i][0], LV_STYLE_PAD_LEFT, space);
+        trlv_prop_set_num(&pad_hor_props[i][1], LV_STYLE_PAD_RIGHT, space);
+        trlv_prop_set_end(&pad_hor_props[i][2]);
+
+        trlv_prop_set_num(&pad_ver_props[i][0], LV_STYLE_PAD_TOP, space);
+        trlv_prop_set_num(&pad_ver_props[i][1], LV_STYLE_PAD_BOTTOM, space);
+        trlv_prop_set_end(&pad_ver_props[i][2]);
     }
 }
 
@@ -252,7 +278,24 @@ void trlv_set_pad(lv_obj_t * obj, trlv_space_t space)
     LV_ASSERT_NULL(obj);
     if(!space_is_valid(space, "trlv_set_pad")) return;
 
-    trlv_style_group_apply(obj, &pad_group, pad_styles[space], LV_PART_MAIN);
+    trlv_style_group_apply(obj, &pad_hor_group, pad_hor_styles[space], LV_PART_MAIN);
+    trlv_style_group_apply(obj, &pad_ver_group, pad_ver_styles[space], LV_PART_MAIN);
+}
+
+void trlv_set_pad_horizontal(lv_obj_t * obj, trlv_space_t space)
+{
+    LV_ASSERT_NULL(obj);
+    if(!space_is_valid(space, "trlv_set_pad_horizontal")) return;
+
+    trlv_style_group_apply(obj, &pad_hor_group, pad_hor_styles[space], LV_PART_MAIN);
+}
+
+void trlv_set_pad_vertical(lv_obj_t * obj, trlv_space_t space)
+{
+    LV_ASSERT_NULL(obj);
+    if(!space_is_valid(space, "trlv_set_pad_vertical")) return;
+
+    trlv_style_group_apply(obj, &pad_ver_group, pad_ver_styles[space], LV_PART_MAIN);
 }
 
 void trlv_set_width_fit(lv_obj_t * obj)

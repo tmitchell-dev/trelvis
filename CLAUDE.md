@@ -24,6 +24,9 @@ never wrapped. MIT licensed, used as a git submodule from C and C++ products
   theme/style engine, primitives and modifiers, mapping tables. Read the
   relevant section before changing an area. Once the public headers exist,
   they are the source of truth for signatures.
+- [docs/getting-started.md](docs/getting-started.md): the first-use path
+  (reading order, the kinds of call, fit/fill, one complete screen pinned
+  by `tests/layout/test_getting_started.c`, what stays LVGL).
 - [docs/designing-a-screen.md](docs/designing-a-screen.md): tool-neutral
   design rules and which role to use for what.
 - [docs/building-a-token-set.md](docs/building-a-token-set.md): what each
@@ -81,6 +84,9 @@ promise (README "What a version number promises"), CI build coverage, a
 theme coverage audit and a product trial, then a 0.2.0 release for a
 second trial on the 1.0 API, a 0.3.0 release with the trial-2 review's
 changes, a third product trial on 0.3.0, the API freeze (#123) and 1.0.0.
+The third trial found nothing breaking (ROADMAP "Settled in the trial-3
+review"). Its additive outcomes (the per-axis padding setters and the
+getting-started page) go in before the freeze, so the next step is #123.
 The 1.0 review moved the API to LVGL's grammar: `trlv_*_create`
 constructors that take no spacing, `trlv_set_*` layout setters,
 `trlv_apply_*` appearance functions (which warn on an object they make no

@@ -613,7 +613,7 @@ group's previous style:
 
 | Styles (internal) | Kind | Modifier |
 |---|---|---|
-| Gap, pad: one per space step | token | `trlv_set_gap`, `trlv_set_pad` |
+| Gap: one per space step; padding: one per space step per axis (horizontal, vertical) | token | `trlv_set_gap`, `trlv_set_pad` |
 | Justify, align items: one per value | constant | `trlv_set_justify`, `trlv_set_align_items` |
 | Fit, fill (100 %), grow: per axis | constant | `trlv_set_*_fit`, `trlv_set_*_fill` |
 | Text: one per role | token | `trlv_text_create`, `trlv_apply_text_role` |
@@ -739,7 +739,7 @@ previous style. They never change colour.
 
 | Group | Functions | Notes |
 |---|---|---|
-| Spacing | `trlv_set_gap(obj, space)`, `trlv_set_pad(obj, space)` | Different horizontal / vertical values, or one side: use raw LVGL with a token value (below). |
+| Spacing | `trlv_set_gap(obj, space)`, `trlv_set_pad(obj, space)`, `trlv_set_pad_horizontal(obj, space)`, `trlv_set_pad_vertical(obj, space)` | Padding is one group per axis: `trlv_set_pad` sets both, and the last call wins on each axis in any order, as CSS `padding` then `padding-inline`. A different row and column gap, or padding on one side: use raw LVGL with a token value (below). |
 | Distribution | `trlv_set_justify(obj, TRLV_JUSTIFY_START / CENTER / END / SPACE_BETWEEN / SPACE_AROUND / SPACE_EVENLY)`, `trlv_set_align_items(obj, TRLV_ALIGN_ITEMS_START / CENTER / END)` | Two named calls in place of `lv_obj_set_flex_align`'s three positional arguments, with shared styles instead of a local one. `ALIGN_ITEMS`, not `ALIGN`, so the values aren't mistaken for `lv_align_t`. The enum values equal LVGL's `LV_FLEX_ALIGN_*`. LVGL flex has no cross-axis stretch; use `trlv_set_*_fill` on each child, as in Figma (in CSS a column's children stretch by default). Expect `trlv_set_width_fill` to be one of the most frequent calls in a screen. |
 | Sizing | `trlv_set_width_fit`, `trlv_set_height_fit`, `trlv_set_width_fill`, `trlv_set_height_fill` | Fixed size: `lv_obj_set_size`. Fit and fill are one group per axis, so `trlv_set_width_fit` also clears an earlier `trlv_set_width_fill`. |
 
@@ -775,7 +775,7 @@ LVGL, so TreLVis adds no function for them. Setters named
 | Need | LVGL |
 |---|---|
 | Horizontal / vertical gap | `lv_obj_set_style_pad_column(obj, trlv_get_space(TRLV_SPACE_MD), 0)`, `…pad_row` |
-| Horizontal / vertical padding, one side | `lv_obj_set_style_pad_hor(obj, trlv_get_space(TRLV_SPACE_LG), 0)`, `…pad_ver`, `…pad_left`, … |
+| Padding on one side | `lv_obj_set_style_pad_left(obj, trlv_get_space(TRLV_SPACE_LG), 0)`, `…pad_right`, `…pad_top`, `…pad_bottom` |
 | Absolute position | `lv_obj_set_floating(obj, true)`, then `lv_obj_align(obj, LV_ALIGN_TOP_RIGHT, x, y)`. Floating, unlike the ignore-layout flag, also leaves the object out of a fit-content parent's size, as in Figma. `LV_PCT` positions are whole percent, so for finer placement (a pointer on a 400 px scale moves in 4 px steps) compute pixels from the parent's content width. |
 | Wrap | `lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)` |
 | Min / max size | `lv_obj_set_style_min_width(obj, px, 0)`, `…max_width`, `…min_height`, `…max_height` |
@@ -832,8 +832,7 @@ APIs that take a value, such as a chart series colour. The three value
 getters make a raw call read like a modifier, in the same dialect:
 
 ```c
-trlv_set_pad(chip, TRLV_SPACE_XS);
-lv_obj_set_style_pad_hor(chip, trlv_get_space(TRLV_SPACE_MD), 0);
+lv_obj_set_style_pad_column(grid, trlv_get_space(TRLV_SPACE_LG), 0);
 lv_obj_set_style_radius(chip, trlv_get_radius(TRLV_RADIUS_FULL), 0);
 lv_obj_set_height(field, trlv_get_control_height(TRLV_SIZE_MD));
 ```
@@ -959,7 +958,8 @@ lay out the same.
 | Gap between items | `gap` | `trlv_set_gap` | `pad_column`, `pad_row` |
 | Horizontal / vertical gap | `column-gap`, `row-gap` | *raw LVGL* | `lv_obj_set_style_pad_column`, `…pad_row` |
 | Padding | `padding` | `trlv_set_pad` | `pad_left/right/top/bottom` |
-| Horizontal / vertical / one-side padding | `padding: y x`, `padding-left` | *raw LVGL* | `lv_obj_set_style_pad_hor`, `…pad_ver`, `…pad_left`, … |
+| Horizontal / vertical padding | `padding-inline`, `padding-block` (`padding: y x`) | `trlv_set_pad_horizontal` / `trlv_set_pad_vertical` | `pad_left/right`, `pad_top/bottom` |
+| One-side padding | `padding-left`, … | *raw LVGL* | `lv_obj_set_style_pad_left`, … |
 | Alignment (main axis) / space between | `justify-content` | `trlv_set_justify` | `flex_main_place` |
 | Alignment (cross axis) | `align-items` | `trlv_set_align_items` | `flex_cross_place` + `flex_track_place` |
 | Wrap | `flex-wrap` | *raw LVGL* | `lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_ROW_WRAP)` |

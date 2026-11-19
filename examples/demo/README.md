@@ -84,6 +84,10 @@ lv_group_set_default(group);
 lv_indev_set_group(keypad, group);
 ```
 
+`LV_KEY_NEXT` and `LV_KEY_PREV` move the focus and `LV_KEY_ENTER` presses
+the focused widget. LVGL's SDL keyboard sends Tab and Enter as these;
+Space is an ordinary character and presses nothing.
+
 The focused widget shows the theme's focus ring, in both colour modes. Every
 row that holds widgets is padded `TRLV_SPACE_SM`, so the ring, drawn outside
 the widget, is never clipped (see "Focus rings need clearance" in

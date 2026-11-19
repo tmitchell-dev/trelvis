@@ -175,6 +175,8 @@ if(TRLV_TEST_FULL)
     target_link_libraries(layout_demo PRIVATE trlv_tokens_template trlv_demo)
     trlv_add_test(layout_readme_card layout/test_readme_card.c)
     target_link_libraries(layout_readme_card PRIVATE trlv_tokens_template)
+    trlv_add_test(layout_getting_started layout/test_getting_started.c)
+    target_link_libraries(layout_getting_started PRIVATE trlv_tokens_template)
 
     trlv_add_test(theme_theme theme/test_theme.c)
     target_link_libraries(theme_theme PRIVATE trlv_tokens_template)
