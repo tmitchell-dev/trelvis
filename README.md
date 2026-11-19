@@ -455,11 +455,11 @@ don't call, so they are an upper bound.
 
 | Configuration | Flash | Static RAM |
 |---|---:|---:|
-| Minimal `lv_conf.h` (no widgets but the label), theme on | 5.5 KB | 2.6 KB |
-| Minimal `lv_conf.h`, theme off (`TRLV_USE_THEME 0`) | 5.0 KB | 2.5 KB |
-| LVGL's default `lv_conf.h` (every widget), theme on | 11.2 KB | 4.0 KB |
-| LVGL's default `lv_conf.h`, theme off | 5.4 KB | 2.7 KB |
-| Each custom colour allowed by `TRLV_CUSTOM_COLOR_MAX` | 107 B | 64 B |
+| Minimal `lv_conf.h` (no widgets but the label), theme on | 6.6 KB | 3.1 KB |
+| Minimal `lv_conf.h`, theme off (`TRLV_USE_THEME 0`) | 6.1 KB | 3.1 KB |
+| LVGL's default `lv_conf.h` (every widget), theme on | 12.3 KB | 4.6 KB |
+| LVGL's default `lv_conf.h`, theme off | 6.5 KB | 3.3 KB |
+| Each custom colour allowed by `TRLV_CUSTOM_COLOR_MAX` | 106 B | 64 B |
 
 The static RAM is the token styles' property arrays, which `trlv_init` and
 colour-mode switches fill in. Constant styles live in flash. The theme's
