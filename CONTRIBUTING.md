@@ -61,7 +61,6 @@ Prerequisites: Git, CMake ≥ 3.16 and a C99 / C++17 compiler (GCC or Clang).
 ```sh
 git clone https://github.com/tmitchell-dev/trelvis.git
 cd trelvis
-git config core.hooksPath .githooks   # shared hooks: blocks direct pushes to main
 
 cmake -B build                        # fetches LVGL v9.6 on first run
 cmake --build build
@@ -97,12 +96,14 @@ compile without CMake.
 
 TreLVis uses **GitHub flow**:
 
-- `main` is the only long-lived branch and always builds. **Never commit or
-  push directly to `main`.**
+- `main` is the only long-lived branch and always builds. A ruleset
+  protects it: changes reach it only through a pull request whose CI
+  passes, and it can't be force-pushed or deleted.
 - Make one short-lived branch per change: `feat/<topic>`, `fix/<topic>`,
   `docs/<topic>`, `ci/<topic>`, or `m<N>-<topic>` for roadmap milestones.
-- Open a pull request. CI must pass. PRs are **squash-merged**, so the PR
-  title becomes the commit message on `main`.
+- Open a pull request. CI must pass. PRs are merged with a **merge
+  commit**, so each commit stays on `main`: make each one meaningful,
+  building and passing the tests on its own.
 - Keep PRs small and focused.
 
 ### Commit messages and PR titles
@@ -294,7 +295,7 @@ Maintainers release like this:
    in `include/trelvis/trlv_version.h` (the only place it is defined; CMake
    reads it from there) and move the *Unreleased* changelog entries under a
    new `## [X.Y.Z] - YYYY-MM-DD` heading.
-2. Squash-merge the PR.
+2. Merge the PR.
 3. Tag `main` and push the tag:
    `git tag -a vX.Y.Z -m "TreLVis X.Y.Z" && git push origin vX.Y.Z`.
 4. The `release.yml` workflow runs CI, checks that the tag matches the header,
